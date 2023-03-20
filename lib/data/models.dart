@@ -101,17 +101,17 @@ class Game {
   final int? year;
   final String? imageUrl;
   final double? rating;
-  final bool favorite;
+  bool favorite;
 
-  const Game(
+  Game(
     this.name,
     this.romPath, {
     this.description,
     this.genre,
     this.imageUrl,
     this.rating,
-    this.favorite = false,
     this.developer,
     this.year,
+    this.favorite = false,
   });
 }

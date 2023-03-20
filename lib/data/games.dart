@@ -40,6 +40,11 @@ Future<GameList> games(GamesRef ref) async {
       settings.perSystemConfigurations
           .firstWhereOrNull((e) => e.system == system.id));
 
+  final favouritesMap = {
+    for (var favourite in settings.favourites)
+      favourite.romPath: favourite.favourite
+  };
+
   for (var folder in system.folders) {
     final romsPath = "${settings.romsFolder}/$folder";
     final gamelistPath = "$romsPath/gamelist.xml";
@@ -57,9 +62,15 @@ Future<GameList> games(GamesRef ref) async {
           .expand((nodes) => nodes)
           .map((node) => _fromNode(node, romsPath))
           .toList();
+      for (var game in games) {
+        if (favouritesMap.containsKey(game.romPath)) {
+          game.favorite = favouritesMap[game.romPath]!;
+        }
+      }
       allGames.addAll(games);
     }
   }
+
   bool favouriteOnTop = settings.favouritesOnTop;
   final games = allGames.sorted((a, b) {
     if (favouriteOnTop) {
@@ -92,12 +103,15 @@ Game _fromNode(XmlNode node, String romsPath) {
       : null;
   final image = node.findElements("image").firstOrNull?.text;
   final favorite = node.findElements("favorite").firstOrNull?.text == "true";
-  return Game(name, "$romsPath/$path",
-      description: description,
-      genre: genre,
-      favorite: favorite,
-      rating: rating != null ? 10 * rating : null,
-      imageUrl: image != null ? "$romsPath/$image" : null,
-      developer: developer,
-      year: year);
+  return Game(
+    name,
+    "$romsPath/$path",
+    description: description,
+    genre: genre,
+    rating: rating != null ? 10 * rating : null,
+    imageUrl: image != null ? "$romsPath/$image" : null,
+    developer: developer,
+    year: year,
+    favorite: favorite,
+  );
 }

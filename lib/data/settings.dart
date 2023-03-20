@@ -11,8 +11,9 @@ part 'settings.g.dart';
 class Settings {
   final Map<String, Setting> settings;
   final List<AlternativeEmulator> perSystemConfigurations;
+  final List<Favourite> favourites;
 
-  Settings(this.settings, this.perSystemConfigurations);
+  Settings(this.settings, this.perSystemConfigurations, this.favourites);
 
   get romsFolder => settings['romsFolder']!.value;
   get showSystemAndroid => showSystem('android');
@@ -33,6 +34,15 @@ class AlternativeEmulator {
   String system;
   String emulator;
   AlternativeEmulator({required this.system, this.emulator = ""});
+}
+
+@collection
+class Favourite {
+  Id id = Isar.autoIncrement;
+  @Index(unique: true, replace: true)
+  String romPath;
+  bool favourite;
+  Favourite({required this.romPath, this.favourite = false});
 }
 
 @collection
@@ -58,7 +68,8 @@ class SettingsRepo {
     settingsMap.addAll({for (final setting in settings) setting.key: setting});
     final perSystemConfigurations =
         await isar.alternativeEmulators.where().findAll();
-    return Settings(settingsMap, perSystemConfigurations);
+    final favourites = await isar.favourites.where().findAll();
+    return Settings(settingsMap, perSystemConfigurations, favourites);
   }
 
   Future<void> saveAlternativeEmulator(AlternativeEmulator config) async {
@@ -69,6 +80,15 @@ class SettingsRepo {
 
   Future<void> setShowSystem(String id, bool value) async {
     return _setBoolean('showSystem/$id', value);
+  }
+
+  Future<void> saveFavouriteGame(String path, bool isFavourite) async {
+    print("Favourite $path $isFavourite");
+    await isar.writeTxn(() async {
+      await isar.favourites
+          .put(Favourite(romPath: path, favourite: isFavourite))
+          .catchError((e) => print(e));
+    });
   }
 
   Future<void> setFavoutesOnTop(bool value) async {
@@ -119,6 +139,6 @@ Future<Directory> _getExternalSdCardPath() async {
   List<String> dirs = extDirectories![1].toString().split('/');
   String rebuiltPath = '/${dirs[1]}/${dirs[2]}';
 
-  print("SD Card path: " + rebuiltPath);
+  print("SD Card path: $rebuiltPath");
   return Directory(rebuiltPath);
 }

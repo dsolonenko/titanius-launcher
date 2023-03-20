@@ -61,7 +61,7 @@ class SystemsPage extends HookConsumerWidget {
             children: [
               PageView.builder(
                 onPageChanged: (value) {
-                  ref.read(selectedSystemProvider.notifier).state = value;
+                  ref.read(selectedSystemProvider.notifier).set(value);
                 },
                 controller: pageController,
                 itemCount: systems.length,

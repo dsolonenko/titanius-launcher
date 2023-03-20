@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:ndialog/ndialog.dart';
+import 'package:titanius/data/settings.dart';
 
 import '../data/state.dart';
 import '../gamepad.dart';
@@ -28,6 +29,8 @@ class GamesPage extends HookConsumerWidget {
     final allGames = ref.watch(gamesProvider);
     final selectedGameIndex = ref.watch(selectedGameProvider);
 
+    final pageController = PageController(initialPage: selectedGameIndex);
+
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
       if (allSystems.value == null || allSystems.value!.isEmpty) return;
@@ -43,6 +46,17 @@ class GamesPage extends HookConsumerWidget {
             : currentSystem - 1;
         ref.read(selectedSystemProvider.notifier).set(prev);
       }
+      if (key == GamepadButton.y) {
+        final game = allGames.value!.games[selectedGameIndex];
+        ref
+            .read(settingsRepoProvider)
+            .value!
+            .saveFavouriteGame(game.romPath, !game.favorite)
+            .then((value) => ref.refresh(settingsProvider));
+      }
+      if (key == GamepadButton.start) {
+        GoRouter.of(context).push("/settings");
+      }
       if (key == GamepadButton.b) {
         GoRouter.of(context).go("/");
       }
@@ -54,11 +68,11 @@ class GamesPage extends HookConsumerWidget {
         navigations: {
           GamepadButton.leftRight: "System",
           GamepadButton.start: "Menu",
-          GamepadButton.select: "Filter",
+          //GamepadButton.select: "Filter",
         },
         actions: {
           GamepadButton.y: "Favourite",
-          GamepadButton.x: "Settings",
+          //GamepadButton.x: "Settings",
           GamepadButton.b: "Back",
           GamepadButton.a: "Launch",
         },
@@ -91,6 +105,8 @@ class GamesPage extends HookConsumerWidget {
                     Expanded(
                       flex: 2,
                       child: ListView.builder(
+                          key: const PageStorageKey("games"),
+                          controller: pageController,
                           itemCount: gamelist.games.length,
                           itemBuilder: (context, index) {
                             final game = gamelist.games[index];
@@ -100,7 +116,7 @@ class GamesPage extends HookConsumerWidget {
                               visualDensity: VisualDensity.compact,
                               leading:
                                   game.favorite ? const Icon(Icons.star) : null,
-                              autofocus: index == 0,
+                              autofocus: index == selectedGameIndex,
                               onFocusChange: (value) {
                                 if (value) {
                                   ref
