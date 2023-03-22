@@ -95,17 +95,17 @@ class GamesPage extends HookConsumerWidget {
                       height: 80,
                       padding: const EdgeInsets.all(20),
                       alignment: Alignment.center,
-                      child: CachedNetworkImage(
-                        imageUrl: gamelist.system!.smallLogo,
+                      child: Image.asset(
+                        "assets/images/small/${gamelist.system!.logo}",
                         fit: BoxFit.fitHeight,
-                        errorWidget: (context, url, error) =>
+                        errorBuilder: (context, url, error) =>
                             const Icon(Icons.error),
                       ),
                     ),
                     Expanded(
                       flex: 2,
                       child: ListView.builder(
-                          key: const PageStorageKey("games"),
+                          key: PageStorageKey("${gamelist.system!.id}/games"),
                           controller: pageController,
                           itemCount: gamelist.games.length,
                           itemBuilder: (context, index) {

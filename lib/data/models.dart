@@ -4,16 +4,14 @@ import 'package:android_intent_plus/flag.dart';
 class System {
   final String id;
   final String name;
-  final String bigLogo;
-  final String smallLogo;
+  final String logo;
   final List<String> folders;
   final List<Emulator> emulators;
 
   const System(
       {required this.id,
       required this.name,
-      required this.bigLogo,
-      required this.smallLogo,
+      required this.logo,
       required this.folders,
       required this.emulators});
 
@@ -26,8 +24,7 @@ class System {
     return System(
       id: json['id'],
       name: json['name'],
-      bigLogo: json['bigLogo'],
-      smallLogo: json['smallLogo'],
+      logo: json['logo'],
       folders: List<String>.from(json['folders']),
       emulators: List<Emulator>.from(
           json['emulators'].map((x) => Emulator.fromJson(x))),

@@ -3,16 +3,14 @@
     {
       "id": "android",
       "name": "Android",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Android.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Android.png",
+      "logo": "Android.png",
       "folders": [],
       "emulators": []
     },
     {
       "id": "3do",
       "name": "3DO",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/3DO_Interactive_Multiplayer.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/3DO_Interactive_Multiplayer.png",
+      "logo": "3DO Interactive Multiplayer.png",
       "folders": [
         "3do"
       ],
@@ -43,8 +41,7 @@
     {
       "id": "cpc",
       "name": "Amstrad CPC",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Amstrad_CPC.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Amstrad_CPC.png",
+      "logo": "Amstrad CPC.png",
       "folders": [
         "cpc",
         "amstradcpc"
@@ -97,8 +94,7 @@
     {
       "id": "atari2600",
       "name": "Atari 2600",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Atari_2600.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Atari_2600.png",
+      "logo": "Atari 2600.png",
       "folders": [
         "atari2600"
       ],
@@ -176,8 +172,7 @@
     {
       "id": "atari5200",
       "name": "Atari 5200",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Atari_5200.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Atari_5200.png",
+      "logo": "Atari 5200.png",
       "folders": [
         "atari5200"
       ],
@@ -229,8 +224,7 @@
     {
       "id": "atari7800",
       "name": "Atari 7800",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Atari_7800.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Atari_7800.png",
+      "logo": "Atari 7800.png",
       "folders": [
         "atari7800"
       ],
@@ -261,8 +255,7 @@
     {
       "id": "jaguar",
       "name": "Atari Jaguar",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Atari_Jaguar.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Atari_Jaguar.png",
+      "logo": "Atari Jaguar.png",
       "folders": [
         "jaguar",
         "atarijaguar"
@@ -308,8 +301,7 @@
     {
       "id": "lynx",
       "name": "Atari Lynx",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Atari_Lynx.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Atari_Lynx.png",
+      "logo": "Atari Lynx.png",
       "folders": [
         "lynx",
         "atarilynx"
@@ -362,8 +354,7 @@
     {
       "id": "atarist",
       "name": "Atari ST",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Atari_ST.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Atari_ST.png",
+      "logo": "Atari ST.png",
       "folders": [
         "atarist"
       ],
@@ -394,8 +385,7 @@
     {
       "id": "atomiswave",
       "name": "Atomiswave",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sammy_Atomiswave.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sammy_Atomiswave.png",
+      "logo": "Sammy Atomiswave.png",
       "folders": [
         "atomiswave"
       ],
@@ -444,8 +434,7 @@
     {
       "id": "cps1",
       "name": "CP System I",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Capcom_Play_System.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Capcom_Play_System.png",
+      "logo": "Capcom Play System.png",
       "folders": [
         "cps1"
       ],
@@ -526,8 +515,7 @@
     {
       "id": "cps2",
       "name": "CP System II",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Capcom_Play_System_II.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Capcom_Play_System_II.png",
+      "logo": "Capcom Play System II.png",
       "folders": [
         "cps2"
       ],
@@ -608,8 +596,7 @@
     {
       "id": "cps3",
       "name": "CP System III",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Capcom_Play_System_III.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Capcom_Play_System_III.png",
+      "logo": "Capcom Play System III.png",
       "folders": [
         "cps3"
       ],
@@ -690,8 +677,7 @@
     {
       "id": "coleco",
       "name": "ColecoVision",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/ColecoVision.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/ColecoVision.png",
+      "logo": "ColecoVision.png",
       "folders": [
         "coleco"
       ],
@@ -733,8 +719,7 @@
     {
       "id": "c64",
       "name": "Commodore 64",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Commodore_64.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Commodore_64.png",
+      "logo": "Commodore 64.png",
       "folders": [
         "c64"
       ],
@@ -842,8 +827,7 @@
     {
       "id": "amiga",
       "name": "Commodore Amiga",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Commodore_Amiga.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Commodore_Amiga.png",
+      "logo": "Commodore Amiga.png",
       "folders": [
         "amiga"
       ],
@@ -937,8 +921,7 @@
     {
       "id": "dos",
       "name": "DOS",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/MS-DOS.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/MS-DOS.png",
+      "logo": "MS-DOS.png",
       "folders": [
         "dos",
         "pc"
@@ -1054,8 +1037,7 @@
     {
       "id": "dreamcast",
       "name": "Dreamcast",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sega_Dreamcast.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sega_Dreamcast.png",
+      "logo": "Sega Dreamcast.png",
       "folders": [
         "dreamcast"
       ],
@@ -1104,8 +1086,7 @@
     {
       "id": "channelf",
       "name": "Fairchild Channel F",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Fairchild_Channel_F.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Fairchild_Channel_F.png",
+      "logo": "Fairchild Channel F.png",
       "folders": [
         "channelf"
       ],
@@ -1136,8 +1117,7 @@
     {
       "id": "fds",
       "name": "Famicom Disk System",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Famicom_Disk_System.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Famicom_Disk_System.png",
+      "logo": "Nintendo Famicom Disk System.png",
       "folders": [
         "fds"
       ],
@@ -1228,8 +1208,7 @@
     {
       "id": "fbneo",
       "name": "Arcade (FinalBurn Neo)",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Final_Burn_Neo.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Final_Burn_Neo.png",
+      "logo": "Final Burn Neo.png",
       "folders": [
         "fbneo"
       ],
@@ -1260,8 +1239,7 @@
     {
       "id": "gw",
       "name": "Game & Watch",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Game___Watch.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Game___Watch.png",
+      "logo": "Nintendo Game & Watch.png",
       "folders": [
         "gw",
         "gameandwatch"
@@ -1293,8 +1271,7 @@
     {
       "id": "gb",
       "name": "Game Boy",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Game_Boy.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Game_Boy.png",
+      "logo": "Nintendo Game Boy.png",
       "folders": [
         "gb",
         "gbh"
@@ -1507,8 +1484,7 @@
     {
       "id": "gba",
       "name": "Game Boy Advance",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Game_Boy_Advance.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Game_Boy_Advance.png",
+      "logo": "Nintendo Game Boy Advance.png",
       "folders": [
         "gba",
         "gbah"
@@ -1721,8 +1697,7 @@
     {
       "id": "gbc",
       "name": "Game Boy Color",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Game_Boy_Color.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Game_Boy_Color.png",
+      "logo": "Nintendo Game Boy Color.png",
       "folders": [
         "gbc",
         "gbch"
@@ -1935,8 +1910,7 @@
     {
       "id": "gc",
       "name": "GameCube",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_GameCube.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_GameCube.png",
+      "logo": "Nintendo GameCube.png",
       "folders": [
         "gc"
       ],
@@ -1979,8 +1953,7 @@
     {
       "id": "intellivision",
       "name": "Intellivision",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Mattel_Intellivision.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Mattel_Intellivision.png",
+      "logo": "Mattel Intellivision.png",
       "folders": [
         "intellivision"
       ],
@@ -2011,8 +1984,7 @@
     {
       "id": "mame",
       "name": "Arcade (MAME)",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/MAME.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/MAME.png",
+      "logo": "MAME.png",
       "folders": [
         "arcade",
         "mame"
@@ -2225,8 +2197,7 @@
     {
       "id": "msx",
       "name": "MSX/MSX2",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Microsoft_MSX.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Microsoft_MSX.png",
+      "logo": "Microsoft MSX.png",
       "folders": [
         "msx",
         "msx2"
@@ -2282,8 +2253,7 @@
     {
       "id": "neogeo",
       "name": "Neo Geo",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/SNK_Neo_Geo.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/SNK_Neo_Geo.png",
+      "logo": "SNK Neo Geo.png",
       "folders": [
         "neogeo"
       ],
@@ -2322,8 +2292,7 @@
     {
       "id": "neogeocd",
       "name": "Neo Geo CD",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/SNK_Neo_Geo_CD.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/SNK_Neo_Geo_CD.png",
+      "logo": "SNK Neo Geo CD.png",
       "folders": [
         "neogeocd"
       ],
@@ -2375,8 +2344,7 @@
     {
       "id": "ngp",
       "name": "NeoGeo Pocket",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/SNK_Neo_Geo_Pocket.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/SNK_Neo_Geo_Pocket.png",
+      "logo": "SNK Neo Geo Pocket.png",
       "folders": [
         "ngp"
       ],
@@ -2436,8 +2404,7 @@
     {
       "id": "ngpc",
       "name": "NeoGeo Pocket Color",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/SNK_Neo_Geo_Pocket_Color.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/SNK_Neo_Geo_Pocket_Color.png",
+      "logo": "SNK Neo Geo Pocket Color.png",
       "folders": [
         "ngpc"
       ],
@@ -2497,8 +2464,7 @@
     {
       "id": "3ds",
       "name": "Nintendo 3DS",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_3DS.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_3DS.png",
+      "logo": "Nintendo 3DS.png",
       "folders": [
         "3ds"
       ],
@@ -2616,8 +2582,7 @@
     {
       "id": "n64",
       "name": "Nintendo 64",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_64.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_64.png",
+      "logo": "Nintendo 64.png",
       "folders": [
         "n64"
       ],
@@ -2747,8 +2712,7 @@
     {
       "id": "nds",
       "name": "Nintendo DS",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_DS.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_DS.png",
+      "logo": "Nintendo DS.png",
       "folders": [
         "nds"
       ],
@@ -2844,8 +2808,7 @@
     {
       "id": "nes",
       "name": "Nintendo Entertainment System",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Entertainment_System.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Entertainment_System.png",
+      "logo": "Nintendo Entertainment System.png",
       "folders": [
         "famicom",
         "nes",
@@ -3022,8 +2985,7 @@
     {
       "id": "switch",
       "name": "Nintendo Switch",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Switch.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Switch.png",
+      "logo": "Nintendo Switch.png",
       "folders": [
         "switch"
       ],
@@ -3042,8 +3004,7 @@
     {
       "id": "wii",
       "name": "Nintendo Wii",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Wii.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Wii.png",
+      "logo": "Nintendo Wii.png",
       "folders": [
         "wii"
       ],
@@ -3086,8 +3047,7 @@
     {
       "id": "pc88",
       "name": "PC-88",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/NEC_PC-8801.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/NEC_PC-8801.png",
+      "logo": "NEC PC-8801.png",
       "folders": [
         "pc88"
       ],
@@ -3118,8 +3078,7 @@
     {
       "id": "pc98",
       "name": "PC-98",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/NEC_PC-9801.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/NEC_PC-9801.png",
+      "logo": "NEC PC-9801.png",
       "folders": [
         "pc98"
       ],
@@ -3171,8 +3130,7 @@
     {
       "id": "pcfx",
       "name": "PC-FX",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/NEC_PC-FX.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/NEC_PC-FX.png",
+      "logo": "NEC PC-FX.png",
       "folders": [
         "pcfx"
       ],
@@ -3203,8 +3161,7 @@
     {
       "id": "pico8",
       "name": "PICO-8",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Pico-8.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Pico-8.png",
+      "logo": "Pico-8.png",
       "folders": [
         "pico8"
       ],
@@ -3230,8 +3187,7 @@
     {
       "id": "cdi",
       "name": "Philips CD-i",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Philips_CD-i.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Philips_CD-i.png",
+      "logo": "Philips CD-i.png",
       "folders": [
         "cdi"
       ],
@@ -3262,8 +3218,7 @@
     {
       "id": "psp",
       "name": "PlayStation Portable",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sony_PSP.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sony_PSP.png",
+      "logo": "Sony PSP.png",
       "folders": [
         "psp",
         "pspminis"
@@ -3316,8 +3271,7 @@
     {
       "id": "pokemini",
       "name": "Pokemon Mini",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Pokemon_Mini.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Pokemon_Mini.png",
+      "logo": "Nintendo Pokemon Mini.png",
       "folders": [
         "pokemini"
       ],
@@ -3348,8 +3302,8 @@
     {
       "id": "scummvm",
       "name": "ScummVM",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/ScummVM.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/ScummVM.png",
+      "logo": "ScummVM.png",
+      "smallLogo": "assets/images/small/ScummVM.png",
       "folders": [
         "scummvm"
       ],
@@ -3380,8 +3334,7 @@
     {
       "id": "sega32x",
       "name": "Sega 32X",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sega_32X.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sega_32X.png",
+      "logo": "Sega 32X.png",
       "folders": [
         "sega32x"
       ],
@@ -3412,8 +3365,7 @@
     {
       "id": "segacd",
       "name": "Sega CD",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sega_CD.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sega_CD.png",
+      "logo": "Sega CD.png",
       "folders": [
         "segacd",
         "megacd"
@@ -3496,8 +3448,7 @@
     {
       "id": "gamegear",
       "name": "Sega Game Gear",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sega_Game_Gear.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sega_Game_Gear.png",
+      "logo": "Sega Game Gear.png",
       "folders": [
         "gamegear",
         "gamegearh"
@@ -3626,8 +3577,7 @@
     {
       "id": "megadrive",
       "name": "Sega Mega Drive/Genesis",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sega_Mega_Drive.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sega_Mega_Drive.png",
+      "logo": "Sega Mega Drive.png",
       "folders": [
         "megadrive",
         "megadrive-japan",
@@ -3742,8 +3692,7 @@
     {
       "id": "master",
       "name": "Sega Master System",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sega_Master_System.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sega_Master_System.png",
+      "logo": "Sega Master System.png",
       "folders": [
         "master",
         "mastersystem"
@@ -3868,8 +3817,7 @@
     {
       "id": "naomi",
       "name": "Sega NAOMI",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sega_Naomi.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sega_Naomi.png",
+      "logo": "Sega Naomi.png",
       "folders": [
         "naomi"
       ],
@@ -3909,8 +3857,7 @@
     {
       "id": "sg1000",
       "name": "Sega SG-1000",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sega_SG-1000.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sega_SG-1000.png",
+      "logo": "Sega SG-1000.png",
       "folders": [
         "sg1000"
       ],
@@ -3962,8 +3909,7 @@
     {
       "id": "saturn",
       "name": "Sega Saturn",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sega_Saturn.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sega_Saturn.png",
+      "logo": "Sega Saturn.png",
       "folders": [
         "saturn"
       ],
@@ -4100,8 +4046,7 @@
     {
       "id": "x68000",
       "name": "Sharp X68000",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sharp_X68000.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sharp_X68000.png",
+      "logo": "Sharp X68000.png",
       "folders": [
         "x68000"
       ],
@@ -4132,8 +4077,7 @@
     {
       "id": "psx",
       "name": "Sony PlayStation",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sony_PlayStation.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sony_PlayStation.png",
+      "logo": "Sony PlayStation.png",
       "folders": [
         "psx",
         "ps1"
@@ -4297,8 +4241,7 @@
     {
       "id": "ps2",
       "name": "Sony PlayStation 2",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sony_PlayStation_2.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sony_PlayStation_2.png",
+      "logo": "Sony PlayStation 2.png",
       "folders": [
         "ps2"
       ],
@@ -4359,8 +4302,7 @@
     {
       "id": "supergrafx",
       "name": "SuperGrafx",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/NEC_PC_Engine_SuperGrafx.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/NEC_PC_Engine_SuperGrafx.png",
+      "logo": "NEC PC Engine SuperGrafx.png",
       "folders": [
         "supergrafx"
       ],
@@ -4421,8 +4363,7 @@
     {
       "id": "snes",
       "name": "Super Nintendo Entertainment System",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Super_Nintendo_Entertainment_System.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Super_Nintendo_Entertainment_System.png",
+      "logo": "Super Nintendo Entertainment System.png",
       "folders": [
         "sfc",
         "snes",
@@ -4842,8 +4783,7 @@
     {
       "id": "tic80",
       "name": "TIC-80",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/TIC-80.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/TIC-80.png",
+      "logo": "TIC-80.png",
       "folders": [
         "tic80"
       ],
@@ -4874,8 +4814,7 @@
     {
       "id": "tg16",
       "name": "TurboGrafx-16",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/NEC_TurboGrafx-16.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/NEC_TurboGrafx-16.png",
+      "logo": "NEC TurboGrafx-16.png",
       "folders": [
         "pcengine",
         "tg16"
@@ -4937,8 +4876,7 @@
     {
       "id": "tgcd",
       "name": "TurboGrafx-CD",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/NEC_TurboGrafx-CD.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/NEC_TurboGrafx-CD.png",
+      "logo": "NEC TurboGrafx-CD.png",
       "folders": [
         "pcenginecd",
         "tgcd"
@@ -5000,8 +4938,7 @@
     {
       "id": "vectrex",
       "name": "Vectrex",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/GCE_Vectrex.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/GCE_Vectrex.png",
+      "logo": "GCE Vectrex.png",
       "folders": [
         "vectrex"
       ],
@@ -5032,8 +4969,7 @@
     {
       "id": "virtualboy",
       "name": "Virtual Boy",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Nintendo_Virtual_Boy.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Nintendo_Virtual_Boy.png",
+      "logo": "Nintendo Virtual Boy.png",
       "folders": [
         "virtualboy"
       ],
@@ -5064,8 +5000,7 @@
     {
       "id": "supervision",
       "name": "Watara Supervision",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Watara_Supervision.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Watara_Supervision.png",
+      "logo": "Watara Supervision.png",
       "folders": [
         "supervision"
       ],
@@ -5096,8 +5031,7 @@
     {
       "id": "ws",
       "name": "WonderSwan",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/WonderSwan.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/WonderSwan.png",
+      "logo": "WonderSwan.png",
       "folders": [
         "ws"
       ],
@@ -5128,8 +5062,7 @@
     {
       "id": "wsc",
       "name": "WonderSwan Color",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/WonderSwan_Color.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/WonderSwan_Color.png",
+      "logo": "WonderSwan Color.png",
       "folders": [
         "wsc"
       ],
@@ -5160,8 +5093,7 @@
     {
       "id": "zx81",
       "name": "ZX 81",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sinclair_ZX81.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sinclair_ZX81.png",
+      "logo": "Sinclair ZX81.png",
       "folders": [
         "zx81"
       ],
@@ -5192,8 +5124,7 @@
     {
       "id": "zxspectrum",
       "name": "ZX Spectrum",
-      "bigLogo": "https://ik.imagekit.io/ds2/titanius/big/Sinclair_ZX_Spectrum.png",
-      "smallLogo": "https://ik.imagekit.io/ds2/titanius/small/Sinclair_ZX_Spectrum.png",
+      "logo": "Sinclair ZX Spectrum.png",
       "folders": [
         "zxspectrum"
       ],

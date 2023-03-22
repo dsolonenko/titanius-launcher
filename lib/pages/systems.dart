@@ -75,10 +75,10 @@ class SystemsPage extends HookConsumerWidget {
                       child: GestureDetector(
                         onTap: () =>
                             GoRouter.of(context).go("/games/${system.id}"),
-                        child: CachedNetworkImage(
-                          imageUrl: system.bigLogo,
+                        child: Image.asset(
+                          "assets/images/big/${system.logo}",
                           fit: BoxFit.fitWidth,
-                          errorWidget: (context, url, error) =>
+                          errorBuilder: (context, url, error) =>
                               const Icon(Icons.error),
                         ),
                       ),

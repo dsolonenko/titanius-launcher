@@ -16,7 +16,7 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
   );
   final List<System> systems =
       content['systems'].map<System>((e) => System.fromJson(e)).toList();
-  systems.sort((a, b) => a.name.compareTo(b.name));
+  //systems.sort((a, b) => a.name.compareTo(b.name));
   return systems;
 }
 
