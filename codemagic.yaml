@@ -4,12 +4,9 @@ workflows:
     max_build_duration: 120
     environment:
       android_signing:
-        - keystore_reference
-      groups:
-        - google_play
+        - titanius
       vars:
         PACKAGE_NAME: "app.titanius.launcher"
-        GOOGLE_PLAY_TRACK: beta
       flutter: stable
     scripts:
       - name: Set up local.properties
