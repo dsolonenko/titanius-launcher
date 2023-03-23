@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:titanius/pages/android.dart';
 
 import 'pages/games.dart';
 import 'pages/settings.dart';
@@ -25,6 +26,7 @@ final _router = GoRouter(
       path: '/',
       builder: (context, state) => const SystemsPage(),
     ),
+    GoRoute(path: '/android', builder: (context, state) => const AndroidPage()),
     GoRoute(
         path: '/games/:system',
         builder: (context, state) => GamesPage(state.params['system']!)),

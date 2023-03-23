@@ -16,8 +16,10 @@ class SelectedSystem extends _$SelectedSystem {
 
 @Riverpod(keepAlive: true)
 class SelectedGame extends _$SelectedGame {
+  final Map<String, int> _state = {};
+
   @override
-  int build() {
+  int build(String system) {
     return 0;
   }
 

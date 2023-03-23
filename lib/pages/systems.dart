@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:titanius/gamepad.dart';
 import 'package:page_view_dot_indicator/page_view_dot_indicator.dart';
@@ -39,7 +38,11 @@ class SystemsPage extends HookConsumerWidget {
       if (key == GamepadButton.a) {
         final currentSystemIndex = ref.read(selectedSystemProvider);
         final system = allSystems.value![currentSystemIndex];
-        GoRouter.of(context).go("/games/${system.id}");
+        if (system.id == "android") {
+          GoRouter.of(context).go("/android");
+        } else {
+          GoRouter.of(context).go("/games/${system.id}");
+        }
       }
       if (key == GamepadButton.start) {
         GoRouter.of(context).push("/settings");

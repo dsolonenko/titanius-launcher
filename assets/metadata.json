@@ -5,7 +5,18 @@
       "name": "Android",
       "logo": "Android.png",
       "folders": [],
-      "emulators": []
+      "emulators": [
+        {
+          "id": "native",
+          "name": "Native",
+          "intent": {
+            "component": "/",
+            "args": {},
+            "flags": []
+          }
+        }
+
+      ]
     },
     {
       "id": "3do",

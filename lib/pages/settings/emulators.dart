@@ -31,7 +31,7 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
                       "/settings/emulators/${emulators[index].system.id}");
                 },
                 title: Text(emulators[index].system.name),
-                trailing: Text(emulators[index].defaultEmulator.name),
+                trailing: Text(emulators[index].defaultEmulator!.name),
               );
             },
           );

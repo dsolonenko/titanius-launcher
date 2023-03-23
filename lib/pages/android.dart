@@ -1,37 +1,31 @@
-import 'dart:io';
-
-import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:ndialog/ndialog.dart';
-import 'package:titanius/data/settings.dart';
+import 'package:titanius/data/android_apps.dart';
 
 import '../data/state.dart';
 import '../gamepad.dart';
-import '../data/games.dart';
 import '../data/systems.dart';
 import '../widgets/appbar.dart';
 import '../widgets/prompt_bar.dart';
 
 const double verticalSpacing = 10;
 
-class GamesPage extends HookConsumerWidget {
-  final String system;
-  const GamesPage(this.system, {super.key});
+class AndroidPage extends HookConsumerWidget {
+  const AndroidPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allSystems = ref.watch(detectedSystemsProvider);
-    final allGames = ref.watch(gamesProvider);
-    final selectedGameIndex = ref.watch(selectedGameProvider(system));
+    final allApps = ref.watch(installedAppsProvider);
+    final selectedIndex = ref.watch(selectedGameProvider("android"));
 
-    final pageController = PageController(initialPage: selectedGameIndex);
+    final pageController = PageController(initialPage: selectedIndex);
 
     useGamepad(ref, (location, key) {
-      if (location != "/games/$system") return;
+      if (location != "/android") return;
       if (allSystems.value == null || allSystems.value!.isEmpty) return;
       if (key == GamepadButton.r2 || key == GamepadButton.right) {
         final currentSystem = ref.read(selectedSystemProvider);
@@ -45,14 +39,7 @@ class GamesPage extends HookConsumerWidget {
             : currentSystem - 1;
         ref.read(selectedSystemProvider.notifier).set(prev);
       }
-      if (key == GamepadButton.y) {
-        final game = allGames.value!.games[selectedGameIndex];
-        ref
-            .read(settingsRepoProvider)
-            .value!
-            .saveFavouriteGame(game.romPath, !game.favorite)
-            .then((value) => ref.refresh(settingsProvider));
-      }
+      if (key == GamepadButton.y) {}
       if (key == GamepadButton.start) {
         GoRouter.of(context).push("/settings");
       }
@@ -70,23 +57,21 @@ class GamesPage extends HookConsumerWidget {
           //GamepadButton.select: "Filter",
         },
         actions: {
-          GamepadButton.y: "Favourite",
+          //GamepadButton.y: "Favourite",
           //GamepadButton.x: "Settings",
           GamepadButton.b: "Back",
           GamepadButton.a: "Launch",
         },
       ),
-      body: allGames.when(
-        data: (gamelist) {
-          if (gamelist.games.isEmpty) {
+      body: allApps.when(
+        data: (apps) {
+          if (apps.isEmpty) {
             return const Center(
               child: Text("No games found"),
             );
           }
-          final selectedGame = gamelist.games[
-              selectedGameIndex < gamelist.games.length
-                  ? selectedGameIndex
-                  : 0];
+          final selectedApp =
+              apps[selectedIndex < apps.length ? selectedIndex : 0];
           return Row(
             children: [
               Expanded(
@@ -98,7 +83,7 @@ class GamesPage extends HookConsumerWidget {
                       padding: const EdgeInsets.all(20),
                       alignment: Alignment.center,
                       child: Image.asset(
-                        "assets/images/small/${gamelist.system!.logo}",
+                        "assets/images/small/Android.png",
                         fit: BoxFit.fitHeight,
                         errorBuilder: (context, url, error) =>
                             const Icon(Icons.error),
@@ -107,42 +92,34 @@ class GamesPage extends HookConsumerWidget {
                     Expanded(
                       flex: 2,
                       child: ListView.builder(
-                          key: PageStorageKey("${gamelist.system!.id}/games"),
+                          key: const PageStorageKey("android/games"),
                           controller: pageController,
-                          itemCount: gamelist.games.length,
+                          itemCount: apps.length,
                           itemBuilder: (context, index) {
-                            final game = gamelist.games[index];
+                            final app = apps[index];
                             return ListTile(
                               horizontalTitleGap: 0,
                               //dense: true,
                               visualDensity: VisualDensity.compact,
-                              leading:
-                                  game.favorite ? const Icon(Icons.star) : null,
-                              autofocus:
-                                  selectedGameIndex < gamelist.games.length
-                                      ? index == selectedGameIndex
-                                      : index == 0,
+                              autofocus: selectedIndex < apps.length
+                                  ? index == selectedIndex
+                                  : index == 0,
                               onFocusChange: (value) {
                                 if (value) {
                                   ref
-                                      .read(
-                                          selectedGameProvider(system).notifier)
+                                      .read(selectedGameProvider("android")
+                                          .notifier)
                                       .set(index);
                                 }
                               },
                               title: Text(
-                                game.name,
+                                app.appName,
                                 softWrap: false,
                               ),
                               onTap: () async {
-                                ref
-                                    .read(selectedGameProvider(system).notifier)
-                                    .set(index);
-                                final intent =
-                                    gamelist.emulator!.toIntent(selectedGame);
-                                print(intent);
-                                intent.launch().catchError(
-                                    handleIntentError(context, intent));
+                                app
+                                    .openApp()
+                                    .catchError(handleIntentError(context));
                               },
                             );
                           }),
@@ -159,35 +136,18 @@ class GamesPage extends HookConsumerWidget {
                   child: Column(
                     children: [
                       Expanded(
-                        child: selectedGame.imageUrl != null
-                            ? Image.file(
-                                File(selectedGame.imageUrl!),
-                                fit: BoxFit.contain,
-                              )
-                            : const Text("No image"),
+                        child: Image.memory(
+                          selectedApp.icon,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                       const SizedBox(height: verticalSpacing),
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Text(
-                          //   selectedGame.name,
-                          //   style: const TextStyle(
-                          //       fontSize: 18, fontWeight: FontWeight.bold),
-                          // ),
-                          RatingBarIndicator(
-                            rating: selectedGame.rating ?? 0,
-                            itemBuilder: (context, index) => const Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                            ),
-                            itemCount: 10,
-                            itemSize: 14.0,
-                            direction: Axis.horizontal,
-                          ),
-                          Text(selectedGame.genre ?? "Unknown"),
+                          Text(selectedApp.packageName),
                           Text(
-                            "${selectedGame.developer ?? "Unknown"}, ${selectedGame.year?.toString() ?? "?"}",
+                            selectedApp.versionName ?? "Unknown version",
                             style: const TextStyle(color: Colors.grey),
                           ),
                         ],
@@ -206,7 +166,7 @@ class GamesPage extends HookConsumerWidget {
   }
 }
 
-Function handleIntentError(BuildContext context, AndroidIntent intent) {
+Function handleIntentError(BuildContext context) {
   return (err) {
     print(
         "PlatformException code=${(err as PlatformException).code} details=${(err).details}");

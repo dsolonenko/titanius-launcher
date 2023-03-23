@@ -9,7 +9,7 @@ part 'emulators.g.dart';
 
 class EmulatorList {
   final System system;
-  final Emulator defaultEmulator;
+  final Emulator? defaultEmulator;
 
   EmulatorList(this.system, this.defaultEmulator);
 }
@@ -29,7 +29,7 @@ Future<List<EmulatorList>> alternativeEmulators(
       .toList();
 }
 
-Emulator defaultEmulator(
+Emulator? defaultEmulator(
     List<Emulator> emulators, AlternativeEmulator? alternativeEmulator) {
   if (alternativeEmulator != null) {
     final alternative =
@@ -38,5 +38,5 @@ Emulator defaultEmulator(
       return alternative;
     }
   }
-  return emulators.first;
+  return emulators.isEmpty ? null : emulators.first;
 }
