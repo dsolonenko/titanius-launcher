@@ -38,7 +38,7 @@ workflows:
           mv build/app/outputs/flutter-apk/app-release.apk \
             build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk
     artifacts:
-      build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk
+      - build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk
       - build/**/outputs/**/mapping.txt
       - flutter_drive.log
     publishing:
