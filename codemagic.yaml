@@ -2,8 +2,8 @@ workflows:
   android-workflow:
     name: Android Workflow
     max_build_duration: 120
-    trigger:
-      event:
+    triggering:
+      events:
         - push
     environment:
       android_signing:
