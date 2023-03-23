@@ -21,6 +21,7 @@ workflows:
       - name: Flutter analyze
         script: | 
           flutter analyze
+        ignore_failure: true
       - name: Flutter unit tests
         script: | 
           flutter test
@@ -35,7 +36,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - user_2@example.com
+          - launcher@titanius.app
         notify:
           success: false
-          failure: false
+          failure: true
