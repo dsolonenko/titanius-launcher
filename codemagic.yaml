@@ -28,7 +28,7 @@ workflows:
         ignore_failure: true
       - name: Build APK with Flutter
         script: | 
-          flutter build apk --release --build-name=0.0.$PROJECT_BUILD_NUMBER --build-number=$PROJECT_BUILD_NUMBER
+          flutter build apk --release --build-name=0.0.$PROJECT_BUILD_NUMBER --build-number=$PROJECT_BUILD_NUMBER --output-file=titanius-launcher-0.0.$PROJECT_BUILD_NUMBER.apk
     artifacts:
       - build/**/outputs/**/*.apk
       - build/**/outputs/**/mapping.txt
