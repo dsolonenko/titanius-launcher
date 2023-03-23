@@ -12,6 +12,10 @@ workflows:
         PACKAGE_NAME: "app.titanius.launcher"
         BUILD_NAME: "0.0.$PROJECT_BUILD_NUMBER"
       flutter: stable
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.gradle/caches      
     scripts:
       - name: Set up local.properties
         script: | 
