@@ -10,6 +10,7 @@ workflows:
         - titanius
       vars:
         PACKAGE_NAME: "app.titanius.launcher"
+        BUILD_NAME: "0.0.$PROJECT_BUILD_NUMBER"
       flutter: stable
     scripts:
       - name: Set up local.properties
@@ -31,8 +32,11 @@ workflows:
         ignore_failure: true
       - name: Build APK with Flutter
         script: | 
-          BUILD_NAME=0.0.$PROJECT_BUILD_NUMBER
-          flutter build apk --release --build-name=$BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER --output-file=titanius-launcher-$BUILD_NAME.apk
+          flutter build apk --release --build-name=$BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER
+      - name: Rename the apk file
+        script: | 
+          mv build/app/outputs/flutter-apk/app-release.apk \
+            build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk
     artifacts:
       - build/**/outputs/**/*.apk
       - build/**/outputs/**/mapping.txt
