@@ -94,11 +94,11 @@ class GamesPage extends HookConsumerWidget {
                 child: Column(
                   children: [
                     Container(
-                      height: 80,
-                      padding: const EdgeInsets.all(20),
+                      height: 60,
+                      padding: const EdgeInsets.all(10),
                       alignment: Alignment.center,
                       child: Image.asset(
-                        "assets/images/small/${gamelist.system!.logo}",
+                        "assets/images/white/${gamelist.system!.logo}",
                         fit: BoxFit.fitHeight,
                         errorBuilder: (context, url, error) =>
                             const Icon(Icons.error),
@@ -153,8 +153,8 @@ class GamesPage extends HookConsumerWidget {
               Expanded(
                 flex: 3,
                 child: Container(
-                  color: Colors.grey.shade800,
-                  padding: const EdgeInsets.all(verticalSpacing),
+                  color: Colors.black,
+                  //padding: const EdgeInsets.all(verticalSpacing),
                   alignment: Alignment.center,
                   child: Column(
                     children: [

@@ -4088,7 +4088,7 @@
     {
       "id": "psx",
       "name": "Sony PlayStation",
-      "logo": "Sony PlayStation.png",
+      "logo": "Sony Playstation.png",
       "folders": [
         "psx",
         "ps1"
@@ -4252,7 +4252,7 @@
     {
       "id": "ps2",
       "name": "Sony PlayStation 2",
-      "logo": "Sony PlayStation 2.png",
+      "logo": "Sony Playstation 2.png",
       "folders": [
         "ps2"
       ],

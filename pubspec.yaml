@@ -32,33 +32,31 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  go_router: 
-  riverpod:
-  flutter_riverpod:
-  riverpod_annotation:
-  hooks_riverpod:
-  flutter_hooks:
-  page_view_dot_indicator: 
-  cached_network_image: 
-  flutter_rating_bar: 
-  path_provider: 
-  xml: 
-  collection: 
-  battery_plus: 
-  connectivity_plus: 
-  android_intent_plus: 
-  http: 
-  ndialog:
-  introduction_screen:
-  device_apps:
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: 
-  intl: 
-  google_fonts: 
-  isar: 
-  isar_flutter_libs: 
+  go_router: ^6.5.0 
+  riverpod: ^2.3.2
+  flutter_riverpod: ^2.3.2
+  riverpod_annotation: ^2.0.2
+  hooks_riverpod: ^2.3.2
+  flutter_hooks: ^0.18.6
+  page_view_dot_indicator: ^2.1.0 
+  cached_network_image: ^3.2.3 
+  flutter_rating_bar: ^4.0.1 
+  path_provider: ^2.0.14 
+  xml: ^6.2.2 
+  collection: ^1.17.0 
+  battery_plus: ^3.0.3 
+  connectivity_plus: ^3.0.3 
+  android_intent_plus: ^3.1.6 
+  http: ^0.13.5 
+  ndialog: ^4.3.0
+  introduction_screen: ^3.1.7
+  device_apps: ^2.2.0
+  flex_color_scheme: ^6.1.2
+  cupertino_icons: ^1.0.5 
+  intl: ^0.18.0 
+  google_fonts: ^4.0.3 
+  isar: ^3.0.5 
+  isar_flutter_libs: ^3.0.5 
 
 dev_dependencies:
   flutter_test:
@@ -69,12 +67,12 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints:
-  build_runner:
-  isar_generator:
-  riverpod_generator:
-  riverpod_lint:
-  custom_lint:
+  flutter_lints: ^2.0.1
+  build_runner: ^2.3.3
+  isar_generator: ^3.0.5
+  riverpod_generator: ^2.1.4
+  riverpod_lint: ^1.1.6
+  custom_lint: ^0.3.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -90,8 +88,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/metadata.json
-    - assets/images/big/
-    - assets/images/small/
+    - assets/images/color/
+    - assets/images/white/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

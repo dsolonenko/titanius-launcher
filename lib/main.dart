@@ -1,3 +1,4 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,19 +72,22 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Titanius Launcher',
         theme: _buildTheme(Brightness.dark),
+        themeMode: ThemeMode.dark,
         routerConfig: _router,
       ),
     );
   }
 
   ThemeData _buildTheme(brightness) {
-    var baseTheme = ThemeData(brightness: brightness);
-
+    final baseTheme = FlexThemeData.dark(
+      scheme: FlexScheme.material,
+      darkIsTrueBlack: true,
+    );
     return baseTheme.copyWith(
       //textTheme: GoogleFonts.squadaOneTextTheme(baseTheme.textTheme),
       //textTheme: GoogleFonts.tourneyTextTheme(baseTheme.textTheme),
-      //textTheme: GoogleFonts.bebasNeueTextTheme(baseTheme.textTheme),
-      textTheme: GoogleFonts.koulenTextTheme(baseTheme.textTheme),
+      textTheme: GoogleFonts.bebasNeueTextTheme(baseTheme.textTheme),
+      //textTheme: GoogleFonts.koulenTextTheme(baseTheme.textTheme),
     );
   }
 }

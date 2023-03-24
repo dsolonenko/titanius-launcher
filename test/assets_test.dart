@@ -18,8 +18,8 @@ Future<void> main() async {
             await container.read(allSupportedSystemsProvider.future);
         expect(allSystems.length, 70);
         for (final system in allSystems) {
-          await rootBundle.load("assets/images/big/${system.logo}");
-          //await rootBundle.load("assets/images/small/${system.logo}");
+          await rootBundle.load("assets/images/white/${system.logo}");
+          await rootBundle.load("assets/images/color/${system.logo}");
         }
       });
     },

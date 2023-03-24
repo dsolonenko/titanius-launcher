@@ -79,7 +79,7 @@ class SystemsPage extends HookConsumerWidget {
                         onTap: () =>
                             GoRouter.of(context).go("/games/${system.id}"),
                         child: Image.asset(
-                          "assets/images/big/${system.logo}",
+                          "assets/images/color/${system.logo}",
                           fit: BoxFit.fitWidth,
                           errorBuilder: (context, url, error) =>
                               const Icon(Icons.error),
