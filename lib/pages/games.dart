@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:titanius/data/settings.dart';
+import 'package:titanius/pages/android.dart';
 
 import '../data/state.dart';
 import '../gamepad.dart';
@@ -37,6 +38,7 @@ class GamesPage extends HookConsumerWidget {
         final currentSystem = ref.read(selectedSystemProvider);
         final next = (currentSystem + 1) % allSystems.value!.length;
         ref.read(selectedSystemProvider.notifier).set(next);
+        GoRouter.of(context).go("/games/${allSystems.value![next].id}");
       }
       if (key == GamepadButton.l2 || key == GamepadButton.left) {
         final currentSystem = ref.read(selectedSystemProvider);
@@ -44,13 +46,15 @@ class GamesPage extends HookConsumerWidget {
             ? allSystems.value!.length - 1
             : currentSystem - 1;
         ref.read(selectedSystemProvider.notifier).set(prev);
+        GoRouter.of(context).go("/games/${allSystems.value![prev].id}");
       }
       if (key == GamepadButton.y) {
+        if (system == "android") return;
         final game = allGames.value!.games[selectedGameIndex];
         ref
             .read(settingsRepoProvider)
             .value!
-            .saveFavouriteGame(game.romPath, !game.favorite)
+            .saveFavourite(game.romPath, !game.favorite)
             .then((value) => ref.refresh(settingsProvider));
       }
       if (key == GamepadButton.start) {
@@ -60,6 +64,10 @@ class GamesPage extends HookConsumerWidget {
         GoRouter.of(context).go("/");
       }
     });
+
+    if (system == "android") {
+      return const AndroidPage();
+    }
 
     return Scaffold(
       appBar: const CustomAppBar(),
@@ -114,7 +122,7 @@ class GamesPage extends HookConsumerWidget {
                             final game = gamelist.games[index];
                             return ListTile(
                               horizontalTitleGap: 0,
-                              //dense: true,
+                              dense: true,
                               visualDensity: VisualDensity.compact,
                               leading:
                                   game.favorite ? const Icon(Icons.star) : null,

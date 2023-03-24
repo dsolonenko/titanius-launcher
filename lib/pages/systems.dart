@@ -1,3 +1,4 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,11 +39,7 @@ class SystemsPage extends HookConsumerWidget {
       if (key == GamepadButton.a) {
         final currentSystemIndex = ref.read(selectedSystemProvider);
         final system = allSystems.value![currentSystemIndex];
-        if (system.id == "android") {
-          GoRouter.of(context).go("/android");
-        } else {
-          GoRouter.of(context).go("/games/${system.id}");
-        }
+        GoRouter.of(context).go("/games/${system.id}");
       }
       if (key == GamepadButton.start) {
         GoRouter.of(context).push("/settings");
@@ -98,7 +95,7 @@ class SystemsPage extends HookConsumerWidget {
                             ? selectedSystem
                             : 0,
                         count: systems.length,
-                        unselectedColor: Colors.black26,
+                        unselectedColor: Colors.black.lighten(10),
                         selectedColor: Colors.orange,
                       ),
                     )

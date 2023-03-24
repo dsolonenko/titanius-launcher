@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:titanius/data/android_apps.dart';
 
 import '../data/state.dart';
 import '../gamepad.dart';
-import '../data/systems.dart';
 import '../widgets/appbar.dart';
 import '../widgets/prompt_bar.dart';
 
@@ -18,35 +16,10 @@ class AndroidPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allSystems = ref.watch(detectedSystemsProvider);
     final allApps = ref.watch(installedAppsProvider);
     final selectedIndex = ref.watch(selectedGameProvider("android"));
 
     final pageController = PageController(initialPage: selectedIndex);
-
-    useGamepad(ref, (location, key) {
-      if (location != "/android") return;
-      if (allSystems.value == null || allSystems.value!.isEmpty) return;
-      if (key == GamepadButton.r2 || key == GamepadButton.right) {
-        final currentSystem = ref.read(selectedSystemProvider);
-        final next = (currentSystem + 1) % allSystems.value!.length;
-        ref.read(selectedSystemProvider.notifier).set(next);
-      }
-      if (key == GamepadButton.l2 || key == GamepadButton.left) {
-        final currentSystem = ref.read(selectedSystemProvider);
-        final prev = currentSystem - 1 < 0
-            ? allSystems.value!.length - 1
-            : currentSystem - 1;
-        ref.read(selectedSystemProvider.notifier).set(prev);
-      }
-      if (key == GamepadButton.y) {}
-      if (key == GamepadButton.start) {
-        GoRouter.of(context).push("/settings");
-      }
-      if (key == GamepadButton.b) {
-        GoRouter.of(context).go("/");
-      }
-    });
 
     return Scaffold(
       appBar: const CustomAppBar(),
@@ -99,7 +72,7 @@ class AndroidPage extends HookConsumerWidget {
                             final app = apps[index];
                             return ListTile(
                               horizontalTitleGap: 0,
-                              //dense: true,
+                              dense: true,
                               visualDensity: VisualDensity.compact,
                               autofocus: selectedIndex < apps.length
                                   ? index == selectedIndex

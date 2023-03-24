@@ -82,7 +82,7 @@ class SettingsRepo {
     return _setBoolean('showSystem/$id', value);
   }
 
-  Future<void> saveFavouriteGame(String path, bool isFavourite) async {
+  Future<void> saveFavourite(String path, bool isFavourite) async {
     print("Favourite $path $isFavourite");
     await isar.writeTxn(() async {
       await isar.favourites

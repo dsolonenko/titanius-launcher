@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:titanius/pages/android.dart';
 
 import 'pages/games.dart';
 import 'pages/settings.dart';
@@ -12,9 +11,6 @@ import 'pages/systems.dart';
 
 void main() {
   runApp(
-    // For widgets to be able to read providers, we need to wrap the entire
-    // application in a "ProviderScope" widget.
-    // This is where the state of our providers will be stored.
     const ProviderScope(
       child: MyApp(),
     ),
@@ -27,7 +23,6 @@ final _router = GoRouter(
       path: '/',
       builder: (context, state) => const SystemsPage(),
     ),
-    GoRoute(path: '/android', builder: (context, state) => const AndroidPage()),
     GoRoute(
         path: '/games/:system',
         builder: (context, state) => GamesPage(state.params['system']!)),
