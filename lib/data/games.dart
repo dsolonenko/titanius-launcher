@@ -105,7 +105,9 @@ Game _fromNode(XmlNode node, String romsPath) {
   final favorite = node.findElements("favorite").firstOrNull?.text == "true";
   return Game(
     name,
-    "$romsPath/$path",
+    path.startsWith("./")
+        ? "$romsPath/${path.substring(2)}"
+        : "$romsPath/$path",
     description: description,
     genre: genre,
     rating: rating != null ? 10 * rating : null,
