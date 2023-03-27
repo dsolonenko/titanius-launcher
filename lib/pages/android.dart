@@ -25,7 +25,8 @@ class AndroidPage extends HookConsumerWidget {
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
         navigations: {
-          GamepadButton.leftRight: "System",
+          GamepadButton.l1: "",
+          GamepadButton.r1: "System",
           GamepadButton.start: "Menu",
           //GamepadButton.select: "Filter",
         },
@@ -43,94 +44,39 @@ class AndroidPage extends HookConsumerWidget {
               child: Text("No games found"),
             );
           }
-          final selectedApp =
-              apps[selectedIndex < apps.length ? selectedIndex : 0];
-          return Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: Column(
-                  children: [
-                    Container(
-                      height: 60,
-                      padding: const EdgeInsets.all(10),
-                      alignment: Alignment.center,
-                      child: Image.asset(
-                        "assets/images/white/Android.png",
-                        fit: BoxFit.fitHeight,
-                        errorBuilder: (context, url, error) =>
-                            const Icon(Icons.error),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: ListView.builder(
-                          key: const PageStorageKey("android/games"),
-                          controller: pageController,
-                          itemCount: apps.length,
-                          itemBuilder: (context, index) {
-                            final app = apps[index];
-                            return ListTile(
-                              horizontalTitleGap: 0,
-                              dense: true,
-                              visualDensity: VisualDensity.compact,
-                              autofocus: selectedIndex < apps.length
-                                  ? index == selectedIndex
-                                  : index == 0,
-                              onFocusChange: (value) {
-                                if (value) {
-                                  ref
-                                      .read(selectedGameProvider("android")
-                                          .notifier)
-                                      .set(index);
-                                }
-                              },
-                              title: Text(
-                                app.appName,
-                                softWrap: false,
-                              ),
-                              onTap: () async {
-                                app
-                                    .openApp()
-                                    .catchError(handleIntentError(context));
-                              },
-                            );
-                          }),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Container(
-                  color: Colors.black,
-                  //padding: const EdgeInsets.all(verticalSpacing),
-                  alignment: Alignment.center,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Image.memory(
-                          selectedApp.icon,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      const SizedBox(height: verticalSpacing),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(selectedApp.packageName),
-                          Text(
-                            selectedApp.versionName ?? "Unknown version",
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ],
+          return GridView.builder(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 100),
+              key: const PageStorageKey("android/games"),
+              controller: pageController,
+              itemCount: apps.length,
+              itemBuilder: (context, index) {
+                final app = apps[index];
+                return ListTile(
+                  autofocus: selectedIndex < apps.length
+                      ? index == selectedIndex
+                      : index == 0,
+                  onFocusChange: (value) {
+                    if (value) {
+                      ref
+                          .read(selectedGameProvider("android").notifier)
+                          .set(index);
+                    }
+                  },
+                  title: Image.memory(
+                    app.icon,
+                    fit: BoxFit.contain,
                   ),
-                ),
-              ),
-            ],
-          );
+                  subtitle: Text(
+                    textAlign: TextAlign.center,
+                    app.appName,
+                    softWrap: false,
+                  ),
+                  onTap: () async {
+                    app.openApp().catchError(handleIntentError(context));
+                  },
+                );
+              });
         },
         loading: () => const CircularProgressIndicator(),
         error: (error, stackTrace) => Text(error.toString()),

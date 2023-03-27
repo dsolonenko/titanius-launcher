@@ -4,16 +4,12 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:ndialog/ndialog.dart';
-import 'package:titanius/data/settings.dart';
-import 'package:titanius/pages/android.dart';
 
 import '../data/state.dart';
 import '../gamepad.dart';
 import '../data/games.dart';
-import '../data/systems.dart';
 import '../widgets/appbar.dart';
 import '../widgets/prompt_bar.dart';
 
@@ -25,55 +21,16 @@ class GamesPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allSystems = ref.watch(detectedSystemsProvider);
     final allGames = ref.watch(gamesProvider);
     final selectedGameIndex = ref.watch(selectedGameProvider(system));
-
     final pageController = PageController(initialPage: selectedGameIndex);
-
-    useGamepad(ref, (location, key) {
-      if (location != "/games/$system") return;
-      if (allSystems.value == null || allSystems.value!.isEmpty) return;
-      if (key == GamepadButton.r2 || key == GamepadButton.right) {
-        final currentSystem = ref.read(selectedSystemProvider);
-        final next = (currentSystem + 1) % allSystems.value!.length;
-        ref.read(selectedSystemProvider.notifier).set(next);
-        GoRouter.of(context).go("/games/${allSystems.value![next].id}");
-      }
-      if (key == GamepadButton.l2 || key == GamepadButton.left) {
-        final currentSystem = ref.read(selectedSystemProvider);
-        final prev = currentSystem - 1 < 0
-            ? allSystems.value!.length - 1
-            : currentSystem - 1;
-        ref.read(selectedSystemProvider.notifier).set(prev);
-        GoRouter.of(context).go("/games/${allSystems.value![prev].id}");
-      }
-      if (key == GamepadButton.y) {
-        if (system == "android") return;
-        final game = allGames.value!.games[selectedGameIndex];
-        ref
-            .read(settingsRepoProvider)
-            .value!
-            .saveFavourite(game.romPath, !game.favorite)
-            .then((value) => ref.refresh(settingsProvider));
-      }
-      if (key == GamepadButton.start) {
-        GoRouter.of(context).push("/settings");
-      }
-      if (key == GamepadButton.b) {
-        GoRouter.of(context).go("/");
-      }
-    });
-
-    if (system == "android") {
-      return const AndroidPage();
-    }
 
     return Scaffold(
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
         navigations: {
-          GamepadButton.leftRight: "System",
+          GamepadButton.l1: "",
+          GamepadButton.r1: "System",
           GamepadButton.start: "Menu",
           //GamepadButton.select: "Filter",
         },

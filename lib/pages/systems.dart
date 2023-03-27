@@ -22,13 +22,17 @@ class SystemsPage extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (location != "/") return;
       if (allSystems.value == null || allSystems.value!.isEmpty) return;
-      if (key == GamepadButton.r2 || key == GamepadButton.right) {
+      if (key == GamepadButton.r1 ||
+          key == GamepadButton.r2 ||
+          key == GamepadButton.right) {
         final currentSystem = ref.read(selectedSystemProvider);
         final next = (currentSystem + 1) % allSystems.value!.length;
         pageController.animateToPage(next,
             duration: const Duration(milliseconds: 200), curve: Curves.ease);
       }
-      if (key == GamepadButton.l2 || key == GamepadButton.left) {
+      if (key == GamepadButton.l1 ||
+          key == GamepadButton.l2 ||
+          key == GamepadButton.left) {
         final currentSystem = ref.read(selectedSystemProvider);
         final prev = currentSystem - 1 < 0
             ? allSystems.value!.length - 1
@@ -50,7 +54,8 @@ class SystemsPage extends HookConsumerWidget {
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
         navigations: {
-          GamepadButton.leftRight: "Choose",
+          GamepadButton.l1: "",
+          GamepadButton.r1: "Choose",
           GamepadButton.start: "Menu",
         },
         actions: {GamepadButton.a: "Select"},

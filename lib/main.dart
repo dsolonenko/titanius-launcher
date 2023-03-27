@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'pages/games.dart';
 import 'pages/settings.dart';
+import 'pages/system_proxy.dart';
 import 'pages/systems.dart';
 
 void main() {
@@ -25,7 +25,7 @@ final _router = GoRouter(
     ),
     GoRoute(
         path: '/games/:system',
-        builder: (context, state) => GamesPage(state.params['system']!)),
+        builder: (context, state) => SystemProxy(state.params['system']!)),
     GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsPage(),

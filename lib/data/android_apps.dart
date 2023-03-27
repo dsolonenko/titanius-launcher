@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'android_apps.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<ApplicationWithIcon>> installedApps(InstalledAppsRef ref) async {
   final apps = await DeviceApps.getInstalledApplications(
     includeAppIcons: true,
