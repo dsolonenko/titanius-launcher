@@ -10,7 +10,6 @@ class UISettingsPage extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (location != "/settings/ui") return;
       if (key == GamepadButton.b) {
-        print("UI settings pop at ${GoRouter.of(context).location}");
         GoRouter.of(context).pop();
       }
     });
@@ -21,7 +20,6 @@ class UISettingsPage extends HookConsumerWidget {
       ),
       body: settings.when(
         data: (settings) {
-          final favouritesOnTop = settings.favouritesOnTop;
           return ListView(
             children: [
               ListTile(
@@ -31,11 +29,12 @@ class UISettingsPage extends HookConsumerWidget {
                   ref
                       .read(settingsRepoProvider)
                       .value!
-                      .setFavoutesOnTop(!favouritesOnTop)
+                      .setFavoutesOnTop(!settings.favouritesOnTop)
                       .then((value) => ref.refresh(settingsProvider));
                 },
                 title: const Text('Show Favouries On Top'),
-                trailing: favouritesOnTop ? toggleOnIcon : toggleOffIcon,
+                trailing:
+                    settings.favouritesOnTop ? toggleOnIcon : toggleOffIcon,
               ),
             ],
           );
