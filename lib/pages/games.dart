@@ -59,8 +59,8 @@ class GamesPage extends HookConsumerWidget {
                 child: Column(
                   children: [
                     Container(
-                      height: 60,
-                      padding: const EdgeInsets.all(10),
+                      height: 40,
+                      padding: const EdgeInsets.all(8),
                       alignment: Alignment.center,
                       child: Image.asset(
                         "assets/images/white/${gamelist.system!.logo}",
@@ -81,8 +81,13 @@ class GamesPage extends HookConsumerWidget {
                               horizontalTitleGap: 0,
                               dense: true,
                               visualDensity: VisualDensity.compact,
-                              leading:
-                                  game.favorite ? const Icon(Icons.star) : null,
+                              minLeadingWidth: 20,
+                              leading: game.favorite
+                                  ? const Icon(
+                                      Icons.star,
+                                      size: 14,
+                                    )
+                                  : null,
                               autofocus:
                                   selectedGameIndex < gamelist.games.length
                                       ? index == selectedGameIndex
@@ -105,7 +110,6 @@ class GamesPage extends HookConsumerWidget {
                                     .set(index);
                                 final intent =
                                     gamelist.emulator!.toIntent(selectedGame);
-                                print(intent);
                                 intent.launch().catchError(
                                     handleIntentError(context, intent));
                               },

@@ -10,7 +10,6 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (location != "/settings/emulators") return;
       if (key == GamepadButton.b) {
-        print("Alternative emulators pop at ${GoRouter.of(context).location}");
         GoRouter.of(context).pop();
       }
     });
@@ -59,8 +58,6 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (location != "/settings/emulators/$system") return;
       if (key == GamepadButton.b) {
-        print(
-            "Alternative emulators for $system pop at ${GoRouter.of(context).location}");
         GoRouter.of(context).pop();
       }
     });

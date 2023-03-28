@@ -11,7 +11,6 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (location != "/settings/systems") return;
       if (key == GamepadButton.b) {
-        print("Alternative emulators pop at ${GoRouter.of(context).location}");
         GoRouter.of(context).pop();
       }
     });

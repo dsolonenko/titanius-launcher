@@ -30,7 +30,6 @@ class SettingsPage extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (location != "/settings") return;
       if (key == GamepadButton.b) {
-        print("Settings pop at ${GoRouter.of(context).location}");
         GoRouter.of(context).pop();
       }
     });
