@@ -1,3 +1,4 @@
+import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -63,8 +64,9 @@ class AndroidPage extends HookConsumerWidget {
                           .set(index);
                     }
                   },
-                  title: Image.memory(
-                    app.icon,
+                  title: CachedMemoryImage(
+                    uniqueKey: app.packageName,
+                    bytes: app.icon,
                     fit: BoxFit.contain,
                   ),
                   subtitle: Text(
