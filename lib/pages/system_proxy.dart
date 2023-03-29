@@ -56,7 +56,7 @@ class SystemProxy extends HookConsumerWidget {
   }
 
   void _favouriteCurrentGame(WidgetRef ref) {
-    final games = ref.read(gamesProvider).value!;
+    final games = ref.read(gamesProvider(system)).value!;
     final selectedGameIndex = ref.read(selectedGameProvider(system));
     final game = games.games[selectedGameIndex];
     ref

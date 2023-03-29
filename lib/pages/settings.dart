@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/android_apps.dart';
 import '../data/emulators.dart';
 import '../data/settings.dart';
 import '../data/systems.dart';
@@ -10,6 +11,7 @@ import '../gamepad.dart';
 part 'settings/systems.dart';
 part 'settings/emulators.dart';
 part 'settings/ui.dart';
+part 'settings/roms.dart';
 
 const toggleSize = 40.0;
 const toggleOnIcon = Icon(
@@ -27,6 +29,8 @@ class SettingsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final packageInfo = ref.watch(packageInfoProvider);
+
     useGamepad(ref, (location, key) {
       if (location != "/settings") return;
       if (key == GamepadButton.b) {
@@ -38,10 +42,23 @@ class SettingsPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
+      bottomNavigationBar: packageInfo.when(
+          data: (data) => Text("${data.appName} ${data.version}",
+              textScaleFactor: 0.7, textAlign: TextAlign.center),
+          loading: () => const CircularProgressIndicator(),
+          error: (error, stackTrace) => Text(error.toString())),
       body: ListView(
         children: [
           ListTile(
             autofocus: true,
+            onFocusChange: (value) {},
+            onTap: () {
+              context.push("/settings/roms");
+            },
+            title: const Text('ROMs Folders'),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded),
+          ),
+          ListTile(
             onFocusChange: (value) {},
             onTap: () {
               context.push("/settings/systems");

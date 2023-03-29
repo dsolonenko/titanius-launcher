@@ -9,7 +9,6 @@ import 'package:collection/collection.dart';
 import '../data/settings.dart';
 import 'emulators.dart';
 import 'models.dart';
-import 'state.dart';
 import 'systems.dart';
 
 part 'games.g.dart';
@@ -23,9 +22,8 @@ class GameList {
 }
 
 @Riverpod(keepAlive: true)
-Future<GameList> games(GamesRef ref) async {
+Future<GameList> games(GamesRef ref, String systemId) async {
   final detectedSystems = await ref.watch(detectedSystemsProvider.future);
-  final systemIndex = ref.watch(selectedSystemProvider);
   final settings = await ref.watch(settingsProvider.future);
 
   final allGames = List<Game>.empty(growable: true);
@@ -34,7 +32,8 @@ Future<GameList> games(GamesRef ref) async {
     return const GameList(null, [], null);
   }
 
-  final system = detectedSystems[systemIndex];
+  final system =
+      detectedSystems.firstWhere((element) => element.id == systemId);
   final emulator = defaultEmulator(
       system.emulators,
       settings.perSystemConfigurations
@@ -45,29 +44,31 @@ Future<GameList> games(GamesRef ref) async {
       favourite.romPath: favourite.favourite
   };
 
-  for (var folder in system.folders) {
-    final romsPath = "${settings.romsFolder}/$folder";
-    final gamelistPath = "$romsPath/gamelist.xml";
+  for (var romsFolder in settings.romsFolders) {
+    for (var folder in system.folders) {
+      final romsPath = "$romsFolder/$folder";
+      final gamelistPath = "$romsPath/gamelist.xml";
 
-    final file = File(gamelistPath);
-    final exists = await file.exists();
-    if (exists) {
-      final games = await file
-          .openRead()
-          .transform(utf8.decoder)
-          .toXmlEvents()
-          .normalizeEvents()
-          .selectSubtreeEvents((event) => event.name == 'game')
-          .toXmlNodes()
-          .expand((nodes) => nodes)
-          .map((node) => _fromNode(node, romsPath))
-          .toList();
-      for (var game in games) {
-        if (favouritesMap.containsKey(game.romPath)) {
-          game.favorite = favouritesMap[game.romPath]!;
+      final file = File(gamelistPath);
+      final exists = await file.exists();
+      if (exists) {
+        final games = await file
+            .openRead()
+            .transform(utf8.decoder)
+            .toXmlEvents()
+            .normalizeEvents()
+            .selectSubtreeEvents((event) => event.name == 'game')
+            .toXmlNodes()
+            .expand((nodes) => nodes)
+            .map((node) => _fromNode(node, romsPath))
+            .toList();
+        for (var game in games) {
+          if (favouritesMap.containsKey(game.romPath)) {
+            game.favorite = favouritesMap[game.romPath]!;
+          }
         }
+        allGames.addAll(games);
       }
-      allGames.addAll(games);
     }
   }
 

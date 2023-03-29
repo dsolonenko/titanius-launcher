@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:ndialog/ndialog.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:toast/toast.dart';
 
 import '../data/state.dart';
 import '../gamepad.dart';
@@ -21,10 +23,10 @@ class GamesPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allGames = ref.watch(gamesProvider);
+    final allGames = ref.watch(gamesProvider(system));
     final selectedGameIndex = ref.watch(selectedGameProvider(system));
-    final pageController = PageController(initialPage: selectedGameIndex);
 
+    final scrollController = useScrollController();
     return Scaffold(
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
@@ -72,11 +74,15 @@ class GamesPage extends HookConsumerWidget {
                     Expanded(
                       flex: 2,
                       child: ListView.builder(
+                          controller: scrollController,
                           key: PageStorageKey("${gamelist.system!.id}/games"),
-                          controller: pageController,
                           itemCount: gamelist.games.length,
                           itemBuilder: (context, index) {
                             final game = gamelist.games[index];
+                            final isSelected =
+                                selectedGameIndex < gamelist.games.length
+                                    ? index == selectedGameIndex
+                                    : index == 0;
                             return ListTile(
                               horizontalTitleGap: 0,
                               dense: true,
@@ -88,10 +94,7 @@ class GamesPage extends HookConsumerWidget {
                                       size: 14,
                                     )
                                   : null,
-                              autofocus:
-                                  selectedGameIndex < gamelist.games.length
-                                      ? index == selectedGameIndex
-                                      : index == 0,
+                              autofocus: isSelected,
                               onFocusChange: (value) {
                                 if (value) {
                                   ref
@@ -179,16 +182,7 @@ Function handleIntentError(BuildContext context, AndroidIntent intent) {
   return (err) {
     print(
         "PlatformException code=${(err as PlatformException).code} details=${(err).details}");
-    NDialog(
-      dialogStyle: DialogStyle(titleDivider: true),
-      title: Text("NDialog"),
-      content: Text("This is NDialog's content"),
-      actions: <Widget>[
-        TextButton(
-            child: Text("Okay"), onPressed: () => Navigator.pop(context)),
-        TextButton(
-            child: Text("Close"), onPressed: () => Navigator.pop(context)),
-      ],
-    ).show(context);
+    Toast.show("Unable to run ${intent.package}}",
+        duration: Toast.lengthShort, gravity: Toast.bottom);
   };
 }

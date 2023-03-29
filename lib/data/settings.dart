@@ -15,9 +15,9 @@ class Settings {
 
   Settings(this.settings, this.perSystemConfigurations, this.favourites);
 
-  get romsFolder => settings['romsFolder']!.value;
-  get showSystemAndroid => showSystem('android');
-  get favouritesOnTop => _getBoolean('favouritesOnTop', true);
+  List<String> get romsFolders => settings['romsFolders']!.value.split(",");
+  bool get showSystemAndroid => showSystem('android');
+  bool get favouritesOnTop => _getBoolean('favouritesOnTop', true);
 
   bool showSystem(String id) => _getBoolean('showSystem/$id', true);
   bool _getBoolean(String key, bool defaultValue) {
@@ -100,6 +100,15 @@ class SettingsRepo {
       await isar.settings.put(Setting(key: key, value: value.toString()));
     });
   }
+
+  Future<void> saveRomsFolders(List<String> romsFolders) async {
+    print("Folders $romsFolders");
+    await isar.writeTxn(() async {
+      await isar.settings
+          .put(Setting(key: 'romsFolders', value: romsFolders.join(",")))
+          .catchError((e) => print(e));
+    });
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -115,30 +124,47 @@ Future<Settings> settings(SettingsRef ref) async {
 }
 
 Future<List<Setting>> _getDefaultSettings() async {
-  String romsFolder = "";
+  List<String> romsFolders = [];
   if (Platform.isMacOS) {
-    romsFolder = "/Users/ds/Roms";
+    romsFolders = ["/Users/ds/Roms"];
   }
   if (Platform.isWindows) {
-    romsFolder = "C:\\Users\\denis\\Roms";
+    romsFolders = ["C:\\Users\\denis\\Roms"];
   }
   if (Platform.isAndroid) {
-    final directory = await _getExternalSdCardPath();
-    romsFolder = "${directory.path}/Roms";
-    print(romsFolder);
+    final paths = await _getExternalRomsPaths();
+    romsFolders = [paths[paths.length - 1]];
   }
 
   return [
-    Setting(key: 'romsFolder', value: romsFolder),
+    Setting(key: 'romsFolders', value: romsFolders.join(",")),
   ];
 }
 
-Future<Directory> _getExternalSdCardPath() async {
+@riverpod
+Future<List<String>> externalRomsPaths(ExternalRomsPathsRef ref) async {
+  return _getExternalRomsPaths();
+}
+
+Future<List<String>> _getExternalRomsPaths() async {
+  List<String> paths = ["/storage/emulated/0/Roms"];
   List<Directory?>? extDirectories = await getExternalStorageDirectories();
+  extDirectories?.forEach((element) {
+    print(element);
+  });
 
-  List<String> dirs = extDirectories![1].toString().split('/');
-  String rebuiltPath = '/${dirs[1]}/${dirs[2]}';
+  if (extDirectories == null || extDirectories.isEmpty) {
+    return paths;
+  }
 
-  print("SD Card path: $rebuiltPath");
-  return Directory(rebuiltPath);
+  if (extDirectories.length > 1) {
+    for (int i = 1; i < extDirectories.length; i++) {
+      List<String> dirs = extDirectories![i].toString().split('/');
+      String rebuiltPath = '/${dirs[1]}/${dirs[2]}';
+      paths.add(rebuiltPath);
+      paths.add("$rebuiltPath/Roms");
+    }
+  }
+
+  return paths;
 }

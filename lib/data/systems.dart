@@ -34,6 +34,6 @@ bool _hasGamelist(System system, Settings settings) {
   if (system.folders.isEmpty) {
     return true;
   }
-  return system.folders.any((folder) =>
-      File("${settings.romsFolder}/$folder/gamelist.xml").existsSync());
+  return system.folders.any((folder) => settings.romsFolders.any(
+      (romsFolder) => File("$romsFolder/$folder/gamelist.xml").existsSync()));
 }

@@ -2,8 +2,8 @@ import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:ndialog/ndialog.dart';
 import 'package:titanius/data/android_apps.dart';
+import 'package:toast/toast.dart';
 
 import '../data/state.dart';
 import '../gamepad.dart';
@@ -75,7 +75,9 @@ class AndroidPage extends HookConsumerWidget {
                     softWrap: false,
                   ),
                   onTap: () async {
-                    app.openApp().catchError(handleIntentError(context));
+                    app
+                        .openApp()
+                        .catchError(handleIntentError(context, app.appName));
                   },
                 );
               });
@@ -87,20 +89,11 @@ class AndroidPage extends HookConsumerWidget {
   }
 }
 
-Function handleIntentError(BuildContext context) {
+Function handleIntentError(BuildContext context, String appName) {
   return (err) {
     print(
         "PlatformException code=${(err as PlatformException).code} details=${(err).details}");
-    NDialog(
-      dialogStyle: DialogStyle(titleDivider: true),
-      title: Text("NDialog"),
-      content: Text("This is NDialog's content"),
-      actions: <Widget>[
-        TextButton(
-            child: Text("Okay"), onPressed: () => Navigator.pop(context)),
-        TextButton(
-            child: Text("Close"), onPressed: () => Navigator.pop(context)),
-      ],
-    ).show(context);
+    Toast.show("Unable to run $appName",
+        duration: Toast.lengthShort, gravity: Toast.bottom);
   };
 }
