@@ -93,9 +93,9 @@ class GamesPage extends HookConsumerWidget {
                                   ? index == selectedGameIndex
                                   : index == 0;
                           return ListTile(
+                            visualDensity: VisualDensity.compact,
                             horizontalTitleGap: 0,
-                            dense: true,
-                            minLeadingWidth: 20,
+                            minLeadingWidth: 22,
                             leading: game.favorite
                                 ? const Icon(
                                     Icons.star,

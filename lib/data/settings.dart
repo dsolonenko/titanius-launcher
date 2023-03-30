@@ -149,9 +149,6 @@ Future<List<String>> externalRomsPaths(ExternalRomsPathsRef ref) async {
 Future<List<String>> _getExternalRomsPaths() async {
   List<String> paths = ["/storage/emulated/0/Roms"];
   List<Directory?>? extDirectories = await getExternalStorageDirectories();
-  extDirectories?.forEach((element) {
-    print(element);
-  });
 
   if (extDirectories == null || extDirectories.isEmpty) {
     return paths;
