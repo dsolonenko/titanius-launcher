@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 part 'state.g.dart';
 
@@ -16,8 +18,6 @@ class SelectedSystem extends _$SelectedSystem {
 
 @Riverpod(keepAlive: true)
 class SelectedGame extends _$SelectedGame {
-  final Map<String, int> _state = {};
-
   @override
   int build(String system) {
     return 0;
@@ -25,5 +25,13 @@ class SelectedGame extends _$SelectedGame {
 
   void set(int index) {
     state = index;
+  }
+}
+
+@Riverpod(keepAlive: true)
+class GameScroll extends _$GameScroll {
+  @override
+  ItemScrollController build(String system) {
+    return ItemScrollController();
   }
 }

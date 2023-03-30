@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:toast/toast.dart';
 
 import '../data/state.dart';
@@ -25,8 +25,17 @@ class GamesPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final allGames = ref.watch(gamesProvider(system));
     final selectedGameIndex = ref.watch(selectedGameProvider(system));
+    final scrollController = ref.watch(gameScrollProvider(system));
 
-    final scrollController = useScrollController();
+    useEffect(() {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (scrollController.isAttached) {
+          scrollController.jumpTo(index: selectedGameIndex);
+        }
+      });
+      return null;
+    }, []);
+
     return Scaffold(
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
@@ -57,7 +66,7 @@ class GamesPage extends HookConsumerWidget {
           return Row(
             children: [
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: Column(
                   children: [
                     Container(
@@ -72,58 +81,57 @@ class GamesPage extends HookConsumerWidget {
                       ),
                     ),
                     Expanded(
-                      flex: 2,
-                      child: ListView.builder(
-                          controller: scrollController,
-                          key: PageStorageKey("${gamelist.system!.id}/games"),
-                          itemCount: gamelist.games.length,
-                          itemBuilder: (context, index) {
-                            final game = gamelist.games[index];
-                            final isSelected =
-                                selectedGameIndex < gamelist.games.length
-                                    ? index == selectedGameIndex
-                                    : index == 0;
-                            return ListTile(
-                              horizontalTitleGap: 0,
-                              dense: true,
-                              visualDensity: VisualDensity.compact,
-                              minLeadingWidth: 20,
-                              leading: game.favorite
-                                  ? const Icon(
-                                      Icons.star,
-                                      size: 14,
-                                    )
-                                  : null,
-                              autofocus: isSelected,
-                              onFocusChange: (value) {
-                                if (value) {
-                                  ref
-                                      .read(
-                                          selectedGameProvider(system).notifier)
-                                      .set(index);
-                                }
-                              },
-                              title: Text(
-                                game.name,
-                                softWrap: false,
-                              ),
-                              onTap: () async {
+                      child: ScrollablePositionedList.builder(
+                        itemScrollController: scrollController,
+                        key:
+                            PageStorageKey("${gamelist.system!.id}/games/list"),
+                        itemCount: gamelist.games.length,
+                        itemBuilder: (context, index) {
+                          final game = gamelist.games[index];
+                          final isSelected =
+                              selectedGameIndex < gamelist.games.length
+                                  ? index == selectedGameIndex
+                                  : index == 0;
+                          return ListTile(
+                            horizontalTitleGap: 0,
+                            dense: true,
+                            minLeadingWidth: 20,
+                            leading: game.favorite
+                                ? const Icon(
+                                    Icons.star,
+                                    size: 14,
+                                  )
+                                : null,
+                            autofocus: isSelected,
+                            onFocusChange: (value) {
+                              if (value) {
                                 ref
                                     .read(selectedGameProvider(system).notifier)
                                     .set(index);
-                                final intent =
-                                    gamelist.emulator!.toIntent(selectedGame);
-                                intent.launch().catchError(
-                                    handleIntentError(context, intent));
-                              },
-                            );
-                          }),
+                              }
+                            },
+                            title: Text(
+                              game.name,
+                              softWrap: false,
+                            ),
+                            onTap: () async {
+                              ref
+                                  .read(selectedGameProvider(system).notifier)
+                                  .set(index);
+                              final intent =
+                                  gamelist.emulator!.toIntent(selectedGame);
+                              intent.launch().catchError(
+                                  handleIntentError(context, intent));
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
               ),
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: Container(
                   color: Colors.black,
                   //padding: const EdgeInsets.all(verticalSpacing),

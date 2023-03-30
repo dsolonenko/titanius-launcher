@@ -35,7 +35,7 @@ class GamepadPromptWidget extends StatelessWidget {
       children: [
         Text(buttonText ?? "",
             style: const TextStyle(fontFamily: "Prompt", fontSize: 18)),
-        Text(" $prompt "),
+        Text(prompt),
       ],
     );
   }
