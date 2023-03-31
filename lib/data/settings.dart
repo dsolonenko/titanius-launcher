@@ -129,7 +129,7 @@ Future<List<Setting>> _getDefaultSettings() async {
     romsFolders = ["/Users/ds/Roms"];
   }
   if (Platform.isWindows) {
-    romsFolders = ["C:\\Users\\denis\\Roms"];
+    romsFolders = ["D:\\Roms"];
   }
   if (Platform.isAndroid) {
     final paths = await _getExternalRomsPaths();

@@ -57,7 +57,8 @@ Future<GameList> games(GamesRef ref, String systemId) async {
             .transform(utf8.decoder)
             .toXmlEvents()
             .normalizeEvents()
-            .selectSubtreeEvents((event) => event.name == 'game')
+            .selectSubtreeEvents(
+                (event) => event.name == 'game' || event.name == 'folder')
             .toXmlNodes()
             .expand((nodes) => nodes)
             .map((node) => _fromNode(node, romsPath))
@@ -74,6 +75,13 @@ Future<GameList> games(GamesRef ref, String systemId) async {
 
   bool favouriteOnTop = settings.favouritesOnTop;
   final games = allGames.sorted((a, b) {
+    // folders on top
+    if (a.isFolder) {
+      return -1;
+    }
+    if (b.isFolder) {
+      return 1;
+    }
     if (favouriteOnTop) {
       if (a.favorite && b.favorite) {
         return a.name.compareTo(b.name);
@@ -104,17 +112,13 @@ Game _fromNode(XmlNode node, String romsPath) {
       : null;
   final image = node.findElements("image").firstOrNull?.text;
   final favorite = node.findElements("favorite").firstOrNull?.text == "true";
-  return Game(
-    name,
-    path.startsWith("./")
-        ? "$romsPath/${path.substring(2)}"
-        : "$romsPath/$path",
-    description: description,
-    genre: genre,
-    rating: rating != null ? 10 * rating : null,
-    imageUrl: image != null ? "$romsPath/$image" : null,
-    developer: developer,
-    year: year,
-    favorite: favorite,
-  );
+  return Game(name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
+      description: description,
+      genre: genre,
+      rating: rating != null ? 10 * rating : null,
+      imageUrl: image != null ? "$romsPath/$image" : null,
+      developer: developer,
+      year: year,
+      favorite: favorite,
+      isFolder: node is XmlElement && node.name.local == "folder");
 }

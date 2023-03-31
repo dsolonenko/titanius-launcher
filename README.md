@@ -3,6 +3,8 @@
 - Inspired by EmulationStation and AmberELEC
 - Controller-first UI
 - Unsophisticated
+- No game scraper - uses gamelist.xml with folders supported
+- No themes
 
 ## How to use
 

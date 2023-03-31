@@ -91,7 +91,9 @@ class LaunchIntent {
 
 class Game {
   final String name;
-  final String romPath;
+  final String path;
+  final String folder;
+  final String rom;
   final String? description;
   final String? genre;
   final String? developer;
@@ -99,10 +101,13 @@ class Game {
   final String? imageUrl;
   final double? rating;
   bool favorite;
+  bool isFolder;
 
   Game(
     this.name,
-    this.romPath, {
+    this.path,
+    this.folder,
+    this.rom, {
     this.description,
     this.genre,
     this.imageUrl,
@@ -110,5 +115,8 @@ class Game {
     this.developer,
     this.year,
     this.favorite = false,
+    this.isFolder = false,
   });
+
+  String get romPath => "$path/${rom.replaceFirst("./", "")}";
 }

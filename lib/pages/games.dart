@@ -4,11 +4,13 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:titanius/data/models.dart';
 import 'package:toast/toast.dart';
 
+import '../data/settings.dart';
 import '../data/state.dart';
 import '../gamepad.dart';
 import '../data/games.dart';
@@ -24,17 +26,40 @@ class GamesPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allGames = ref.watch(gamesProvider(system));
-    final selectedGameIndex = ref.watch(selectedGameProvider(system));
+    final selectedGame = ref.watch(selectedGameProvider(system));
+    final selectedFolder = ref.watch(selectedFolderProvider(system));
     final scrollController = ref.watch(gameScrollProvider(system));
 
     useEffect(() {
       Future.delayed(const Duration(milliseconds: 100), () {
-        if (scrollController.isAttached) {
-          scrollController.jumpTo(index: selectedGameIndex);
+        if (scrollController.hasClients) {
+          scrollController.jumpTo(scrollController.position.pixels);
         }
       });
       return null;
     }, []);
+
+    useGamepad(ref, (location, key) {
+      if (location != "/games/$system") return;
+      if (key == GamepadButton.b) {
+        if (selectedFolder == ".") {
+          GoRouter.of(context).go("/");
+        } else {
+          ref.read(selectedFolderProvider(system).notifier).set(
+              selectedFolder.substring(0, selectedFolder.lastIndexOf("/")));
+        }
+      }
+      if (key == GamepadButton.y) {
+        final selectedGame = ref.read(selectedGameProvider(system));
+        if (selectedGame != null && !selectedGame.isFolder) {
+          ref
+              .read(settingsRepoProvider)
+              .value!
+              .saveFavourite(selectedGame.romPath, !selectedGame.favorite)
+              .then((value) => ref.refresh(settingsProvider));
+        }
+      }
+    });
 
     return Scaffold(
       appBar: const CustomAppBar(),
@@ -54,15 +79,15 @@ class GamesPage extends HookConsumerWidget {
       ),
       body: allGames.when(
         data: (gamelist) {
-          if (gamelist.games.isEmpty) {
+          final gamesInFolder = gamelist.games
+              .where((game) => game.folder == selectedFolder)
+              .toList();
+          if (gamesInFolder.isEmpty) {
             return const Center(
               child: Text("No games found"),
             );
           }
-          final selectedGame = gamelist.games[
-              selectedGameIndex < gamelist.games.length
-                  ? selectedGameIndex
-                  : 0];
+          final gameToShow = selectedGame ?? gamesInFolder.first;
           return Row(
             children: [
               Expanded(
@@ -81,33 +106,30 @@ class GamesPage extends HookConsumerWidget {
                       ),
                     ),
                     Expanded(
-                      child: ScrollablePositionedList.builder(
-                        itemScrollController: scrollController,
+                      child: ListView.builder(
+                        //controller: scrollController,
                         key:
                             PageStorageKey("${gamelist.system!.id}/games/list"),
-                        itemCount: gamelist.games.length,
+                        restorationId: "${gamelist.system!.id}/games/list",
+                        itemCount: gamesInFolder.length,
                         itemBuilder: (context, index) {
-                          final game = gamelist.games[index];
-                          final isSelected =
-                              selectedGameIndex < gamelist.games.length
-                                  ? index == selectedGameIndex
-                                  : index == 0;
+                          final game = gamesInFolder[index];
+                          final isSelected = game.path == gameToShow.path;
                           return ListTile(
                             visualDensity: VisualDensity.compact,
                             horizontalTitleGap: 0,
                             minLeadingWidth: 22,
-                            leading: game.favorite
-                                ? const Icon(
-                                    Icons.star,
-                                    size: 14,
-                                  )
-                                : null,
+                            leading: game.isFolder
+                                ? const Icon(Icons.folder, size: 14)
+                                : game.favorite
+                                    ? const Icon(Icons.star, size: 14)
+                                    : null,
                             autofocus: isSelected,
                             onFocusChange: (value) {
                               if (value) {
                                 ref
                                     .read(selectedGameProvider(system).notifier)
-                                    .set(index);
+                                    .set(game);
                               }
                             },
                             title: Text(
@@ -115,13 +137,23 @@ class GamesPage extends HookConsumerWidget {
                               softWrap: false,
                             ),
                             onTap: () async {
-                              ref
-                                  .read(selectedGameProvider(system).notifier)
-                                  .set(index);
-                              final intent =
-                                  gamelist.emulator!.toIntent(selectedGame);
-                              intent.launch().catchError(
-                                  handleIntentError(context, intent));
+                              if (game.isFolder) {
+                                ref
+                                    .read(selectedGameProvider(system).notifier)
+                                    .reset();
+                                ref
+                                    .read(
+                                        selectedFolderProvider(system).notifier)
+                                    .set(game.rom);
+                              } else {
+                                ref
+                                    .read(selectedGameProvider(system).notifier)
+                                    .set(game);
+                                final intent =
+                                    gamelist.emulator!.toIntent(game);
+                                intent.launch().catchError(
+                                    handleIntentError(context, intent));
+                              }
                             },
                           );
                         },
@@ -132,55 +164,83 @@ class GamesPage extends HookConsumerWidget {
               ),
               Expanded(
                 flex: 2,
-                child: Container(
-                  color: Colors.black,
-                  //padding: const EdgeInsets.all(verticalSpacing),
-                  alignment: Alignment.center,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: selectedGame.imageUrl != null
-                            ? Image.file(
-                                File(selectedGame.imageUrl!),
-                                fit: BoxFit.contain,
-                              )
-                            : const Text("No image"),
-                      ),
-                      const SizedBox(height: verticalSpacing),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Text(
-                          //   selectedGame.name,
-                          //   style: const TextStyle(
-                          //       fontSize: 18, fontWeight: FontWeight.bold),
-                          // ),
-                          RatingBarIndicator(
-                            rating: selectedGame.rating ?? 0,
-                            itemBuilder: (context, index) => const Icon(
-                              Icons.star,
-                              color: Colors.amber,
+                child: gameToShow.isFolder
+                    ? _gameFolder(context, gamelist, gameToShow)
+                    : Container(
+                        color: Colors.black,
+                        alignment: Alignment.center,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: gameToShow.imageUrl != null
+                                  ? Image.file(
+                                      File(gameToShow.imageUrl!),
+                                      fit: BoxFit.contain,
+                                    )
+                                  : const Text("No image"),
                             ),
-                            itemCount: 10,
-                            itemSize: 14.0,
-                            direction: Axis.horizontal,
-                          ),
-                          Text(selectedGame.genre ?? "Unknown"),
-                          Text(
-                            "${selectedGame.developer ?? "Unknown"}, ${selectedGame.year?.toString() ?? "?"}",
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        ],
+                            const SizedBox(height: verticalSpacing),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                RatingBarIndicator(
+                                  rating: gameToShow.rating ?? 0,
+                                  itemBuilder: (context, index) => const Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                  ),
+                                  itemCount: 10,
+                                  itemSize: 14.0,
+                                  direction: Axis.horizontal,
+                                ),
+                                Text(gameToShow.genre ?? "Unknown"),
+                                Text(
+                                  "${gameToShow.developer ?? "Unknown"}, ${gameToShow.year?.toString() ?? "?"}",
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
               ),
             ],
           );
         },
         loading: () => const CircularProgressIndicator(),
         error: (error, stackTrace) => Text(error.toString()),
+      ),
+    );
+  }
+
+  _gameFolder(BuildContext context, GameList gamelist, Game gameToShow) {
+    final gamesInFolder = gamelist.games
+        .where((game) => game.folder == gameToShow.rom && game.imageUrl != null)
+        .toList();
+    return Container(
+      color: Colors.black,
+      alignment: Alignment.center,
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 0,
+          mainAxisSpacing: 0,
+        ),
+        itemCount: gamesInFolder.length,
+        itemBuilder: (context, index) {
+          final game = gamesInFolder[index];
+          return Column(
+            children: [
+              Expanded(
+                child: Image.file(
+                  File(game.imageUrl!),
+                  fit: BoxFit.contain,
+                ),
+              ),
+              Text(game.name, softWrap: false),
+            ],
+          );
+        },
       ),
     );
   }

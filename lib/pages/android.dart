@@ -1,6 +1,7 @@
 import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:titanius/data/android_apps.dart';
 import 'package:toast/toast.dart';
@@ -18,9 +19,14 @@ class AndroidPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allApps = ref.watch(installedAppsProvider);
-    final selectedIndex = ref.watch(selectedGameProvider("android"));
+    final selectedApp = ref.watch(selectedAppProvider);
 
-    final pageController = PageController(initialPage: selectedIndex);
+    useGamepad(ref, (location, key) {
+      if (location != "/games/android") return;
+      if (key == GamepadButton.b) {
+        GoRouter.of(context).go("/");
+      }
+    });
 
     return Scaffold(
       appBar: const CustomAppBar(),
@@ -49,19 +55,16 @@ class AndroidPage extends HookConsumerWidget {
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 100),
               key: const PageStorageKey("android/games"),
-              controller: pageController,
               itemCount: apps.length,
               itemBuilder: (context, index) {
                 final app = apps[index];
                 return ListTile(
-                  autofocus: selectedIndex < apps.length
-                      ? index == selectedIndex
-                      : index == 0,
+                  autofocus: selectedApp == null
+                      ? index == 0
+                      : app.packageName == selectedApp.packageName,
                   onFocusChange: (value) {
                     if (value) {
-                      ref
-                          .read(selectedGameProvider("android").notifier)
-                          .set(index);
+                      ref.read(selectedAppProvider.notifier).set(app);
                     }
                   },
                   title: CachedMemoryImage(
