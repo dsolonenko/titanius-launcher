@@ -114,7 +114,7 @@ class GamesPage extends HookConsumerWidget {
                         itemCount: gamesInFolder.length,
                         itemBuilder: (context, index) {
                           final game = gamesInFolder[index];
-                          final isSelected = game.path == gameToShow.path;
+                          final isSelected = game.rom == gameToShow.rom;
                           return ListTile(
                             visualDensity: VisualDensity.compact,
                             horizontalTitleGap: 0,
@@ -222,7 +222,7 @@ class GamesPage extends HookConsumerWidget {
       alignment: Alignment.center,
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
+          crossAxisCount: 4,
           crossAxisSpacing: 0,
           mainAxisSpacing: 0,
         ),
