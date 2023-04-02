@@ -3,12 +3,11 @@ import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:titanius/data/models.dart';
-import 'package:toast/toast.dart';
 
 import '../data/settings.dart';
 import '../data/state.dart';
@@ -28,16 +27,6 @@ class GamesPage extends HookConsumerWidget {
     final allGames = ref.watch(gamesProvider(system));
     final selectedGame = ref.watch(selectedGameProvider(system));
     final selectedFolder = ref.watch(selectedFolderProvider(system));
-    final scrollController = ref.watch(gameScrollProvider(system));
-
-    useEffect(() {
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (scrollController.hasClients) {
-          scrollController.jumpTo(scrollController.position.pixels);
-        }
-      });
-      return null;
-    }, []);
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
@@ -107,14 +96,10 @@ class GamesPage extends HookConsumerWidget {
                     ),
                     Expanded(
                       child: ListView.builder(
-                        //controller: scrollController,
-                        key:
-                            PageStorageKey("${gamelist.system!.id}/games/list"),
-                        restorationId: "${gamelist.system!.id}/games/list",
                         itemCount: gamesInFolder.length,
                         itemBuilder: (context, index) {
                           final game = gamesInFolder[index];
-                          final isSelected = game.rom == gameToShow.rom;
+                          final isSelected = game.romPath == gameToShow.romPath;
                           return ListTile(
                             visualDensity: VisualDensity.compact,
                             horizontalTitleGap: 0,
@@ -250,7 +235,14 @@ Function handleIntentError(BuildContext context, AndroidIntent intent) {
   return (err) {
     print(
         "PlatformException code=${(err as PlatformException).code} details=${(err).details}");
-    Toast.show("Unable to run ${intent.package}}",
-        duration: Toast.lengthShort, gravity: Toast.bottom);
+    Fluttertoast.showToast(
+        msg:
+            "Unable to run ${intent.package}. Please make sure the app is installed.",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
   };
 }

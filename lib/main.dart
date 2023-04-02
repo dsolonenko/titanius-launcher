@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:toast/toast.dart';
 
 import 'pages/settings.dart';
 import 'pages/system_proxy.dart';
@@ -67,7 +66,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    ToastContext().init(context);
     return ProviderScope(
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

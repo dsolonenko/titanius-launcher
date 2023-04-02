@@ -1,10 +1,10 @@
 import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:titanius/data/android_apps.dart';
-import 'package:toast/toast.dart';
 
 import '../data/state.dart';
 import '../gamepad.dart';
@@ -96,7 +96,13 @@ Function handleIntentError(BuildContext context, String appName) {
   return (err) {
     print(
         "PlatformException code=${(err as PlatformException).code} details=${(err).details}");
-    Toast.show("Unable to run $appName",
-        duration: Toast.lengthShort, gravity: Toast.bottom);
+    Fluttertoast.showToast(
+        msg: "Unable to run $appName}",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
   };
 }

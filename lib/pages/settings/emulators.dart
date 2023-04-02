@@ -23,6 +23,11 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
           return ListView.builder(
             itemCount: emulators.length,
             itemBuilder: (context, index) {
+              final isStandalone = !emulators[index]
+                  .defaultEmulator!
+                  .intent
+                  .target
+                  .startsWith('com.retroarch.aarch64/');
               return ListTile(
                 autofocus: index == 0,
                 onTap: () {
@@ -30,7 +35,8 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
                       "/settings/emulators/${emulators[index].system.id}");
                 },
                 title: Text(emulators[index].system.name),
-                trailing: Text(emulators[index].defaultEmulator!.name),
+                trailing: Text(
+                    "${emulators[index].defaultEmulator!.name}${isStandalone ? " (Standalone)" : ""}"),
               );
             },
           );
@@ -72,6 +78,9 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
           return ListView.builder(
             itemCount: selected.system.emulators.length,
             itemBuilder: (context, index) {
+              final isStandalone = !selected
+                  .system.emulators[index].intent.target
+                  .startsWith('com.retroarch.aarch64/');
               return ListTile(
                 autofocus: index == 0,
                 onTap: () {
@@ -85,7 +94,9 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
                   context.pop();
                 },
                 title: Text(selected.system.emulators[index].name),
-                trailing: index == 0 ? const Icon(Icons.star) : null,
+                leading: index == 0 ? const Icon(Icons.star) : null,
+                minLeadingWidth: 20,
+                trailing: isStandalone ? const Text("Standalone") : null,
               );
             },
           );
