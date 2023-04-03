@@ -74,11 +74,3 @@ class SelectedApp extends _$SelectedApp {
     state = app;
   }
 }
-
-@Riverpod(keepAlive: true)
-class GameScroll extends _$GameScroll {
-  @override
-  ScrollController build(String system) {
-    return ScrollController();
-  }
-}

@@ -100,8 +100,11 @@ class SystemsPage extends HookConsumerWidget {
                             ? selectedSystem
                             : 0,
                         count: systems.length,
-                        unselectedColor: Colors.black.lighten(10),
-                        selectedColor: Colors.orange,
+                        unselectedColor: Theme.of(context)
+                            .colorScheme
+                            .background
+                            .lighten(10),
+                        selectedColor: Theme.of(context).colorScheme.primary,
                       ),
                     )
                   : Container(),

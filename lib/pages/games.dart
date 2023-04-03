@@ -27,11 +27,13 @@ class GamesPage extends HookConsumerWidget {
     final allGames = ref.watch(gamesProvider(system));
     final navigation = ref.watch(currentGameNavigationProvider(system));
 
+    final scrollController = useScrollController();
+
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
       if (key == GamepadButton.b) {
         final navigation = ref.read(currentGameNavigationProvider(system));
-        print("Back: $navigation");
+        debugPrint("Back: $navigation");
         if (navigation.isAtRoot) {
           GoRouter.of(context).go("/");
         } else {
@@ -40,7 +42,7 @@ class GamesPage extends HookConsumerWidget {
       }
       if (key == GamepadButton.y) {
         final navigation = ref.read(currentGameNavigationProvider(system));
-        print("Favourite: $navigation");
+        debugPrint("Favourite: $navigation");
         if (navigation.isGame) {
           ref
               .read(settingsRepoProvider)
@@ -79,7 +81,7 @@ class GamesPage extends HookConsumerWidget {
             );
           }
           final gameToShow = navigation.game ?? gamesInFolder.first;
-          print("Navigation=$navigation, show=${gameToShow.rom}");
+          debugPrint("Navigation=$navigation, show=${gameToShow.rom}");
           return Row(
             children: [
               Expanded(
@@ -99,6 +101,7 @@ class GamesPage extends HookConsumerWidget {
                     ),
                     Expanded(
                       child: ListView.builder(
+                        controller: scrollController,
                         key: PageStorageKey("$system/${navigation.folder}"),
                         itemCount: gamesInFolder.length,
                         itemBuilder: (context, index) {
@@ -118,7 +121,8 @@ class GamesPage extends HookConsumerWidget {
                             selected: isSelected,
                             onFocusChange: (value) {
                               if (value) {
-                                print("Focus on ${game.rom}");
+                                debugPrint(
+                                    "Focus on ${game.rom}, scroll ${scrollController.offset}");
                                 ref
                                     .read(currentGameNavigationProvider(system)
                                         .notifier)
@@ -137,10 +141,6 @@ class GamesPage extends HookConsumerWidget {
                                         .notifier)
                                     .moveIntoFolder();
                               } else {
-                                // ref
-                                //     .read(currentGameNavigationProvider(system)
-                                //         .notifier)
-                                //     .selectGame(game);
                                 final intent =
                                     gamelist.emulator!.toIntent(game);
                                 intent.launch().catchError(
@@ -240,10 +240,10 @@ class GamesPage extends HookConsumerWidget {
 
 Function handleIntentError(BuildContext context, AndroidIntent intent) {
   return (err) {
-    print(err);
+    debugPrint(err.toString());
     Fluttertoast.showToast(
         msg:
-            "Unable to run ${intent.package}. Please make sure the app is installed.\n\n$err",
+            "Unable to run ${intent.package}. Please make sure the app is installed.",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,

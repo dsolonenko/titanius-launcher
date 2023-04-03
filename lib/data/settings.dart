@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -83,11 +84,14 @@ class SettingsRepo {
   }
 
   Future<void> saveFavourite(String path, bool isFavourite) async {
-    print("Favourite $path $isFavourite");
+    debugPrint("Favourite $path $isFavourite");
     await isar.writeTxn(() async {
       await isar.favourites
           .put(Favourite(romPath: path, favourite: isFavourite))
-          .catchError((e) => print(e));
+          .catchError((e) {
+        debugPrint(e);
+        return 0;
+      });
     });
   }
 
@@ -102,11 +106,14 @@ class SettingsRepo {
   }
 
   Future<void> saveRomsFolders(List<String> romsFolders) async {
-    print("Folders $romsFolders");
+    debugPrint("Folders $romsFolders");
     await isar.writeTxn(() async {
       await isar.settings
           .put(Setting(key: 'romsFolders', value: romsFolders.join(",")))
-          .catchError((e) => print(e));
+          .catchError((e) {
+        debugPrint(e);
+        return 0;
+      });
     });
   }
 }
@@ -156,7 +163,7 @@ Future<List<String>> _getExternalRomsPaths() async {
 
   if (extDirectories.length > 1) {
     for (int i = 1; i < extDirectories.length; i++) {
-      List<String> dirs = extDirectories![i].toString().split('/');
+      List<String> dirs = extDirectories[i].toString().split('/');
       String rebuiltPath = '/${dirs[1]}/${dirs[2]}';
       paths.add(rebuiltPath);
       paths.add("$rebuiltPath/Roms");

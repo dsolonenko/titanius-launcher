@@ -80,7 +80,7 @@ class MyApp extends StatelessWidget {
 
   ThemeData _buildTheme(brightness) {
     final baseTheme = FlexThemeData.dark(
-      scheme: FlexScheme.material,
+      scheme: FlexScheme.hippieBlue,
       darkIsTrueBlack: true,
     );
     return baseTheme.copyWith(

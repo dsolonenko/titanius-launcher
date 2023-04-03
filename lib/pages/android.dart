@@ -1,6 +1,5 @@
 import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -94,7 +93,7 @@ class AndroidPage extends HookConsumerWidget {
 
 Function handleIntentError(BuildContext context, String appName) {
   return (err) {
-    print(err);
+    debugPrint(err.toString());
     Fluttertoast.showToast(
         msg: "Unable to run $appName}: $err",
         toastLength: Toast.LENGTH_LONG,

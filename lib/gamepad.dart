@@ -57,7 +57,7 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
 
   bool listener(KeyEvent e) {
     if (e is KeyDownEvent) {
-      print("Gamepad ${e.logicalKey}");
+      debugPrint("Gamepad ${e.logicalKey}");
       if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
         hook.listener(hook.location, GamepadButton.up);
       } else if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
