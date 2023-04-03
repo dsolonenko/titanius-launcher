@@ -47,7 +47,7 @@ workflows:
         script: | 
           mv build/app/outputs/flutter-apk/app-release.apk \
             build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk
-      - name: Upload APK to GitHub Releases if build is successful
+      - name: Upload APK to GitHub Releases
         script: |
           gh release create "$BUILD_NAME" --title "Release $BUILD_NAME" --notes "Automated release from CodeMagic" --draft "build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk"
     artifacts:
