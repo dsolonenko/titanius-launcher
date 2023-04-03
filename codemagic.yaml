@@ -5,13 +5,18 @@ workflows:
     triggering:
       events:
         - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
     environment:
       android_signing:
         - titanius
       vars:
         PACKAGE_NAME: "app.titanius.launcher"
         BUILD_NAME: "0.0.$PROJECT_BUILD_NUMBER"
-        GITHUB_TOKEN
+      groups:
+        - github
       flutter: stable
     cache:
       cache_paths:
