@@ -11,6 +11,7 @@ workflows:
       vars:
         PACKAGE_NAME: "app.titanius.launcher"
         BUILD_NAME: "0.0.$PROJECT_BUILD_NUMBER"
+        GITHUB_TOKEN
       flutter: stable
     cache:
       cache_paths:
@@ -41,6 +42,13 @@ workflows:
         script: | 
           mv build/app/outputs/flutter-apk/app-release.apk \
             build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk
+      - name: Upload APK to GitHub Releases if build is successful
+        script: |
+          if [ "$CM_BUILD_STATUS" == "success" ]; then
+            gh release create "$BUILD_NAME" --title "Release $BUILD_NAME" --notes "Automated release from CodeMagic" --draft "build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk"
+          else
+            echo "Build was not successful. Skipping APK upload."
+          fi
     artifacts:
       - build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk
       - build/**/outputs/**/mapping.txt
