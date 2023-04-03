@@ -1,5 +1,4 @@
 import 'package:device_apps/device_apps.dart';
-import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'models.dart';
