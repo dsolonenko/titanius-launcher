@@ -111,12 +111,14 @@ Game _fromNode(XmlNode node, String romsPath) {
       ? int.parse(yearString.substring(0, 4))
       : null;
   final image = node.findElements("image").firstOrNull?.text;
+  final video = node.findElements("video").firstOrNull?.text;
   final favorite = node.findElements("favorite").firstOrNull?.text == "true";
   return Game(name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
       description: description,
       genre: genre,
       rating: rating != null ? 10 * rating : null,
       imageUrl: image != null ? "$romsPath/$image" : null,
+      videoUrl: video != null ? "$romsPath/$video" : null,
       developer: developer,
       year: year,
       favorite: favorite,

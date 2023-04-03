@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -20,31 +20,33 @@ const double verticalSpacing = 10;
 
 class GamesPage extends HookConsumerWidget {
   final String system;
-  const GamesPage(this.system, {super.key});
+  const GamesPage({super.key, required this.system});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allGames = ref.watch(gamesProvider(system));
-    final selectedGame = ref.watch(selectedGameProvider(system));
-    final selectedFolder = ref.watch(selectedFolderProvider(system));
+    final navigation = ref.watch(currentGameNavigationProvider(system));
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
       if (key == GamepadButton.b) {
-        if (selectedFolder == ".") {
+        final navigation = ref.read(currentGameNavigationProvider(system));
+        print("Back: $navigation");
+        if (navigation.isAtRoot) {
           GoRouter.of(context).go("/");
         } else {
-          ref.read(selectedFolderProvider(system).notifier).set(
-              selectedFolder.substring(0, selectedFolder.lastIndexOf("/")));
+          ref.read(currentGameNavigationProvider(system).notifier).goBack();
         }
       }
       if (key == GamepadButton.y) {
-        final selectedGame = ref.read(selectedGameProvider(system));
-        if (selectedGame != null && !selectedGame.isFolder) {
+        final navigation = ref.read(currentGameNavigationProvider(system));
+        print("Favourite: $navigation");
+        if (navigation.isGame) {
           ref
               .read(settingsRepoProvider)
               .value!
-              .saveFavourite(selectedGame.romPath, !selectedGame.favorite)
+              .saveFavourite(
+                  navigation.game!.romPath, !navigation.game!.favorite)
               .then((value) => ref.refresh(settingsProvider));
         }
       }
@@ -69,14 +71,15 @@ class GamesPage extends HookConsumerWidget {
       body: allGames.when(
         data: (gamelist) {
           final gamesInFolder = gamelist.games
-              .where((game) => game.folder == selectedFolder)
+              .where((game) => game.folder == navigation.folder)
               .toList();
           if (gamesInFolder.isEmpty) {
             return const Center(
               child: Text("No games found"),
             );
           }
-          final gameToShow = selectedGame ?? gamesInFolder.first;
+          final gameToShow = navigation.game ?? gamesInFolder.first;
+          print("Navigation=$navigation, show=${gameToShow.rom}");
           return Row(
             children: [
               Expanded(
@@ -96,11 +99,13 @@ class GamesPage extends HookConsumerWidget {
                     ),
                     Expanded(
                       child: ListView.builder(
+                        key: PageStorageKey("$system/${navigation.folder}"),
                         itemCount: gamesInFolder.length,
                         itemBuilder: (context, index) {
                           final game = gamesInFolder[index];
                           final isSelected = game.romPath == gameToShow.romPath;
                           return ListTile(
+                            key: ValueKey(game.romPath),
                             visualDensity: VisualDensity.compact,
                             horizontalTitleGap: 0,
                             minLeadingWidth: 22,
@@ -110,30 +115,32 @@ class GamesPage extends HookConsumerWidget {
                                     ? const Icon(Icons.star, size: 14)
                                     : null,
                             autofocus: isSelected,
+                            selected: isSelected,
                             onFocusChange: (value) {
                               if (value) {
+                                print("Focus on ${game.rom}");
                                 ref
-                                    .read(selectedGameProvider(system).notifier)
-                                    .set(game);
+                                    .read(currentGameNavigationProvider(system)
+                                        .notifier)
+                                    .selectGame(game);
                               }
                             },
                             title: Text(
                               game.name,
-                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                             onTap: () async {
                               if (game.isFolder) {
                                 ref
-                                    .read(selectedGameProvider(system).notifier)
-                                    .reset();
-                                ref
-                                    .read(
-                                        selectedFolderProvider(system).notifier)
-                                    .set(game.rom);
+                                    .read(currentGameNavigationProvider(system)
+                                        .notifier)
+                                    .moveIntoFolder();
                               } else {
-                                ref
-                                    .read(selectedGameProvider(system).notifier)
-                                    .set(game);
+                                // ref
+                                //     .read(currentGameNavigationProvider(system)
+                                //         .notifier)
+                                //     .selectGame(game);
                                 final intent =
                                     gamelist.emulator!.toIntent(game);
                                 intent.launch().catchError(
@@ -233,11 +240,10 @@ class GamesPage extends HookConsumerWidget {
 
 Function handleIntentError(BuildContext context, AndroidIntent intent) {
   return (err) {
-    print(
-        "PlatformException code=${(err as PlatformException).code} details=${(err).details}");
+    print(err);
     Fluttertoast.showToast(
         msg:
-            "Unable to run ${intent.package}. Please make sure the app is installed.",
+            "Unable to run ${intent.package}. Please make sure the app is installed.\n\n$err",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,

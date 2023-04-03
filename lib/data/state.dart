@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'models.dart';
+import 'stack.dart';
 
 part 'state.g.dart';
 
@@ -18,19 +19,47 @@ class SelectedSystem extends _$SelectedSystem {
   }
 }
 
-@Riverpod(keepAlive: true)
-class SelectedGame extends _$SelectedGame {
+class GameNavigation {
+  final Game? game;
+  final MyStack<Game> folders;
+
+  GameNavigation(this.game, this.folders);
+
+  bool get isAtRoot => folders.isEmpty;
+
+  bool get isGame => game != null && !game!.isFolder;
+
+  String get folder => folders.isEmpty ? "." : folders.peek().rom;
+
   @override
-  Game? build(String system) {
-    return null;
+  String toString() {
+    return "{game=${game?.rom}, folder=$folder}";
+  }
+}
+
+@Riverpod(keepAlive: true)
+class CurrentGameNavigation extends _$CurrentGameNavigation {
+  @override
+  GameNavigation build(String system) {
+    return GameNavigation(null, MyStack());
   }
 
-  void set(Game? game) {
-    state = game;
+  void selectGame(Game game) {
+    state = GameNavigation(game, state.folders);
   }
 
-  void reset() {
-    state = null;
+  void moveIntoFolder() {
+    if (state.game != null && state.game!.isFolder) {
+      final folders = state.folders;
+      folders.push(state.game!);
+      state = GameNavigation(null, folders);
+    }
+  }
+
+  void goBack() {
+    final folders = state.folders;
+    final game = folders.pop();
+    state = GameNavigation(game, folders);
   }
 }
 
@@ -43,18 +72,6 @@ class SelectedApp extends _$SelectedApp {
 
   void set(ApplicationWithIcon app) {
     state = app;
-  }
-}
-
-@Riverpod(keepAlive: true)
-class SelectedFolder extends _$SelectedFolder {
-  @override
-  String build(String system) {
-    return ".";
-  }
-
-  void set(String folder) {
-    state = folder;
   }
 }
 

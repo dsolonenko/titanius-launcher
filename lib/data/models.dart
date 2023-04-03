@@ -1,5 +1,6 @@
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
+import 'package:flutter/material.dart';
 
 class System {
   final String id;
@@ -99,6 +100,7 @@ class Game {
   final String? developer;
   final int? year;
   final String? imageUrl;
+  final String? videoUrl;
   final double? rating;
   bool favorite;
   bool isFolder;
@@ -111,6 +113,7 @@ class Game {
     this.description,
     this.genre,
     this.imageUrl,
+    this.videoUrl,
     this.rating,
     this.developer,
     this.year,

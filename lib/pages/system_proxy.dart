@@ -10,13 +10,13 @@ import 'android.dart';
 
 class SystemProxy extends HookConsumerWidget {
   final String system;
-  const SystemProxy(this.system, {super.key});
+  const SystemProxy({super.key, required this.system});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allSystems = ref.watch(detectedSystemsProvider);
 
     useGamepad(ref, (location, key) {
-      if (location != "/games/$system") return;
+      if (!location.startsWith("/games/$system")) return;
       if (allSystems.value == null || allSystems.value!.isEmpty) return;
       if (key == GamepadButton.r2 || key == GamepadButton.r1) {
         final currentSystem = ref.read(selectedSystemProvider);
@@ -41,8 +41,7 @@ class SystemProxy extends HookConsumerWidget {
       return const AndroidPage();
     } else {
       return GamesPage(
-        system,
-        key: PageStorageKey("games/$system"),
+        system: system,
       );
     }
   }

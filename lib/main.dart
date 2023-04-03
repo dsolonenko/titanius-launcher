@@ -24,8 +24,9 @@ final _router = GoRouter(
       builder: (context, state) => const SystemsPage(),
     ),
     GoRoute(
-        path: '/games/:system',
-        builder: (context, state) => SystemProxy(state.params['system']!)),
+      path: '/games/:system',
+      builder: (context, state) => SystemProxy(system: state.params['system']!),
+    ),
     GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsPage(),

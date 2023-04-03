@@ -94,10 +94,9 @@ class AndroidPage extends HookConsumerWidget {
 
 Function handleIntentError(BuildContext context, String appName) {
   return (err) {
-    print(
-        "PlatformException code=${(err as PlatformException).code} details=${(err).details}");
+    print(err);
     Fluttertoast.showToast(
-        msg: "Unable to run $appName}",
+        msg: "Unable to run $appName}: $err",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
