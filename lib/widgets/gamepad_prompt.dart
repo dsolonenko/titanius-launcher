@@ -22,20 +22,22 @@ const gamepadFontMappings = {
 };
 
 class GamepadPromptWidget extends StatelessWidget {
-  final GamepadButton button;
+  final List<GamepadButton> buttons;
   final String prompt;
 
   const GamepadPromptWidget(
-      {super.key, required this.button, required this.prompt});
+      {super.key, required this.buttons, required this.prompt});
 
   @override
   Widget build(BuildContext context) {
-    String? buttonText = gamepadFontMappings[button];
+    String buttonText =
+        buttons.map((button) => gamepadFontMappings[button]).join("");
     return Row(
       children: [
-        Text(buttonText ?? "",
+        Text(buttonText,
             style: const TextStyle(fontFamily: "Prompt", fontSize: 18)),
         Text(prompt),
+        const SizedBox(width: 8),
       ],
     );
   }

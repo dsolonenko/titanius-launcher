@@ -53,12 +53,13 @@ class SystemsPage extends HookConsumerWidget {
     return Scaffold(
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
-        navigations: {
-          GamepadButton.l1: "",
-          GamepadButton.r1: "Choose",
-          GamepadButton.start: "Menu",
-        },
-        actions: {GamepadButton.a: "Select"},
+        navigations: [
+          GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "Choose"),
+          GamepadPrompt([GamepadButton.start], "Menu"),
+        ],
+        actions: [
+          GamepadPrompt([GamepadButton.a], "Select"),
+        ],
       ),
       body: allSystems.when(
         data: (systems) {

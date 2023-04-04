@@ -30,18 +30,14 @@ class AndroidPage extends HookConsumerWidget {
     return Scaffold(
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
-        navigations: {
-          GamepadButton.l1: "",
-          GamepadButton.r1: "System",
-          GamepadButton.start: "Menu",
-          //GamepadButton.select: "Filter",
-        },
-        actions: {
-          //GamepadButton.y: "Favourite",
-          //GamepadButton.x: "Settings",
-          GamepadButton.b: "Back",
-          GamepadButton.a: "Launch",
-        },
+        navigations: [
+          GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
+          GamepadPrompt([GamepadButton.start], "Menu"),
+        ],
+        actions: [
+          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.a], "Launch"),
+        ],
       ),
       body: allApps.when(
         data: (apps) {
