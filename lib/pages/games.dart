@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,7 +17,7 @@ import '../data/games.dart';
 import '../widgets/appbar.dart';
 import '../widgets/prompt_bar.dart';
 
-const double verticalSpacing = 10;
+const double verticalSpacing = 4;
 
 class GamesPage extends HookConsumerWidget {
   final String system;
@@ -26,6 +27,7 @@ class GamesPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final allGames = ref.watch(gamesProvider(system));
     final navigation = ref.watch(currentGameNavigationProvider(system));
+    final video = ref.watch(currentVideoProvider(system));
 
     final scrollController = useScrollController();
 
@@ -86,7 +88,7 @@ class GamesPage extends HookConsumerWidget {
                 child: Column(
                   children: [
                     Container(
-                      height: 40,
+                      height: 48,
                       padding: const EdgeInsets.all(8),
                       alignment: Alignment.center,
                       child: Image.asset(
@@ -161,12 +163,12 @@ class GamesPage extends HookConsumerWidget {
                         child: Column(
                           children: [
                             Expanded(
-                              child: gameToShow.imageUrl != null
-                                  ? Image.file(
-                                      File(gameToShow.imageUrl!),
-                                      fit: BoxFit.contain,
-                                    )
-                                  : const Text("No image"),
+                              child: video.when(
+                                  data: (video) =>
+                                      _gameVideo(gameToShow, video),
+                                  error: (_, __) => _gameImage(gameToShow),
+                                  loading: () => const Center(
+                                      child: CircularProgressIndicator())),
                             ),
                             const SizedBox(height: verticalSpacing),
                             Column(
@@ -199,6 +201,25 @@ class GamesPage extends HookConsumerWidget {
         loading: () => const CircularProgressIndicator(),
         error: (error, stackTrace) => Text(error.toString()),
       ),
+    );
+  }
+
+  Widget _gameImage(Game gameToShow) {
+    return gameToShow.imageUrl != null
+        ? Image.file(
+            File(gameToShow.imageUrl!),
+            fit: BoxFit.contain,
+          )
+        : const Text("No image");
+  }
+
+  Widget _gameVideo(Game gameToShow, CachedVideoPlayerController? video) {
+    if (video == null) {
+      return _gameImage(gameToShow);
+    }
+    return AspectRatio(
+      aspectRatio: video.value.aspectRatio,
+      child: CachedVideoPlayer(video),
     );
   }
 

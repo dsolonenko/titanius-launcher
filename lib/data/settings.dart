@@ -19,6 +19,7 @@ class Settings {
   List<String> get romsFolders => settings['romsFolders']!.value.split(",");
   bool get showSystemAndroid => showSystem('android');
   bool get favouritesOnTop => _getBoolean('favouritesOnTop', true);
+  bool get showGameVideos => _getBoolean('showGameVideos', false);
 
   bool showSystem(String id) => _getBoolean('showSystem/$id', true);
   bool _getBoolean(String key, bool defaultValue) {
@@ -97,6 +98,10 @@ class SettingsRepo {
 
   Future<void> setFavoutesOnTop(bool value) async {
     return _setBoolean('favouritesOnTop', value);
+  }
+
+  Future<void> setShowGameVideos(bool value) async {
+    return _setBoolean('showGameVideos', value);
   }
 
   Future<void> _setBoolean(String key, bool value) async {

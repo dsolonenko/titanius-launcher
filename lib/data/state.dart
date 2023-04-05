@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:device_apps/device_apps.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:titanius/data/settings.dart';
 
 import 'models.dart';
 import 'stack.dart';
@@ -72,4 +76,28 @@ class SelectedApp extends _$SelectedApp {
   void set(ApplicationWithIcon app) {
     state = app;
   }
+}
+
+@riverpod
+Future<CachedVideoPlayerController?> currentVideo(
+    CurrentVideoRef ref, String system) {
+  final navigation = ref.watch(currentGameNavigationProvider(system));
+  final settings = ref.watch(settingsProvider.future);
+  if (navigation.game != null && navigation.game!.videoUrl != null) {
+    return settings.then((value) {
+      if (value.showGameVideos) {
+        final controller =
+            CachedVideoPlayerController.file(File(navigation.game!.videoUrl!));
+        controller.setLooping(true);
+        controller.setVolume(0);
+        ref.onDispose(() => controller.dispose());
+        return controller.initialize().then((value) {
+          controller.play();
+          return controller;
+        });
+      }
+      return null;
+    });
+  }
+  return Future.value(null);
 }

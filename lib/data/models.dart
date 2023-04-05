@@ -100,6 +100,7 @@ class Game {
   final int? year;
   final String? imageUrl;
   final String? videoUrl;
+  final String? thumbnailUrl;
   final double? rating;
   bool favorite;
   bool isFolder;
@@ -113,6 +114,7 @@ class Game {
     this.genre,
     this.imageUrl,
     this.videoUrl,
+    this.thumbnailUrl,
     this.rating,
     this.developer,
     this.year,

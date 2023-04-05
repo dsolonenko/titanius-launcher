@@ -29,6 +29,19 @@ class UISettingsPage extends HookConsumerWidget {
                   ref
                       .read(settingsRepoProvider)
                       .value!
+                      .setShowGameVideos(!settings.showGameVideos)
+                      .then((value) => ref.refresh(settingsProvider));
+                },
+                title: const Text('Show Game Videos'),
+                trailing:
+                    settings.showGameVideos ? toggleOnIcon : toggleOffIcon,
+              ),
+              ListTile(
+                onFocusChange: (value) {},
+                onTap: () {
+                  ref
+                      .read(settingsRepoProvider)
+                      .value!
                       .setFavoutesOnTop(!settings.favouritesOnTop)
                       .then((value) => ref.refresh(settingsProvider));
                 },

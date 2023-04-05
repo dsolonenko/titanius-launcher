@@ -112,6 +112,7 @@ Game _fromNode(XmlNode node, String romsPath) {
       : null;
   final image = node.findElements("image").firstOrNull?.text;
   final video = node.findElements("video").firstOrNull?.text;
+  final thumbnail = node.findElements("thumbnail").firstOrNull?.text;
   final favorite = node.findElements("favorite").firstOrNull?.text == "true";
   return Game(name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
       description: description,
@@ -119,6 +120,7 @@ Game _fromNode(XmlNode node, String romsPath) {
       rating: rating != null ? 10 * rating : null,
       imageUrl: image != null ? "$romsPath/$image" : null,
       videoUrl: video != null ? "$romsPath/$video" : null,
+      thumbnailUrl: thumbnail != null ? "$romsPath/$thumbnail" : null,
       developer: developer,
       year: year,
       favorite: favorite,

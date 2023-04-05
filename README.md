@@ -23,7 +23,7 @@ Titanius Launcher is designed without a built-in game scraper, with the intentio
 
 1. This is a work in progress. Expect some bugs and crashes.
 2. No built-in game scraper. It relies on EmulationStation's `gamelist.xml` files.
-3. Offers minimal required functionality. If you're seeking something more powerful, check out [Daijishō](https://github.com/magneticchen/Daijishou).
+3. Offers minimal required functionality. If you're seeking something more robust, [Daijishō](https://github.com/magneticchen/Daijishou) is highly recommended.
 4. Currently configured with [Retroarch 64-bit](https://buildbot.libretro.com/stable/1.15.0/android/RetroArch_aarch64.apk) and a few standalone emulators. For a list of supported systems and emulators, see this [JSON config file](assets/metadata.json).
 5. Can function as a home launcher or a standalone frontend.
 
