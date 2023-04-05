@@ -24,8 +24,8 @@ void main() {
 void _ensureStoragePermission() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isAndroid) {
-    if (!await Permission.manageExternalStorage.isGranted) {
-      await Permission.manageExternalStorage.request();
+    if (!await Permission.storage.isGranted) {
+      await Permission.storage.request();
     }
   }
 }
