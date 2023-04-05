@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:cached_video_player/cached_video_player.dart';
 import 'package:device_apps/device_apps.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:titanius/data/settings.dart';
+import 'package:video_player/video_player.dart';
 
 import 'models.dart';
 import 'stack.dart';
@@ -79,7 +79,7 @@ class SelectedApp extends _$SelectedApp {
 }
 
 @riverpod
-Future<CachedVideoPlayerController?> currentVideo(
+Future<VideoPlayerController?> currentVideo(
     CurrentVideoRef ref, String system) {
   final navigation = ref.watch(currentGameNavigationProvider(system));
   final settings = ref.watch(settingsProvider.future);
@@ -87,7 +87,7 @@ Future<CachedVideoPlayerController?> currentVideo(
     return settings.then((value) {
       if (value.showGameVideos) {
         final controller =
-            CachedVideoPlayerController.file(File(navigation.game!.videoUrl!));
+            VideoPlayerController.file(File(navigation.game!.videoUrl!));
         controller.setLooping(true);
         controller.setVolume(0);
         ref.onDispose(() => controller.dispose());

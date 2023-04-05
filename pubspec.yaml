@@ -60,7 +60,7 @@ dependencies:
   fluttertoast: ^8.2.1
   package_info_plus: ^3.0.3
   permission_handler: ^10.2.0
-  cached_video_player: ^2.0.4
+  video_player: ^2.6.1
 
 dev_dependencies:
   flutter_test:

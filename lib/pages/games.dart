@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
-import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:titanius/data/models.dart';
+import 'package:video_player/video_player.dart';
 
 import '../data/settings.dart';
 import '../data/state.dart';
@@ -213,13 +213,13 @@ class GamesPage extends HookConsumerWidget {
         : const Text("No image");
   }
 
-  Widget _gameVideo(Game gameToShow, CachedVideoPlayerController? video) {
+  Widget _gameVideo(Game gameToShow, VideoPlayerController? video) {
     if (video == null) {
       return _gameImage(gameToShow);
     }
     return AspectRatio(
       aspectRatio: video.value.aspectRatio,
-      child: CachedVideoPlayer(video),
+      child: VideoPlayer(video),
     );
   }
 
