@@ -1,12 +1,15 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:titanius/data/models.dart';
 import 'package:video_player/video_player.dart';
 
@@ -25,32 +28,49 @@ class GamesPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allGames = ref.watch(gamesProvider(system));
-    final navigation = ref.watch(currentGameNavigationProvider(system));
+    final games = ref.watch(gamesInFolderProvider(system));
     final video = ref.watch(currentVideoProvider(system));
+    final selectedGame = ref.watch(selectedGameProvider(system));
 
-    final scrollController = useScrollController();
+    final scrollController = ItemScrollController();
+    final ItemPositionsListener itemPositionsListener =
+        ItemPositionsListener.create();
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
+      if (key == GamepadButton.l1 || key == GamepadButton.r1) {
+        final pos = itemPositionsListener.itemPositions.value
+            .sorted((a, b) => a.index.compareTo(b.index));
+        if (pos.isEmpty) {
+          return;
+        }
+        final pageSize = pos.last.index - pos.first.index + 1;
+        final index = key == GamepadButton.l1
+            ? max(pos.first.index - pageSize, 0)
+            : pos.last.index + 1;
+        debugPrint(
+            "Go to index=$index page=$pageSize list=${pos.map((e) => e.index.toString()).join(",")}");
+        _goTo(ref, scrollController, index);
+      }
       if (key == GamepadButton.b) {
         final navigation = ref.read(currentGameNavigationProvider(system));
         debugPrint("Back: $navigation");
         if (navigation.isAtRoot) {
           GoRouter.of(context).go("/");
         } else {
-          ref.read(currentGameNavigationProvider(system).notifier).goBack();
+          Game game =
+              ref.read(currentGameNavigationProvider(system).notifier).goBack();
+          ref.read(selectedGameProvider(system).notifier).set(game);
         }
       }
       if (key == GamepadButton.y) {
-        final navigation = ref.read(currentGameNavigationProvider(system));
-        debugPrint("Favourite: $navigation");
-        if (navigation.isGame) {
+        final selectedGame = ref.read(selectedGameProvider(system));
+        debugPrint("Favourite: $selectedGame");
+        if (selectedGame != null) {
           ref
               .read(settingsRepoProvider)
               .value!
-              .saveFavourite(
-                  navigation.game!.romPath, !navigation.game!.favorite)
+              .saveFavourite(selectedGame.romPath, !selectedGame.favorite)
               .then((value) => ref.refresh(settingsProvider));
         }
       }
@@ -60,6 +80,7 @@ class GamesPage extends HookConsumerWidget {
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
         navigations: [
+          GamepadPrompt([GamepadButton.l1, GamepadButton.r1], "Scroll"),
           GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
@@ -69,18 +90,15 @@ class GamesPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.a], "Launch"),
         ],
       ),
-      body: allGames.when(
+      body: games.when(
         data: (gamelist) {
-          final gamesInFolder = gamelist.games
-              .where((game) => game.folder == navigation.folder)
-              .toList();
-          if (gamesInFolder.isEmpty) {
+          if (gamelist.games.isEmpty) {
             return const Center(
               child: Text("No games found"),
             );
           }
-          final gameToShow = navigation.game ?? gamesInFolder.first;
-          debugPrint("Navigation=$navigation, show=${gameToShow.rom}");
+          final gameToShow = selectedGame ?? gamelist.games.first;
+          debugPrint("show=${gameToShow.rom}");
           return Row(
             children: [
               Expanded(
@@ -99,12 +117,14 @@ class GamesPage extends HookConsumerWidget {
                       ),
                     ),
                     Expanded(
-                      child: ListView.builder(
-                        controller: scrollController,
-                        key: PageStorageKey("$system/${navigation.folder}"),
-                        itemCount: gamesInFolder.length,
+                      child: ScrollablePositionedList.builder(
+                        itemScrollController: scrollController,
+                        itemPositionsListener: itemPositionsListener,
+                        key:
+                            PageStorageKey("$system/${gamelist.currentFolder}"),
+                        itemCount: gamelist.games.length,
                         itemBuilder: (context, index) {
-                          final game = gamesInFolder[index];
+                          final game = gamelist.games[index];
                           final isSelected = game.romPath == gameToShow.romPath;
                           return ListTile(
                             key: ValueKey(game.romPath),
@@ -121,11 +141,10 @@ class GamesPage extends HookConsumerWidget {
                             onFocusChange: (value) {
                               if (value) {
                                 debugPrint(
-                                    "Focus on ${game.rom}, scroll ${scrollController.offset}");
+                                    "Focus on ${game.rom}, list=${itemPositionsListener.itemPositions.value.map((e) => e.index.toString()).join(",")}");
                                 ref
-                                    .read(currentGameNavigationProvider(system)
-                                        .notifier)
-                                    .selectGame(game);
+                                    .read(selectedGameProvider(system).notifier)
+                                    .set(game);
                               }
                             },
                             title: Text(
@@ -138,7 +157,10 @@ class GamesPage extends HookConsumerWidget {
                                 ref
                                     .read(currentGameNavigationProvider(system)
                                         .notifier)
-                                    .moveIntoFolder();
+                                    .moveIntoFolder(game);
+                                ref
+                                    .read(selectedGameProvider(system).notifier)
+                                    .reset();
                               } else {
                                 final intent =
                                     gamelist.emulator!.toIntent(game);
@@ -156,7 +178,7 @@ class GamesPage extends HookConsumerWidget {
               Expanded(
                 flex: 2,
                 child: gameToShow.isFolder
-                    ? _gameFolder(context, gamelist, gameToShow)
+                    ? _gameFolder(ref, context, gameToShow)
                     : Container(
                         color: Colors.black,
                         alignment: Alignment.center,
@@ -223,8 +245,11 @@ class GamesPage extends HookConsumerWidget {
     );
   }
 
-  _gameFolder(BuildContext context, GameList gamelist, Game gameToShow) {
-    final gamesInFolder = gamelist.games
+  _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
+    final gamesInFolder = ref
+        .read(gamesProvider(system))
+        .value!
+        .games
         .where((game) => game.folder == gameToShow.rom && game.imageUrl != null)
         .toList();
     return Container(
@@ -253,6 +278,20 @@ class GamesPage extends HookConsumerWidget {
         },
       ),
     );
+  }
+
+  void _goTo(WidgetRef ref, ItemScrollController scrollController, int index) {
+    scrollController.jumpTo(
+      index: index,
+      alignment: 0,
+    );
+    final games = ref.read(gamesInFolderProvider(system));
+    if (index >= games.value!.games.length) {
+      index = games.value!.games.length - 1;
+    }
+    ref
+        .read(selectedGameProvider(system).notifier)
+        .set(games.value!.games[index]);
   }
 }
 

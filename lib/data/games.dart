@@ -14,11 +14,12 @@ import 'systems.dart';
 part 'games.g.dart';
 
 class GameList {
+  final String currentFolder;
   final System? system;
   final List<Game> games;
   final Emulator? emulator;
 
-  const GameList(this.system, this.games, this.emulator);
+  const GameList(this.currentFolder, this.system, this.games, this.emulator);
 }
 
 @Riverpod(keepAlive: true)
@@ -29,7 +30,7 @@ Future<GameList> games(GamesRef ref, String systemId) async {
   final allGames = List<Game>.empty(growable: true);
 
   if (detectedSystems.isEmpty) {
-    return const GameList(null, [], null);
+    return const GameList(".", null, [], null);
   }
 
   final system =
@@ -95,7 +96,7 @@ Future<GameList> games(GamesRef ref, String systemId) async {
     }
     return a.name.compareTo(b.name);
   });
-  return GameList(system, games, emulator);
+  return GameList(".", system, games, emulator);
 }
 
 Game _fromNode(XmlNode node, String romsPath) {

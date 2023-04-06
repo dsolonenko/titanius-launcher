@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:titanius/data/settings.dart';
 import 'package:video_player/video_player.dart';
 
+import 'games.dart';
 import 'models.dart';
 import 'stack.dart';
 
@@ -22,47 +23,19 @@ class SelectedSystem extends _$SelectedSystem {
   }
 }
 
-class GameNavigation {
-  final Game? game;
-  final MyStack<Game> folders;
-
-  GameNavigation(this.game, this.folders);
-
-  bool get isAtRoot => folders.isEmpty;
-
-  bool get isGame => game != null && !game!.isFolder;
-
-  String get folder => folders.isEmpty ? "." : folders.peek().rom;
-
-  @override
-  String toString() {
-    return "{game=${game?.rom}, folder=$folder}";
-  }
-}
-
 @Riverpod(keepAlive: true)
-class CurrentGameNavigation extends _$CurrentGameNavigation {
+class SelectedGame extends _$SelectedGame {
   @override
-  GameNavigation build(String system) {
-    return GameNavigation(null, MyStack());
+  Game? build(String system) {
+    return null;
   }
 
-  void selectGame(Game game) {
-    state = GameNavigation(game, state.folders);
+  void set(Game game) {
+    state = game;
   }
 
-  void moveIntoFolder() {
-    if (state.game != null && state.game!.isFolder) {
-      final folders = state.folders;
-      folders.push(state.game!);
-      state = GameNavigation(null, folders);
-    }
-  }
-
-  void goBack() {
-    final folders = state.folders;
-    final game = folders.pop();
-    state = GameNavigation(game, folders);
+  void reset() {
+    state = null;
   }
 }
 
@@ -78,16 +51,55 @@ class SelectedApp extends _$SelectedApp {
   }
 }
 
+class GameNavigation {
+  final MyStack<Game> folders;
+
+  GameNavigation(this.folders);
+
+  bool get isAtRoot => folders.isEmpty;
+
+  String get folder => folders.isEmpty ? "." : folders.peek().rom;
+
+  @override
+  String toString() {
+    return "{folder=$folder}";
+  }
+}
+
+@Riverpod(keepAlive: true)
+class CurrentGameNavigation extends _$CurrentGameNavigation {
+  @override
+  GameNavigation build(String system) {
+    return GameNavigation(MyStack());
+  }
+
+  void selectGame(Game game) {
+    state = GameNavigation(state.folders);
+  }
+
+  void moveIntoFolder(Game game) {
+    final folders = state.folders;
+    folders.push(game);
+    state = GameNavigation(folders);
+  }
+
+  Game goBack() {
+    final folders = state.folders;
+    final game = folders.pop();
+    state = GameNavigation(folders);
+    return game;
+  }
+}
+
 @riverpod
 Future<VideoPlayerController?> currentVideo(
     CurrentVideoRef ref, String system) {
-  final navigation = ref.watch(currentGameNavigationProvider(system));
+  final game = ref.watch(selectedGameProvider(system));
   final settings = ref.watch(settingsProvider.future);
-  if (navigation.game != null && navigation.game!.videoUrl != null) {
+  if (game != null && game.videoUrl != null) {
     return settings.then((value) {
       if (value.showGameVideos) {
-        final controller =
-            VideoPlayerController.file(File(navigation.game!.videoUrl!));
+        final controller = VideoPlayerController.file(File(game.videoUrl!));
         controller.setLooping(true);
         controller.setVolume(0);
         ref.onDispose(() => controller.dispose());
@@ -100,4 +112,14 @@ Future<VideoPlayerController?> currentVideo(
     });
   }
   return Future.value(null);
+}
+
+@riverpod
+Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
+  final gamelist = await ref.watch(gamesProvider(system).future);
+  final navigation = ref.watch(currentGameNavigationProvider(system));
+  final gamesInFolder =
+      gamelist.games.where((game) => game.folder == navigation.folder).toList();
+  return GameList(
+      navigation.folder, gamelist.system, gamesInFolder, gamelist.emulator);
 }

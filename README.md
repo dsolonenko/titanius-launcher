@@ -3,7 +3,12 @@
 [![Codemagic build status](https://api.codemagic.io/apps/641a93e956ceb17664370612/android-workflow/status_badge.svg)](https://codemagic.io/apps/641a93e956ceb17664370612/android-workflow/latest_build)
 
 Titanius Launcher is a minimalistic, controller-first retro game launcher designed for those who want to enjoy a seamless gaming experience on their Android devices. 
-Inspired by EmulationStation and AmberELEC, it allows users to easily integrate their pre-scraped ROMs libraries from Linux systems like AmberELEC and ArkOS. With its straightforward setup and uncomplicated user interface, Titanius Launcher is perfect for gamers who appreciate simplicity and an efficient emulation experience.
+Inspired by EmulationStation and AmberELEC, it allows users to easily integrate their pre-scraped ROMs libraries from Linux systems like AmberELEC and ArkOS. 
+
+- Designed for Android devices with built-in controllers, such as Retroid 3/3+/Flip, Odin Lite/Pro, Anbernic RG552, Logitech G Cloud, etc.
+- Minimalistic, controller-first UI
+- Reuse your existing pre-scraped ROMs library from Linux systems like AmberELEC and ArkOS
+- Supports over 70 systems with Retroarch 64-bit and standlone emulators
 
 ## Download
 
@@ -26,6 +31,7 @@ Titanius Launcher is designed without a built-in game scraper, with the intentio
 3. Offers minimal required functionality. If you're seeking something more robust, [Daijishō](https://github.com/magneticchen/Daijishou) is highly recommended.
 4. Currently configured with [Retroarch 64-bit](https://buildbot.libretro.com/stable/1.15.0/android/RetroArch_aarch64.apk) and a few standalone emulators. For a list of supported systems and emulators, see this [JSON config file](assets/metadata.json).
 5. Can function as a home launcher or a standalone frontend.
+6. Relies on the controller, touch interface can be hit and miss
 
 ## Screenshots
 
@@ -49,6 +55,7 @@ Some settings:
 
 ## Attributions
 
+- [Bebas Neue font by Ryoichi Tsunekawa](https://github.com/dharmatype/Bebas-Neue)
 - [PromptFont by Shinmera](https://github.com/Shinmera/promptfont/)
 - [Console logos created by Dan Patrick](https://archive.org/details/console-logos-professionally-redrawn-plus-official-versions)
 - [App icon created by Irfansusanto20 - Flaticon](https://www.flaticon.com/free-icons/game-console)
