@@ -1995,7 +1995,7 @@
     {
       "id": "mame",
       "name": "Arcade (MAME)",
-      "logo": "MAME.png",
+      "logo": "Arcade Classics.png",
       "folders": [
         "arcade",
         "mame"
