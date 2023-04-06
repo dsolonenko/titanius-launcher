@@ -157,43 +157,7 @@ class GamesPage extends HookConsumerWidget {
                 flex: 2,
                 child: gameToShow.isFolder
                     ? _gameFolder(context, gamelist, gameToShow)
-                    : Container(
-                        color: Colors.black,
-                        alignment: Alignment.center,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: video.when(
-                                  data: (video) =>
-                                      _gameVideo(gameToShow, video),
-                                  error: (_, __) => _gameImage(gameToShow),
-                                  loading: () => const Center(
-                                      child: CircularProgressIndicator())),
-                            ),
-                            const SizedBox(height: verticalSpacing),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                RatingBarIndicator(
-                                  rating: gameToShow.rating ?? 0,
-                                  itemBuilder: (context, index) => const Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                  ),
-                                  itemCount: 10,
-                                  itemSize: 14.0,
-                                  direction: Axis.horizontal,
-                                ),
-                                Text(gameToShow.genre ?? "Unknown"),
-                                Text(
-                                  "${gameToShow.developer ?? "Unknown"}, ${gameToShow.year?.toString() ?? "?"}",
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                    : _gameGame(video, gameToShow),
               ),
             ],
           );
@@ -204,13 +168,55 @@ class GamesPage extends HookConsumerWidget {
     );
   }
 
+  Column _gameGame(AsyncValue<VideoPlayerController?> video, Game gameToShow) {
+    return Column(
+      children: [
+        Expanded(
+          child: _gameMedia(video, gameToShow),
+        ),
+        Container(height: verticalSpacing, color: Colors.amber),
+        Column(
+          children: [
+            RatingBarIndicator(
+              rating: gameToShow.rating ?? 0,
+              itemBuilder: (context, index) => const Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              itemCount: 10,
+              itemSize: 14.0,
+              direction: Axis.horizontal,
+            ),
+            Text(gameToShow.genre ?? "Unknown"),
+            Text(
+              "${gameToShow.developer ?? "Unknown"}, ${gameToShow.year?.toString() ?? "?"}",
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _gameMedia(AsyncValue<VideoPlayerController?> video, Game gameToShow) {
+    return video.when(
+        data: (video) => _gameVideo(gameToShow, video),
+        error: (_, __) => _gameImage(gameToShow),
+        loading: () => const Center(child: CircularProgressIndicator()));
+  }
+
   Widget _gameImage(Game gameToShow) {
-    return gameToShow.imageUrl != null
-        ? Image.file(
-            File(gameToShow.imageUrl!),
-            fit: BoxFit.contain,
-          )
-        : const Text("No image");
+    return Container(
+      color: Colors.blue,
+      child: gameToShow.imageUrl != null
+          ? Image.file(
+              alignment: Alignment.center,
+              filterQuality: FilterQuality.high,
+              File(gameToShow.imageUrl!),
+              fit: BoxFit.contain,
+            )
+          : const Text("No image"),
+    );
   }
 
   Widget _gameVideo(Game gameToShow, VideoPlayerController? video) {
