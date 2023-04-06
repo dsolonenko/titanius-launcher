@@ -253,12 +253,9 @@ class GamesPage extends HookConsumerWidget {
       alignment: 0,
     );
     final games = ref.read(gamesInFolderProvider(system));
-    if (index >= games.value!.games.length) {
-      index = games.value!.games.length - 1;
-    }
     ref
         .read(selectedGameProvider(system).notifier)
-        .set(games.value!.games[index]);
+        .set(games.value!.games[index.clamp(0, games.value!.games.length - 1)]);
   }
 
   Widget _gameDetails(
