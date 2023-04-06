@@ -16,7 +16,10 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
   );
   final List<System> systems =
       content['systems'].map<System>((e) => System.fromJson(e)).toList();
-  //systems.sort((a, b) => a.name.compareTo(b.name));
+  if (!Platform.isAndroid) {
+    systems.removeWhere((system) => system.id == 'android');
+  }
+  systems.sort((a, b) => a.name.compareTo(b.name));
   return systems;
 }
 

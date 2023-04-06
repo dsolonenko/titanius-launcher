@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -98,6 +97,9 @@ class GamesPage extends HookConsumerWidget {
             );
           }
           final gameToShow = selectedGame ?? gamelist.games.first;
+          final index = gamelist.games
+              .indexOf(gameToShow)
+              .clamp(0, gamelist.games.length - 1);
           debugPrint("show=${gameToShow.rom}");
           return Row(
             children: [
@@ -122,6 +124,7 @@ class GamesPage extends HookConsumerWidget {
                         itemPositionsListener: itemPositionsListener,
                         key:
                             PageStorageKey("$system/${gamelist.currentFolder}"),
+                        initialScrollIndex: index,
                         itemCount: gamelist.games.length,
                         itemBuilder: (context, index) {
                           final game = gamelist.games[index];
@@ -179,43 +182,7 @@ class GamesPage extends HookConsumerWidget {
                 flex: 2,
                 child: gameToShow.isFolder
                     ? _gameFolder(ref, context, gameToShow)
-                    : Container(
-                        color: Colors.black,
-                        alignment: Alignment.center,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: video.when(
-                                  data: (video) =>
-                                      _gameVideo(gameToShow, video),
-                                  error: (_, __) => _gameImage(gameToShow),
-                                  loading: () => const Center(
-                                      child: CircularProgressIndicator())),
-                            ),
-                            const SizedBox(height: verticalSpacing),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                RatingBarIndicator(
-                                  rating: gameToShow.rating ?? 0,
-                                  itemBuilder: (context, index) => const Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                  ),
-                                  itemCount: 10,
-                                  itemSize: 14.0,
-                                  direction: Axis.horizontal,
-                                ),
-                                Text(gameToShow.genre ?? "Unknown"),
-                                Text(
-                                  "${gameToShow.developer ?? "Unknown"}, ${gameToShow.year?.toString() ?? "?"}",
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                    : _gameDetails(gameToShow, video),
               ),
             ],
           );
@@ -292,6 +259,41 @@ class GamesPage extends HookConsumerWidget {
     ref
         .read(selectedGameProvider(system).notifier)
         .set(games.value!.games[index]);
+  }
+
+  Widget _gameDetails(
+      Game gameToShow, AsyncValue<VideoPlayerController?> video) {
+    return Column(
+      children: [
+        Expanded(
+          child: video.when(
+              data: (video) => _gameVideo(gameToShow, video),
+              error: (_, __) => _gameImage(gameToShow),
+              loading: () => const Center(child: CircularProgressIndicator())),
+        ),
+        const SizedBox(height: verticalSpacing),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RatingBarIndicator(
+              rating: gameToShow.rating ?? 0,
+              itemBuilder: (context, index) => const Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              itemCount: 10,
+              itemSize: 14.0,
+              direction: Axis.horizontal,
+            ),
+            Text(gameToShow.genre ?? "Unknown"),
+            Text(
+              "${gameToShow.developer ?? "Unknown"}, ${gameToShow.year?.toString() ?? "?"}",
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
