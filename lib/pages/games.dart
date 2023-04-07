@@ -197,6 +197,7 @@ class GamesPage extends HookConsumerWidget {
     return gameToShow.imageUrl != null
         ? Image.file(
             File(gameToShow.imageUrl!),
+            filterQuality: FilterQuality.high,
             fit: BoxFit.contain,
           )
         : const Text("No image");
@@ -225,8 +226,8 @@ class GamesPage extends HookConsumerWidget {
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          crossAxisSpacing: 0,
-          mainAxisSpacing: 0,
+          crossAxisSpacing: 4,
+          mainAxisSpacing: 4,
         ),
         itemCount: gamesInFolder.length,
         itemBuilder: (context, index) {
