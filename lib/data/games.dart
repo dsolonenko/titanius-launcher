@@ -105,6 +105,8 @@ Game _fromNode(XmlNode node, String romsPath) {
   final description = node.findElements("desc").firstOrNull?.text;
   final genre = node.findElements("genre").firstOrNull?.text;
   final developer = node.findElements("developer").firstOrNull?.text;
+  final publisher = node.findElements("publisher").firstOrNull?.text;
+  final players = node.findElements("players").firstOrNull?.text;
   final ratingString = node.findElements("rating").firstOrNull?.text;
   final rating = ratingString != null ? double.tryParse(ratingString) : null;
   final yearString = node.findElements("releasedate").firstOrNull?.text;
@@ -123,6 +125,8 @@ Game _fromNode(XmlNode node, String romsPath) {
       videoUrl: video != null ? "$romsPath/$video" : null,
       thumbnailUrl: thumbnail != null ? "$romsPath/$thumbnail" : null,
       developer: developer,
+      publisher: publisher,
+      players: players,
       year: year,
       favorite: favorite,
       isFolder: node is XmlElement && node.name.local == "folder");

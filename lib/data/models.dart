@@ -97,6 +97,8 @@ class Game {
   final String? description;
   final String? genre;
   final String? developer;
+  final String? publisher;
+  final String? players;
   final int? year;
   final String? imageUrl;
   final String? videoUrl;
@@ -117,6 +119,8 @@ class Game {
     this.thumbnailUrl,
     this.rating,
     this.developer,
+    this.publisher,
+    this.players,
     this.year,
     this.favorite = false,
     this.isFolder = false,

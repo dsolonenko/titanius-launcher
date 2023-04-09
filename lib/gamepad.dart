@@ -74,7 +74,8 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
           e.logicalKey == LogicalKeyboardKey.numpad6) {
         hook.listener(hook.location, GamepadButton.b);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonX ||
-          e.logicalKey == LogicalKeyboardKey.numpad4) {
+          e.logicalKey == LogicalKeyboardKey.numpad4 ||
+          e.logicalKey == LogicalKeyboardKey.keyX) {
         hook.listener(hook.location, GamepadButton.x);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonY ||
           e.logicalKey == LogicalKeyboardKey.numpad8) {

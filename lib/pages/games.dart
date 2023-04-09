@@ -307,40 +307,56 @@ class GamesPage extends HookConsumerWidget {
 
   Widget _gameDetailsLong(
       Game gameToShow, AsyncValue<VideoPlayerController?> video) {
-    return Column(
-      children: [
-        gameToShow.thumbnailUrl != null
-            ? SizedBox(
-                height: 100,
-                child: Image.file(
-                  File(gameToShow.thumbnailUrl!),
-                  fit: BoxFit.fitHeight,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          gameToShow.thumbnailUrl != null
+              ? SizedBox(
+                  height: 60,
+                  child: Image.file(
+                    File(gameToShow.thumbnailUrl!),
+                    fit: BoxFit.fitHeight,
+                  ),
+                )
+              : Text(gameToShow.name, textScaleFactor: 2),
+          RatingBarIndicator(
+            rating: gameToShow.rating ?? 0,
+            itemBuilder: (context, index) => const Icon(
+              Icons.star,
+              color: Colors.amber,
+            ),
+            itemCount: 10,
+            itemSize: 14.0,
+            direction: Axis.horizontal,
+          ),
+          gameToShow.players != null
+              ? Text("Players: ${gameToShow.players}")
+              : const SizedBox(
+                  height: 0,
                 ),
-              )
-            : Text(gameToShow.name, textScaleFactor: 2),
-        _gameImage(gameToShow),
-        const SizedBox(height: verticalSpacing),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RatingBarIndicator(
-              rating: gameToShow.rating ?? 0,
-              itemBuilder: (context, index) => const Icon(
-                Icons.star,
-                color: Colors.amber,
-              ),
-              itemCount: 10,
-              itemSize: 14.0,
-              direction: Axis.horizontal,
-            ),
-            Text(gameToShow.genre ?? "Unknown"),
-            Text(
-              "${gameToShow.developer ?? "Unknown"}, ${gameToShow.year?.toString() ?? "?"}",
-              style: const TextStyle(color: Colors.grey),
-            ),
-          ],
-        ),
-      ],
+          Text(gameToShow.description ?? "No description"),
+          ListTile(
+            visualDensity: VisualDensity.compact,
+            title: const Text("Genre"),
+            subtitle: Text(gameToShow.genre ?? "-"),
+          ),
+          ListTile(
+            visualDensity: VisualDensity.compact,
+            title: const Text("Released"),
+            subtitle: Text(gameToShow.year?.toString() ?? "-"),
+          ),
+          ListTile(
+            visualDensity: VisualDensity.compact,
+            title: const Text("Developer"),
+            subtitle: Text(gameToShow.developer ?? "-"),
+          ),
+          ListTile(
+            visualDensity: VisualDensity.compact,
+            title: const Text("Publisher"),
+            subtitle: Text(gameToShow.publisher ?? "-"),
+          ),
+        ],
+      ),
     );
   }
 }
