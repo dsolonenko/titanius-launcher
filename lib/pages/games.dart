@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -35,6 +36,8 @@ class GamesPage extends HookConsumerWidget {
     final ItemPositionsListener itemPositionsListener =
         ItemPositionsListener.create();
 
+    final showDetails = useState(false);
+
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
       if (key == GamepadButton.l1 || key == GamepadButton.r1) {
@@ -62,6 +65,9 @@ class GamesPage extends HookConsumerWidget {
           ref.read(selectedGameProvider(system).notifier).set(game);
         }
       }
+      if (key == GamepadButton.x) {
+        showDetails.value = !showDetails.value;
+      }
       if (key == GamepadButton.y) {
         final selectedGame = ref.read(selectedGameProvider(system));
         debugPrint("Favourite: $selectedGame");
@@ -84,6 +90,7 @@ class GamesPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
         actions: [
+          GamepadPrompt([GamepadButton.x], "Details"),
           GamepadPrompt([GamepadButton.y], "Favourite"),
           GamepadPrompt([GamepadButton.b], "Back"),
           GamepadPrompt([GamepadButton.a], "Launch"),
@@ -182,7 +189,7 @@ class GamesPage extends HookConsumerWidget {
                 flex: 2,
                 child: gameToShow.isFolder
                     ? _gameFolder(ref, context, gameToShow)
-                    : _gameDetails(gameToShow, video),
+                    : _gameDetails(gameToShow, showDetails, video),
               ),
             ],
           );
@@ -259,7 +266,16 @@ class GamesPage extends HookConsumerWidget {
         .set(games.value!.games[index.clamp(0, games.value!.games.length - 1)]);
   }
 
-  Widget _gameDetails(
+  Widget _gameDetails(Game gameToShow, ValueNotifier<bool> showDetails,
+      AsyncValue<VideoPlayerController?> video) {
+    if (showDetails.value) {
+      return _gameDetailsLong(gameToShow, video);
+    } else {
+      return _gameDetailsShort(gameToShow, video);
+    }
+  }
+
+  Widget _gameDetailsShort(
       Game gameToShow, AsyncValue<VideoPlayerController?> video) {
     return Column(
       children: [
@@ -269,6 +285,40 @@ class GamesPage extends HookConsumerWidget {
               error: (_, __) => _gameImage(gameToShow),
               loading: () => const Center(child: CircularProgressIndicator())),
         ),
+        const SizedBox(height: verticalSpacing),
+        RatingBarIndicator(
+          rating: gameToShow.rating ?? 0,
+          itemBuilder: (context, index) => const Icon(
+            Icons.star,
+            color: Colors.amber,
+          ),
+          itemCount: 10,
+          itemSize: 14.0,
+          direction: Axis.horizontal,
+        ),
+        Text(gameToShow.genre ?? "Unknown"),
+        Text(
+          "${gameToShow.developer ?? "Unknown"}, ${gameToShow.year?.toString() ?? "?"}",
+          style: const TextStyle(color: Colors.grey),
+        ),
+      ],
+    );
+  }
+
+  Widget _gameDetailsLong(
+      Game gameToShow, AsyncValue<VideoPlayerController?> video) {
+    return Column(
+      children: [
+        gameToShow.thumbnailUrl != null
+            ? SizedBox(
+                height: 100,
+                child: Image.file(
+                  File(gameToShow.thumbnailUrl!),
+                  fit: BoxFit.fitHeight,
+                ),
+              )
+            : Text(gameToShow.name, textScaleFactor: 2),
+        _gameImage(gameToShow),
         const SizedBox(height: verticalSpacing),
         Column(
           mainAxisSize: MainAxisSize.min,
