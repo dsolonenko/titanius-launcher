@@ -1069,6 +1069,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  system_date_time_format:
+    dependency: "direct main"
+    description:
+      name: system_date_time_format
+      sha256: "1e67255f39510607c993f2213115768d257cde043c3ae9d19b25c954fe411ffa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   term_glyph:
     dependency: transitive
     description:
