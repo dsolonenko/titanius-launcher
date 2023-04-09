@@ -18,13 +18,13 @@ class SystemProxy extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (!location.startsWith("/games/$system")) return;
       if (allSystems.value == null || allSystems.value!.isEmpty) return;
-      if (key == GamepadButton.r2) {
+      if (key == GamepadButton.r2 || key == GamepadButton.right) {
         final currentSystem = ref.read(selectedSystemProvider);
         final next = (currentSystem + 1) % allSystems.value!.length;
         ref.read(selectedSystemProvider.notifier).set(next);
         GoRouter.of(context).go("/games/${allSystems.value![next].id}");
       }
-      if (key == GamepadButton.l2) {
+      if (key == GamepadButton.l2 || key == GamepadButton.left) {
         final currentSystem = ref.read(selectedSystemProvider);
         final prev = currentSystem - 1 < 0
             ? allSystems.value!.length - 1

@@ -54,7 +54,7 @@ class SystemsPage extends HookConsumerWidget {
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
         navigations: [
-          GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "Choose"),
+          GamepadPrompt([GamepadButton.leftRight], "Choose"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
         actions: [

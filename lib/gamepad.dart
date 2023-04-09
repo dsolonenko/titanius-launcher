@@ -100,11 +100,7 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
       }
     } else if (e is KeyRepeatEvent) {
       debugPrint("Gamepad repeat ${e.logicalKey}");
-      if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
-        hook.listener(hook.location, GamepadButton.up);
-      } else if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
-        hook.listener(hook.location, GamepadButton.down);
-      } else if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
+      if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
         hook.listener(hook.location, GamepadButton.left);
       } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
         hook.listener(hook.location, GamepadButton.right);

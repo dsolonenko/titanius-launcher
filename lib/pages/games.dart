@@ -40,17 +40,14 @@ class GamesPage extends HookConsumerWidget {
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
-      if (key == GamepadButton.l1 ||
-          key == GamepadButton.r1 ||
-          key == GamepadButton.left ||
-          key == GamepadButton.right) {
+      if (key == GamepadButton.l1 || key == GamepadButton.r1) {
         final pos = itemPositionsListener.itemPositions.value
             .sorted((a, b) => a.index.compareTo(b.index));
         if (pos.isEmpty) {
           return;
         }
         final pageSize = pos.last.index - pos.first.index + 1;
-        final index = key == GamepadButton.l1 || key == GamepadButton.left
+        final index = key == GamepadButton.l1
             ? max(pos.first.index - pageSize, 0)
             : pos.last.index + 1;
         debugPrint(
@@ -89,7 +86,7 @@ class GamesPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [
           GamepadPrompt([GamepadButton.l1, GamepadButton.r1], "Scroll"),
-          GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
+          GamepadPrompt([GamepadButton.leftRight], "System"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
         actions: [
