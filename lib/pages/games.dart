@@ -40,14 +40,17 @@ class GamesPage extends HookConsumerWidget {
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
-      if (key == GamepadButton.l1 || key == GamepadButton.r1) {
+      if (key == GamepadButton.l1 ||
+          key == GamepadButton.r1 ||
+          key == GamepadButton.left ||
+          key == GamepadButton.right) {
         final pos = itemPositionsListener.itemPositions.value
             .sorted((a, b) => a.index.compareTo(b.index));
         if (pos.isEmpty) {
           return;
         }
         final pageSize = pos.last.index - pos.first.index + 1;
-        final index = key == GamepadButton.l1
+        final index = key == GamepadButton.l1 || key == GamepadButton.left
             ? max(pos.first.index - pageSize, 0)
             : pos.last.index + 1;
         debugPrint(
