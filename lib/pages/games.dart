@@ -307,54 +307,70 @@ class GamesPage extends HookConsumerWidget {
 
   Widget _gameDetailsLong(
       Game gameToShow, AsyncValue<VideoPlayerController?> video) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          gameToShow.thumbnailUrl != null
-              ? SizedBox(
-                  height: 60,
-                  child: Image.file(
-                    File(gameToShow.thumbnailUrl!),
-                    fit: BoxFit.fitHeight,
-                  ),
-                )
-              : Text(gameToShow.name, textScaleFactor: 2),
-          RatingBarIndicator(
-            rating: gameToShow.rating ?? 0,
-            itemBuilder: (context, index) => const Icon(
-              Icons.star,
-              color: Colors.amber,
-            ),
-            itemCount: 10,
-            itemSize: 14.0,
-            direction: Axis.horizontal,
-          ),
-          gameToShow.players != null
-              ? Text("Players: ${gameToShow.players}")
-              : const SizedBox(
-                  height: 0,
+    return Column(
+      children: [
+        gameToShow.thumbnailUrl != null
+            ? SizedBox(
+                height: 60,
+                child: Image.file(
+                  File(gameToShow.thumbnailUrl!),
+                  fit: BoxFit.fitHeight,
                 ),
-          Text(gameToShow.description ?? "No description"),
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            title: const Text("Genre"),
-            subtitle: Text(gameToShow.genre ?? "-"),
+              )
+            : Text(gameToShow.name, textScaleFactor: 2),
+        RatingBarIndicator(
+          rating: gameToShow.rating ?? 0,
+          itemBuilder: (context, index) => const Icon(
+            Icons.star,
+            color: Colors.amber,
           ),
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            title: const Text("Released"),
-            subtitle: Text(gameToShow.year?.toString() ?? "-"),
+          itemCount: 10,
+          itemSize: 14.0,
+          direction: Axis.horizontal,
+        ),
+        gameToShow.players != null
+            ? Text("Players: ${gameToShow.players}")
+            : const SizedBox(
+                height: 0,
+              ),
+        Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(gameToShow.description ?? "No description",
+                style: const TextStyle(color: Colors.grey))),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final double tileWidth = constraints.maxWidth / 3;
+              return Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _gameInfoTile("Genre", gameToShow.genre ?? "-", tileWidth),
+                  _gameInfoTile("Released", gameToShow.year?.toString() ?? "-",
+                      tileWidth),
+                  _gameInfoTile(
+                      "Developer", gameToShow.developer ?? "-", tileWidth),
+                  _gameInfoTile(
+                      "Publisher", gameToShow.publisher ?? "-", tileWidth),
+                ],
+              );
+            },
           ),
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            title: const Text("Developer"),
-            subtitle: Text(gameToShow.developer ?? "-"),
-          ),
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            title: const Text("Publisher"),
-            subtitle: Text(gameToShow.publisher ?? "-"),
-          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _gameInfoTile(String title, String subtitle, double width) {
+    return Container(
+      width: width,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(title),
+          Text(subtitle, style: const TextStyle(color: Colors.grey)),
         ],
       ),
     );
