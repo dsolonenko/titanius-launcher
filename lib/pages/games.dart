@@ -80,7 +80,7 @@ class GamesPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [
           GamepadPrompt([GamepadButton.l1, GamepadButton.r1], "Scroll"),
-          GamepadPrompt([GamepadButton.leftRight], "System"),
+          GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
         actions: [
