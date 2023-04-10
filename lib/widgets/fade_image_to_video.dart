@@ -17,8 +17,8 @@ class FadeImageToVideo extends StatefulWidget {
 
 class FadeImageToVideoState extends State<FadeImageToVideo> {
   late VideoPlayerController _controller;
-  double _opacity = 1.0;
-  double _reverseOpacity = 0.0;
+  double _imageOpacity = 1.0;
+  double _videoOpacity = 0.0;
 
   @override
   void initState() {
@@ -28,17 +28,13 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
       ..setVolume(widget.settings.muteVideo ? 0 : 1);
 
     if (widget.settings.fadeToVideo) {
-      _controller.initialize().then((_) {});
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           _fadeImageOut();
         }
       });
     } else {
-      _controller.initialize().then((_) {
-        setState(() {});
-        _controller.play();
-      });
+      _initializeAndPlay();
     }
   }
 
@@ -49,12 +45,19 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
   }
 
   void _fadeImageOut() {
+    _initializeAndPlay();
     setState(() {
-      _opacity = 0.0;
-      _reverseOpacity = 1.0;
+      _imageOpacity = 0.0;
+      _videoOpacity = 1.0;
     });
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _controller.play();
+  }
+
+  void _initializeAndPlay() {
+    _controller.initialize().then((_) {
+      if (mounted) {
+        setState(() {});
+        _controller.play();
+      }
     });
   }
 
@@ -63,20 +66,14 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
     if (widget.settings.fadeToVideo) {
       return Stack(
         children: <Widget>[
-          Positioned.fill(
-              child: AnimatedOpacity(
-            opacity: _reverseOpacity,
+          AnimatedOpacity(
+            opacity: _videoOpacity,
             duration: const Duration(milliseconds: 500),
-            child: _controller.value.isInitialized
-                ? AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
-                  )
-                : const Center(child: CircularProgressIndicator()),
-          )),
+            child: _videoWidget(),
+          ),
           Positioned.fill(
             child: AnimatedOpacity(
-              opacity: _opacity,
+              opacity: _imageOpacity,
               duration: const Duration(milliseconds: 500),
               child: Image.file(
                 File(widget.gameToShow.imageUrl!),
@@ -87,12 +84,16 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
         ],
       );
     } else {
-      return _controller.value.isInitialized
-          ? AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: VideoPlayer(_controller),
-            )
-          : const Center(child: CircularProgressIndicator());
+      return _videoWidget();
     }
+  }
+
+  Widget _videoWidget() {
+    return _controller.value.isInitialized
+        ? AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            child: VideoPlayer(_controller),
+          )
+        : Container();
   }
 }
