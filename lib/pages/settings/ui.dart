@@ -14,6 +14,8 @@ class UISettingsPage extends HookConsumerWidget {
       }
     });
 
+    final selected = useState<String>('Show Favouries On Top');
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('UI Settings'),
@@ -22,10 +24,13 @@ class UISettingsPage extends HookConsumerWidget {
         data: (settings) {
           return ListView(
             children: [
-              _boolSetting(ref, 'Show Favouries On Top', settings.favouritesOnTop, (p0, p1) => p0.setFavoutesOnTop(p1)),
-              _boolSetting(ref, 'Show Game Videos', settings.showGameVideos, (p0, p1) => p0.setShowGameVideos(p1)),
-              _boolSetting(ref, 'Fade Screenshot To Video', settings.fadeToVideo, (p0, p1) => p0.setFadeToVideo(p1)),
-              _boolSetting(ref, 'Mute Video', settings.muteVideo, (p0, p1) => p0.setMuteVideo(p1)),
+              _setting(ref, selected, 'Show Favouries On Top', settings.favouritesOnTop,
+                  (p0, p1) => p0.setFavoutesOnTop(p1)),
+              _setting(
+                  ref, selected, 'Show Game Videos', settings.showGameVideos, (p0, p1) => p0.setShowGameVideos(p1)),
+              _setting(
+                  ref, selected, 'Fade Screenshot To Video', settings.fadeToVideo, (p0, p1) => p0.setFadeToVideo(p1)),
+              _setting(ref, selected, 'Mute Video', settings.muteVideo, (p0, p1) => p0.setMuteVideo(p1)),
             ],
           );
         },
@@ -39,10 +44,15 @@ class UISettingsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _boolSetting(WidgetRef ref, String title, bool value, Future<void> Function(SettingsRepo, bool) onChanged) {
+  Widget _setting(WidgetRef ref, ValueNotifier<String> selected, String title, bool value,
+      Future<void> Function(SettingsRepo, bool) onChanged) {
     return ListTile(
-      autofocus: true,
-      onFocusChange: (value) {},
+      autofocus: selected.value == title,
+      onFocusChange: (value) {
+        if (value) {
+          selected.value = title;
+        }
+      },
       onTap: () {
         final repo = ref.read(settingsRepoProvider).value!;
         onChanged(repo, !value).then((value) => ref.refresh(settingsProvider));
