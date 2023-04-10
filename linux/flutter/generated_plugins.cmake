@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   isar_flutter_libs
+  system_date_time_format
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:system_date_time_format/system_date_time_format.dart';
 
 class TimeWidget extends StatelessWidget {
   const TimeWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => StreamBuilder(
-        stream: Stream.periodic(const Duration(seconds: 1)),
+        stream: Stream.periodic(const Duration(minutes: 1)),
         builder: (BuildContext context, AsyncSnapshot<Object?> snapshot) =>
             Text(
-          DateFormat('HH:mm').format(DateTime.now()),
+          DateFormat(SystemDateTimeFormat().timeFormat).format(DateTime.now()),
         ),
       );
 }

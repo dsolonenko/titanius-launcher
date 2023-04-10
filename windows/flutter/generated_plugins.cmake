@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   isar_flutter_libs
   permission_handler_windows
+  system_date_time_format
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

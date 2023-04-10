@@ -7,13 +7,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:system_date_time_format/system_date_time_format.dart';
 
 import 'pages/settings.dart';
 import 'pages/system_proxy.dart';
 import 'pages/systems.dart';
 
-void main() {
+void main() async {
   _ensureStoragePermission();
+  await SystemDateTimeFormat().initialize(timeFormatFallback: "HH:mm");
   runApp(
     const ProviderScope(
       child: MyApp(),
