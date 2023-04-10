@@ -36,7 +36,7 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
     } else {
       _controller.initialize().then((_) {
         if (mounted) {
-          //setState(() {});
+          setState(() {});
           _controller.play();
         }
       });
@@ -57,6 +57,7 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
     });
     Future.delayed(const Duration(milliseconds: 1000), () {
       if (mounted) {
+        setState(() {});
         _controller.play();
       }
     });

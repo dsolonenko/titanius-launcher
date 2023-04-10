@@ -54,6 +54,7 @@ class UISettingsPage extends HookConsumerWidget {
         }
       },
       onTap: () {
+        selected.value = title;
         final repo = ref.read(settingsRepoProvider).value!;
         onChanged(repo, !value).then((value) => ref.refresh(settingsProvider));
       },

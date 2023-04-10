@@ -38,6 +38,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                       }
                     },
                     onTap: () {
+                      selected.value = systems[index].id;
                       ref
                           .read(settingsRepoProvider)
                           .value!
