@@ -318,6 +318,9 @@ class GamesPage extends HookConsumerWidget {
                 ),
               )
             : Text(gameToShow.name, textScaleFactor: 2),
+        Text(
+          gameToShow.rom,
+        ),
         RatingBarIndicator(
           rating: gameToShow.rating ?? 0,
           itemBuilder: (context, index) => const Icon(
