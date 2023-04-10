@@ -43,8 +43,7 @@ class SettingsPage extends HookConsumerWidget {
         title: const Text('Settings'),
       ),
       bottomNavigationBar: packageInfo.when(
-          data: (data) => Text("${data.appName} ${data.version}",
-              textScaleFactor: 0.7, textAlign: TextAlign.center),
+          data: (data) => Text("${data.appName} ${data.version}", textScaleFactor: 0.7, textAlign: TextAlign.center),
           loading: () => const CircularProgressIndicator(),
           error: (error, stackTrace) => Text(error.toString())),
       body: ListView(
@@ -79,7 +78,7 @@ class SettingsPage extends HookConsumerWidget {
             onTap: () {
               context.push("/settings/ui");
             },
-            title: const Text('Settings'),
+            title: const Text('UI Settings'),
             trailing: const Icon(Icons.arrow_forward_ios_rounded),
           ),
         ],

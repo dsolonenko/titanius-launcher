@@ -11,6 +11,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:titanius/data/models.dart';
+import 'package:titanius/widgets/fade_image_to_video.dart';
 import 'package:video_player/video_player.dart';
 
 import '../data/settings.dart';
@@ -29,29 +30,24 @@ class GamesPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final games = ref.watch(gamesInFolderProvider(system));
-    final video = ref.watch(currentVideoProvider(system));
     final selectedGame = ref.watch(selectedGameProvider(system));
+    final settings = ref.watch(settingsProvider);
 
     final scrollController = ItemScrollController();
-    final ItemPositionsListener itemPositionsListener =
-        ItemPositionsListener.create();
+    final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
 
     final showDetails = useState(false);
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
       if (key == GamepadButton.l1 || key == GamepadButton.r1) {
-        final pos = itemPositionsListener.itemPositions.value
-            .sorted((a, b) => a.index.compareTo(b.index));
+        final pos = itemPositionsListener.itemPositions.value.sorted((a, b) => a.index.compareTo(b.index));
         if (pos.isEmpty) {
           return;
         }
         final pageSize = pos.last.index - pos.first.index + 1;
-        final index = key == GamepadButton.l1
-            ? max(pos.first.index - pageSize, 0)
-            : pos.last.index + 1;
-        debugPrint(
-            "Go to index=$index page=$pageSize list=${pos.map((e) => e.index.toString()).join(",")}");
+        final index = key == GamepadButton.l1 ? max(pos.first.index - pageSize, 0) : pos.last.index + 1;
+        debugPrint("Go to index=$index page=$pageSize list=${pos.map((e) => e.index.toString()).join(",")}");
         _goTo(ref, scrollController, index);
       }
       if (key == GamepadButton.b) {
@@ -60,8 +56,7 @@ class GamesPage extends HookConsumerWidget {
         if (navigation.isAtRoot) {
           GoRouter.of(context).go("/");
         } else {
-          Game game =
-              ref.read(currentGameNavigationProvider(system).notifier).goBack();
+          Game game = ref.read(currentGameNavigationProvider(system).notifier).goBack();
           ref.read(selectedGameProvider(system).notifier).set(game);
         }
       }
@@ -104,9 +99,7 @@ class GamesPage extends HookConsumerWidget {
             );
           }
           final gameToShow = selectedGame ?? gamelist.games.first;
-          final index = gamelist.games
-              .indexOf(gameToShow)
-              .clamp(0, gamelist.games.length - 1);
+          final index = gamelist.games.indexOf(gameToShow).clamp(0, gamelist.games.length - 1);
           debugPrint("show=${gameToShow.rom}");
           return Row(
             children: [
@@ -121,16 +114,14 @@ class GamesPage extends HookConsumerWidget {
                       child: Image.asset(
                         "assets/images/white/${gamelist.system!.logo}",
                         fit: BoxFit.fitHeight,
-                        errorBuilder: (context, url, error) =>
-                            const Icon(Icons.error),
+                        errorBuilder: (context, url, error) => const Icon(Icons.error),
                       ),
                     ),
                     Expanded(
                       child: ScrollablePositionedList.builder(
                         itemScrollController: scrollController,
                         itemPositionsListener: itemPositionsListener,
-                        key:
-                            PageStorageKey("$system/${gamelist.currentFolder}"),
+                        key: PageStorageKey("$system/${gamelist.currentFolder}"),
                         initialScrollIndex: index,
                         itemCount: gamelist.games.length,
                         itemBuilder: (context, index) {
@@ -152,9 +143,7 @@ class GamesPage extends HookConsumerWidget {
                               if (value) {
                                 debugPrint(
                                     "Focus on ${game.rom}, list=${itemPositionsListener.itemPositions.value.map((e) => e.index.toString()).join(",")}");
-                                ref
-                                    .read(selectedGameProvider(system).notifier)
-                                    .set(game);
+                                ref.read(selectedGameProvider(system).notifier).set(game);
                               }
                             },
                             title: Text(
@@ -164,18 +153,11 @@ class GamesPage extends HookConsumerWidget {
                             ),
                             onTap: () async {
                               if (game.isFolder) {
-                                ref
-                                    .read(currentGameNavigationProvider(system)
-                                        .notifier)
-                                    .moveIntoFolder(game);
-                                ref
-                                    .read(selectedGameProvider(system).notifier)
-                                    .reset();
+                                ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
+                                ref.read(selectedGameProvider(system).notifier).reset();
                               } else {
-                                final intent =
-                                    gamelist.emulator!.toIntent(game);
-                                intent.launch().catchError(
-                                    handleIntentError(context, intent));
+                                final intent = gamelist.emulator!.toIntent(game);
+                                intent.launch().catchError(handleIntentError(context, intent));
                               }
                             },
                           );
@@ -189,7 +171,7 @@ class GamesPage extends HookConsumerWidget {
                 flex: 2,
                 child: gameToShow.isFolder
                     ? _gameFolder(ref, context, gameToShow)
-                    : _gameDetails(gameToShow, showDetails, video),
+                    : _gameDetails(settings, gameToShow, showDetails),
               ),
             ],
           );
@@ -210,14 +192,8 @@ class GamesPage extends HookConsumerWidget {
         : const Text("No image");
   }
 
-  Widget _gameVideo(Game gameToShow, VideoPlayerController? video) {
-    if (video == null) {
-      return _gameImage(gameToShow);
-    }
-    return AspectRatio(
-      aspectRatio: video.value.aspectRatio,
-      child: VideoPlayer(video),
-    );
+  Widget _gameVideo(Settings settings, Game gameToShow) {
+    return FadeImageToVideo(key: ValueKey(gameToShow.romPath), gameToShow: gameToShow, settings: settings);
   }
 
   _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
@@ -266,22 +242,22 @@ class GamesPage extends HookConsumerWidget {
         .set(games.value!.games[index.clamp(0, games.value!.games.length - 1)]);
   }
 
-  Widget _gameDetails(Game gameToShow, ValueNotifier<bool> showDetails,
-      AsyncValue<VideoPlayerController?> video) {
+  Widget _gameDetails(AsyncValue<Settings> settings, Game gameToShow, ValueNotifier<bool> showDetails) {
     if (showDetails.value) {
-      return _gameDetailsLong(gameToShow, video);
+      return _gameDetailsLong(gameToShow);
     } else {
-      return _gameDetailsShort(gameToShow, video);
+      return _gameDetailsShort(settings, gameToShow);
     }
   }
 
-  Widget _gameDetailsShort(
-      Game gameToShow, AsyncValue<VideoPlayerController?> video) {
+  Widget _gameDetailsShort(AsyncValue<Settings> settings, Game gameToShow) {
     return Column(
       children: [
         Expanded(
-          child: video.when(
-              data: (video) => _gameVideo(gameToShow, video),
+          child: settings.when(
+              data: (settings) => settings.showGameVideos && gameToShow.videoUrl != null
+                  ? _gameVideo(settings, gameToShow)
+                  : _gameImage(gameToShow),
               error: (_, __) => _gameImage(gameToShow),
               loading: () => const Center(child: CircularProgressIndicator())),
         ),
@@ -305,8 +281,7 @@ class GamesPage extends HookConsumerWidget {
     );
   }
 
-  Widget _gameDetailsLong(
-      Game gameToShow, AsyncValue<VideoPlayerController?> video) {
+  Widget _gameDetailsLong(Game gameToShow) {
     return Column(
       children: [
         gameToShow.thumbnailUrl != null
@@ -338,8 +313,7 @@ class GamesPage extends HookConsumerWidget {
               ),
         Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(gameToShow.description ?? "No description",
-                style: const TextStyle(color: Colors.grey))),
+            child: Text(gameToShow.description ?? "No description", style: const TextStyle(color: Colors.grey))),
         Expanded(
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
@@ -349,12 +323,9 @@ class GamesPage extends HookConsumerWidget {
                 runSpacing: 8,
                 children: [
                   _gameInfoTile("Genre", gameToShow.genre ?? "-", tileWidth),
-                  _gameInfoTile("Released", gameToShow.year?.toString() ?? "-",
-                      tileWidth),
-                  _gameInfoTile(
-                      "Developer", gameToShow.developer ?? "-", tileWidth),
-                  _gameInfoTile(
-                      "Publisher", gameToShow.publisher ?? "-", tileWidth),
+                  _gameInfoTile("Released", gameToShow.year?.toString() ?? "-", tileWidth),
+                  _gameInfoTile("Developer", gameToShow.developer ?? "-", tileWidth),
+                  _gameInfoTile("Publisher", gameToShow.publisher ?? "-", tileWidth),
                 ],
               );
             },
@@ -384,8 +355,7 @@ Function handleIntentError(BuildContext context, AndroidIntent intent) {
   return (err) {
     debugPrint(err.toString());
     Fluttertoast.showToast(
-        msg:
-            "Unable to run ${intent.package}. Please make sure the app is installed.",
+        msg: "Unable to run ${intent.package}. Please make sure the app is installed.",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,

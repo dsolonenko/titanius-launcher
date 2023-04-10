@@ -22,33 +22,10 @@ class UISettingsPage extends HookConsumerWidget {
         data: (settings) {
           return ListView(
             children: [
-              ListTile(
-                autofocus: true,
-                onFocusChange: (value) {},
-                onTap: () {
-                  ref
-                      .read(settingsRepoProvider)
-                      .value!
-                      .setShowGameVideos(!settings.showGameVideos)
-                      .then((value) => ref.refresh(settingsProvider));
-                },
-                title: const Text('Show Game Videos'),
-                trailing:
-                    settings.showGameVideos ? toggleOnIcon : toggleOffIcon,
-              ),
-              ListTile(
-                onFocusChange: (value) {},
-                onTap: () {
-                  ref
-                      .read(settingsRepoProvider)
-                      .value!
-                      .setFavoutesOnTop(!settings.favouritesOnTop)
-                      .then((value) => ref.refresh(settingsProvider));
-                },
-                title: const Text('Show Favouries On Top'),
-                trailing:
-                    settings.favouritesOnTop ? toggleOnIcon : toggleOffIcon,
-              ),
+              _boolSetting(ref, 'Show Favouries On Top', settings.favouritesOnTop, (p0, p1) => p0.setFavoutesOnTop(p1)),
+              _boolSetting(ref, 'Show Game Videos', settings.showGameVideos, (p0, p1) => p0.setShowGameVideos(p1)),
+              _boolSetting(ref, 'Fade Screenshot To Video', settings.fadeToVideo, (p0, p1) => p0.setFadeToVideo(p1)),
+              _boolSetting(ref, 'Mute Video', settings.muteVideo, (p0, p1) => p0.setMuteVideo(p1)),
             ],
           );
         },
@@ -59,6 +36,19 @@ class UISettingsPage extends HookConsumerWidget {
           child: Text('Error'),
         ),
       ),
+    );
+  }
+
+  Widget _boolSetting(WidgetRef ref, String title, bool value, Future<void> Function(SettingsRepo, bool) onChanged) {
+    return ListTile(
+      autofocus: true,
+      onFocusChange: (value) {},
+      onTap: () {
+        final repo = ref.read(settingsRepoProvider).value!;
+        onChanged(repo, !value).then((value) => ref.refresh(settingsProvider));
+      },
+      title: Text(title),
+      trailing: value ? toggleOnIcon : toggleOffIcon,
     );
   }
 }

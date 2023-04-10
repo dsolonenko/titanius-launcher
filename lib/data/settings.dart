@@ -20,6 +20,8 @@ class Settings {
   bool get showSystemAndroid => showSystem('android');
   bool get favouritesOnTop => _getBoolean('favouritesOnTop', true);
   bool get showGameVideos => _getBoolean('showGameVideos', false);
+  bool get fadeToVideo => _getBoolean('fadeToVideo', false);
+  bool get muteVideo => _getBoolean('muteVideo', true);
 
   bool showSystem(String id) => _getBoolean('showSystem/$id', true);
   bool _getBoolean(String key, bool defaultValue) {
@@ -102,6 +104,14 @@ class SettingsRepo {
 
   Future<void> setShowGameVideos(bool value) async {
     return _setBoolean('showGameVideos', value);
+  }
+
+  Future<void> setFadeToVideo(bool value) async {
+    return _setBoolean('fadeToVideo', value);
+  }
+
+  Future<void> setMuteVideo(bool value) async {
+    return _setBoolean('muteVideo', value);
   }
 
   Future<void> _setBoolean(String key, bool value) async {
