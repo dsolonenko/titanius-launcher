@@ -2018,62 +2018,8 @@
             },
             "flags": [
               "--activity-clear-task",
-              "--activity-clear-top"
-            ]
-          }
-        },
-        {
-          "id": "com.seleuco.mame4droid",
-          "name": "MAME4droid",
-          "intent": {
-            "component": "com.seleuco.mame4droid/.MAME4droid",
-            "action": "android.intent.action.VIEW",
-            "data": "{file.path}",
-            "flags": [
-              "--activity-clear-task",
-              "--activity-clear-top"
-            ]
-          }
-        },
-        {
-          "id": "ra64/mame2003",
-          "name": "MAME 2003",
-          "intent": {
-            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
-            "args": {
-              "APK": "/data/app/com.retroarch.aarch64-1/base.apk",
-              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
-              "DATADIR": "/data/data/com.retroarch.aarch64",
-              "EXTERNAL": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files",
-              "IME": "com.android.inputmethod.latin/.LatinIME",
-              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mame2003_libretro_android.so",
-              "ROM": "{file.path}",
-              "SDCARD": "/storage/emulated/0"
-            },
-            "flags": [
-              "--activity-clear-task",
-              "--activity-clear-top"
-            ]
-          }
-        },
-        {
-          "id": "ra64/mame2003_midway",
-          "name": "MAME 2003 Midway",
-          "intent": {
-            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
-            "args": {
-              "APK": "/data/app/com.retroarch.aarch64-1/base.apk",
-              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
-              "DATADIR": "/data/data/com.retroarch.aarch64",
-              "EXTERNAL": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files",
-              "IME": "com.android.inputmethod.latin/.LatinIME",
-              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mame2003_midway_libretro_android.so",
-              "ROM": "{file.path}",
-              "SDCARD": "/storage/emulated/0"
-            },
-            "flags": [
-              "--activity-clear-task",
-              "--activity-clear-top"
+              "--activity-clear-top",
+              "--activity-no-history"
             ]
           }
         },
@@ -2088,19 +2034,20 @@
               "DATADIR": "/data/data/com.retroarch.aarch64",
               "EXTERNAL": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files",
               "IME": "com.android.inputmethod.latin/.LatinIME",
-              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mame_libretro_android.so",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mamearcade_libretro_android.so",
               "ROM": "{file.path}",
               "SDCARD": "/storage/emulated/0"
             },
             "flags": [
               "--activity-clear-task",
-              "--activity-clear-top"
+              "--activity-clear-top",
+              "--activity-no-history"
             ]
           }
         },
         {
-          "id": "ra64/mame2000",
-          "name": "MAME 2000",
+          "id": "ra64/mamemess",
+          "name": "MESS - Current",
           "intent": {
             "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
             "args": {
@@ -2109,94 +2056,24 @@
               "DATADIR": "/data/data/com.retroarch.aarch64",
               "EXTERNAL": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files",
               "IME": "com.android.inputmethod.latin/.LatinIME",
-              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mame2000_libretro_android.so",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mamemess_libretro_android.so",
               "ROM": "{file.path}",
               "SDCARD": "/storage/emulated/0"
             },
             "flags": [
               "--activity-clear-task",
-              "--activity-clear-top"
+              "--activity-clear-top",
+              "--activity-no-history"
             ]
           }
         },
         {
-          "id": "ra64/mame2009",
-          "name": "MAME 2009",
+          "id": "com.seleuco.mame4droid",
+          "name": "MAME4droid",
           "intent": {
-            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
-            "args": {
-              "APK": "/data/app/com.retroarch.aarch64-1/base.apk",
-              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
-              "DATADIR": "/data/data/com.retroarch.aarch64",
-              "EXTERNAL": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files",
-              "IME": "com.android.inputmethod.latin/.LatinIME",
-              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mame2009_libretro_android.so",
-              "ROM": "{file.path}",
-              "SDCARD": "/storage/emulated/0"
-            },
-            "flags": [
-              "--activity-clear-task",
-              "--activity-clear-top"
-            ]
-          }
-        },
-        {
-          "id": "ra64/mame2010",
-          "name": "MAME 2010",
-          "intent": {
-            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
-            "args": {
-              "APK": "/data/app/com.retroarch.aarch64-1/base.apk",
-              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
-              "DATADIR": "/data/data/com.retroarch.aarch64",
-              "EXTERNAL": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files",
-              "IME": "com.android.inputmethod.latin/.LatinIME",
-              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mame2010_libretro_android.so",
-              "ROM": "{file.path}",
-              "SDCARD": "/storage/emulated/0"
-            },
-            "flags": [
-              "--activity-clear-task",
-              "--activity-clear-top"
-            ]
-          }
-        },
-        {
-          "id": "ra64/mame2015",
-          "name": "MAME 2015",
-          "intent": {
-            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
-            "args": {
-              "APK": "/data/app/com.retroarch.aarch64-1/base.apk",
-              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
-              "DATADIR": "/data/data/com.retroarch.aarch64",
-              "EXTERNAL": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files",
-              "IME": "com.android.inputmethod.latin/.LatinIME",
-              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mame2015_libretro_android.so",
-              "ROM": "{file.path}",
-              "SDCARD": "/storage/emulated/0"
-            },
-            "flags": [
-              "--activity-clear-task",
-              "--activity-clear-top"
-            ]
-          }
-        },
-        {
-          "id": "ra64/mame2016",
-          "name": "MAME 2016",
-          "intent": {
-            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
-            "args": {
-              "APK": "/data/app/com.retroarch.aarch64-1/base.apk",
-              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
-              "DATADIR": "/data/data/com.retroarch.aarch64",
-              "EXTERNAL": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files",
-              "IME": "com.android.inputmethod.latin/.LatinIME",
-              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mame2016_libretro_android.so",
-              "ROM": "{file.path}",
-              "SDCARD": "/storage/emulated/0"
-            },
+            "component": "com.seleuco.mame4droid/.MAME4droid",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}",
             "flags": [
               "--activity-clear-task",
               "--activity-clear-top"
