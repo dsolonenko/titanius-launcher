@@ -18,22 +18,26 @@ class FadeImageToVideo extends StatefulWidget {
 class FadeImageToVideoState extends State<FadeImageToVideo> {
   late VideoPlayerController _controller;
   double _opacity = 1.0;
+  double _reverseOpacity = 0.0;
 
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.file(File(widget.gameToShow.videoUrl!))
       ..setLooping(true)
-      ..setVolume(widget.settings.muteVideo ? 0 : 1)
-      ..initialize().then((_) {
-        setState(() {});
-      });
+      ..setVolume(widget.settings.muteVideo ? 0 : 1);
 
     if (widget.settings.fadeToVideo) {
+      _controller.initialize().then((_) {});
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           _fadeImageOut();
         }
+      });
+    } else {
+      _controller.initialize().then((_) {
+        setState(() {});
+        _controller.play();
       });
     }
   }
@@ -47,8 +51,11 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
   void _fadeImageOut() {
     setState(() {
       _opacity = 0.0;
+      _reverseOpacity = 1.0;
     });
-    _controller.play();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _controller.play();
+    });
   }
 
   @override
@@ -57,23 +64,23 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
       return Stack(
         children: <Widget>[
           Positioned.fill(
+              child: AnimatedOpacity(
+            opacity: _reverseOpacity,
+            duration: const Duration(milliseconds: 500),
             child: _controller.value.isInitialized
                 ? AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
                     child: VideoPlayer(_controller),
                   )
                 : const Center(child: CircularProgressIndicator()),
-          ),
+          )),
           Positioned.fill(
             child: AnimatedOpacity(
               opacity: _opacity,
               duration: const Duration(milliseconds: 500),
-              child: GestureDetector(
-                onTap: _fadeImageOut,
-                child: Image.file(
-                  File(widget.gameToShow.imageUrl!),
-                  fit: BoxFit.cover,
-                ),
+              child: Image.file(
+                File(widget.gameToShow.imageUrl!),
+                fit: BoxFit.contain,
               ),
             ),
           ),
