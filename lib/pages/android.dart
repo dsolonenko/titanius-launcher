@@ -31,6 +31,7 @@ class AndroidPage extends HookConsumerWidget {
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
         navigations: [
+          GamepadPrompt([GamepadButton.upDown, GamepadButton.leftRight], "Select"),
           GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
@@ -47,16 +48,13 @@ class AndroidPage extends HookConsumerWidget {
             );
           }
           return GridView.builder(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 100),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 100),
               key: const PageStorageKey("android/games"),
               itemCount: apps.length,
               itemBuilder: (context, index) {
                 final app = apps[index];
                 return ListTile(
-                  autofocus: selectedApp == null
-                      ? index == 0
-                      : app.packageName == selectedApp.packageName,
+                  autofocus: selectedApp == null ? index == 0 : app.packageName == selectedApp.packageName,
                   onFocusChange: (value) {
                     if (value) {
                       ref.read(selectedAppProvider.notifier).set(app);
@@ -73,9 +71,7 @@ class AndroidPage extends HookConsumerWidget {
                     softWrap: false,
                   ),
                   onTap: () async {
-                    app
-                        .openApp()
-                        .catchError(handleIntentError(context, app.appName));
+                    app.openApp().catchError(handleIntentError(context, app.appName));
                   },
                 );
               });

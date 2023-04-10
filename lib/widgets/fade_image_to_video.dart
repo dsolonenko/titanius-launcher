@@ -34,7 +34,12 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
         }
       });
     } else {
-      _initializeAndPlay();
+      _controller.initialize().then((_) {
+        if (mounted) {
+          //setState(() {});
+          _controller.play();
+        }
+      });
     }
   }
 
@@ -45,17 +50,13 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
   }
 
   void _fadeImageOut() {
-    _initializeAndPlay();
+    _controller.initialize().then((_) {});
     setState(() {
       _imageOpacity = 0.0;
       _videoOpacity = 1.0;
     });
-  }
-
-  void _initializeAndPlay() {
-    _controller.initialize().then((_) {
+    Future.delayed(const Duration(milliseconds: 1000), () {
       if (mounted) {
-        setState(() {});
         _controller.play();
       }
     });
@@ -68,13 +69,13 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
         children: <Widget>[
           AnimatedOpacity(
             opacity: _videoOpacity,
-            duration: const Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 1000),
             child: _videoWidget(),
           ),
           Positioned.fill(
             child: AnimatedOpacity(
               opacity: _imageOpacity,
-              duration: const Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 1000),
               child: Image.file(
                 File(widget.gameToShow.imageUrl!),
                 fit: BoxFit.contain,
@@ -94,6 +95,6 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
             aspectRatio: _controller.value.aspectRatio,
             child: VideoPlayer(_controller),
           )
-        : Container();
+        : const Center(child: CircularProgressIndicator());
   }
 }
