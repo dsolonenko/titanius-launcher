@@ -15,8 +15,6 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
       }
     });
 
-    final selected = useState<String?>(null);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Enabled Systems'),
@@ -31,14 +29,9 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                 itemBuilder: (context, index) {
                   final showSystem = settings.showSystem(systems[index].id);
                   return ListTile(
-                    autofocus: selected.value == systems[index].id || index == 0,
-                    onFocusChange: (value) {
-                      if (value) {
-                        selected.value = systems[index].id;
-                      }
-                    },
+                    autofocus: index == 0,
+                    onFocusChange: (value) {},
                     onTap: () {
-                      selected.value = systems[index].id;
                       ref
                           .read(settingsRepoProvider)
                           .value!

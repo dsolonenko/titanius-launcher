@@ -24,6 +24,7 @@ class RomsSettingsPage extends HookConsumerWidget {
           return paths.when(
             data: (paths) {
               return ListView.builder(
+                key: const PageStorageKey("settings/roms"),
                 itemCount: paths.length,
                 itemBuilder: (context, index) {
                   final included = settings.romsFolders.contains(paths[index]);

@@ -54,11 +54,9 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
     final startTime = DateTime.now();
 
     // Initialize the controller if it's not already initialized.
-    if (!_controller.value.isInitialized) {
-      await _controller.initialize().catchError((err) {
-        debugPrint(err.toString());
-      });
-    }
+    await _controller.initialize().catchError((err) {
+      debugPrint(err.toString());
+    });
 
     // Calculate the remaining time for the fade-out animation.
     final elapsedTime = DateTime.now().difference(startTime);

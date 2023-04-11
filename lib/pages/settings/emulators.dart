@@ -21,22 +21,18 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
       body: emulators.when(
         data: (emulators) {
           return ListView.builder(
+            key: const PageStorageKey("settings/emulators"),
             itemCount: emulators.length,
             itemBuilder: (context, index) {
-              final isStandalone = !emulators[index]
-                  .defaultEmulator!
-                  .intent
-                  .target
-                  .startsWith('com.retroarch.aarch64/');
+              final isStandalone =
+                  !emulators[index].defaultEmulator!.intent.target.startsWith('com.retroarch.aarch64/');
               return ListTile(
                 autofocus: index == 0,
                 onTap: () {
-                  context.push(
-                      "/settings/emulators/${emulators[index].system.id}");
+                  context.push("/settings/emulators/${emulators[index].system.id}");
                 },
                 title: Text(emulators[index].system.name),
-                trailing: Text(
-                    "${emulators[index].defaultEmulator!.name}${isStandalone ? " (Standalone)" : ""}"),
+                trailing: Text("${emulators[index].defaultEmulator!.name}${isStandalone ? " (Standalone)" : ""}"),
               );
             },
           );
@@ -78,18 +74,15 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
           return ListView.builder(
             itemCount: selected.system.emulators.length,
             itemBuilder: (context, index) {
-              final isStandalone = !selected
-                  .system.emulators[index].intent.target
-                  .startsWith('com.retroarch.aarch64/');
+              final isStandalone = !selected.system.emulators[index].intent.target.startsWith('com.retroarch.aarch64/');
               return ListTile(
                 autofocus: index == 0,
                 onTap: () {
                   ref
                       .read(settingsRepoProvider)
                       .value!
-                      .saveAlternativeEmulator(AlternativeEmulator(
-                          system: system,
-                          emulator: selected.system.emulators[index].id))
+                      .saveAlternativeEmulator(
+                          AlternativeEmulator(system: system, emulator: selected.system.emulators[index].id))
                       .then((value) => ref.refresh(settingsProvider));
                   context.pop();
                 },
