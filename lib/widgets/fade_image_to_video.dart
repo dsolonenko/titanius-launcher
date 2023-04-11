@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -6,10 +7,10 @@ import '../data/models.dart';
 import '../data/settings.dart';
 
 class FadeImageToVideo extends StatefulWidget {
-  final Game gameToShow;
+  final Game game;
   final Settings settings;
 
-  const FadeImageToVideo({super.key, required this.gameToShow, required this.settings});
+  const FadeImageToVideo({super.key, required this.game, required this.settings});
 
   @override
   FadeImageToVideoState createState() => FadeImageToVideoState();
@@ -17,28 +18,27 @@ class FadeImageToVideo extends StatefulWidget {
 
 class FadeImageToVideoState extends State<FadeImageToVideo> {
   late VideoPlayerController _controller;
-  double _imageOpacity = 1.0;
-  double _videoOpacity = 0.0;
+  bool _showImage = true;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.file(File(widget.gameToShow.videoUrl!))
-      ..setLooping(true)
-      ..setVolume(widget.settings.muteVideo ? 0 : 1);
+    _controller = VideoPlayerController.file(File(widget.game.videoUrl!))..setLooping(true);
+
+    if (widget.settings.muteVideo) {
+      _controller.setVolume(0.0);
+    }
 
     if (widget.settings.fadeToVideo) {
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 2), () async {
         if (mounted) {
-          _fadeImageOut();
+          await _fadeImageOut();
         }
       });
     } else {
-      _controller.initialize().then((_) {
-        if (mounted) {
-          setState(() {});
-          _controller.play();
-        }
+      _controller.initialize().then((value) {
+        _controller.play();
+        setState(() {});
       });
     }
   }
@@ -49,53 +49,59 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
     super.dispose();
   }
 
-  void _fadeImageOut() {
-    _controller.initialize().then((_) {});
+  Future<void> _fadeImageOut() async {
+    // Start measuring the time.
+    final startTime = DateTime.now();
+
+    // Initialize the controller if it's not already initialized.
+    if (!_controller.value.isInitialized) {
+      await _controller.initialize().catchError((err) {
+        debugPrint(err.toString());
+      });
+    }
+
+    // Calculate the remaining time for the fade-out animation.
+    final elapsedTime = DateTime.now().difference(startTime);
+    final remainingTime = max(0, 500 - elapsedTime.inMilliseconds);
+
+    // Update the state and start the fade-out animation.
     setState(() {
-      _imageOpacity = 0.0;
-      _videoOpacity = 1.0;
+      _showImage = false;
     });
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      if (mounted) {
-        setState(() {});
-        _controller.play();
-      }
+
+    // Start playing the video after the remaining fade-out time.
+    Future.delayed(Duration(milliseconds: remainingTime), () {
+      _controller.play();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.settings.fadeToVideo) {
-      return Stack(
-        children: <Widget>[
-          AnimatedOpacity(
-            opacity: _videoOpacity,
-            duration: const Duration(milliseconds: 1000),
-            child: _videoWidget(),
-          ),
-          Positioned.fill(
-            child: AnimatedOpacity(
-              opacity: _imageOpacity,
-              duration: const Duration(milliseconds: 1000),
-              child: Image.file(
-                File(widget.gameToShow.imageUrl!),
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        child: _showImage
+            ? Image.file(
+                File(widget.game.imageUrl!),
                 fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ],
+                key: const ValueKey<int>(1),
+              )
+            : _controller.value.isInitialized
+                ? AspectRatio(
+                    key: const ValueKey<int>(2),
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: VideoPlayer(_controller),
+                  )
+                : const Center(child: CircularProgressIndicator()),
       );
     } else {
-      return _videoWidget();
+      return _controller.value.isInitialized
+          ? AspectRatio(
+              key: const ValueKey<int>(2),
+              aspectRatio: _controller.value.aspectRatio,
+              child: VideoPlayer(_controller),
+            )
+          : const Center(child: CircularProgressIndicator());
     }
-  }
-
-  Widget _videoWidget() {
-    return _controller.value.isInitialized
-        ? AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            child: VideoPlayer(_controller),
-          )
-        : const Center(child: CircularProgressIndicator());
   }
 }

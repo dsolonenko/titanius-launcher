@@ -181,20 +181,6 @@ class GamesPage extends HookConsumerWidget {
     );
   }
 
-  Widget _gameImage(Game gameToShow) {
-    return gameToShow.imageUrl != null
-        ? Image.file(
-            File(gameToShow.imageUrl!),
-            filterQuality: FilterQuality.high,
-            fit: BoxFit.contain,
-          )
-        : const Text("No image");
-  }
-
-  Widget _gameVideo(Settings settings, Game gameToShow) {
-    return FadeImageToVideo(key: ValueKey(gameToShow.romPath), gameToShow: gameToShow, settings: settings);
-  }
-
   _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
     final gamesInFolder = ref
         .read(gamesProvider(system))
@@ -278,6 +264,20 @@ class GamesPage extends HookConsumerWidget {
         ),
       ],
     );
+  }
+
+  Widget _gameImage(Game gameToShow) {
+    return gameToShow.imageUrl != null
+        ? Image.file(
+            File(gameToShow.imageUrl!),
+            filterQuality: FilterQuality.high,
+            fit: BoxFit.contain,
+          )
+        : const Text("No image");
+  }
+
+  Widget _gameVideo(Settings settings, Game gameToShow) {
+    return FadeImageToVideo(key: ValueKey(gameToShow.romPath), game: gameToShow, settings: settings);
   }
 
   Widget _gameDetailsLong(Game gameToShow) {
