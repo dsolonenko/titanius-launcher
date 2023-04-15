@@ -92,8 +92,7 @@ class CurrentGameNavigation extends _$CurrentGameNavigation {
 }
 
 @riverpod
-Future<VideoPlayerController?> currentVideo(
-    CurrentVideoRef ref, String system) {
+Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) {
   final game = ref.watch(selectedGameProvider(system));
   final settings = ref.watch(settingsProvider.future);
   if (game != null && game.videoUrl != null) {
@@ -118,8 +117,6 @@ Future<VideoPlayerController?> currentVideo(
 Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
   final gamelist = await ref.watch(gamesProvider(system).future);
   final navigation = ref.watch(currentGameNavigationProvider(system));
-  final gamesInFolder =
-      gamelist.games.where((game) => game.folder == navigation.folder).toList();
-  return GameList(
-      navigation.folder, gamelist.system, gamesInFolder, gamelist.emulator);
+  final gamesInFolder = gamelist.games.where((game) => game.folder == navigation.folder).toList();
+  return GameList(navigation.folder, gamesInFolder);
 }

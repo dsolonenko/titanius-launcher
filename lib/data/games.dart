@@ -15,61 +15,52 @@ part 'games.g.dart';
 
 class GameList {
   final String currentFolder;
-  final System? system;
   final List<Game> games;
-  final Emulator? emulator;
 
-  const GameList(this.currentFolder, this.system, this.games, this.emulator);
+  const GameList(this.currentFolder, this.games);
 }
 
 @Riverpod(keepAlive: true)
-Future<GameList> games(GamesRef ref, String systemId) async {
+Future<List<Game>> allGames(AllGamesRef ref) async {
   final detectedSystems = await ref.watch(detectedSystemsProvider.future);
   final settings = await ref.watch(settingsProvider.future);
 
   final allGames = List<Game>.empty(growable: true);
 
   if (detectedSystems.isEmpty) {
-    return const GameList(".", null, [], null);
+    return [];
   }
 
-  final system =
-      detectedSystems.firstWhere((element) => element.id == systemId);
-  final emulator = defaultEmulator(
-      system.emulators,
-      settings.perSystemConfigurations
-          .firstWhereOrNull((e) => e.system == system.id));
+  final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
 
-  final favouritesMap = {
-    for (var favourite in settings.favourites)
-      favourite.romPath: favourite.favourite
-  };
+  for (var system in detectedSystems) {
+    final emulator = defaultEmulator(
+        system.emulators, settings.perSystemConfigurations.firstWhereOrNull((e) => e.system == system.id));
+    for (var romsFolder in settings.romsFolders) {
+      for (var folder in system.folders) {
+        final romsPath = "$romsFolder/$folder";
+        final gamelistPath = "$romsPath/gamelist.xml";
 
-  for (var romsFolder in settings.romsFolders) {
-    for (var folder in system.folders) {
-      final romsPath = "$romsFolder/$folder";
-      final gamelistPath = "$romsPath/gamelist.xml";
-
-      final file = File(gamelistPath);
-      final exists = await file.exists();
-      if (exists) {
-        final games = await file
-            .openRead()
-            .transform(utf8.decoder)
-            .toXmlEvents()
-            .normalizeEvents()
-            .selectSubtreeEvents(
-                (event) => event.name == 'game' || event.name == 'folder')
-            .toXmlNodes()
-            .expand((nodes) => nodes)
-            .map((node) => _fromNode(node, romsPath))
-            .toList();
-        for (var game in games) {
-          if (favouritesMap.containsKey(game.romPath)) {
-            game.favorite = favouritesMap[game.romPath]!;
+        final file = File(gamelistPath);
+        final exists = await file.exists();
+        if (exists) {
+          final games = await file
+              .openRead()
+              .transform(utf8.decoder)
+              .toXmlEvents()
+              .normalizeEvents()
+              .selectSubtreeEvents((event) => event.name == 'game' || event.name == 'folder')
+              .toXmlNodes()
+              .expand((nodes) => nodes)
+              .map((node) => _fromNode(node, system, emulator, romsPath))
+              .toList();
+          for (var game in games) {
+            if (favouritesMap.containsKey(game.romPath)) {
+              game.favorite = favouritesMap[game.romPath]!;
+            }
           }
+          allGames.addAll(games);
         }
-        allGames.addAll(games);
       }
     }
   }
@@ -96,10 +87,21 @@ Future<GameList> games(GamesRef ref, String systemId) async {
     }
     return a.name.compareTo(b.name);
   });
-  return GameList(".", system, games, emulator);
+  return games;
 }
 
-Game _fromNode(XmlNode node, String romsPath) {
+@Riverpod(keepAlive: true)
+Future<GameList> games(GamesRef ref, String systemId) async {
+  final allGames = await ref.watch(allGamesProvider.future);
+
+  final games = systemId == "favourites"
+      ? allGames.where((element) => element.favorite).toList()
+      : allGames.where((element) => element.system.id == systemId).toList();
+
+  return GameList(".", games);
+}
+
+Game _fromNode(XmlNode node, System system, Emulator? emulator, String romsPath) {
   final name = node.findElements("name").first.text;
   final path = node.findElements("path").first.text;
   final description = node.findElements("desc").firstOrNull?.text;
@@ -110,14 +112,12 @@ Game _fromNode(XmlNode node, String romsPath) {
   final ratingString = node.findElements("rating").firstOrNull?.text;
   final rating = ratingString != null ? double.tryParse(ratingString) : null;
   final yearString = node.findElements("releasedate").firstOrNull?.text;
-  final year = yearString != null && yearString.length > 4
-      ? int.parse(yearString.substring(0, 4))
-      : null;
+  final year = yearString != null && yearString.length > 4 ? int.parse(yearString.substring(0, 4)) : null;
   final image = node.findElements("image").firstOrNull?.text;
   final video = node.findElements("video").firstOrNull?.text;
   final thumbnail = node.findElements("thumbnail").firstOrNull?.text;
   final favorite = node.findElements("favorite").firstOrNull?.text == "true";
-  return Game(name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
+  return Game(system, emulator, name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
       description: description,
       genre: genre,
       rating: rating != null ? 10 * rating : null,
