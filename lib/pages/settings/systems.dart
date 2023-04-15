@@ -21,6 +21,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
       ),
       body: systems.when(
         data: (systems) {
+          systems = [...collections, ...systems];
           return settings.when(
             data: (settings) {
               return ListView.builder(

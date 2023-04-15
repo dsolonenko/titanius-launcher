@@ -23,10 +23,13 @@ class UISettingsPage extends HookConsumerWidget {
           return ListView(
             key: const PageStorageKey('settings/ui'),
             children: [
-              _setting(ref, 'Show Favouries On Top', settings.favouritesOnTop, (p0, p1) => p0.setFavoutesOnTop(p1)),
-              _setting(ref, 'Show Game Videos', settings.showGameVideos, (p0, p1) => p0.setShowGameVideos(p1)),
-              _setting(ref, 'Fade Screenshot To Video', settings.fadeToVideo, (p0, p1) => p0.setFadeToVideo(p1)),
-              _setting(ref, 'Mute Video', settings.muteVideo, (p0, p1) => p0.setMuteVideo(p1)),
+              _setting(
+                  ref, 'Show Favouries On Top', settings.favouritesOnTop, true, (p0, p1) => p0.setFavoutesOnTop(p1)),
+              _setting(ref, 'Compact Game List', settings.compactGameList, true, (p0, p1) => p0.setCompactGameList(p1)),
+              _setting(ref, 'Show Game Videos', settings.showGameVideos, true, (p0, p1) => p0.setShowGameVideos(p1)),
+              _setting(ref, 'Fade Screenshot To Video', settings.fadeToVideo, settings.showGameVideos,
+                  (p0, p1) => p0.setFadeToVideo(p1)),
+              _setting(ref, 'Mute Video', settings.muteVideo, settings.showGameVideos, (p0, p1) => p0.setMuteVideo(p1)),
             ],
           );
         },
@@ -40,8 +43,10 @@ class UISettingsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _setting(WidgetRef ref, String title, bool value, Future<void> Function(SettingsRepo, bool) onChanged) {
+  Widget _setting(
+      WidgetRef ref, String title, bool value, bool enabled, Future<void> Function(SettingsRepo, bool) onChanged) {
     return ListTile(
+      enabled: enabled,
       autofocus: title == 'Show Favouries On Top',
       onFocusChange: (value) {},
       onTap: () {

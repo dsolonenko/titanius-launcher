@@ -1,19 +1,50 @@
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 
+const systemAllGames = System(
+  id: 'all',
+  name: 'All Games',
+  logo: "",
+  folders: [],
+  emulators: [],
+  isMulti: true,
+);
+
+const systemFavourites = System(
+  id: 'favourites',
+  name: 'Favourites',
+  logo: "",
+  folders: [],
+  emulators: [],
+  isMulti: true,
+);
+
+const systemRecent = System(
+  id: 'recent',
+  name: 'Recent',
+  logo: "",
+  folders: [],
+  emulators: [],
+  isMulti: true,
+);
+
+const collections = [systemAllGames, systemRecent, systemFavourites];
+
 class System {
   final String id;
   final String name;
   final String logo;
   final List<String> folders;
   final List<Emulator> emulators;
+  final bool isMulti;
 
   const System(
       {required this.id,
       required this.name,
       required this.logo,
       required this.folders,
-      required this.emulators});
+      required this.emulators,
+      this.isMulti = false});
 
   @override
   String toString() {
@@ -26,8 +57,7 @@ class System {
       name: json['name'],
       logo: json['logo'],
       folders: List<String>.from(json['folders']),
-      emulators: List<Emulator>.from(
-          json['emulators'].map((x) => Emulator.fromJson(x))),
+      emulators: List<Emulator>.from(json['emulators'].map((x) => Emulator.fromJson(x))),
     );
   }
 }
@@ -65,9 +95,7 @@ class Emulator {
     }).toList();
     final args = {
       for (var k in this.intent.args.keys)
-        k: this.intent.args[k] == "{file.path}"
-            ? selectedGame.romPath
-            : this.intent.args[k],
+        k: this.intent.args[k] == "{file.path}" ? selectedGame.romPath : this.intent.args[k],
     };
     final parts = this.intent.target.split('/');
     final intent = AndroidIntent(
@@ -90,6 +118,8 @@ class LaunchIntent {
 }
 
 class Game {
+  final System system;
+  final Emulator? emulator;
   final String name;
   final String path;
   final String folder;
@@ -108,6 +138,8 @@ class Game {
   bool isFolder;
 
   Game(
+    this.system,
+    this.emulator,
     this.name,
     this.path,
     this.folder,

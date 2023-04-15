@@ -14,8 +14,7 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
   final content = json.decode(
     await rootBundle.loadString('assets/metadata.json'),
   );
-  final List<System> systems =
-      content['systems'].map<System>((e) => System.fromJson(e)).toList();
+  final List<System> systems = content['systems'].map<System>((e) => System.fromJson(e)).toList();
   if (!Platform.isAndroid) {
     systems.removeWhere((system) => system.id == 'android');
   }
@@ -27,16 +26,21 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
 Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
   final allSystems = await ref.watch(allSupportedSystemsProvider.future);
   final settings = await ref.watch(settingsProvider.future);
-  return allSystems
-      .where((system) =>
-          settings.showSystem(system.id) && _hasGamelist(system, settings))
-      .toList();
+  final detectedSystems =
+      allSystems.where((system) => settings.showSystem(system.id) && _hasGamelist(system, settings)).toList();
+  final enabledCollections = [];
+  for (var collection in collections) {
+    if (settings.showSystem(collection.id)) {
+      enabledCollections.add(collection);
+    }
+  }
+  return [...enabledCollections, ...detectedSystems];
 }
 
 bool _hasGamelist(System system, Settings settings) {
   if (system.folders.isEmpty) {
     return true;
   }
-  return system.folders.any((folder) => settings.romsFolders.any(
-      (romsFolder) => File("$romsFolder/$folder/gamelist.xml").existsSync()));
+  return system.folders
+      .any((folder) => settings.romsFolders.any((romsFolder) => File("$romsFolder/$folder/gamelist.xml").existsSync()));
 }
