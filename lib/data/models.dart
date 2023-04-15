@@ -1,15 +1,6 @@
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 
-const systemFavourites = System(
-  id: 'favourites',
-  name: 'Favourites',
-  logo: "",
-  folders: [],
-  emulators: [],
-  isMulti: true,
-);
-
 const systemAllGames = System(
   id: 'all',
   name: 'All Games',
@@ -19,7 +10,25 @@ const systemAllGames = System(
   isMulti: true,
 );
 
-const collections = [systemAllGames, systemFavourites];
+const systemFavourites = System(
+  id: 'favourites',
+  name: 'Favourites',
+  logo: "",
+  folders: [],
+  emulators: [],
+  isMulti: true,
+);
+
+const systemRecent = System(
+  id: 'recent',
+  name: 'Recent',
+  logo: "",
+  folders: [],
+  emulators: [],
+  isMulti: true,
+);
+
+const collections = [systemAllGames, systemRecent, systemFavourites];
 
 class System {
   final String id;

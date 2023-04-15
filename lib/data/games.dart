@@ -100,6 +100,14 @@ Future<GameList> games(GamesRef ref, String systemId) async {
   switch (systemId) {
     case "favourites":
       return GameList(system, ".", allGames.where((element) => element.favorite).toList());
+    case "recent":
+      final recentGames = await ref.watch(recentGamesProvider.future);
+      Map<String, int> recentGamesMap = {
+        for (var item in recentGames) item.romPath: item.timestamp,
+      };
+      final games = allGames.where((element) => recentGamesMap.containsKey(element.romPath)).toList();
+      games.sort((a, b) => recentGamesMap[b.romPath]!.compareTo(recentGamesMap[a.romPath]!));
+      return GameList(system, ".", games);
     case "all":
       return GameList(system, ".", allGames);
     default:

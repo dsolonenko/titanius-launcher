@@ -153,8 +153,7 @@ class GamesPage extends HookConsumerWidget {
                                 ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
                                 ref.read(selectedGameProvider(system).notifier).reset();
                               } else {
-                                final intent = game.emulator!.toIntent(game);
-                                intent.launch().catchError(handleIntentError(context, intent));
+                                _launchGame(context, ref, game);
                               }
                             },
                           );
@@ -177,6 +176,12 @@ class GamesPage extends HookConsumerWidget {
         error: (error, stackTrace) => Text(error.toString()),
       ),
     );
+  }
+
+  void _launchGame(BuildContext context, WidgetRef ref, Game game) {
+    ref.read(recentGamesRepoProvider).value!.saveRecentGame(game).then((value) => ref.refresh(recentGamesProvider));
+    final intent = game.emulator!.toIntent(game);
+    intent.launch().catchError(handleIntentError(context, intent));
   }
 
   _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {

@@ -5,6 +5,7 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'models.dart';
 import 'storage.dart';
 
 part 'settings.g.dart';
@@ -58,6 +59,15 @@ class Setting {
   Setting({required this.key, this.value = ""});
 }
 
+@collection
+class RecentGame {
+  Id id = Isar.autoIncrement;
+  @Index(unique: true, replace: true)
+  String romPath;
+  int timestamp;
+  RecentGame({required this.romPath, this.timestamp = 0});
+}
+
 class SettingsRepo {
   final Isar isar;
 
@@ -70,6 +80,7 @@ class SettingsRepo {
     settingsMap.addAll({for (final setting in settings) setting.key: setting});
     final perSystemConfigurations = await isar.alternativeEmulators.where().findAll();
     final favourites = await isar.favourites.where().findAll();
+
     return Settings(settingsMap, perSystemConfigurations, favourites);
   }
 
@@ -130,6 +141,28 @@ class SettingsRepo {
   }
 }
 
+class RecentGamesRepo {
+  final Isar isar;
+
+  RecentGamesRepo(this.isar);
+
+  Future<List<RecentGame>> _getRecentGames() {
+    return isar.recentGames.where().findAll();
+  }
+
+  Future<void> saveRecentGame(Game game) async {
+    debugPrint("Recent ${game.romPath}");
+    await isar.writeTxn(() async {
+      await isar.recentGames
+          .put(RecentGame(romPath: game.romPath, timestamp: DateTime.now().millisecondsSinceEpoch))
+          .catchError((e) {
+        debugPrint(e);
+        return 0;
+      });
+    });
+  }
+}
+
 @Riverpod(keepAlive: true)
 Future<SettingsRepo> settingsRepo(SettingsRepoRef ref) async {
   final isar = await ref.watch(isarProvider.future);
@@ -140,6 +173,18 @@ Future<SettingsRepo> settingsRepo(SettingsRepoRef ref) async {
 Future<Settings> settings(SettingsRef ref) async {
   final repo = await ref.watch(settingsRepoProvider.future);
   return repo._getSettings();
+}
+
+@Riverpod(keepAlive: true)
+Future<RecentGamesRepo> recentGamesRepo(RecentGamesRepoRef ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return RecentGamesRepo(isar);
+}
+
+@Riverpod(keepAlive: true)
+Future<List<RecentGame>> recentGames(RecentGamesRef ref) async {
+  final repo = await ref.watch(recentGamesRepoProvider.future);
+  return repo._getRecentGames();
 }
 
 Future<List<Setting>> _getDefaultSettings() async {

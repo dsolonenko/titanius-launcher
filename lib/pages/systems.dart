@@ -104,6 +104,8 @@ class SystemsPage extends HookConsumerWidget {
     switch (system.id) {
       case "favourites":
         return _collectionLogo(Icons.star_rounded, Colors.orange, "Favourites");
+      case "recent":
+        return _collectionLogo(Icons.history_rounded, Colors.redAccent, "Recent");
       case "all":
         return _collectionLogo(Icons.apps_rounded, Colors.indigo, "All Games");
       default:
