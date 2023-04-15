@@ -110,11 +110,7 @@ class GamesPage extends HookConsumerWidget {
                       height: 48,
                       padding: const EdgeInsets.all(8),
                       alignment: Alignment.center,
-                      child: Image.asset(
-                        "assets/images/white/${gamelist.system!.logo}",
-                        fit: BoxFit.fitHeight,
-                        errorBuilder: (context, url, error) => const Icon(Icons.error),
-                      ),
+                      child: _systemLogo(gamelist.system),
                     ),
                     Expanded(
                       child: ScrollablePositionedList.builder(
@@ -128,12 +124,13 @@ class GamesPage extends HookConsumerWidget {
                           final isSelected = game.romPath == gameToShow.romPath;
                           return ListTile(
                             key: ValueKey(game.romPath),
+                            dense: settings.value?.compactGameList ?? false,
                             visualDensity: VisualDensity.compact,
                             horizontalTitleGap: 0,
                             minLeadingWidth: 22,
                             leading: game.isFolder
                                 ? const Icon(Icons.folder, size: 14)
-                                : game.favorite
+                                : system != "favourites" && game.favorite
                                     ? const Icon(Icons.star, size: 14)
                                     : null,
                             autofocus: isSelected,
@@ -150,12 +147,13 @@ class GamesPage extends HookConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
+                            subtitle: gamelist.system.isMulti ? Text(game.system.name) : null,
                             onTap: () async {
                               if (game.isFolder) {
                                 ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
                                 ref.read(selectedGameProvider(system).notifier).reset();
                               } else {
-                                final intent = gamelist.emulator!.toIntent(game);
+                                final intent = game.emulator!.toIntent(game);
                                 intent.launch().catchError(handleIntentError(context, intent));
                               }
                             },
@@ -346,6 +344,34 @@ class GamesPage extends HookConsumerWidget {
           Text(subtitle, style: const TextStyle(color: Colors.grey)),
         ],
       ),
+    );
+  }
+
+  Widget _systemLogo(System system) {
+    switch (system.id) {
+      case "favourites":
+        return _collectionLogo(Icons.star_rounded, "Favourites");
+      case "recent":
+        return _collectionLogo(Icons.history, "Recent");
+      case "all":
+        return _collectionLogo(Icons.apps, "All Games");
+      default:
+        return Image.asset(
+          "assets/images/white/${system.logo}",
+          fit: BoxFit.fitHeight,
+          errorBuilder: (context, url, error) => const Icon(Icons.error),
+        );
+    }
+  }
+
+  Widget _collectionLogo(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Colors.white),
+        const SizedBox(width: 8),
+        Text(text, style: const TextStyle(color: Colors.white, fontSize: 18)),
+      ],
     );
   }
 }

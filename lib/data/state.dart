@@ -118,5 +118,5 @@ Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
   final gamelist = await ref.watch(gamesProvider(system).future);
   final navigation = ref.watch(currentGameNavigationProvider(system));
   final gamesInFolder = gamelist.games.where((game) => game.folder == navigation.folder).toList();
-  return GameList(navigation.folder, gamesInFolder);
+  return GameList(gamelist.system, navigation.folder, gamesInFolder);
 }

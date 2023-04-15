@@ -42,36 +42,30 @@ final _router = GoRouter(
       path: '/games/:system',
       builder: (context, state) => SystemProxy(system: state.params['system']!),
     ),
-    GoRoute(
-        path: '/settings',
-        builder: (context, state) => const SettingsPage(),
+    GoRoute(path: '/settings', builder: (context, state) => const SettingsPage(), routes: [
+      GoRoute(
+        path: 'roms',
+        builder: (context, state) => const RomsSettingsPage(),
+      ),
+      GoRoute(
+        path: 'systems',
+        builder: (context, state) => const ShowSystemsSettingsPage(),
+      ),
+      GoRoute(
+        path: 'emulators',
+        builder: (context, state) => const AlternativeEmulatorsSettingPage(),
         routes: [
           GoRoute(
-            path: 'roms',
-            builder: (context, state) => const RomsSettingsPage(),
-          ),
-          GoRoute(
-            path: 'systems',
-            builder: (context, state) => const ShowSystemsSettingsPage(),
-          ),
-          GoRoute(
-            path: 'emulators',
-            builder: (context, state) =>
-                const AlternativeEmulatorsSettingPage(),
-            routes: [
-              GoRoute(
-                path: ":system",
-                builder: (context, state) =>
-                    SelectAlternativeEmulatorSettingPage(
-                        state.params['system']!),
-              )
-            ],
-          ),
-          GoRoute(
-            path: 'ui',
-            builder: (context, state) => const UISettingsPage(),
-          ),
-        ]),
+            path: ":system",
+            builder: (context, state) => SelectAlternativeEmulatorSettingPage(state.params['system']!),
+          )
+        ],
+      ),
+      GoRoute(
+        path: 'ui',
+        builder: (context, state) => const UISettingsPage(),
+      ),
+    ]),
   ],
 );
 
@@ -101,8 +95,8 @@ class MyApp extends StatelessWidget {
     return baseTheme.copyWith(
       //textTheme: GoogleFonts.squadaOneTextTheme(baseTheme.textTheme),
       //textTheme: GoogleFonts.tourneyTextTheme(baseTheme.textTheme),
-      textTheme: GoogleFonts.bebasNeueTextTheme(baseTheme.textTheme),
-      //textTheme: GoogleFonts.koulenTextTheme(baseTheme.textTheme),
+      //textTheme: GoogleFonts.bebasNeueTextTheme(baseTheme.textTheme),
+      textTheme: GoogleFonts.koulenTextTheme(baseTheme.textTheme),
     );
   }
 }

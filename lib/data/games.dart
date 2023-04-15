@@ -14,10 +14,11 @@ import 'systems.dart';
 part 'games.g.dart';
 
 class GameList {
+  final System system;
   final String currentFolder;
   final List<Game> games;
 
-  const GameList(this.currentFolder, this.games);
+  const GameList(this.system, this.currentFolder, this.games);
 }
 
 @Riverpod(keepAlive: true)
@@ -93,12 +94,17 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
 @Riverpod(keepAlive: true)
 Future<GameList> games(GamesRef ref, String systemId) async {
   final allGames = await ref.watch(allGamesProvider.future);
+  final detectedSystems = await ref.watch(detectedSystemsProvider.future);
+  final system = detectedSystems.firstWhere((element) => element.id == systemId);
 
-  final games = systemId == "favourites"
-      ? allGames.where((element) => element.favorite).toList()
-      : allGames.where((element) => element.system.id == systemId).toList();
-
-  return GameList(".", games);
+  switch (systemId) {
+    case "favourites":
+      return GameList(system, ".", allGames.where((element) => element.favorite).toList());
+    case "all":
+      return GameList(system, ".", allGames);
+    default:
+      return GameList(system, ".", allGames.where((element) => element.system.id == systemId).toList());
+  }
 }
 
 Game _fromNode(XmlNode node, System system, Emulator? emulator, String romsPath) {

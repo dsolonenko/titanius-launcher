@@ -4,10 +4,22 @@ import 'package:android_intent_plus/flag.dart';
 const systemFavourites = System(
   id: 'favourites',
   name: 'Favourites',
-  logo: 'favourites.png',
+  logo: "",
   folders: [],
   emulators: [],
+  isMulti: true,
 );
+
+const systemAllGames = System(
+  id: 'all',
+  name: 'All Games',
+  logo: "",
+  folders: [],
+  emulators: [],
+  isMulti: true,
+);
+
+const collections = [systemAllGames, systemFavourites];
 
 class System {
   final String id;
@@ -15,9 +27,15 @@ class System {
   final String logo;
   final List<String> folders;
   final List<Emulator> emulators;
+  final bool isMulti;
 
   const System(
-      {required this.id, required this.name, required this.logo, required this.folders, required this.emulators});
+      {required this.id,
+      required this.name,
+      required this.logo,
+      required this.folders,
+      required this.emulators,
+      this.isMulti = false});
 
   @override
   String toString() {

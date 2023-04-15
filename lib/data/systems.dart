@@ -28,8 +28,13 @@ Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
   final settings = await ref.watch(settingsProvider.future);
   final detectedSystems =
       allSystems.where((system) => settings.showSystem(system.id) && _hasGamelist(system, settings)).toList();
-  List<System> collections = [systemFavourites];
-  return [...collections, ...detectedSystems];
+  final enabledCollections = [];
+  for (var collection in collections) {
+    if (settings.showSystem(collection.id)) {
+      enabledCollections.add(collection);
+    }
+  }
+  return [...enabledCollections, ...detectedSystems];
 }
 
 bool _hasGamelist(System system, Settings settings) {

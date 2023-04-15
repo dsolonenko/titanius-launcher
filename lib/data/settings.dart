@@ -18,16 +18,16 @@ class Settings {
 
   List<String> get romsFolders => settings['romsFolders']!.value.split(",");
   bool get showSystemAndroid => showSystem('android');
+  bool get showSystemFavourites => showSystem('favourites');
   bool get favouritesOnTop => _getBoolean('favouritesOnTop', true);
+  bool get compactGameList => _getBoolean('compactGameList', false);
   bool get showGameVideos => _getBoolean('showGameVideos', false);
   bool get fadeToVideo => _getBoolean('fadeToVideo', false);
   bool get muteVideo => _getBoolean('muteVideo', true);
 
   bool showSystem(String id) => _getBoolean('showSystem/$id', true);
   bool _getBoolean(String key, bool defaultValue) {
-    return settings.containsKey(key)
-        ? settings[key]!.value == "true"
-        : defaultValue;
+    return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
   }
 }
 
@@ -65,13 +65,10 @@ class SettingsRepo {
 
   Future<Settings> _getSettings() async {
     final defaultSettings = await _getDefaultSettings();
-    final settingsMap = {
-      for (final setting in defaultSettings) setting.key: setting
-    };
+    final settingsMap = {for (final setting in defaultSettings) setting.key: setting};
     final settings = await isar.settings.where().findAll();
     settingsMap.addAll({for (final setting in settings) setting.key: setting});
-    final perSystemConfigurations =
-        await isar.alternativeEmulators.where().findAll();
+    final perSystemConfigurations = await isar.alternativeEmulators.where().findAll();
     final favourites = await isar.favourites.where().findAll();
     return Settings(settingsMap, perSystemConfigurations, favourites);
   }
@@ -89,9 +86,7 @@ class SettingsRepo {
   Future<void> saveFavourite(String path, bool isFavourite) async {
     debugPrint("Favourite $path $isFavourite");
     await isar.writeTxn(() async {
-      await isar.favourites
-          .put(Favourite(romPath: path, favourite: isFavourite))
-          .catchError((e) {
+      await isar.favourites.put(Favourite(romPath: path, favourite: isFavourite)).catchError((e) {
         debugPrint(e);
         return 0;
       });
@@ -100,6 +95,10 @@ class SettingsRepo {
 
   Future<void> setFavoutesOnTop(bool value) async {
     return _setBoolean('favouritesOnTop', value);
+  }
+
+  Future<void> setCompactGameList(bool value) async {
+    return _setBoolean('compactGameList', value);
   }
 
   Future<void> setShowGameVideos(bool value) async {
@@ -123,9 +122,7 @@ class SettingsRepo {
   Future<void> saveRomsFolders(List<String> romsFolders) async {
     debugPrint("Folders $romsFolders");
     await isar.writeTxn(() async {
-      await isar.settings
-          .put(Setting(key: 'romsFolders', value: romsFolders.join(",")))
-          .catchError((e) {
+      await isar.settings.put(Setting(key: 'romsFolders', value: romsFolders.join(","))).catchError((e) {
         debugPrint(e);
         return 0;
       });
