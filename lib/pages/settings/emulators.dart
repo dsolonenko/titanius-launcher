@@ -20,12 +20,12 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
       ),
       body: emulators.when(
         data: (emulators) {
+          emulators = emulators.where((element) => element.defaultEmulator != null).toList();
           return ListView.builder(
             key: const PageStorageKey("settings/emulators"),
             itemCount: emulators.length,
             itemBuilder: (context, index) {
-              final isStandalone =
-                  !emulators[index].defaultEmulator!.intent.target.startsWith('com.retroarch.aarch64/');
+              final isStandalone = emulators[index].defaultEmulator!.isStandalone;
               return ListTile(
                 autofocus: index == 0,
                 onTap: () {

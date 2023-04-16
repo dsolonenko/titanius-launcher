@@ -93,7 +93,7 @@ class MyApp extends StatelessWidget {
     );
     return baseTheme.copyWith(
       textTheme: baseTheme.textTheme.apply(
-        fontFamily: 'Koulen',
+        fontFamily: 'Staatliches',
       ),
     );
   }

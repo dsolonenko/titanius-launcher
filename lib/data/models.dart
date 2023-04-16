@@ -81,6 +81,8 @@ class Emulator {
     );
   }
 
+  get isStandalone => !intent.target.startsWith('com.retroarch.aarch64/');
+
   AndroidIntent toIntent(Game selectedGame) {
     final flags = this.intent.flags.map((e) {
       switch (e) {

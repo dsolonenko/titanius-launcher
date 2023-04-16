@@ -55,7 +55,7 @@ Some settings:
 
 ## Attributions
 
-- [Bebas Neue font by Ryoichi Tsunekawa](https://github.com/dharmatype/Bebas-Neue)
+- [Staatliches Font designed by Brian LaRossa, Erica Carras](https://fonts.google.com/specimen/Staatliches/about)
 - [PromptFont by Shinmera](https://github.com/Shinmera/promptfont/)
 - [Console logos created by Dan Patrick](https://archive.org/details/console-logos-professionally-redrawn-plus-official-versions)
 - [App icon created by Irfansusanto20 - Flaticon](https://www.flaticon.com/free-icons/game-console)

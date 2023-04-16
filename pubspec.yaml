@@ -128,3 +128,6 @@ flutter:
     - family: Koulen
       fonts:
         - asset: fonts/Koulen-Regular.ttf
+    - family: Staatliches
+      fonts:
+        - asset: fonts/Staatliches-Regular.ttf

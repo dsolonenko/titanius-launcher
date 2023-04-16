@@ -128,6 +128,7 @@ class GamesPage extends HookConsumerWidget {
                             visualDensity: VisualDensity.compact,
                             horizontalTitleGap: 0,
                             minLeadingWidth: 22,
+                            minVerticalPadding: 0,
                             leading: game.isFolder
                                 ? const Icon(Icons.folder, size: 14)
                                 : system != "favourites" && game.favorite
@@ -147,7 +148,12 @@ class GamesPage extends HookConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
-                            subtitle: gamelist.system.isMulti ? Text(game.system.name) : null,
+                            subtitle: gamelist.system.isMulti
+                                ? Text(
+                                    game.system.name,
+                                    maxLines: 1,
+                                  )
+                                : null,
                             onTap: () async {
                               if (game.isFolder) {
                                 ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
