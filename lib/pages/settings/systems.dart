@@ -17,7 +17,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Enabled Systems'),
+        title: const Text('Enabled Systems/Collections'),
       ),
       body: systems.when(
         data: (systems) {

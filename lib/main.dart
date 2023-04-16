@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 
@@ -93,10 +92,9 @@ class MyApp extends StatelessWidget {
       darkIsTrueBlack: true,
     );
     return baseTheme.copyWith(
-      //textTheme: GoogleFonts.squadaOneTextTheme(baseTheme.textTheme),
-      //textTheme: GoogleFonts.tourneyTextTheme(baseTheme.textTheme),
-      textTheme: GoogleFonts.bebasNeueTextTheme(baseTheme.textTheme),
-      //textTheme: GoogleFonts.koulenTextTheme(baseTheme.textTheme),
+      textTheme: baseTheme.textTheme.apply(
+        fontFamily: 'Koulen',
+      ),
     );
   }
 }

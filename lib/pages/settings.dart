@@ -63,7 +63,7 @@ class SettingsPage extends HookConsumerWidget {
             onTap: () {
               context.push("/settings/systems");
             },
-            title: const Text('Systems'),
+            title: const Text('Systems/Collections'),
             trailing: const Icon(Icons.arrow_forward_ios_rounded),
           ),
           ListTile(
