@@ -26,7 +26,7 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
   final detectedSystems = await ref.watch(detectedSystemsProvider.future);
   final settings = await ref.watch(settingsProvider.future);
 
-  final allGames = List<Game>.empty(growable: true);
+  final allGames = <Game>[];
 
   if (detectedSystems.isEmpty) {
     return [];
@@ -34,36 +34,20 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
 
   final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
 
+  List<Future<List<Game>>> futures = [];
   for (var system in detectedSystems) {
     final emulator = defaultEmulator(
         system.emulators, settings.perSystemConfigurations.firstWhereOrNull((e) => e.system == system.id));
     for (var romsFolder in settings.romsFolders) {
       for (var folder in system.folders) {
-        final romsPath = "$romsFolder/$folder";
-        final gamelistPath = "$romsPath/gamelist.xml";
-
-        final file = File(gamelistPath);
-        final exists = await file.exists();
-        if (exists) {
-          final games = await file
-              .openRead()
-              .transform(utf8.decoder)
-              .toXmlEvents()
-              .normalizeEvents()
-              .selectSubtreeEvents((event) => event.name == 'game' || event.name == 'folder')
-              .toXmlNodes()
-              .expand((nodes) => nodes)
-              .map((node) => _fromNode(node, system, emulator, romsPath))
-              .toList();
-          for (var game in games) {
-            if (favouritesMap.containsKey(game.romPath)) {
-              game.favorite = favouritesMap[game.romPath]!;
-            }
-          }
-          allGames.addAll(games);
-        }
+        futures.add(_processFolder(romsFolder, folder, system, emulator, favouritesMap));
       }
     }
+  }
+
+  final results = await Future.wait(futures);
+  for (var r in results) {
+    allGames.addAll(r);
   }
 
   bool favouriteOnTop = settings.favouritesOnTop;
@@ -89,6 +73,34 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
     return a.name.compareTo(b.name);
   });
   return games;
+}
+
+Future<List<Game>> _processFolder(
+    String romsFolder, String folder, System system, Emulator? emulator, Map<String, bool> favouritesMap) async {
+  final romsPath = "$romsFolder/$folder";
+  final gamelistPath = "$romsPath/gamelist.xml";
+
+  final file = File(gamelistPath);
+  final exists = await file.exists();
+  if (exists) {
+    final games = await file
+        .openRead()
+        .transform(utf8.decoder)
+        .toXmlEvents()
+        .normalizeEvents()
+        .selectSubtreeEvents((event) => event.name == 'game' || event.name == 'folder')
+        .toXmlNodes()
+        .expand((nodes) => nodes)
+        .map((node) => _fromNode(node, system, emulator, romsPath))
+        .toList();
+    for (var game in games) {
+      if (favouritesMap.containsKey(game.romPath)) {
+        game.favorite = favouritesMap[game.romPath]!;
+      }
+    }
+    return games;
+  }
+  return [];
 }
 
 @Riverpod(keepAlive: true)
