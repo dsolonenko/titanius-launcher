@@ -95,8 +95,8 @@ class MyApp extends StatelessWidget {
     return baseTheme.copyWith(
       //textTheme: GoogleFonts.squadaOneTextTheme(baseTheme.textTheme),
       //textTheme: GoogleFonts.tourneyTextTheme(baseTheme.textTheme),
-      //textTheme: GoogleFonts.bebasNeueTextTheme(baseTheme.textTheme),
-      textTheme: GoogleFonts.koulenTextTheme(baseTheme.textTheme),
+      textTheme: GoogleFonts.bebasNeueTextTheme(baseTheme.textTheme),
+      //textTheme: GoogleFonts.koulenTextTheme(baseTheme.textTheme),
     );
   }
 }
