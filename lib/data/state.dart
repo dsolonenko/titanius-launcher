@@ -116,7 +116,14 @@ Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) 
 @riverpod
 Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
   final gamelist = await ref.watch(gamesProvider(system).future);
-  final navigation = ref.watch(currentGameNavigationProvider(system));
-  final gamesInFolder = gamelist.games.where((game) => game.folder == navigation.folder).toList();
-  return GameList(gamelist.system, navigation.folder, gamesInFolder);
+  if (system == "all") {
+    final roms = <String>{};
+    final uniqueGames = gamelist.games.where((element) => !element.isFolder).toList();
+    uniqueGames.retainWhere((game) => roms.add("${game.system.id}/${game.name}"));
+    return GameList(gamelist.system, ".", uniqueGames);
+  } else {
+    final navigation = ref.watch(currentGameNavigationProvider(system));
+    final gamesInFolder = gamelist.games.where((game) => game.folder == navigation.folder).toList();
+    return GameList(gamelist.system, navigation.folder, gamesInFolder);
+  }
 }
