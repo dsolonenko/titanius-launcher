@@ -584,6 +584,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  info_popup:
+    dependency: "direct main"
+    description:
+      name: info_popup
+      sha256: a335e5ac591ec693729075f87e536922e05c1625490e262d09a54be4b91e8526
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   intl:
     dependency: "direct main"
     description:
