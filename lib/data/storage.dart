@@ -1,7 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'settings.dart';
+import 'repo.dart';
 
 part 'storage.g.dart';
 

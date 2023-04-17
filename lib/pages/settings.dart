@@ -5,7 +5,7 @@ import 'package:titanius/data/models.dart';
 
 import '../data/android_apps.dart';
 import '../data/emulators.dart';
-import '../data/settings.dart';
+import '../data/repo.dart';
 import '../data/systems.dart';
 import '../gamepad.dart';
 

@@ -13,7 +13,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/widgets/fade_image_to_video.dart';
 
-import '../data/settings.dart';
+import '../data/repo.dart';
 import '../data/state.dart';
 import '../gamepad.dart';
 import '../data/games.dart';

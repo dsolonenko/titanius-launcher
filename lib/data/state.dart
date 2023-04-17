@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:device_apps/device_apps.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:titanius/data/settings.dart';
+import 'package:titanius/data/repo.dart';
 import 'package:video_player/video_player.dart';
 
 import 'games.dart';

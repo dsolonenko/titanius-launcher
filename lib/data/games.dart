@@ -6,7 +6,7 @@ import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 import 'package:collection/collection.dart';
 
-import '../data/settings.dart';
+import 'repo.dart';
 import 'emulators.dart';
 import 'models.dart';
 import 'systems.dart';

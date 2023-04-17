@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'models.dart';
 import 'storage.dart';
 
-part 'settings.g.dart';
+part 'repo.g.dart';
 
 class Settings {
   final Map<String, Setting> settings;
