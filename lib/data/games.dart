@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:async_task/async_task.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
@@ -34,20 +35,31 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
 
   final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
 
-  List<Future<List<Game>>> futures = [];
-  for (var system in detectedSystems) {
-    final emulator = defaultEmulator(
-        system.emulators, settings.perSystemConfigurations.firstWhereOrNull((e) => e.system == system.id));
-    for (var romsFolder in settings.romsFolders) {
-      for (var folder in system.folders) {
-        futures.add(_processFolder(romsFolder, folder, system, emulator, favouritesMap));
+  var asyncExecutor = AsyncExecutor(
+    sequential: false,
+    parallelism: Platform.numberOfProcessors - 1,
+    taskTypeRegister: _taskTypeRegister,
+  );
+  asyncExecutor.logger.enabled = true;
+  try {
+    List<GamelistParser> tasks = [];
+    for (var system in detectedSystems) {
+      final emulator = defaultEmulator(
+          system.emulators, settings.perSystemConfigurations.firstWhereOrNull((e) => e.system == system.id));
+      for (var romsFolder in settings.romsFolders) {
+        for (var folder in system.folders) {
+          tasks.add(GamelistParser(GamelistTaskParams(romsFolder, folder, system, emulator, favouritesMap)));
+        }
       }
     }
-  }
 
-  final results = await Future.wait(futures);
-  for (var r in results) {
-    allGames.addAll(r);
+    final futures = asyncExecutor.executeAll(tasks);
+    final results = await Future.wait(futures);
+    for (var r in results) {
+      allGames.addAll(r);
+    }
+  } finally {
+    asyncExecutor.close();
   }
 
   bool favouriteOnTop = settings.favouritesOnTop;
@@ -73,6 +85,40 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
     return a.name.compareTo(b.name);
   });
   return games;
+}
+
+List<AsyncTask> _taskTypeRegister() => [GamelistParser(GamelistTaskParams("", "", systemAllGames, null, {}))];
+
+class GamelistTaskParams {
+  final String romsFolder;
+  final String folder;
+  final System system;
+  final Emulator? emulator;
+  final Map<String, bool> favouritesMap;
+
+  GamelistTaskParams(this.romsFolder, this.folder, this.system, this.emulator, this.favouritesMap);
+}
+
+class GamelistParser extends AsyncTask<GamelistTaskParams, List<Game>> {
+  final GamelistTaskParams params;
+
+  GamelistParser(this.params);
+
+  @override
+  AsyncTask<GamelistTaskParams, List<Game>> instantiate(GamelistTaskParams parameters,
+      [Map<String, SharedData>? sharedData]) {
+    return GamelistParser(parameters);
+  }
+
+  @override
+  GamelistTaskParams parameters() {
+    return params;
+  }
+
+  @override
+  FutureOr<List<Game>> run() async {
+    return _processFolder(params.romsFolder, params.folder, params.system, params.emulator, params.favouritesMap);
+  }
 }
 
 Future<List<Game>> _processFolder(

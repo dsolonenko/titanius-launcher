@@ -63,6 +63,7 @@ dependencies:
   scrollable_positioned_list: ^0.3.5
   system_date_time_format: ^0.5.0
   media_store_plus: ^0.0.7
+  async_task: ^1.0.20
 
 dev_dependencies:
   flutter_test:
