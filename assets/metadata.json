@@ -2634,7 +2634,8 @@
             "data": "{file.uri}",
             "flags": [
               "--activity-clear-task",
-              "--activity-clear-top"
+              "--activity-clear-top",
+              "--activity-no-history"
             ]
           }
         },

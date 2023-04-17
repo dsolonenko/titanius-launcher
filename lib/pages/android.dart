@@ -11,6 +11,7 @@ import 'package:titanius/data/android_apps.dart';
 import '../data/state.dart';
 import '../gamepad.dart';
 import '../widgets/appbar.dart';
+import '../widgets/info_tile.dart';
 import '../widgets/prompt_bar.dart';
 
 const double verticalSpacing = 10;
@@ -68,26 +69,30 @@ class AndroidPage extends HookConsumerWidget {
                   children: [
                     Expanded(
                       flex: 1,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: ScrollablePositionedList.builder(
-                              itemScrollController: scrollController,
-                              itemPositionsListener: itemPositionsListener,
-                              key: const PageStorageKey("android/apps_list"),
-                              initialScrollIndex: index,
-                              itemCount: apps.length,
-                              itemBuilder: (context, index) {
-                                return _appTile(selectedApp, index, apps[index], ref, context);
-                              },
-                            ),
-                          ),
-                        ],
+                      child: ScrollablePositionedList.builder(
+                        itemScrollController: scrollController,
+                        itemPositionsListener: itemPositionsListener,
+                        key: const PageStorageKey("android/apps_list"),
+                        initialScrollIndex: index,
+                        itemCount: apps.length,
+                        itemBuilder: (context, index) {
+                          final app = apps[index];
+                          final selected =
+                              selectedApp == null ? index == 0 : app.packageName == selectedApp.packageName;
+                          return _appTileList(context, ref, app, selected);
+                        },
                       ),
                     ),
                     Expanded(
                       flex: 2,
-                      child: _appDetails(appToShow),
+                      child: InfoTiles(
+                        children: [
+                          InfoTile(title: "Name", subtitle: appToShow.appName),
+                          InfoTile(title: "Package", subtitle: appToShow.packageName),
+                          InfoTile(title: "Version", subtitle: appToShow.versionName ?? "-"),
+                          InfoTile(title: "Category", subtitle: appToShow.category.toString()),
+                        ],
+                      ),
                     ),
                   ],
                 )
@@ -96,7 +101,9 @@ class AndroidPage extends HookConsumerWidget {
                   key: const PageStorageKey("android/apps_grid"),
                   itemCount: apps.length,
                   itemBuilder: (context, index) {
-                    return _appTile(selectedApp, index, apps[index], ref, context);
+                    final app = apps[index];
+                    final selected = selectedApp == null ? index == 0 : app.packageName == selectedApp.packageName;
+                    return _appTileGrid(context, ref, app, selected);
                   },
                 );
         },
@@ -106,10 +113,11 @@ class AndroidPage extends HookConsumerWidget {
     );
   }
 
-  ListTile _appTile(
-      ApplicationWithIcon? selectedApp, int index, ApplicationWithIcon app, WidgetRef ref, BuildContext context) {
+  ListTile _appTileGrid(BuildContext context, WidgetRef ref, ApplicationWithIcon app, bool selected) {
     return ListTile(
-      autofocus: selectedApp == null ? index == 0 : app.packageName == selectedApp.packageName,
+      key: ValueKey("android/grid/${app.packageName}"),
+      autofocus: selected,
+      selected: selected,
       onFocusChange: (value) {
         if (value) {
           ref.read(selectedAppProvider.notifier).set(app);
@@ -131,8 +139,26 @@ class AndroidPage extends HookConsumerWidget {
     );
   }
 
-  Widget _appDetails(ApplicationWithIcon appToShow) {
-    return Text(appToShow.packageName);
+  ListTile _appTileList(BuildContext context, WidgetRef ref, ApplicationWithIcon app, bool selected) {
+    return ListTile(
+      key: ValueKey("android/list/${app.packageName}"),
+      autofocus: selected,
+      selected: selected,
+      onFocusChange: (value) {
+        if (value) {
+          ref.read(selectedAppProvider.notifier).set(app);
+        }
+      },
+      leading: CachedMemoryImage(
+        uniqueKey: app.packageName,
+        bytes: app.icon,
+        fit: BoxFit.contain,
+      ),
+      title: Text(app.appName),
+      onTap: () async {
+        app.openApp().catchError(handleIntentError(context, app.appName));
+      },
+    );
   }
 }
 

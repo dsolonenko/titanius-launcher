@@ -18,6 +18,7 @@ import '../data/state.dart';
 import '../gamepad.dart';
 import '../data/games.dart';
 import '../widgets/appbar.dart';
+import '../widgets/info_tile.dart';
 import '../widgets/prompt_bar.dart';
 
 const double verticalSpacing = 4;
@@ -184,10 +185,12 @@ class GamesPage extends HookConsumerWidget {
     );
   }
 
-  void _launchGame(BuildContext context, WidgetRef ref, Game game) {
+  void _launchGame(BuildContext context, WidgetRef ref, Game game) async {
     ref.read(recentGamesRepoProvider).value!.saveRecentGame(game).then((value) => ref.refresh(recentGamesProvider));
-    final intent = game.emulator!.toIntent(game);
-    intent.launch().catchError(handleIntentError(context, intent));
+    game.emulator!.intent
+        .toIntent(game)
+        .then((intent) => intent.launch().catchError(handleIntentError(context, intent)));
+    ;
   }
 
   _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
@@ -323,20 +326,13 @@ class GamesPage extends HookConsumerWidget {
             padding: const EdgeInsets.all(8.0),
             child: Text(gameToShow.description ?? "No description", style: const TextStyle(color: Colors.grey))),
         Expanded(
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              final double tileWidth = constraints.maxWidth / 3;
-              return Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _gameInfoTile("Genre", gameToShow.genre ?? "-", tileWidth),
-                  _gameInfoTile("Released", gameToShow.year?.toString() ?? "-", tileWidth),
-                  _gameInfoTile("Developer", gameToShow.developer ?? "-", tileWidth),
-                  _gameInfoTile("Publisher", gameToShow.publisher ?? "-", tileWidth),
-                ],
-              );
-            },
+          child: InfoTiles(
+            children: [
+              InfoTile(title: "Genre", subtitle: gameToShow.genre ?? "-"),
+              InfoTile(title: "Released", subtitle: gameToShow.year?.toString() ?? "-"),
+              InfoTile(title: "Developer", subtitle: gameToShow.developer ?? "-"),
+              InfoTile(title: "Publisher", subtitle: gameToShow.publisher ?? "-"),
+            ],
           ),
         ),
       ],
@@ -344,17 +340,9 @@ class GamesPage extends HookConsumerWidget {
   }
 
   Widget _gameInfoTile(String title, String subtitle, double width) {
-    return Container(
-      width: width,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(title),
-          Text(subtitle, style: const TextStyle(color: Colors.grey)),
-        ],
-      ),
+    return InfoTile(
+      title: title,
+      subtitle: subtitle,
     );
   }
 

@@ -1,6 +1,8 @@
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 
+import 'android_intent.dart';
+
 const systemAllGames = System(
   id: 'all',
   name: 'All Games',
@@ -74,49 +76,16 @@ class Emulator {
       id: json['id'],
       name: json['name'],
       intent: LaunchIntent(
-        json['intent']['component'],
-        Map<String, dynamic>.from(json['intent']['args'] ?? {}),
-        List<String>.from(json['intent']['flags'] ?? []),
+        target: json['intent']['component'],
+        action: json['intent']['action'],
+        data: json['intent']['data'],
+        args: Map<String, dynamic>.from(json['intent']['args'] ?? {}),
+        flags: List<String>.from(json['intent']['flags'] ?? []),
       ),
     );
   }
 
   get isStandalone => !intent.target.startsWith('com.retroarch.aarch64/');
-
-  AndroidIntent toIntent(Game selectedGame) {
-    final flags = this.intent.flags.map((e) {
-      switch (e) {
-        case "--activity-clear-task":
-          return Flag.FLAG_ACTIVITY_CLEAR_TASK;
-        case "--activity-clear-top":
-          return Flag.FLAG_ACTIVITY_CLEAR_TOP;
-        case "--activity-no-history":
-          return Flag.FLAG_ACTIVITY_NO_HISTORY;
-      }
-      return Flag.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
-    }).toList();
-    final args = {
-      for (var k in this.intent.args.keys)
-        k: this.intent.args[k] == "{file.path}" ? selectedGame.romPath : this.intent.args[k],
-    };
-    final parts = this.intent.target.split('/');
-    final intent = AndroidIntent(
-      action: 'action_main',
-      package: parts[0],
-      componentName: parts.length > 1 ? parts[1] : null,
-      arguments: args,
-      flags: flags,
-    );
-    return intent;
-  }
-}
-
-class LaunchIntent {
-  final String target;
-  final Map<String, dynamic> args;
-  final List<String> flags;
-
-  LaunchIntent(this.target, this.args, this.flags);
 }
 
 class Game {

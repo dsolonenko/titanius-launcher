@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:media_store_plus/media_store_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 
@@ -15,6 +16,7 @@ import 'pages/systems.dart';
 void main() async {
   _ensureStoragePermission();
   await SystemDateTimeFormat().initialize(timeFormatFallback: "HH:mm");
+  MediaStore.appFolder = "MediaStorePlugin";
   runApp(
     const ProviderScope(
       child: MyApp(),
