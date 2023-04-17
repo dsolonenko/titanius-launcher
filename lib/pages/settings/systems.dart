@@ -24,11 +24,19 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
           systems = [...collections, ...systems];
           return settings.when(
             data: (settings) {
-              return ListView.builder(
+              return GroupedListView<System, String>(
                 key: const PageStorageKey("settings/systems"),
-                itemCount: systems.length,
-                itemBuilder: (context, index) {
-                  final showSystem = settings.showSystem(systems[index].id);
+                elements: systems,
+                groupBy: (element) => element.isCollection ? "Collections" : "Systems",
+                groupSeparatorBuilder: (String value) => Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    value,
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                ),
+                indexedItemBuilder: (context, system, index) {
+                  final showSystem = settings.showSystem(system.id);
                   return ListTile(
                     autofocus: index == 0,
                     onFocusChange: (value) {},
@@ -36,10 +44,10 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                       ref
                           .read(settingsRepoProvider)
                           .value!
-                          .setShowSystem(systems[index].id, showSystem ? false : true)
+                          .setShowSystem(system.id, showSystem ? false : true)
                           .then((value) => ref.refresh(settingsProvider));
                     },
-                    title: Text(systems[index].name),
+                    title: Text(system.name),
                     trailing: showSystem ? toggleOnIcon : toggleOffIcon,
                   );
                 },

@@ -64,6 +64,7 @@ dependencies:
   system_date_time_format: ^0.5.0
   media_store_plus: ^0.0.7
   async_task: ^1.0.20
+  grouped_list: ^5.1.2
 
 dev_dependencies:
   flutter_test:

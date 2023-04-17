@@ -1,6 +1,3 @@
-import 'package:android_intent_plus/android_intent.dart';
-import 'package:android_intent_plus/flag.dart';
-
 import 'android_intent.dart';
 
 const systemAllGames = System(
@@ -9,7 +6,7 @@ const systemAllGames = System(
   logo: "",
   folders: [],
   emulators: [],
-  isMulti: true,
+  isCollection: true,
 );
 
 const systemFavourites = System(
@@ -18,7 +15,7 @@ const systemFavourites = System(
   logo: "",
   folders: [],
   emulators: [],
-  isMulti: true,
+  isCollection: true,
 );
 
 const systemRecent = System(
@@ -27,7 +24,7 @@ const systemRecent = System(
   logo: "",
   folders: [],
   emulators: [],
-  isMulti: true,
+  isCollection: true,
 );
 
 const collections = [systemAllGames, systemRecent, systemFavourites];
@@ -38,7 +35,7 @@ class System {
   final String logo;
   final List<String> folders;
   final List<Emulator> emulators;
-  final bool isMulti;
+  final bool isCollection;
 
   const System(
       {required this.id,
@@ -46,7 +43,7 @@ class System {
       required this.logo,
       required this.folders,
       required this.emulators,
-      this.isMulti = false});
+      this.isCollection = false});
 
   @override
   String toString() {

@@ -149,7 +149,7 @@ class GamesPage extends HookConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
-                            subtitle: gamelist.system.isMulti
+                            subtitle: gamelist.system.isCollection
                                 ? Text(
                                     game.system.name,
                                     maxLines: 1,
