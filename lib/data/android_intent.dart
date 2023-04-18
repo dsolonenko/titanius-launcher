@@ -2,26 +2,10 @@ import 'dart:async';
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:media_store_plus/media_store_plus.dart';
 
 import 'models.dart';
-
-class FileUtils {
-  static const MethodChannel _channel = MethodChannel('file_utils');
-
-  static Future<String> getUriFromPath(String path) async {
-    final String uri = await _channel.invokeMethod('getUriFromPath', {'path': path});
-    return uri;
-  }
-
-  static Future<String> getMimeType(String path) async {
-    final String? mimeType = await _channel.invokeMethod('getMimeType', {'path': path});
-    return mimeType ?? 'application/octet-stream';
-  }
-}
-
-final mediaStorePlugin = MediaStore();
 
 class LaunchIntent {
   final String target;
@@ -33,7 +17,7 @@ class LaunchIntent {
   LaunchIntent(
       {required this.target, required this.action, required this.data, required this.args, required this.flags});
 
-  Future<AndroidIntent> toIntent(Game selectedGame) async {
+  Future<AndroidIntent> toIntent(Game game) async {
     final flags = this.flags.map((e) {
       switch (e) {
         case "--activity-clear-task":
@@ -48,9 +32,10 @@ class LaunchIntent {
     if (data != null) {
       flags.add(Flag.FLAG_GRANT_READ_URI_PERMISSION);
     }
-    final uri = await mediaStorePlugin.getUriFromFilePath(path: selectedGame.romPath);
+    final uri = await _getContentUri(game.romPath);
+    debugPrint("path: ${game.romPath} uri: $uri");
     final args = {
-      for (var k in this.args.keys) k: _value(this.args[k], selectedGame.romPath, uri),
+      for (var k in this.args.keys) k: _value(this.args[k], game.romPath, uri),
     };
     final parts = target.split('/');
     final intent = AndroidIntent(
@@ -59,20 +44,32 @@ class LaunchIntent {
       componentName: parts.length > 1 ? parts[1] : null,
       arguments: args,
       flags: flags,
-      data: _value(data, selectedGame.romPath, uri),
+      data: _value(data, game.romPath, uri),
     );
     return intent;
   }
 
-  _value(String? v, String romPath, Uri? uri) {
+  _value(String? v, String romPath, String? uri) {
     if (v == null) return null;
     switch (v) {
       case "{file.path}":
         return romPath;
       case "{file.uri}":
-        return uri?.toString();
+        return uri;
       default:
         return v;
     }
+  }
+}
+
+const platform = MethodChannel('file_utils');
+
+Future<String?> _getContentUri(String filePath) async {
+  try {
+    final String contentUri = await platform.invokeMethod('getContentUri', {'path': filePath});
+    return contentUri;
+  } on PlatformException catch (e) {
+    debugPrint('Error: ${e.message}');
+    return null;
   }
 }
