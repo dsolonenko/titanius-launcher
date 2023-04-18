@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:titanius/data/emulators.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/widgets/fade_image_to_video.dart';
 
@@ -187,10 +188,12 @@ class GamesPage extends HookConsumerWidget {
 
   void _launchGame(BuildContext context, WidgetRef ref, Game game) async {
     ref.read(recentGamesRepoProvider).value!.saveRecentGame(game).then((value) => ref.refresh(recentGamesProvider));
-    game.emulator!.intent
-        .toIntent(game)
-        .then((intent) => intent.launch().catchError(handleIntentError(context, intent)));
-    ;
+    ref.read(alternativeEmulatorsProvider.future).then((value) {
+      final emulators = value.firstWhereOrNull((element) => element.system.id == game.system.id);
+      emulators?.defaultEmulator?.intent
+          .toIntent(game)
+          .then((intent) => intent.launch().catchError(handleIntentError(context, intent)));
+    });
   }
 
   _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
@@ -336,13 +339,6 @@ class GamesPage extends HookConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _gameInfoTile(String title, String subtitle, double width) {
-    return InfoTile(
-      title: title,
-      subtitle: subtitle,
     );
   }
 

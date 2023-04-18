@@ -5,7 +5,7 @@ class RomsSettingsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
+    final romFolders = ref.watch(romFoldersProvider);
     final paths = ref.watch(externalRomsPathsProvider);
 
     useGamepad(ref, (location, key) {
@@ -19,29 +19,29 @@ class RomsSettingsPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('ROMs Folders'),
       ),
-      body: settings.when(
-        data: (settings) {
+      body: romFolders.when(
+        data: (romFolders) {
           return paths.when(
             data: (paths) {
               return ListView.builder(
                 key: const PageStorageKey("settings/roms"),
                 itemCount: paths.length,
                 itemBuilder: (context, index) {
-                  final included = settings.romsFolders.contains(paths[index]);
+                  final included = romFolders.contains(paths[index]);
                   return ListTile(
                     autofocus: index == 0,
                     onTap: () {
-                      final newPaths = settings.romsFolders;
+                      final newPaths = romFolders;
                       if (included) {
                         newPaths.remove(paths[index]);
                       } else {
                         newPaths.add(paths[index]);
                       }
                       ref
-                          .read(settingsRepoProvider)
+                          .read(romFoldersRepoProvider)
                           .value!
                           .saveRomsFolders(newPaths)
-                          .then((value) => ref.refresh(settingsProvider));
+                          .then((value) => ref.refresh(romFoldersProvider));
                     },
                     title: Text(paths[index]),
                     trailing: included ? toggleOnIcon : toggleOffIcon,

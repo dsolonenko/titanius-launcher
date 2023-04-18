@@ -87,7 +87,6 @@ class Emulator {
 
 class Game {
   final System system;
-  final Emulator? emulator;
   final String name;
   final String path;
   final String folder;
@@ -107,7 +106,6 @@ class Game {
 
   Game(
     this.system,
-    this.emulator,
     this.name,
     this.path,
     this.folder,

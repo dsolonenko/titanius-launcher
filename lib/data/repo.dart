@@ -17,7 +17,6 @@ class Settings {
 
   Settings(this.settings, this.perSystemConfigurations, this.favourites);
 
-  List<String> get romsFolders => settings['romsFolders']!.value.split(",");
   bool get showSystemAndroid => showSystem('android');
   bool get showSystemFavourites => showSystem('favourites');
   bool get favouritesOnTop => _getBoolean('favouritesOnTop', true);
@@ -74,10 +73,8 @@ class SettingsRepo {
   SettingsRepo(this.isar);
 
   Future<Settings> _getSettings() async {
-    final defaultSettings = await _getDefaultSettings();
-    final settingsMap = {for (final setting in defaultSettings) setting.key: setting};
     final settings = await isar.settings.where().findAll();
-    settingsMap.addAll({for (final setting in settings) setting.key: setting});
+    final settingsMap = {for (final s in settings) s.key: s};
     final perSystemConfigurations = await isar.alternativeEmulators.where().findAll();
     final favourites = await isar.favourites.where().findAll();
 
@@ -128,6 +125,18 @@ class SettingsRepo {
     await isar.writeTxn(() async {
       await isar.settings.put(Setting(key: key, value: value.toString()));
     });
+  }
+}
+
+class RomFoldersRepo {
+  final Isar isar;
+
+  RomFoldersRepo(this.isar);
+
+  Future<List<String>> _getRomFolders() async {
+    final defaultRomFolders = await _getDefaultRomFolders();
+    final settings = await isar.settings.where().keyEqualTo("romsFolders").findFirst();
+    return settings != null ? settings.value.split(",") : defaultRomFolders;
   }
 
   Future<void> saveRomsFolders(List<String> romsFolders) async {
@@ -187,7 +196,19 @@ Future<List<RecentGame>> recentGames(RecentGamesRef ref) async {
   return repo._getRecentGames();
 }
 
-Future<List<Setting>> _getDefaultSettings() async {
+@Riverpod(keepAlive: true)
+Future<RomFoldersRepo> romFoldersRepo(RomFoldersRepoRef ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return RomFoldersRepo(isar);
+}
+
+@Riverpod(keepAlive: true)
+Future<List<String>> romFolders(RomFoldersRef ref) async {
+  final repo = await ref.watch(romFoldersRepoProvider.future);
+  return repo._getRomFolders();
+}
+
+Future<List<String>> _getDefaultRomFolders() async {
   List<String> romsFolders = [];
   if (Platform.isMacOS) {
     romsFolders = ["/Users/ds/Roms"];
@@ -199,10 +220,7 @@ Future<List<Setting>> _getDefaultSettings() async {
     final paths = await _getExternalRomsPaths();
     romsFolders = [paths[paths.length - 1]];
   }
-
-  return [
-    Setting(key: 'romsFolders', value: romsFolders.join(",")),
-  ];
+  return romsFolders;
 }
 
 @riverpod

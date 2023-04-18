@@ -8,7 +8,6 @@ import 'package:xml/xml_events.dart';
 import 'package:collection/collection.dart';
 
 import 'repo.dart';
-import 'emulators.dart';
 import 'models.dart';
 import 'systems.dart';
 
@@ -25,15 +24,13 @@ class GameList {
 @Riverpod(keepAlive: true)
 Future<List<Game>> allGames(AllGamesRef ref) async {
   final detectedSystems = await ref.watch(detectedSystemsProvider.future);
-  final settings = await ref.watch(settingsProvider.future);
+  final romFolders = await ref.watch(romFoldersProvider.future);
 
   final allGames = <Game>[];
 
   if (detectedSystems.isEmpty) {
     return [];
   }
-
-  final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
 
   var asyncExecutor = AsyncExecutor(
     sequential: false,
@@ -44,11 +41,9 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
   try {
     List<GamelistParser> tasks = [];
     for (var system in detectedSystems) {
-      final emulator = defaultEmulator(
-          system.emulators, settings.perSystemConfigurations.firstWhereOrNull((e) => e.system == system.id));
-      for (var romsFolder in settings.romsFolders) {
+      for (var romsFolder in romFolders) {
         for (var folder in system.folders) {
-          tasks.add(GamelistParser(GamelistTaskParams(romsFolder, folder, system, emulator, favouritesMap)));
+          tasks.add(GamelistParser(GamelistTaskParams(romsFolder, folder, system)));
         }
       }
     }
@@ -62,41 +57,17 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
     asyncExecutor.close();
   }
 
-  bool favouriteOnTop = settings.favouritesOnTop;
-  final games = allGames.sorted((a, b) {
-    // folders on top
-    if (a.isFolder) {
-      return -1;
-    }
-    if (b.isFolder) {
-      return 1;
-    }
-    if (favouriteOnTop) {
-      if (a.favorite && b.favorite) {
-        return a.name.compareTo(b.name);
-      }
-      if (a.favorite) {
-        return -1;
-      }
-      if (b.favorite) {
-        return 1;
-      }
-    }
-    return a.name.compareTo(b.name);
-  });
-  return games;
+  return allGames;
 }
 
-List<AsyncTask> _taskTypeRegister() => [GamelistParser(GamelistTaskParams("", "", systemAllGames, null, {}))];
+List<AsyncTask> _taskTypeRegister() => [GamelistParser(GamelistTaskParams("", "", systemAllGames))];
 
 class GamelistTaskParams {
   final String romsFolder;
   final String folder;
   final System system;
-  final Emulator? emulator;
-  final Map<String, bool> favouritesMap;
 
-  GamelistTaskParams(this.romsFolder, this.folder, this.system, this.emulator, this.favouritesMap);
+  GamelistTaskParams(this.romsFolder, this.folder, this.system);
 }
 
 class GamelistParser extends AsyncTask<GamelistTaskParams, List<Game>> {
@@ -117,12 +88,11 @@ class GamelistParser extends AsyncTask<GamelistTaskParams, List<Game>> {
 
   @override
   FutureOr<List<Game>> run() async {
-    return _processFolder(params.romsFolder, params.folder, params.system, params.emulator, params.favouritesMap);
+    return _processFolder(params.romsFolder, params.folder, params.system);
   }
 }
 
-Future<List<Game>> _processFolder(
-    String romsFolder, String folder, System system, Emulator? emulator, Map<String, bool> favouritesMap) async {
+Future<List<Game>> _processFolder(String romsFolder, String folder, System system) async {
   final romsPath = "$romsFolder/$folder";
   final gamelistPath = "$romsPath/gamelist.xml";
 
@@ -137,13 +107,8 @@ Future<List<Game>> _processFolder(
         .selectSubtreeEvents((event) => event.name == 'game' || event.name == 'folder')
         .toXmlNodes()
         .expand((nodes) => nodes)
-        .map((node) => _fromNode(node, system, emulator, romsPath))
+        .map((node) => _fromNode(node, system, romsPath))
         .toList();
-    for (var game in games) {
-      if (favouritesMap.containsKey(game.romPath)) {
-        game.favorite = favouritesMap[game.romPath]!;
-      }
-    }
     return games;
   }
   return [];
@@ -153,11 +118,14 @@ Future<List<Game>> _processFolder(
 Future<GameList> games(GamesRef ref, String systemId) async {
   final allGames = await ref.watch(allGamesProvider.future);
   final detectedSystems = await ref.watch(detectedSystemsProvider.future);
+  final settings = await ref.watch(settingsProvider.future);
+
   final system = detectedSystems.firstWhere((element) => element.id == systemId);
 
   switch (systemId) {
     case "favourites":
-      return GameList(system, ".", allGames.where((element) => element.favorite).toList());
+      final games = allGames.where((element) => element.favorite).sortedBy((element) => element.name);
+      return GameList(system, ".", games);
     case "recent":
       final recentGames = await ref.watch(recentGamesProvider.future);
       Map<String, int> recentGamesMap = {
@@ -167,13 +135,47 @@ Future<GameList> games(GamesRef ref, String systemId) async {
       games.sort((a, b) => recentGamesMap[b.romPath]!.compareTo(recentGamesMap[a.romPath]!));
       return GameList(system, ".", games);
     case "all":
-      return GameList(system, ".", allGames);
+      final roms = <String>{};
+      final uniqueGames = allGames.where((element) => !element.isFolder).toList();
+      uniqueGames.retainWhere((game) => roms.add("${game.system.id}/${game.name}"));
+      final games = _sortGames(settings, uniqueGames);
+      return GameList(system, ".", games);
     default:
-      return GameList(system, ".", allGames.where((element) => element.system.id == systemId).toList());
+      final games = _sortGames(settings, allGames.where((element) => element.system.id == systemId).toList());
+      return GameList(system, ".", games);
   }
 }
 
-Game _fromNode(XmlNode node, System system, Emulator? emulator, String romsPath) {
+List<Game> _sortGames(Settings settings, List<Game> allGames) {
+  final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
+  bool favouriteOnTop = settings.favouritesOnTop;
+  final games = allGames.sorted((a, b) {
+    // folders on top
+    if (a.isFolder) {
+      return -1;
+    }
+    if (b.isFolder) {
+      return 1;
+    }
+    if (favouriteOnTop) {
+      final aFavourite = favouritesMap[a.romPath] ?? a.favorite;
+      final bFavourite = favouritesMap[b.romPath] ?? b.favorite;
+      if (aFavourite && bFavourite) {
+        return a.name.compareTo(b.name);
+      }
+      if (aFavourite) {
+        return -1;
+      }
+      if (bFavourite) {
+        return 1;
+      }
+    }
+    return a.name.compareTo(b.name);
+  });
+  return games;
+}
+
+Game _fromNode(XmlNode node, System system, String romsPath) {
   final name = node.findElements("name").first.text;
   final path = node.findElements("path").first.text;
   final description = node.findElements("desc").firstOrNull?.text;
@@ -189,7 +191,7 @@ Game _fromNode(XmlNode node, System system, Emulator? emulator, String romsPath)
   final video = node.findElements("video").firstOrNull?.text;
   final thumbnail = node.findElements("thumbnail").firstOrNull?.text;
   final favorite = node.findElements("favorite").firstOrNull?.text == "true";
-  return Game(system, emulator, name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
+  return Game(system, name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
       description: description,
       genre: genre,
       rating: rating != null ? 10 * rating : null,

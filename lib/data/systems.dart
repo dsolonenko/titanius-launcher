@@ -26,8 +26,9 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
 Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
   final allSystems = await ref.watch(allSupportedSystemsProvider.future);
   final settings = await ref.watch(settingsProvider.future);
+  final romFolders = await ref.watch(romFoldersProvider.future);
   final detectedSystems =
-      allSystems.where((system) => settings.showSystem(system.id) && _hasGamelist(system, settings)).toList();
+      allSystems.where((system) => settings.showSystem(system.id) && _hasGamelist(system, romFolders)).toList();
   final enabledCollections = [];
   for (var collection in collections) {
     if (settings.showSystem(collection.id)) {
@@ -37,10 +38,10 @@ Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
   return [...enabledCollections, ...detectedSystems];
 }
 
-bool _hasGamelist(System system, Settings settings) {
+bool _hasGamelist(System system, List<String> romFolders) {
   if (system.folders.isEmpty) {
     return true;
   }
   return system.folders
-      .any((folder) => settings.romsFolders.any((romsFolder) => File("$romsFolder/$folder/gamelist.xml").existsSync()));
+      .any((folder) => romFolders.any((romsFolder) => File("$romsFolder/$folder/gamelist.xml").existsSync()));
 }
