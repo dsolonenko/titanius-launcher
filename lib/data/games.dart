@@ -121,6 +121,11 @@ Future<GameList> games(GamesRef ref, String systemId) async {
   final settings = await ref.watch(settingsProvider.future);
 
   final system = detectedSystems.firstWhere((element) => element.id == systemId);
+  final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
+
+  for (var element in allGames) {
+    element.favorite = favouritesMap[element.romPath] ?? element.favorite;
+  }
 
   switch (systemId) {
     case "favourites":
@@ -147,7 +152,6 @@ Future<GameList> games(GamesRef ref, String systemId) async {
 }
 
 List<Game> _sortGames(Settings settings, List<Game> allGames) {
-  final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
   bool favouriteOnTop = settings.favouritesOnTop;
   final games = allGames.sorted((a, b) {
     // folders on top
@@ -158,15 +162,13 @@ List<Game> _sortGames(Settings settings, List<Game> allGames) {
       return 1;
     }
     if (favouriteOnTop) {
-      final aFavourite = favouritesMap[a.romPath] ?? a.favorite;
-      final bFavourite = favouritesMap[b.romPath] ?? b.favorite;
-      if (aFavourite && bFavourite) {
+      if (a.favorite && b.favorite) {
         return a.name.compareTo(b.name);
       }
-      if (aFavourite) {
+      if (a.favorite) {
         return -1;
       }
-      if (bFavourite) {
+      if (b.favorite) {
         return 1;
       }
     }

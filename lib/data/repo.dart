@@ -16,15 +16,12 @@ class Settings {
 
   Settings(this.settings, this.favourites);
 
-  bool get showSystemAndroid => showSystem('android');
-  bool get showSystemFavourites => showSystem('favourites');
   bool get favouritesOnTop => _getBoolean('favouritesOnTop', true);
   bool get compactGameList => _getBoolean('compactGameList', false);
   bool get showGameVideos => _getBoolean('showGameVideos', false);
   bool get fadeToVideo => _getBoolean('fadeToVideo', false);
   bool get muteVideo => _getBoolean('muteVideo', true);
 
-  bool showSystem(String id) => _getBoolean('showSystem/$id', true);
   bool _getBoolean(String key, bool defaultValue) {
     return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
   }
@@ -76,10 +73,6 @@ class SettingsRepo {
     final settingsMap = {for (final s in settings) s.key: s};
     final favourites = await isar.favourites.where().findAll();
     return Settings(settingsMap, favourites);
-  }
-
-  Future<void> setShowSystem(String id, bool value) async {
-    return _setBoolean('showSystem/$id', value);
   }
 
   Future<void> saveFavourite(String path, bool isFavourite) async {
@@ -179,6 +172,41 @@ class PerSystemConfigurationRepo {
   }
 }
 
+class EnabledSystems {
+  final Map<String, Setting> settings;
+
+  EnabledSystems(this.settings);
+
+  bool get showSystemAndroid => showSystem('android');
+  bool get showSystemFavourites => showSystem('favourites');
+  bool showSystem(String id) => _getBoolean('showSystem/$id', true);
+  bool _getBoolean(String key, bool defaultValue) {
+    return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
+  }
+}
+
+class EnabledSystemsRepo {
+  final Isar isar;
+
+  EnabledSystemsRepo(this.isar);
+
+  Future<EnabledSystems> _getEnabledSystems() async {
+    final settings = await isar.settings.where().findAll();
+    final settingsMap = {for (final s in settings) s.key: s};
+    return EnabledSystems(settingsMap);
+  }
+
+  Future<void> setShowSystem(String id, bool value) async {
+    return _setBoolean('showSystem/$id', value);
+  }
+
+  Future<void> _setBoolean(String key, bool value) async {
+    await isar.writeTxn(() async {
+      await isar.settings.put(Setting(key: key, value: value.toString()));
+    });
+  }
+}
+
 @Riverpod(keepAlive: true)
 Future<SettingsRepo> settingsRepo(SettingsRepoRef ref) async {
   final isar = await ref.watch(isarProvider.future);
@@ -225,6 +253,18 @@ Future<PerSystemConfigurationRepo> perSystemConfigurationRepo(PerSystemConfigura
 Future<List<AlternativeEmulator>> perSystemConfigurations(PerSystemConfigurationsRef ref) async {
   final repo = await ref.watch(perSystemConfigurationRepoProvider.future);
   return repo._getAlternativeEmulators();
+}
+
+@Riverpod(keepAlive: true)
+Future<EnabledSystemsRepo> enabledSystemsRepo(EnabledSystemsRepoRef ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return EnabledSystemsRepo(isar);
+}
+
+@Riverpod(keepAlive: true)
+Future<EnabledSystems> enabledSystems(EnabledSystemsRef ref) async {
+  final repo = await ref.watch(enabledSystemsRepoProvider.future);
+  return repo._getEnabledSystems();
 }
 
 Future<List<String>> _getDefaultRomFolders() async {

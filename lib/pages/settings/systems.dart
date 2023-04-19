@@ -6,7 +6,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final systems = ref.watch(allSupportedSystemsProvider);
-    final settings = ref.watch(settingsProvider);
+    final enabledSystems = ref.watch(enabledSystemsProvider);
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/systems") return;
@@ -22,8 +22,8 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
       body: systems.when(
         data: (systems) {
           systems = [...collections, ...systems];
-          return settings.when(
-            data: (settings) {
+          return enabledSystems.when(
+            data: (enabledSystems) {
               return GroupedListView<System, String>(
                 key: const PageStorageKey("settings/systems"),
                 elements: systems,
@@ -36,16 +36,16 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                   ),
                 ),
                 indexedItemBuilder: (context, system, index) {
-                  final showSystem = settings.showSystem(system.id);
+                  final showSystem = enabledSystems.showSystem(system.id);
                   return ListTile(
                     autofocus: index == 0,
                     onFocusChange: (value) {},
                     onTap: () {
                       ref
-                          .read(settingsRepoProvider)
+                          .read(enabledSystemsRepoProvider)
                           .value!
                           .setShowSystem(system.id, showSystem ? false : true)
-                          .then((value) => ref.refresh(settingsProvider));
+                          .then((value) => ref.refresh(enabledSystemsProvider));
                     },
                     title: Text(system.name),
                     trailing: showSystem ? toggleOnIcon : toggleOffIcon,

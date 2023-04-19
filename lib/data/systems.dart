@@ -25,13 +25,13 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
 @Riverpod(keepAlive: true)
 Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
   final allSystems = await ref.watch(allSupportedSystemsProvider.future);
-  final settings = await ref.watch(settingsProvider.future);
+  final enabledSystems = await ref.watch(enabledSystemsProvider.future);
   final romFolders = await ref.watch(romFoldersProvider.future);
   final detectedSystems =
-      allSystems.where((system) => settings.showSystem(system.id) && _hasGamelist(system, romFolders)).toList();
+      allSystems.where((system) => enabledSystems.showSystem(system.id) && _hasGamelist(system, romFolders)).toList();
   final enabledCollections = [];
   for (var collection in collections) {
-    if (settings.showSystem(collection.id)) {
+    if (enabledSystems.showSystem(collection.id)) {
       enabledCollections.add(collection);
     }
   }

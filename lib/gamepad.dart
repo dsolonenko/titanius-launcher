@@ -25,8 +25,7 @@ enum GamepadButton {
   select,
 }
 
-void useGamepad(
-    WidgetRef ref, void Function(String location, GamepadButton key) listener) {
+void useGamepad(WidgetRef ref, void Function(String location, GamepadButton key) listener) {
   return use(_GamepadHook(GoRouter.of(ref.context).location, listener));
 }
 
@@ -66,8 +65,7 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
         hook.listener(hook.location, GamepadButton.left);
       } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
         hook.listener(hook.location, GamepadButton.right);
-      } else if (e.logicalKey == LogicalKeyboardKey.gameButtonA ||
-          e.logicalKey == LogicalKeyboardKey.numpad2) {
+      } else if (e.logicalKey == LogicalKeyboardKey.gameButtonA || e.logicalKey == LogicalKeyboardKey.numpad2) {
         hook.listener(hook.location, GamepadButton.a);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonB ||
           e.logicalKey == LogicalKeyboardKey.backspace ||
@@ -78,7 +76,8 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
           e.logicalKey == LogicalKeyboardKey.keyX) {
         hook.listener(hook.location, GamepadButton.x);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonY ||
-          e.logicalKey == LogicalKeyboardKey.numpad8) {
+          e.logicalKey == LogicalKeyboardKey.numpad8 ||
+          e.logicalKey == LogicalKeyboardKey.keyY) {
         hook.listener(hook.location, GamepadButton.y);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonC) {
         hook.listener(hook.location, GamepadButton.c);
@@ -92,8 +91,7 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
         hook.listener(hook.location, GamepadButton.l2);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight2) {
         hook.listener(hook.location, GamepadButton.r2);
-      } else if (e.logicalKey == LogicalKeyboardKey.gameButtonStart ||
-          e.logicalKey == LogicalKeyboardKey.enter) {
+      } else if (e.logicalKey == LogicalKeyboardKey.gameButtonStart || e.logicalKey == LogicalKeyboardKey.enter) {
         hook.listener(hook.location, GamepadButton.start);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonSelect) {
         hook.listener(hook.location, GamepadButton.select);
