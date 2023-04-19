@@ -1,6 +1,7 @@
 import 'package:async_task/async_task_extension.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_storage/saf.dart' as saf;
 
@@ -70,4 +71,16 @@ Future<saf.DocumentFile?> getDocumentFile(String filePath) async {
       textColor: Colors.white,
       fontSize: 16.0);
   return null;
+}
+
+const platform = MethodChannel('file_utils');
+
+Future<String?> getMediaUri(String filePath) async {
+  try {
+    final String contentUri = await platform.invokeMethod('getContentUri', {'path': filePath});
+    return contentUri;
+  } on PlatformException catch (e) {
+    debugPrint('Error: ${e.message}');
+    return null;
+  }
 }

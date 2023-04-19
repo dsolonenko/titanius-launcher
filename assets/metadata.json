@@ -2631,7 +2631,7 @@
           "name": "Drastic",
           "intent": {
             "component": "com.dsemu.drastic/.DraSticActivity",
-            "data": "{file.uri}",
+            "data": "{file.documenturi}",
             "flags": [
               "--activity-clear-task",
               "--activity-clear-top",
@@ -2646,7 +2646,7 @@
             "component": "me.magnum.melonds/.ui.emulator.EmulatorActivity",
             "action": "me.magnum.melonds.LAUNCH_ROM",
             "args": {
-              "uri": "{file.uri}"
+              "uri": "{file.documenturi}"
             }
           }
         },

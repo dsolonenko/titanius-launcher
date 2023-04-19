@@ -6,6 +6,15 @@ import 'package:flutter/material.dart';
 import 'models.dart';
 import 'android_saf.dart' as saf;
 
+class RomLocation {
+  String path;
+  String? uri;
+  String? documentUri;
+  String? documentMime;
+
+  RomLocation({required this.path, this.uri, this.documentUri, this.documentMime});
+}
+
 class LaunchIntent {
   final String target;
   final String? action;
@@ -17,6 +26,10 @@ class LaunchIntent {
       {required this.target, required this.action, required this.data, required this.args, required this.flags});
 
   bool get isStandalone => !target.startsWith('com.retroarch.aarch64/');
+  bool get needsUri => _hasToken("{file.uri}");
+  bool get needsDocumentUri => _hasToken("{file.documenturi}");
+
+  bool _hasToken(String token) => data?.contains(token) ?? args.values.any((e) => e.toString().contains(token));
 
   Future<AndroidIntent> toIntent(Game game) async {
     final flags = this.flags.map((e) {
@@ -37,10 +50,9 @@ class LaunchIntent {
             ? "$package${parts[1]}"
             : parts[1]
         : null;
-    final documentFile = isStandalone ? await saf.getDocumentFile(game.romPath) : null;
-    debugPrint("path: ${game.romPath} uri: ${documentFile?.uri.toString()} mime: ${documentFile?.type}");
+    final romLocation = await _locateRom(game.romPath);
     final args = {
-      for (var k in this.args.keys) k: _value(this.args[k], game.romPath, documentFile?.uri.toString()),
+      for (var k in this.args.keys) k: _tokenValue(this.args[k], romLocation),
     };
     final intent = AndroidIntent(
       action: action ?? 'action_view',
@@ -48,19 +60,28 @@ class LaunchIntent {
       componentName: component,
       arguments: args,
       flags: flags,
-      data: _value(data, game.romPath, documentFile?.uri.toString()),
-      type: documentFile?.type,
+      data: _tokenValue(data, romLocation),
+      type: romLocation.documentMime,
     );
     return intent;
   }
 
-  _value(String? v, String romPath, String? uri) {
+  Future<RomLocation> _locateRom(String path) async {
+    final uri = needsUri ? await saf.getMediaUri(path) : null;
+    final document = needsDocumentUri ? await saf.getDocumentFile(path) : null;
+    return RomLocation(
+        path: path, uri: uri?.toString(), documentUri: document?.uri.toString(), documentMime: document?.type);
+  }
+
+  _tokenValue(String? v, RomLocation romLocation) {
     if (v == null) return null;
     switch (v) {
       case "{file.path}":
-        return romPath;
+        return romLocation.path;
       case "{file.uri}":
-        return uri;
+        return romLocation.uri;
+      case "{file.documenturi}":
+        return romLocation.documentUri;
       default:
         return v;
     }
