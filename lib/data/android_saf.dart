@@ -3,7 +3,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_storage/saf.dart' as saf;
+
+part 'android_saf.g.dart';
 
 class GrantedUri {
   final Uri uri;
@@ -12,27 +15,38 @@ class GrantedUri {
   GrantedUri(this.uri, this.grantedFullPath);
 }
 
-Future<GrantedUri?> getMatchingPersistedUri(String filePath) async {
+String _uriToFullPath(Uri uri) {
+  final String decodedPath = Uri.decodeComponent(uri.path);
+  final String volumeAndPath = decodedPath.replaceFirst('/tree/', '');
+  final List<String> segments = volumeAndPath.split(':');
+  final String grantedVolume = segments[0];
+  final String grantedPath = segments.length > 1 ? segments[1] : '';
+  final String grantedFullPath = "/storage/$grantedVolume/$grantedPath";
+  return grantedFullPath;
+}
+
+@riverpod
+Future<List<GrantedUri>?> grantedUris(GrantedUrisRef ref) {
+  return _allGrantedReads();
+}
+
+Future<List<GrantedUri>?> _allGrantedReads() async {
   final persistedUris = await saf.persistedUriPermissions();
   debugPrint("persistedUris: ${persistedUris.toString()}");
-  final matchingUris = await persistedUris
-      ?.where((element) => element.isTreeDocumentFile && element.isReadPermission)
-      .map((uriPermission) async {
-    debugPrint("uri: ${uriPermission.uri.toString()}");
-    final uri = uriPermission.uri;
-    final String decodedPath = Uri.decodeComponent(uri.path);
-    final String volumeAndPath = decodedPath.replaceFirst('/tree/', '');
-    final List<String> segments = volumeAndPath.split(':');
-    final String grantedVolume = segments[0];
-    final String grantedPath = segments.length > 1 ? segments[1] : '';
-    final String grantedFullPath = "/storage/$grantedVolume/$grantedPath";
+  return persistedUris?.where((element) => element.isTreeDocumentFile && element.isReadPermission).map((e) {
+    final uri = e.uri;
+    final grantedFullPath = _uriToFullPath(uri);
     debugPrint("grantedFullPath: $grantedFullPath");
-    if (filePath.startsWith(grantedFullPath)) {
-      return GrantedUri(uri, grantedFullPath);
-    }
-    return null;
-  }).resolveAllNotNull();
-  return matchingUris?.firstOrNull;
+    return GrantedUri(uri, grantedFullPath);
+  }).toList();
+}
+
+Future<GrantedUri?> getMatchingPersistedUri(String filePath) async {
+  final persistedUris = await _allGrantedReads();
+  return persistedUris?.where((element) {
+    final grantedFullPath = element.grantedFullPath;
+    return filePath.startsWith(grantedFullPath);
+  }).firstOrNull;
 }
 
 Future<saf.DocumentFile?> getDocumentFile(String filePath) async {
