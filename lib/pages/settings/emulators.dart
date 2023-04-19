@@ -74,16 +74,17 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
           return ListView.builder(
             itemCount: selected.system.emulators.length,
             itemBuilder: (context, index) {
-              final isStandalone = !selected.system.emulators[index].intent.target.startsWith('com.retroarch.aarch64/');
+              final isStandalone = selected.system.emulators[index].isStandalone;
               return ListTile(
                 autofocus: index == 0,
+                selected: selected.defaultEmulator?.id == selected.system.emulators[index].id,
                 onTap: () {
                   ref
-                      .read(settingsRepoProvider)
+                      .read(perSystemConfigurationRepoProvider)
                       .value!
                       .saveAlternativeEmulator(
                           AlternativeEmulator(system: system, emulator: selected.system.emulators[index].id))
-                      .then((value) => ref.refresh(settingsProvider));
+                      .then((value) => ref.refresh(perSystemConfigurationsProvider));
                   context.pop();
                 },
                 title: Text(selected.system.emulators[index].name),

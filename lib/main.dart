@@ -13,7 +13,7 @@ import 'pages/system_proxy.dart';
 import 'pages/systems.dart';
 
 void main() async {
-  _ensureStoragePermission();
+  await _ensureStoragePermission();
   await SystemDateTimeFormat().initialize(timeFormatFallback: "HH:mm");
   runApp(
     const ProviderScope(
@@ -22,7 +22,7 @@ void main() async {
   );
 }
 
-void _ensureStoragePermission() async {
+Future<void> _ensureStoragePermission() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isAndroid) {
     if (!await Permission.storage.isGranted) {

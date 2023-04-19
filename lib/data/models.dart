@@ -82,7 +82,7 @@ class Emulator {
     );
   }
 
-  get isStandalone => !intent.target.startsWith('com.retroarch.aarch64/');
+  get isStandalone => intent.isStandalone;
 }
 
 class Game {

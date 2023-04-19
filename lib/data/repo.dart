@@ -12,10 +12,9 @@ part 'repo.g.dart';
 
 class Settings {
   final Map<String, Setting> settings;
-  final List<AlternativeEmulator> perSystemConfigurations;
   final List<Favourite> favourites;
 
-  Settings(this.settings, this.perSystemConfigurations, this.favourites);
+  Settings(this.settings, this.favourites);
 
   bool get showSystemAndroid => showSystem('android');
   bool get showSystemFavourites => showSystem('favourites');
@@ -75,16 +74,8 @@ class SettingsRepo {
   Future<Settings> _getSettings() async {
     final settings = await isar.settings.where().findAll();
     final settingsMap = {for (final s in settings) s.key: s};
-    final perSystemConfigurations = await isar.alternativeEmulators.where().findAll();
     final favourites = await isar.favourites.where().findAll();
-
-    return Settings(settingsMap, perSystemConfigurations, favourites);
-  }
-
-  Future<void> saveAlternativeEmulator(AlternativeEmulator config) async {
-    await isar.writeTxn(() async {
-      await isar.alternativeEmulators.put(config);
-    });
+    return Settings(settingsMap, favourites);
   }
 
   Future<void> setShowSystem(String id, bool value) async {
@@ -172,6 +163,22 @@ class RecentGamesRepo {
   }
 }
 
+class PerSystemConfigurationRepo {
+  final Isar isar;
+
+  PerSystemConfigurationRepo(this.isar);
+
+  Future<List<AlternativeEmulator>> _getAlternativeEmulators() {
+    return isar.alternativeEmulators.where().findAll();
+  }
+
+  Future<void> saveAlternativeEmulator(AlternativeEmulator config) async {
+    await isar.writeTxn(() async {
+      await isar.alternativeEmulators.put(config);
+    });
+  }
+}
+
 @Riverpod(keepAlive: true)
 Future<SettingsRepo> settingsRepo(SettingsRepoRef ref) async {
   final isar = await ref.watch(isarProvider.future);
@@ -206,6 +213,18 @@ Future<RomFoldersRepo> romFoldersRepo(RomFoldersRepoRef ref) async {
 Future<List<String>> romFolders(RomFoldersRef ref) async {
   final repo = await ref.watch(romFoldersRepoProvider.future);
   return repo._getRomFolders();
+}
+
+@Riverpod(keepAlive: true)
+Future<PerSystemConfigurationRepo> perSystemConfigurationRepo(PerSystemConfigurationRepoRef ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return PerSystemConfigurationRepo(isar);
+}
+
+@Riverpod(keepAlive: true)
+Future<List<AlternativeEmulator>> perSystemConfigurations(PerSystemConfigurationsRef ref) async {
+  final repo = await ref.watch(perSystemConfigurationRepoProvider.future);
+  return repo._getAlternativeEmulators();
 }
 
 Future<List<String>> _getDefaultRomFolders() async {

@@ -16,11 +16,11 @@ class EmulatorList {
 
 @Riverpod(keepAlive: true)
 Future<List<EmulatorList>> alternativeEmulators(AlternativeEmulatorsRef ref) async {
-  final settings = await ref.watch(settingsProvider.future);
+  final perSystemConfigurations = await ref.watch(perSystemConfigurationsProvider.future);
   final systems = await ref.watch(detectedSystemsProvider.future);
   return systems
       .map((v) => EmulatorList(
-          v, defaultEmulator(v.emulators, settings.perSystemConfigurations.firstWhereOrNull((e) => e.system == v.id))))
+          v, defaultEmulator(v.emulators, perSystemConfigurations.firstWhereOrNull((e) => e.system == v.id))))
       .toList();
 }
 

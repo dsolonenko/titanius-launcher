@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:async_task/async_task_extension.dart';
+import 'package:flutter/material.dart';
 
 import 'models.dart';
+import 'android_saf.dart' as saf;
 
 class LaunchIntent {
   final String target;
@@ -16,6 +15,8 @@ class LaunchIntent {
 
   LaunchIntent(
       {required this.target, required this.action, required this.data, required this.args, required this.flags});
+
+  bool get isStandalone => !target.startsWith('com.retroarch.aarch64/');
 
   Future<AndroidIntent> toIntent(Game game) async {
     final flags = this.flags.map((e) {
@@ -29,22 +30,26 @@ class LaunchIntent {
       }
       return Flag.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
     }).toList();
-    if (data != null) {
-      flags.add(Flag.FLAG_GRANT_READ_URI_PERMISSION);
-    }
-    final uri = await _getContentUri(game.romPath);
-    debugPrint("path: ${game.romPath} uri: $uri");
-    final args = {
-      for (var k in this.args.keys) k: _value(this.args[k], game.romPath, uri),
-    };
     final parts = target.split('/');
+    final package = parts[0];
+    final component = parts.length > 1
+        ? parts[1].startsWith(".")
+            ? "$package${parts[1]}"
+            : parts[1]
+        : null;
+    final documentFile = isStandalone ? await saf.getDocumentFile(game.romPath) : null;
+    debugPrint("path: ${game.romPath} uri: ${documentFile?.uri.toString()} mime: ${documentFile?.type}");
+    final args = {
+      for (var k in this.args.keys) k: _value(this.args[k], game.romPath, documentFile?.uri.toString()),
+    };
     final intent = AndroidIntent(
       action: action ?? 'action_view',
       package: parts[0],
-      componentName: parts.length > 1 ? parts[1] : null,
+      componentName: component,
       arguments: args,
       flags: flags,
-      data: _value(data, game.romPath, uri),
+      data: _value(data, game.romPath, documentFile?.uri.toString()),
+      type: documentFile?.type,
     );
     return intent;
   }
@@ -59,17 +64,5 @@ class LaunchIntent {
       default:
         return v;
     }
-  }
-}
-
-const platform = MethodChannel('file_utils');
-
-Future<String?> _getContentUri(String filePath) async {
-  try {
-    final String contentUri = await platform.invokeMethod('getContentUri', {'path': filePath});
-    return contentUri;
-  } on PlatformException catch (e) {
-    debugPrint('Error: ${e.message}');
-    return null;
   }
 }
