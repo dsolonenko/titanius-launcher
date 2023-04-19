@@ -18,6 +18,13 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('Alternative Emulators'),
       ),
+      bottomNavigationBar: const PromptBar(
+        navigations: [],
+        actions: [
+          GamepadPrompt([GamepadButton.a], "Change"),
+          GamepadPrompt([GamepadButton.b], "Back"),
+        ],
+      ),
       body: emulators.when(
         data: (emulators) {
           emulators = emulators.where((element) => element.defaultEmulator != null).toList();

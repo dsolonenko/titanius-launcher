@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:async_task/async_task_extension.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +29,10 @@ String _uriToFullPath(Uri uri) {
 
 @riverpod
 Future<List<GrantedUri>?> grantedUris(GrantedUrisRef ref) {
-  return _allGrantedReads();
+  if (Platform.isAndroid) {
+    return _allGrantedReads();
+  }
+  return Future.value(null);
 }
 
 Future<List<GrantedUri>?> _allGrantedReads() async {

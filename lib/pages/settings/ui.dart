@@ -20,6 +20,13 @@ class UISettingsPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('UI Settings'),
       ),
+      bottomNavigationBar: const PromptBar(
+        navigations: [],
+        actions: [
+          GamepadPrompt([GamepadButton.a], "Change"),
+          GamepadPrompt([GamepadButton.b], "Back"),
+        ],
+      ),
       body: settings.when(
         data: (settings) {
           return ListView(

@@ -284,7 +284,10 @@ Future<List<String>> _getDefaultRomFolders() async {
 
 @riverpod
 Future<List<String>> externalRomsPaths(ExternalRomsPathsRef ref) async {
-  return _getExternalRomsPaths();
+  if (Platform.isAndroid) {
+    return _getExternalRomsPaths();
+  }
+  return _getDefaultRomFolders();
 }
 
 Future<List<String>> _getExternalRomsPaths() async {

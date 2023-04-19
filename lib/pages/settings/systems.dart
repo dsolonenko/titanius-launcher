@@ -19,6 +19,13 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('Enabled Systems/Collections'),
       ),
+      bottomNavigationBar: const PromptBar(
+        navigations: [],
+        actions: [
+          GamepadPrompt([GamepadButton.a], "Change"),
+          GamepadPrompt([GamepadButton.b], "Back"),
+        ],
+      ),
       body: systems.when(
         data: (systems) {
           systems = [...collections, ...systems];
