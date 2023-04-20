@@ -5,19 +5,14 @@ class RomsSettingsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final romFolders = ref.watch(romFoldersProvider);
+    final paths = ref.watch(externalRomsPathsProvider);
     final grantedUris = ref.watch(grantedUrisProvider);
-
-    final removing = useState(false);
-    final selected = useState<GrantedUri?>(null);
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/roms") return;
       if (key == GamepadButton.b) {
-        if (removing.value) {
-          removing.value = false;
-        } else {
-          GoRouter.of(context).pop();
-        }
+        GoRouter.of(context).pop();
       }
       if (key == GamepadButton.x) {
         saf.openDocumentTree().then((value) => ref.refresh(grantedUrisProvider));
@@ -31,52 +26,74 @@ class RomsSettingsPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.x], "Add Folder"),
-          GamepadPrompt([GamepadButton.a], "Remove"),
+          GamepadPrompt([GamepadButton.x], "Allow Access"),
+          GamepadPrompt([GamepadButton.a], "Change"),
           GamepadPrompt([GamepadButton.b], "Back"),
         ],
       ),
-      body: grantedUris.when(
-        data: (grantedUris) {
-          if (grantedUris == null || grantedUris.isEmpty) {
-            return const Center(
-              child: Text("No folders added"),
-            );
-          }
-          return ListView.builder(
-            key: const PageStorageKey("settings/systems"),
-            itemCount: grantedUris.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                autofocus: index == 0,
-                onFocusChange: (value) {
-                  removing.value = false;
-                  if (value) {
-                    selected.value = grantedUris[index];
-                  }
+      body: romFolders.when(
+        data: (romFolders) {
+          return paths.when(
+            data: (paths) {
+              return grantedUris.when(
+                data: (grantedUris) {
+                  final allPaths = [...paths, ...grantedUris];
+                  return GroupedListView<Object, String>(
+                    key: const PageStorageKey("settings/systems"),
+                    elements: allPaths,
+                    groupBy: (element) => element is GrantedUri ? "Granted Paths" : "ROM Folders",
+                    groupSeparatorBuilder: (String value) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        value,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    indexedItemBuilder: (context, e, index) {
+                      if (e is GrantedUri) {
+                        return ListTile(
+                          enabled: false,
+                          title: Text(e.uri.path),
+                          subtitle: Text(e.grantedFullPath),
+                        );
+                      } else {
+                        final included = romFolders.contains(paths[index]);
+                        return ListTile(
+                          autofocus: index == 0,
+                          onTap: () {
+                            final newPaths = romFolders;
+                            if (included) {
+                              newPaths.remove(allPaths[index]);
+                            } else {
+                              newPaths.add(allPaths[index] as String);
+                            }
+                            ref
+                                .read(romFoldersRepoProvider)
+                                .value!
+                                .saveRomsFolders(newPaths)
+                                .then((value) => ref.refresh(romFoldersProvider));
+                          },
+                          title: Text(allPaths[index] as String),
+                          trailing: included ? toggleOnIcon : toggleOffIcon,
+                        );
+                      }
+                    },
+                  );
                 },
-                onTap: () {
-                  if (!removing.value) {
-                    removing.value = true;
-                  } else {
-                    removing.value = false;
-                    saf
-                        .releasePersistableUriPermission(selected.value!.uri)
-                        .then((value) => ref.refresh(grantedUrisProvider));
-                  }
-                },
-                title: Text(grantedUris[index].grantedFullPath),
-                subtitle: Text(Uri.decodeComponent(grantedUris[index].uri.path)),
-                trailing: removing.value
-                    ? selected.value == grantedUris[index]
-                        ? const GamepadPromptWidget(
-                            buttons: [GamepadButton.a],
-                            prompt: "Confirm to remove",
-                          )
-                        : null
-                    : const Icon(Icons.delete_rounded),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                error: (error, stack) => const Center(
+                  child: Text('Error'),
+                ),
               );
             },
+            loading: () => const Center(
+              child: CircularProgressIndicator(),
+            ),
+            error: (error, stack) => const Center(
+              child: Text('Error'),
+            ),
           );
         },
         loading: () => const Center(

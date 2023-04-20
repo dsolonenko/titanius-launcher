@@ -7,7 +7,6 @@ import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 import 'package:collection/collection.dart';
 
-import 'android_saf.dart';
 import 'repo.dart';
 import 'models.dart';
 import 'systems.dart';
@@ -25,7 +24,7 @@ class GameList {
 @Riverpod(keepAlive: true)
 Future<List<Game>> allGames(AllGamesRef ref) async {
   final detectedSystems = await ref.watch(detectedSystemsProvider.future);
-  final grantedUris = await ref.watch(grantedUrisProvider.future);
+  final romFolders = await ref.watch(romFoldersProvider.future);
 
   final allGames = <Game>[];
 
@@ -42,9 +41,9 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
   try {
     List<GamelistParser> tasks = [];
     for (var system in detectedSystems) {
-      for (var romsFolder in grantedUris) {
+      for (var romsFolder in romFolders) {
         for (var folder in system.folders) {
-          tasks.add(GamelistParser(GamelistTaskParams(romsFolder.grantedFullPath, folder, system)));
+          tasks.add(GamelistParser(GamelistTaskParams(romsFolder, folder, system)));
         }
       }
     }

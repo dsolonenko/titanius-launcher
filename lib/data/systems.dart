@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:titanius/data/android_saf.dart';
 import 'package:titanius/data/repo.dart';
 
 import 'models.dart';
@@ -28,24 +26,22 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
 Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
   final allSystems = await ref.watch(allSupportedSystemsProvider.future);
   final enabledSystems = await ref.watch(enabledSystemsProvider.future);
-  final grantedUris = await ref.watch(grantedUrisProvider.future);
+  final romFolders = await ref.watch(romFoldersProvider.future);
   final detectedSystems =
-      allSystems.where((system) => enabledSystems.showSystem(system.id) && _hasGamelist(system, grantedUris)).toList();
+      allSystems.where((system) => enabledSystems.showSystem(system.id) && _hasGamelist(system, romFolders)).toList();
   final enabledCollections = [];
   for (var collection in collections) {
     if (enabledSystems.showSystem(collection.id)) {
       enabledCollections.add(collection);
     }
   }
-  debugPrint("enabledCollections: ${enabledCollections.map((e) => e.name).join(", ")}");
-  debugPrint("detectedSystems: ${detectedSystems.map((e) => e.name).join(", ")}");
   return [...enabledCollections, ...detectedSystems];
 }
 
-bool _hasGamelist(System system, List<GrantedUri> grantedUris) {
+bool _hasGamelist(System system, List<String> romFolders) {
   if (system.folders.isEmpty) {
     return true;
   }
-  return system.folders.any((folder) =>
-      grantedUris.any((romsFolder) => File("${romsFolder.grantedFullPath}/$folder/gamelist.xml").existsSync()));
+  return system.folders
+      .any((folder) => romFolders.any((romsFolder) => File("$romsFolder/$folder/gamelist.xml").existsSync()));
 }
