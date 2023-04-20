@@ -1,6 +1,7 @@
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:async_task/async_task_extension.dart';
+import 'package:flutter/foundation.dart';
 
 import 'models.dart';
 import 'android_saf.dart' as saf;
@@ -12,6 +13,11 @@ class RomLocation {
   String? documentMime;
 
   RomLocation({required this.path, this.uri, this.documentUri, this.documentMime});
+
+  @override
+  String toString() {
+    return 'RomLocation{path: $path, uri: $uri, documentUri: $documentUri, documentMime: $documentMime}';
+  }
 }
 
 class LaunchIntent {
@@ -42,6 +48,9 @@ class LaunchIntent {
       }
       return Flag.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
     }).toList();
+    if (needsUri || needsDocumentUri) {
+      flags.add(Flag.FLAG_GRANT_READ_URI_PERMISSION);
+    }
     final parts = target.split('/');
     final package = parts[0];
     final component = parts.length > 1
@@ -50,6 +59,7 @@ class LaunchIntent {
             : parts[1]
         : null;
     final romLocation = await _locateRom(game.romPath);
+    debugPrint("Rom location: $romLocation");
     final args = {
       for (var k in this.args.keys) k: _tokenValue(this.args[k], romLocation),
     };
@@ -60,7 +70,7 @@ class LaunchIntent {
       arguments: args,
       flags: flags,
       data: _tokenValue(data, romLocation),
-      type: romLocation.documentMime,
+      //type: romLocation.documentMime,
     );
     return intent;
   }
@@ -69,7 +79,11 @@ class LaunchIntent {
     final uri = needsUri ? await saf.getMediaUri(path) : null;
     final document = needsDocumentUri ? await saf.getDocumentFile(path) : null;
     return RomLocation(
-        path: path, uri: uri?.toString(), documentUri: document?.uri.toString(), documentMime: document?.type);
+      path: path,
+      uri: uri?.toString(),
+      documentUri: document?.uri.toString(),
+      documentMime: document?.type,
+    );
   }
 
   _tokenValue(String? v, RomLocation romLocation) {

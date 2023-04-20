@@ -91,7 +91,8 @@ Future<saf.DocumentFile?> getDocumentFile(String filePath) async {
     final relativeFilePath = filePath.substring(matchingUri.grantedFullPath.length + 1);
     final matchingDoc = await findFileInSubdirectory(matchingUri.uri, relativeFilePath);
     if (matchingDoc != null) {
-      debugPrint("file: filePath uri:${matchingDoc.uri.toString()}");
+      final exists = await matchingDoc.exists();
+      debugPrint("file:$filePath uri:${Uri.decodeFull(matchingDoc.uri.toString())} exists:$exists");
       return matchingDoc;
     }
   }
