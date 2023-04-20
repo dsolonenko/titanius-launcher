@@ -25,17 +25,15 @@ class GamepadPromptWidget extends StatelessWidget {
   final List<GamepadButton> buttons;
   final String prompt;
 
-  const GamepadPromptWidget(
-      {super.key, required this.buttons, required this.prompt});
+  const GamepadPromptWidget({super.key, required this.buttons, required this.prompt});
 
   @override
   Widget build(BuildContext context) {
-    String buttonText =
-        buttons.map((button) => gamepadFontMappings[button]).join("");
+    String buttonText = buttons.map((button) => gamepadFontMappings[button]).join("");
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(buttonText,
-            style: const TextStyle(fontFamily: "Prompt", fontSize: 18)),
+        Text(buttonText, style: const TextStyle(fontFamily: "Prompt", fontSize: 18)),
         Text(prompt),
         const SizedBox(width: 8),
       ],

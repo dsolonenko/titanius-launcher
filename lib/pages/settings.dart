@@ -12,6 +12,7 @@ import '../data/emulators.dart';
 import '../data/repo.dart';
 import '../data/systems.dart';
 import '../gamepad.dart';
+import '../widgets/gamepad_prompt.dart';
 import '../widgets/prompt_bar.dart';
 
 part 'settings/systems.dart';

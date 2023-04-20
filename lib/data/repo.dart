@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'models.dart';
@@ -16,7 +13,7 @@ class Settings {
 
   Settings(this.settings, this.favourites);
 
-  bool get favouritesOnTop => _getBoolean('favouritesOnTop', true);
+  bool get favouritesOnTop => _getBoolean('favouritesOnTop', false);
   bool get compactGameList => _getBoolean('compactGameList', false);
   bool get showGameVideos => _getBoolean('showGameVideos', false);
   bool get fadeToVideo => _getBoolean('fadeToVideo', false);
@@ -108,28 +105,6 @@ class SettingsRepo {
   Future<void> _setBoolean(String key, bool value) async {
     await isar.writeTxn(() async {
       await isar.settings.put(Setting(key: key, value: value.toString()));
-    });
-  }
-}
-
-class RomFoldersRepo {
-  final Isar isar;
-
-  RomFoldersRepo(this.isar);
-
-  Future<List<String>> _getRomFolders() async {
-    final defaultRomFolders = await _getDefaultRomFolders();
-    final settings = await isar.settings.where().keyEqualTo("romsFolders").findFirst();
-    return settings != null ? settings.value.split(",") : defaultRomFolders;
-  }
-
-  Future<void> saveRomsFolders(List<String> romsFolders) async {
-    debugPrint("Folders $romsFolders");
-    await isar.writeTxn(() async {
-      await isar.settings.put(Setting(key: 'romsFolders', value: romsFolders.join(","))).catchError((e) {
-        debugPrint(e);
-        return 0;
-      });
     });
   }
 }
@@ -232,18 +207,6 @@ Future<List<RecentGame>> recentGames(RecentGamesRef ref) async {
 }
 
 @Riverpod(keepAlive: true)
-Future<RomFoldersRepo> romFoldersRepo(RomFoldersRepoRef ref) async {
-  final isar = await ref.watch(isarProvider.future);
-  return RomFoldersRepo(isar);
-}
-
-@Riverpod(keepAlive: true)
-Future<List<String>> romFolders(RomFoldersRef ref) async {
-  final repo = await ref.watch(romFoldersRepoProvider.future);
-  return repo._getRomFolders();
-}
-
-@Riverpod(keepAlive: true)
 Future<PerSystemConfigurationRepo> perSystemConfigurationRepo(PerSystemConfigurationRepoRef ref) async {
   final isar = await ref.watch(isarProvider.future);
   return PerSystemConfigurationRepo(isar);
@@ -265,47 +228,4 @@ Future<EnabledSystemsRepo> enabledSystemsRepo(EnabledSystemsRepoRef ref) async {
 Future<EnabledSystems> enabledSystems(EnabledSystemsRef ref) async {
   final repo = await ref.watch(enabledSystemsRepoProvider.future);
   return repo._getEnabledSystems();
-}
-
-Future<List<String>> _getDefaultRomFolders() async {
-  List<String> romsFolders = [];
-  if (Platform.isMacOS) {
-    romsFolders = ["/Users/ds/Roms"];
-  }
-  if (Platform.isWindows) {
-    romsFolders = ["D:\\Roms"];
-  }
-  if (Platform.isAndroid) {
-    final paths = await _getExternalRomsPaths();
-    romsFolders = [paths[paths.length - 1]];
-  }
-  return romsFolders;
-}
-
-@riverpod
-Future<List<String>> externalRomsPaths(ExternalRomsPathsRef ref) async {
-  if (Platform.isAndroid) {
-    return _getExternalRomsPaths();
-  }
-  return _getDefaultRomFolders();
-}
-
-Future<List<String>> _getExternalRomsPaths() async {
-  List<String> paths = ["/storage/emulated/0/Roms"];
-  List<Directory?>? extDirectories = await getExternalStorageDirectories();
-
-  if (extDirectories == null || extDirectories.isEmpty) {
-    return paths;
-  }
-
-  if (extDirectories.length > 1) {
-    for (int i = 1; i < extDirectories.length; i++) {
-      List<String> dirs = extDirectories[i].toString().split('/');
-      String rebuiltPath = '/${dirs[1]}/${dirs[2]}';
-      paths.add(rebuiltPath);
-      paths.add("$rebuiltPath/Roms");
-    }
-  }
-
-  return paths;
 }

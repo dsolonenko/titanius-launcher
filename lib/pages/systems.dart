@@ -1,6 +1,5 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:titanius/data/games.dart';
@@ -23,18 +22,9 @@ class SystemsPage extends HookConsumerWidget {
     final selectedSystem = ref.watch(selectedSystemProvider);
     final pageController = PageController(initialPage: selectedSystem);
 
+    // Forces games loading in backgroud
     allGames.whenData((games) {
-      if (games.isEmpty) {
-        Fluttertoast.showToast(
-            msg: "No games found. Please add ROMs folders in Settings.",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-        context.push("/settings/roms");
-      }
+      debugPrint("Games: ${games.length}");
     });
 
     useGamepad(ref, (location, key) {

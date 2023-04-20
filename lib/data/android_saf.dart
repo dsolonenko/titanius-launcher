@@ -23,32 +23,47 @@ String _uriToFullPath(Uri uri) {
   final List<String> segments = volumeAndPath.split(':');
   final String grantedVolume = segments[0];
   final String grantedPath = segments.length > 1 ? segments[1] : '';
-  final String grantedFullPath = "/storage/$grantedVolume/$grantedPath";
-  return grantedFullPath;
+  final String grantedFullPath = "/storage/${grantedVolume == "primary" ? "emulated/0" : grantedVolume}/$grantedPath";
+  if (grantedFullPath.endsWith("/")) {
+    return grantedFullPath.substring(0, grantedFullPath.length - 1);
+  } else {
+    return grantedFullPath;
+  }
 }
 
-@riverpod
-Future<List<GrantedUri>?> grantedUris(GrantedUrisRef ref) {
+@Riverpod(keepAlive: true)
+Future<List<GrantedUri>> grantedUris(GrantedUrisRef ref) {
   if (Platform.isAndroid) {
     return _allGrantedReads();
   }
-  return Future.value(null);
+  if (Platform.isMacOS) {
+    return Future.value([
+      GrantedUri(Uri.parse("file:///Users/ds/Roms"), "/Users/ds/Roms"),
+    ]);
+  }
+  if (Platform.isWindows) {
+    return Future.value([
+      GrantedUri(Uri.parse("file:///D:/Roms"), "D:/Roms"),
+    ]);
+  }
+  return Future.value([]);
 }
 
-Future<List<GrantedUri>?> _allGrantedReads() async {
+Future<List<GrantedUri>> _allGrantedReads() async {
   final persistedUris = await saf.persistedUriPermissions();
   debugPrint("persistedUris: ${persistedUris.toString()}");
   return persistedUris?.where((element) => element.isTreeDocumentFile && element.isReadPermission).map((e) {
-    final uri = e.uri;
-    final grantedFullPath = _uriToFullPath(uri);
-    debugPrint("grantedFullPath: $grantedFullPath");
-    return GrantedUri(uri, grantedFullPath);
-  }).toList();
+        final uri = e.uri;
+        final grantedFullPath = _uriToFullPath(uri);
+        debugPrint("grantedFullPath: $grantedFullPath");
+        return GrantedUri(uri, grantedFullPath);
+      }).toList() ??
+      [];
 }
 
 Future<GrantedUri?> getMatchingPersistedUri(String filePath) async {
   final persistedUris = await _allGrantedReads();
-  return persistedUris?.where((element) {
+  return persistedUris.where((element) {
     final grantedFullPath = element.grantedFullPath;
     return filePath.startsWith(grantedFullPath);
   }).firstOrNull;
