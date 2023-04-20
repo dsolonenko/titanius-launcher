@@ -38,7 +38,7 @@ class AndroidPage extends HookConsumerWidget {
         showDetals.value = !showDetals.value;
       }
       if (key == GamepadButton.y) {
-        GoRouter.of(context).go("/select_apps");
+        GoRouter.of(context).push("/select_apps");
       }
     });
 
@@ -61,7 +61,7 @@ class AndroidPage extends HookConsumerWidget {
         data: (apps) {
           if (apps.isEmpty) {
             return const Center(
-              child: Text("No games found"),
+              child: Text("No apps selected"),
             );
           }
           final appToShow = selectedApp ?? apps.first;
