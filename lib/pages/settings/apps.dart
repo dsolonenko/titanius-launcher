@@ -9,7 +9,7 @@ class AppsSettingsPage extends HookConsumerWidget {
     final selectedApps = ref.watch(androidAppsProvider);
 
     useGamepad(ref, (location, key) {
-      if (location != "/settings/apps") return;
+      if (location != "/select_apps") return;
       if (key == GamepadButton.b) {
         GoRouter.of(context).pop();
       }
@@ -51,7 +51,7 @@ class AppsSettingsPage extends HookConsumerWidget {
                           .read(androidAppsRepoProvider)
                           .value!
                           .selectApp(app.packageName, !isSelected)
-                          .then((value) => ref.refresh(enabledSystemsProvider));
+                          .then((value) => ref.refresh(androidAppsProvider));
                     },
                     title: Text(app.appName),
                     subtitle: Text(app.packageName),
