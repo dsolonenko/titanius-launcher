@@ -8,6 +8,8 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
     final systems = ref.watch(allSupportedSystemsProvider);
     final enabledSystems = ref.watch(enabledSystemsProvider);
 
+    final selected = useState("");
+
     useGamepad(ref, (location, key) {
       if (location != "/settings/systems") return;
       if (key == GamepadButton.b) {
@@ -45,8 +47,12 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                 indexedItemBuilder: (context, system, index) {
                   final showSystem = enabledSystems.showSystem(system.id);
                   return ListTile(
-                    autofocus: index == 0,
-                    onFocusChange: (value) {},
+                    autofocus: selected.value == system.id || (selected.value.isEmpty && index == 0),
+                    onFocusChange: (value) {
+                      if (value) {
+                        selected.value = system.id;
+                      }
+                    },
                     onTap: () {
                       ref
                           .read(enabledSystemsRepoProvider)

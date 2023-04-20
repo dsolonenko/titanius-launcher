@@ -55,7 +55,7 @@ class RomsSettingsPage extends HookConsumerWidget {
                     indexedItemBuilder: (context, e, index) {
                       if (e is GrantedUri) {
                         return ListTile(
-                          autofocus: index == 0 || selected.value == e,
+                          autofocus: (index == 0 && selected.value == null) || selected.value == e,
                           onFocusChange: (value) {
                             if (value) {
                               selected.value = e;
@@ -80,7 +80,7 @@ class RomsSettingsPage extends HookConsumerWidget {
                       } else {
                         final included = romFolders.contains(paths[index]);
                         return ListTile(
-                          autofocus: index == 0 || selected.value == e,
+                          autofocus: (index == 0 && selected.value == null) || selected.value == e,
                           onFocusChange: (value) {
                             if (value) {
                               selected.value = e;

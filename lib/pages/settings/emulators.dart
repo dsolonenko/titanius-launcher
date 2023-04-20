@@ -7,6 +7,8 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final emulators = ref.watch(alternativeEmulatorsProvider);
 
+    final selected = useState("");
+
     useGamepad(ref, (location, key) {
       if (location != "/settings/emulators") return;
       if (key == GamepadButton.b) {
@@ -34,7 +36,12 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
             itemBuilder: (context, index) {
               final isStandalone = emulators[index].defaultEmulator!.isStandalone;
               return ListTile(
-                autofocus: index == 0,
+                autofocus: selected.value == emulators[index].system.id || (selected.value.isEmpty && index == 0),
+                onFocusChange: (value) {
+                  if (value) {
+                    selected.value = emulators[index].system.id;
+                  }
+                },
                 onTap: () {
                   context.push("/settings/emulators/${emulators[index].system.id}");
                 },

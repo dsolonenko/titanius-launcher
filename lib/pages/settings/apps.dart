@@ -8,6 +8,8 @@ class AppsSettingsPage extends HookConsumerWidget {
     final installedApps = ref.watch(installedAppsProvider);
     final selectedApps = ref.watch(androidAppsProvider);
 
+    final selected = useState("");
+
     useGamepad(ref, (location, key) {
       if (location != "/settings/apps") return;
       if (key == GamepadButton.b) {
@@ -44,8 +46,12 @@ class AppsSettingsPage extends HookConsumerWidget {
                 indexedItemBuilder: (context, app, index) {
                   final isSelected = selectedApps.isSelected(app.packageName);
                   return ListTile(
-                    autofocus: index == 0,
-                    onFocusChange: (value) {},
+                    autofocus: selected.value == app.packageName || (selected.value.isEmpty && index == 0),
+                    onFocusChange: (value) {
+                      if (value) {
+                        selected.value = app.packageName;
+                      }
+                    },
                     onTap: () {
                       ref
                           .read(androidAppsRepoProvider)
