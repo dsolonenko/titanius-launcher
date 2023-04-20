@@ -21,7 +21,7 @@ class AndroidPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allApps = ref.watch(installedAppsProvider);
+    final allApps = ref.watch(selectedAndroidAppsProvider);
     final selectedApp = ref.watch(selectedAppProvider);
 
     final showDetals = useState(false);
@@ -37,6 +37,9 @@ class AndroidPage extends HookConsumerWidget {
       if (key == GamepadButton.x) {
         showDetals.value = !showDetals.value;
       }
+      if (key == GamepadButton.y) {
+        GoRouter.of(context).go("/select_apps");
+      }
     });
 
     return Scaffold(
@@ -49,7 +52,7 @@ class AndroidPage extends HookConsumerWidget {
         ],
         actions: [
           GamepadPrompt([GamepadButton.x], "Details"),
-          GamepadPrompt([GamepadButton.y], "Manage"),
+          GamepadPrompt([GamepadButton.y], "Select Apps"),
           GamepadPrompt([GamepadButton.b], "Back"),
           GamepadPrompt([GamepadButton.a], "Launch"),
         ],

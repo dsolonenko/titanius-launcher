@@ -7,4 +7,4 @@ part 'storage.g.dart';
 
 @Riverpod(keepAlive: true)
 Future<Isar> isar(IsarRef ref) =>
-    Isar.open([SettingSchema, AlternativeEmulatorSchema, FavouriteSchema, RecentGameSchema]);
+    Isar.open([SettingSchema, AlternativeEmulatorSchema, FavouriteSchema, RecentGameSchema, AndroidAppSchema]);

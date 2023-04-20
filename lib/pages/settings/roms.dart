@@ -9,6 +9,9 @@ class RomsSettingsPage extends HookConsumerWidget {
     final paths = ref.watch(externalRomsPathsProvider);
     final grantedUris = ref.watch(grantedUrisProvider);
 
+    final removing = useState(false);
+    final selected = useState<Object?>(null);
+
     useGamepad(ref, (location, key) {
       if (location != "/settings/roms") return;
       if (key == GamepadButton.b) {
@@ -26,7 +29,7 @@ class RomsSettingsPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.x], "Allow Access"),
+          GamepadPrompt([GamepadButton.x], "Add Shared Folder"),
           GamepadPrompt([GamepadButton.a], "Change"),
           GamepadPrompt([GamepadButton.b], "Back"),
         ],
@@ -41,7 +44,7 @@ class RomsSettingsPage extends HookConsumerWidget {
                   return GroupedListView<Object, String>(
                     key: const PageStorageKey("settings/systems"),
                     elements: allPaths,
-                    groupBy: (element) => element is GrantedUri ? "Granted Paths" : "ROM Folders",
+                    groupBy: (element) => element is GrantedUri ? "Shared Folders" : "ROM Folders",
                     groupSeparatorBuilder: (String value) => Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
@@ -52,14 +55,37 @@ class RomsSettingsPage extends HookConsumerWidget {
                     indexedItemBuilder: (context, e, index) {
                       if (e is GrantedUri) {
                         return ListTile(
-                          enabled: false,
-                          title: Text(e.uri.path),
-                          subtitle: Text(e.grantedFullPath),
+                          autofocus: index == 0 || selected.value == e,
+                          onFocusChange: (value) {
+                            if (value) {
+                              selected.value = e;
+                            }
+                          },
+                          onTap: () {
+                            if (removing.value) {
+                              removing.value = false;
+                              saf
+                                  .releasePersistableUriPermission(e.uri)
+                                  .then((value) => ref.refresh(grantedUrisProvider));
+                            } else {
+                              removing.value = true;
+                            }
+                          },
+                          title: Text(e.grantedFullPath),
+                          subtitle: Text(Uri.decodeComponent(e.uri.path)),
+                          trailing: removing.value
+                              ? const GamepadPromptWidget(buttons: [GamepadButton.a], prompt: "Confirm?")
+                              : const Icon(Icons.delete_rounded),
                         );
                       } else {
                         final included = romFolders.contains(paths[index]);
                         return ListTile(
-                          autofocus: index == 0,
+                          autofocus: index == 0 || selected.value == e,
+                          onFocusChange: (value) {
+                            if (value) {
+                              selected.value = e;
+                            }
+                          },
                           onTap: () {
                             final newPaths = romFolders;
                             if (included) {

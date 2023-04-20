@@ -41,6 +41,10 @@ final _router = GoRouter(
       path: '/games/:system',
       builder: (context, state) => SystemProxy(system: state.params['system']!),
     ),
+    GoRoute(
+      path: 'select_apps',
+      builder: (context, state) => const AppsSettingsPage(),
+    ),
     GoRoute(path: '/settings', builder: (context, state) => const SettingsPage(), routes: [
       GoRoute(
         path: 'roms',

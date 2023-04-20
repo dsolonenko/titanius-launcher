@@ -63,6 +63,14 @@ class RecentGame {
   RecentGame({required this.romPath, this.timestamp = 0});
 }
 
+@collection
+class AndroidApp {
+  Id id = Isar.autoIncrement;
+  @Index(unique: true, replace: true)
+  String package;
+  AndroidApp({required this.package});
+}
+
 class SettingsRepo {
   final Isar isar;
 
@@ -207,6 +215,36 @@ class EnabledSystemsRepo {
   }
 }
 
+class SelectedApps {
+  final Set<String> apps;
+
+  SelectedApps(this.apps);
+
+  bool isSelected(String package) => apps.contains(package);
+}
+
+class AndroidAppsRepo {
+  final Isar isar;
+
+  AndroidAppsRepo(this.isar);
+
+  Future<SelectedApps> _getSelectedApps() async {
+    final settings = await isar.androidApps.where().findAll();
+    final settingsSet = {for (final s in settings) s.package};
+    return SelectedApps(settingsSet);
+  }
+
+  Future<void> selectApp(String package, bool selected) async {
+    await isar.writeTxn(() async {
+      if (selected) {
+        await isar.androidApps.put(AndroidApp(package: package));
+      } else {
+        await isar.androidApps.deleteByPackage(package);
+      }
+    });
+  }
+}
+
 @Riverpod(keepAlive: true)
 Future<SettingsRepo> settingsRepo(SettingsRepoRef ref) async {
   final isar = await ref.watch(isarProvider.future);
@@ -265,6 +303,18 @@ Future<EnabledSystemsRepo> enabledSystemsRepo(EnabledSystemsRepoRef ref) async {
 Future<EnabledSystems> enabledSystems(EnabledSystemsRef ref) async {
   final repo = await ref.watch(enabledSystemsRepoProvider.future);
   return repo._getEnabledSystems();
+}
+
+@Riverpod(keepAlive: true)
+Future<AndroidAppsRepo> androidAppsRepo(AndroidAppsRepoRef ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return AndroidAppsRepo(isar);
+}
+
+@Riverpod(keepAlive: true)
+Future<SelectedApps> androidApps(AndroidAppsRef ref) async {
+  final repo = await ref.watch(androidAppsRepoProvider.future);
+  return repo._getSelectedApps();
 }
 
 Future<List<String>> _getDefaultRomFolders() async {

@@ -1,3 +1,5 @@
+import 'package:cached_memory_image/cached_memory_image.dart';
+import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -19,6 +21,7 @@ part 'settings/systems.dart';
 part 'settings/emulators.dart';
 part 'settings/ui.dart';
 part 'settings/roms.dart';
+part 'settings/apps.dart';
 
 const toggleSize = 40.0;
 const toggleOnIcon = Icon(

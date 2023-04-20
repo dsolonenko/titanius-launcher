@@ -70,6 +70,7 @@ Future<GrantedUri?> getMatchingPersistedUri(String filePath) async {
 }
 
 Future<saf.DocumentFile?> getDocumentFile(String filePath) async {
+  // ignore: unused_element
   Future<saf.DocumentFile?> findFileInSubdirectory(Uri parentUri, String relativeFilePath) async {
     List<String> pathSegments = relativeFilePath.split('/');
 
@@ -89,7 +90,7 @@ Future<saf.DocumentFile?> getDocumentFile(String filePath) async {
   final matchingUri = await getMatchingPersistedUri(filePath);
   if (matchingUri != null) {
     final relativeFilePath = filePath.substring(matchingUri.grantedFullPath.length + 1);
-    final matchingDoc = await findFileInSubdirectory(matchingUri.uri, relativeFilePath);
+    final matchingDoc = await saf.findFile(matchingUri.uri, relativeFilePath);
     if (matchingDoc != null) {
       final exists = await matchingDoc.exists();
       debugPrint("file:$filePath uri:${Uri.decodeFull(matchingDoc.uri.toString())} exists:$exists");
