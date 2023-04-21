@@ -5,10 +5,10 @@
 Titanius Launcher is a minimalistic, controller-first retro game launcher designed for those who want to enjoy a seamless gaming experience on their Android devices. 
 Inspired by EmulationStation and AmberELEC, it allows users to easily integrate their pre-scraped ROMs libraries from Linux systems like AmberELEC and ArkOS. 
 
-- Designed for Android devices with built-in controllers, such as Retroid 3/3+/Flip, Odin Lite/Pro, Anbernic RG552, Logitech G Cloud, etc.
-- Minimalistic, controller-first UI
-- Reuse your existing pre-scraped ROMs library from Linux systems like AmberELEC and ArkOS
-- Supports over 70 systems with Retroarch 64-bit and standlone emulators
+:video_game: Designed for Android devices with built-in controllers, such as Retroid 3/3+/Flip, Odin Lite/Pro, Anbernic RG552, Logitech G Cloud, ...
+:video_game: Minimalistic, controller-first UI
+:video_game: Reuse your existing pre-scraped ROMs library from Linux systems like AmberELEC and ArkOS
+:video_game: Supports around 70 systems with Retroarch 64-bit and standlone emulators
 
 ## Download
 
@@ -30,6 +30,8 @@ Due to the Storage Access Framework (SAF) restrictions, you might have to grant 
 To accomplish this, navigate to Settings -> ROMs Folders -> Add Shared Folder and add the relevant folders. Ensure that these folders correspond to the ones used in your standalone emulators. 
 For instance, if you're using the standalone Drastic for DS, the shared folder in Titanius Launcher and the Drastic folder should both be set to `[ROMs Folder Location]/Roms/nds`.
 
+**Note**: Unfortunately, this is a necessary step that requires using a touchscreen.
+
 ## Notes
 
 1. This is a work in progress. Expect some bugs and crashes.
@@ -42,22 +44,25 @@ For instance, if you're using the standalone Drastic for DS, the shared folder i
 ## Screenshots
 
 Landing page with a scrolling list of systems:
-![Screenshot 3](assets/screenshots/03.png)
+![Screenshot](assets/screenshots/01.png)
 
 Games page:
-![Screenshot 4](assets/screenshots/04.png)
+![Screenshot](assets/screenshots/02.png)
+
+Game details:
+![Screenshot](assets/screenshots/03.png)
 
 Folders support:
-![Screenshot 5](assets/screenshots/05.png)
+![Screenshot](assets/screenshots/04.png)
+
+Collections:
+![Screenshot](assets/screenshots/07.png)
 
 Android apps:
-![Screenshot 9](assets/screenshots/09.png)
-![Screenshot 10](assets/screenshots/10.png)
+![Screenshot](assets/screenshots/05.png)
 
-Some settings:
-![Screenshot 7](assets/screenshots/07.png)
-![Screenshot 6](assets/screenshots/06.png)
-![Screenshot 8](assets/screenshots/08.png)
+Settings:
+![Screenshot](assets/screenshots/06.png)
 
 ## Attributions
 
