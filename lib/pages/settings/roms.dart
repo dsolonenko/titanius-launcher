@@ -17,7 +17,7 @@ class RomsSettingsPage extends HookConsumerWidget {
       if (key == GamepadButton.b) {
         GoRouter.of(context).pop();
       }
-      if (key == GamepadButton.x) {
+      if (key == GamepadButton.y) {
         saf.openDocumentTree().then((value) => ref.refresh(grantedUrisProvider));
       }
     });
@@ -29,7 +29,7 @@ class RomsSettingsPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.x], "Add Shared Folder"),
+          GamepadPrompt([GamepadButton.y], "Add Shared Folder"),
           GamepadPrompt([GamepadButton.a], "Change"),
           GamepadPrompt([GamepadButton.b], "Back"),
         ],

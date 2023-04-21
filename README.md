@@ -20,9 +20,15 @@ Titanius Launcher is designed without a built-in game scraper, with the intentio
 
 1. Organize your ROMs in a folder structure like this: [AmberELEC](https://amberelec.org/systems/)
 2. Use [Skraper](https://www.skraper.net/) to scrape your ROMs and generate `gamelist.xml` files, along with images and/or videos
-3. Transfer your ROMs to your Android device's Internal Storage or SD card in one of these locations: `Internal Storage/Roms`, `SD Card root`, `SD Card/Roms`
+3. Transfer your ROMs to your Android device's Internal Storage or SD card in one of these locations: `Internal Storage/Roms`, `SD Card/. (Root)`, `SD Card/Roms`
 4. Set up Titanius Launcher to include the ROMs folder
 5. Have fun!
+
+## Standalone Emulators
+
+Due to the Storage Access Framework (SAF) restrictions, you might have to grant Titanius Launcher permission to share ROM files with standalone emulators. 
+To accomplish this, navigate to Settings -> ROMs Folders -> Add Shared Folder and add the relevant folders. Ensure that these folders correspond to the ones used in your standalone emulators. 
+For instance, if you're using the standalone Drastic for DS, the shared folder in Titanius Launcher and the Drastic folder should both be set to `[ROMs Folder Location]/Roms/nds`.
 
 ## Notes
 
