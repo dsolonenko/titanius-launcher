@@ -14,7 +14,7 @@ workflows:
         - titanius
       vars:
         PACKAGE_NAME: "app.titanius.launcher"
-        BUILD_NAME: "0.0.$PROJECT_BUILD_NUMBER"
+        BUILD_NAME: "0.1.$PROJECT_BUILD_NUMBER"
       groups:
         - github
       flutter: stable
