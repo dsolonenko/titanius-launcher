@@ -117,17 +117,17 @@ Future<List<Game>> _processFolder(String romsFolder, String folder, System syste
 @Riverpod(keepAlive: true)
 Future<GameList> games(GamesRef ref, String systemId) async {
   final allGames = await ref.watch(allGamesProvider.future);
-  final detectedSystems = await ref.watch(detectedSystemsProvider.future);
+  final systems = await ref.watch(allSupportedSystemsProvider.future);
   final settings = await ref.watch(settingsProvider.future);
 
-  final system = detectedSystems.firstWhere((element) => element.id == systemId);
+  final system = systems.firstWhere((element) => element.id == systemId);
   final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
 
   for (var element in allGames) {
     element.favorite = favouritesMap[element.romPath] ?? element.favorite;
   }
 
-  switch (systemId) {
+  switch (system.id) {
     case "favourites":
       final games = allGames.where((element) => element.favorite).sortedBy((element) => element.name);
       return GameList(system, ".", games);
@@ -146,7 +146,7 @@ Future<GameList> games(GamesRef ref, String systemId) async {
       final games = _sortGames(settings, uniqueGames);
       return GameList(system, ".", games);
     default:
-      final games = _sortGames(settings, allGames.where((element) => element.system.id == systemId).toList());
+      final games = _sortGames(settings, allGames.where((element) => element.system.id == system.id).toList());
       return GameList(system, ".", games);
   }
 }

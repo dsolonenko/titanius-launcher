@@ -45,7 +45,7 @@ final _router = GoRouter(
       path: '/select_apps',
       builder: (context, state) => const AppsSettingsPage(),
     ),
-    GoRoute(path: '/settings', builder: (context, state) => const SettingsPage(), routes: [
+    GoRoute(path: '/settings', builder: (context, state) => SettingsPage(source: state.queryParams['source']), routes: [
       GoRoute(
         path: 'roms',
         builder: (context, state) => const RomsSettingsPage(),

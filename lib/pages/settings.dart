@@ -35,16 +35,21 @@ const toggleOffIcon = Icon(
 );
 
 class SettingsPage extends HookConsumerWidget {
-  const SettingsPage({super.key});
+  final String? source;
+  const SettingsPage({super.key, this.source});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final packageInfo = ref.watch(packageInfoProvider);
 
     useGamepad(ref, (location, key) {
-      if (location != "/settings") return;
+      if (location != "/settings?source=$source") return;
       if (key == GamepadButton.b) {
-        GoRouter.of(context).pop();
+        if (source == "root") {
+          GoRouter.of(context).go("/");
+        } else {
+          GoRouter.of(context).go("/games/$source");
+        }
       }
     });
 

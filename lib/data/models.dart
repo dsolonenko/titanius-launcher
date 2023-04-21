@@ -27,7 +27,7 @@ const systemRecent = System(
   isCollection: true,
 );
 
-const collections = [systemAllGames, systemRecent, systemFavourites];
+const collections = [systemRecent, systemFavourites, systemAllGames];
 
 class System {
   final String id;

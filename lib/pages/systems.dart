@@ -46,7 +46,7 @@ class SystemsPage extends HookConsumerWidget {
         GoRouter.of(context).go("/games/${system.id}");
       }
       if (key == GamepadButton.start) {
-        GoRouter.of(context).push("/settings");
+        GoRouter.of(context).go("/settings?source=root");
       }
     });
 

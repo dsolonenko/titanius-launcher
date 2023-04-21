@@ -13,7 +13,7 @@ class AppsSettingsPage extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (location != "/select_apps") return;
       if (key == GamepadButton.b) {
-        GoRouter.of(context).pop();
+        GoRouter.of(context).go("/games/android");
       }
     });
 
@@ -50,6 +50,7 @@ class AppsSettingsPage extends HookConsumerWidget {
                     onFocusChange: (value) {
                       if (value) {
                         selected.value = app.packageName;
+                        debugPrint("Focus on ${app.packageName}");
                       }
                     },
                     onTap: () {

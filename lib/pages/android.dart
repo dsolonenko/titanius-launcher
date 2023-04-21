@@ -38,7 +38,7 @@ class AndroidPage extends HookConsumerWidget {
         showDetals.value = !showDetals.value;
       }
       if (key == GamepadButton.y) {
-        GoRouter.of(context).push("/select_apps");
+        GoRouter.of(context).go("/select_apps");
       }
     });
 

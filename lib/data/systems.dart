@@ -19,7 +19,7 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
     systems.removeWhere((system) => system.id == 'android');
   }
   systems.sort((a, b) => a.name.compareTo(b.name));
-  return systems;
+  return [...collections, ...systems];
 }
 
 @Riverpod(keepAlive: true)
@@ -29,13 +29,7 @@ Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
   final romFolders = await ref.watch(romFoldersProvider.future);
   final detectedSystems =
       allSystems.where((system) => enabledSystems.showSystem(system.id) && _hasGamelist(system, romFolders)).toList();
-  final enabledCollections = [];
-  for (var collection in collections) {
-    if (enabledSystems.showSystem(collection.id)) {
-      enabledCollections.add(collection);
-    }
-  }
-  return [...enabledCollections, ...detectedSystems];
+  return detectedSystems;
 }
 
 bool _hasGamelist(System system, List<String> romFolders) {
