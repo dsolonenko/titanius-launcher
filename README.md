@@ -5,10 +5,10 @@
 Titanius Launcher is a minimalistic, controller-first retro game launcher designed for those who want to enjoy a seamless gaming experience on their Android devices. 
 Inspired by EmulationStation and AmberELEC, it allows users to easily integrate their pre-scraped ROMs libraries from Linux systems like AmberELEC and ArkOS. 
 
-:video_game: Designed for Android devices with built-in controllers, such as Retroid 3/3+/Flip, Odin Lite/Pro, Anbernic RG552, Logitech G Cloud, ...
-:video_game: Minimalistic, controller-first UI
-:video_game: Reuse your existing pre-scraped ROMs library from Linux systems like AmberELEC and ArkOS
-:video_game: Supports around 70 systems with Retroarch 64-bit and standlone emulators
+- [x] Designed for Android devices with built-in controllers, such as Retroid 3/3+/Flip, Odin Lite/Pro, Anbernic RG552, Logitech G Cloud, ...
+- [x] Minimalistic, controller-first UI
+- [x] Reuse your existing pre-scraped ROMs library from Linux systems like AmberELEC and ArkOS
+- [x] Supports around 70 systems with Retroarch 64-bit and standlone emulators
 
 ## Download
 
