@@ -119,6 +119,7 @@ Future<GameList> games(GamesRef ref, String systemId) async {
   final allGames = await ref.watch(allGamesProvider.future);
   final systems = await ref.watch(allSupportedSystemsProvider.future);
   final settings = await ref.watch(settingsProvider.future);
+  final recentGames = await ref.watch(recentGamesProvider.future);
 
   final system = systems.firstWhere((element) => element.id == systemId);
   final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
@@ -132,7 +133,6 @@ Future<GameList> games(GamesRef ref, String systemId) async {
       final games = allGames.where((element) => element.favorite).sortedBy((element) => element.name);
       return GameList(system, ".", games);
     case "recent":
-      final recentGames = await ref.watch(recentGamesProvider.future);
       Map<String, int> recentGamesMap = {
         for (var item in recentGames) item.romPath: item.timestamp,
       };
