@@ -34,8 +34,8 @@ class UISettingsPage extends HookConsumerWidget {
             children: [
               _setting(ref, selectedSetting, 'Show Favouries On Top', settings.favouritesOnTop, true,
                   (p0, p1) => p0.setFavoutesOnTop(p1)),
-              // _setting(ref, selectedSetting, 'Compact Game List', settings.compactGameList, true,
-              //     (p0, p1) => p0.setCompactGameList(p1)),
+              _setting(ref, selectedSetting, 'Show Only Unique Games In Collections', settings.uniqueGamesInCollections,
+                  true, (p0, p1) => p0.setUniqueGamesInCollections(p1)),
               _setting(ref, selectedSetting, 'Show Game Videos', settings.showGameVideos, true,
                   (p0, p1) => p0.setShowGameVideos(p1)),
               _setting(ref, selectedSetting, 'Fade Screenshot To Video', settings.fadeToVideo, settings.showGameVideos,

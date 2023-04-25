@@ -131,24 +131,31 @@ Future<GameList> games(GamesRef ref, String systemId) async {
   switch (system.id) {
     case "favourites":
       final games = allGames.where((element) => element.favorite).sortedBy((element) => element.name);
-      return GameList(system, ".", games);
+      final gamesInCollection = settings.uniqueGamesInCollections ? _uniqueGames(games) : games;
+      return GameList(system, ".", gamesInCollection);
     case "recent":
       Map<String, int> recentGamesMap = {
         for (var item in recentGames) item.romPath: item.timestamp,
       };
       final games = allGames.where((element) => recentGamesMap.containsKey(element.romPath)).toList();
       games.sort((a, b) => recentGamesMap[b.romPath]!.compareTo(recentGamesMap[a.romPath]!));
-      return GameList(system, ".", games);
+      final gamesInCollection = settings.uniqueGamesInCollections ? _uniqueGames(games) : games;
+      return GameList(system, ".", gamesInCollection);
     case "all":
-      final roms = <String>{};
-      final uniqueGames = allGames.where((element) => !element.isFolder).toList();
-      uniqueGames.retainWhere((game) => roms.add("${game.system.id}/${game.name}"));
-      final games = _sortGames(settings, uniqueGames);
-      return GameList(system, ".", games);
+      final games = _sortGames(settings, allGames);
+      final gamesInCollection = settings.uniqueGamesInCollections ? _uniqueGames(games) : games;
+      return GameList(system, ".", gamesInCollection);
     default:
       final games = _sortGames(settings, allGames.where((element) => element.system.id == system.id).toList());
       return GameList(system, ".", games);
   }
+}
+
+List<Game> _uniqueGames(List<Game> allGames) {
+  final roms = <String>{};
+  final uniqueGames = allGames.where((element) => !element.isFolder).toList();
+  uniqueGames.retainWhere((game) => roms.add("${game.system.id}/${game.name}"));
+  return uniqueGames;
 }
 
 List<Game> _sortGames(Settings settings, List<Game> allGames) {
