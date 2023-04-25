@@ -3667,7 +3667,7 @@
             "component": "xyz.aethersx2.custom/.EmulationActivity",
             "action": "android.intent.action.MAIN",
             "args": {
-              "bootPath": "{file.uri}"
+              "bootPath": "{file.documenturi}"
             },
             "flags": [
               "--activity-clear-task",
