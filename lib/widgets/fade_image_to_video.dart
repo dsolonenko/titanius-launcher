@@ -82,6 +82,7 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
             ? Image.file(
                 File(widget.game.imageUrl!),
                 fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
                 key: const ValueKey<int>(1),
               )
             : _controller.value.isInitialized

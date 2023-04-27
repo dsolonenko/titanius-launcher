@@ -221,6 +221,7 @@ class GamesPage extends HookConsumerWidget {
                 child: Image.file(
                   File(game.imageUrl!),
                   fit: BoxFit.contain,
+                  filterQuality: FilterQuality.high,
                 ),
               ),
               Text(game.name, softWrap: false),
@@ -304,6 +305,7 @@ class GamesPage extends HookConsumerWidget {
                 child: Image.file(
                   File(gameToShow.thumbnailUrl!),
                   fit: BoxFit.fitHeight,
+                  filterQuality: FilterQuality.high,
                 ),
               )
             : Text(gameToShow.name, textScaleFactor: 2),
@@ -354,6 +356,7 @@ class GamesPage extends HookConsumerWidget {
         return Image.asset(
           "assets/images/white/${system.logo}",
           fit: BoxFit.fitHeight,
+          filterQuality: FilterQuality.high,
           errorBuilder: (context, url, error) => const Icon(Icons.error),
         );
     }

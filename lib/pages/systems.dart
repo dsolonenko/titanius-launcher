@@ -118,7 +118,9 @@ class SystemsPage extends HookConsumerWidget {
       default:
         return Image.asset(
           "assets/images/color/${system.logo}",
-          fit: BoxFit.fitWidth,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
+          isAntiAlias: true,
           errorBuilder: (context, url, error) => const Icon(Icons.error),
         );
     }
