@@ -91,8 +91,10 @@ class Game {
   final String path;
   final String folder;
   final String rom;
+  final String? id;
   final String? description;
   final String? genre;
+  final String? genreid;
   final String? developer;
   final String? publisher;
   final String? players;
@@ -110,8 +112,10 @@ class Game {
     this.path,
     this.folder,
     this.rom, {
+    this.id,
     this.description,
     this.genre,
+    this.genreid,
     this.imageUrl,
     this.videoUrl,
     this.thumbnailUrl,
@@ -125,4 +129,5 @@ class Game {
   });
 
   String get romPath => "$path/${rom.replaceFirst("./", "")}";
+  String get uniqueKey => id != null ? "id/$id" : "${system.id}/$name";
 }

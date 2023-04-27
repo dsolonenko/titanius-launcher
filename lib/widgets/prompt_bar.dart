@@ -13,11 +13,11 @@ class GamepadPrompt {
 typedef GamepadPrompts = List<GamepadPrompt>;
 
 class PromptBar extends StatelessWidget {
+  final String text;
   final GamepadPrompts navigations;
   final GamepadPrompts actions;
 
-  const PromptBar(
-      {super.key, this.navigations = const [], this.actions = const []});
+  const PromptBar({super.key, this.text = "", this.navigations = const [], this.actions = const []});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class PromptBar extends StatelessWidget {
                 buttons: e.buttons,
                 prompt: e.prompt,
               )),
-          const Spacer(),
+          Expanded(child: Text(text, textScaleFactor: 0.8, textAlign: TextAlign.center)),
           ...actions.map((e) => GamepadPromptWidget(
                 buttons: e.buttons,
                 prompt: e.prompt,

@@ -1,3 +1,4 @@
+import 'package:async_task/async_task_extension.dart';
 import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
 import 'package:shared_storage/saf.dart' as saf;
 
@@ -57,14 +59,27 @@ class SettingsPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      bottomNavigationBar: packageInfo.when(
-          data: (data) => Text("${data.appName} ${data.version}", textScaleFactor: 0.7, textAlign: TextAlign.center),
-          loading: () => const CircularProgressIndicator(),
-          error: (error, stackTrace) => Text(error.toString())),
+      bottomNavigationBar: PromptBar(
+        text: packageInfo.when(
+            data: (data) => "${data.appName} ${data.version}",
+            loading: () => "",
+            error: (error, stackTrace) => error.toString()),
+        actions: const [
+          GamepadPrompt([GamepadButton.b], "Back"),
+        ],
+      ),
       body: ListView(
         children: [
           ListTile(
             autofocus: true,
+            onFocusChange: (value) {},
+            onTap: () {
+              // ignore: unused_result
+              ref.refresh(detectedSystemsProvider).whenData((value) => ref.read(allGamesProvider));
+            },
+            title: const Text('Refresh GameLists'),
+          ),
+          ListTile(
             onFocusChange: (value) {},
             onTap: () {
               context.push("/settings/roms");

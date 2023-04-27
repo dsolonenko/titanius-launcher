@@ -154,7 +154,7 @@ Future<GameList> games(GamesRef ref, String systemId) async {
 
 List<Game> _uniqueGames(List<Game> allGames) {
   final roms = <String>{};
-  allGames.retainWhere((game) => roms.add("${game.system.id}/${game.name}"));
+  allGames.retainWhere((game) => roms.add(game.uniqueKey));
   return allGames;
 }
 
@@ -185,10 +185,12 @@ List<Game> _sortGames(Settings settings, List<Game> allGames) {
 }
 
 Game _fromNode(XmlNode node, System system, String romsPath) {
+  final id = node.attributes.firstWhereOrNull((element) => element.name.local == "id")?.value;
   final name = node.findElements("name").first.text;
   final path = node.findElements("path").first.text;
   final description = node.findElements("desc").firstOrNull?.text;
   final genre = node.findElements("genre").firstOrNull?.text;
+  final genreid = node.findElements("genreid").firstOrNull?.text;
   final developer = node.findElements("developer").firstOrNull?.text;
   final publisher = node.findElements("publisher").firstOrNull?.text;
   final players = node.findElements("players").firstOrNull?.text;
@@ -201,8 +203,10 @@ Game _fromNode(XmlNode node, System system, String romsPath) {
   final thumbnail = node.findElements("thumbnail").firstOrNull?.text;
   final favorite = node.findElements("favorite").firstOrNull?.text == "true";
   return Game(system, name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
+      id: id,
       description: description,
       genre: genre,
+      genreid: genreid,
       rating: rating != null ? 10 * rating : null,
       imageUrl: image != null ? "$romsPath/$image" : null,
       videoUrl: video != null ? "$romsPath/$video" : null,
