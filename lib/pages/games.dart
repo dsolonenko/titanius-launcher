@@ -64,6 +64,9 @@ class GamesPage extends HookConsumerWidget {
       if (key == GamepadButton.x) {
         showDetails.value = !showDetails.value;
       }
+      if (key == GamepadButton.select) {
+        GoRouter.of(context).go("/games/$system/filter");
+      }
       if (key == GamepadButton.y) {
         final selectedGame = ref.read(selectedGameProvider(system));
         debugPrint("Favourite: $selectedGame");
@@ -83,6 +86,7 @@ class GamesPage extends HookConsumerWidget {
         navigations: [
           GamepadPrompt([GamepadButton.l1, GamepadButton.r1], "Scroll"),
           GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
+          GamepadPrompt([GamepadButton.select], "Filter"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
         actions: [
@@ -100,7 +104,7 @@ class GamesPage extends HookConsumerWidget {
             );
           }
           final gameToShow = selectedGame ?? gamelist.games.first;
-          final index = gamelist.games.indexOf(gameToShow).clamp(0, gamelist.games.length - 1);
+          final selectedIndex = gamelist.games.indexOf(gameToShow).clamp(0, gamelist.games.length - 1);
           debugPrint("show=${gameToShow.rom}");
           return Row(
             children: [
@@ -119,14 +123,13 @@ class GamesPage extends HookConsumerWidget {
                         itemScrollController: scrollController,
                         itemPositionsListener: itemPositionsListener,
                         key: PageStorageKey("$system/${gamelist.currentFolder}"),
-                        initialScrollIndex: index,
+                        initialScrollIndex: selectedIndex,
                         itemCount: gamelist.games.length,
                         itemBuilder: (context, index) {
                           final game = gamelist.games[index];
-                          final isSelected = game.romPath == gameToShow.romPath;
+                          final isSelected = selectedIndex == index;
                           return ListTile(
                             key: ValueKey(game.romPath),
-                            dense: settings.value?.compactGameList ?? false,
                             visualDensity: VisualDensity.compact,
                             horizontalTitleGap: 0,
                             minLeadingWidth: 22,

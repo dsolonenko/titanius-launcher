@@ -91,6 +91,39 @@ class CurrentGameNavigation extends _$CurrentGameNavigation {
   }
 }
 
+class GameFilter {
+  final String system;
+  final String? search;
+  final Set<String>? genres;
+
+  factory GameFilter.empty(String system) => GameFilter(system, search: null, genres: null);
+
+  GameFilter(this.system, {this.search, this.genres});
+
+  List<Game> apply(List<Game> games) {
+    if (search != null) {
+      final term = search!.toLowerCase();
+      games.retainWhere((game) => game.name.toLowerCase().contains(term));
+    }
+    if (genres != null) {
+      games.retainWhere((game) => game.genre != null && genres!.contains(game.genre));
+    }
+    return games;
+  }
+}
+
+@Riverpod(keepAlive: true)
+class CurrentGameFilter extends _$CurrentGameFilter {
+  @override
+  GameFilter build(String system) {
+    return GameFilter.empty(system);
+  }
+
+  void set(GameFilter filter) {
+    state = filter;
+  }
+}
+
 @riverpod
 Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) {
   final game = ref.watch(selectedGameProvider(system));
@@ -117,10 +150,13 @@ Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) 
 Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
   final gamelist = await ref.watch(gamesProvider(system).future);
   final navigation = ref.watch(currentGameNavigationProvider(system));
+  final filter = ref.watch(currentGameFilterProvider(system));
   if (gamelist.system.isCollection) {
-    return gamelist;
+    final games = filter.apply(gamelist.games);
+    return GameList(gamelist.system, navigation.folder, games);
   } else {
     final gamesInFolder = gamelist.games.where((game) => game.folder == navigation.folder).toList();
-    return GameList(gamelist.system, navigation.folder, gamesInFolder);
+    final games = filter.apply(gamesInFolder);
+    return GameList(gamelist.system, navigation.folder, games);
   }
 }

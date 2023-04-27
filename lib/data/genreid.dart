@@ -411,4 +411,13 @@ class Genres {
     }
     return GameGenres.None;
   }
+
+  static GameGenres lookupFromId(int id) {
+    for (final item in Genres.orderedList) {
+      if (gameGenreValues[item] == id) {
+        return item;
+      }
+    }
+    return GameGenres.None;
+  }
 }

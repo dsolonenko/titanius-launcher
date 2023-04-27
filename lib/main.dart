@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
+import 'package:titanius/pages/filter.dart';
 
 import 'pages/settings.dart';
 import 'pages/system_proxy.dart';
@@ -40,6 +41,18 @@ final _router = GoRouter(
     GoRoute(
       path: '/games/:system',
       builder: (context, state) => SystemProxy(system: state.params['system']!),
+      routes: [
+        GoRoute(
+          path: 'filter',
+          builder: (context, state) => FiltersPage(system: state.params['system']!),
+          routes: [
+            GoRoute(
+              path: "genres",
+              builder: (context, state) => GenresFilterPage(system: state.params['system']!),
+            )
+          ],
+        ),
+      ],
     ),
     GoRoute(
       path: '/select_apps',

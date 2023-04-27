@@ -93,7 +93,7 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
         hook.listener(hook.location, GamepadButton.r2);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonStart || e.logicalKey == LogicalKeyboardKey.enter) {
         hook.listener(hook.location, GamepadButton.start);
-      } else if (e.logicalKey == LogicalKeyboardKey.gameButtonSelect) {
+      } else if (e.logicalKey == LogicalKeyboardKey.gameButtonSelect || e.logicalKey == LogicalKeyboardKey.insert) {
         hook.listener(hook.location, GamepadButton.select);
       }
     } else if (e is KeyRepeatEvent) {
