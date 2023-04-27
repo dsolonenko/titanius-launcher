@@ -30,7 +30,7 @@ class GamesPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final games = ref.watch(gamesInFolderProvider(system));
+    final games = ref.watch(filteredGamesInFolderProvider(system));
     final selectedGame = ref.watch(selectedGameProvider(system));
     final settings = ref.watch(settingsProvider);
 
@@ -65,6 +65,8 @@ class GamesPage extends HookConsumerWidget {
         showDetails.value = !showDetails.value;
       }
       if (key == GamepadButton.select) {
+        final currentFilter = ref.read(currentGameFilterProvider(system));
+        ref.read(temporaryGameFilterProvider(system).notifier).set(currentFilter);
         GoRouter.of(context).go("/games/$system/filter");
       }
       if (key == GamepadButton.y) {
@@ -82,19 +84,20 @@ class GamesPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: const CustomAppBar(),
-      bottomNavigationBar: const PromptBar(
-        navigations: [
+      bottomNavigationBar: PromptBar(
+        navigations: const [
           GamepadPrompt([GamepadButton.l1, GamepadButton.r1], "Scroll"),
           GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
           GamepadPrompt([GamepadButton.select], "Filter"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
-        actions: [
+        actions: const [
           GamepadPrompt([GamepadButton.x], "Details"),
           GamepadPrompt([GamepadButton.y], "Favourite"),
           GamepadPrompt([GamepadButton.b], "Back"),
           GamepadPrompt([GamepadButton.a], "Launch"),
         ],
+        text: "Filter: ${ref.read(currentGameFilterProvider(system)).description}",
       ),
       body: games.when(
         data: (gamelist) {
@@ -240,7 +243,7 @@ class GamesPage extends HookConsumerWidget {
       index: index,
       alignment: 0,
     );
-    final games = ref.read(gamesInFolderProvider(system));
+    final games = ref.read(filteredGamesInFolderProvider(system));
     ref
         .read(selectedGameProvider(system).notifier)
         .set(games.value!.games[index.clamp(0, games.value!.games.length - 1)]);
@@ -276,7 +279,7 @@ class GamesPage extends HookConsumerWidget {
           itemSize: 14.0,
           direction: Axis.horizontal,
         ),
-        Text(gameToShow.genre ?? "Unknown"),
+        Text(gameToShow.genreToShow),
         Text(
           "${gameToShow.developer ?? "Unknown"}, ${gameToShow.year?.toString() ?? "?"}",
           style: const TextStyle(color: Colors.grey),
@@ -336,7 +339,7 @@ class GamesPage extends HookConsumerWidget {
         Expanded(
           child: InfoTiles(
             children: [
-              InfoTile(title: "Genre", subtitle: gameToShow.genre ?? "-"),
+              InfoTile(title: "Genre", subtitle: gameToShow.genreToShow),
               InfoTile(title: "Released", subtitle: gameToShow.year?.toString() ?? "-"),
               InfoTile(title: "Developer", subtitle: gameToShow.developer ?? "-"),
               InfoTile(title: "Publisher", subtitle: gameToShow.publisher ?? "-"),

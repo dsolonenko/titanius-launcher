@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:async_task/async_task.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 import 'package:collection/collection.dart';
 
@@ -107,7 +106,7 @@ Future<List<Game>> _processFolder(String romsFolder, String folder, System syste
         .selectSubtreeEvents((event) => event.name == 'game' || event.name == 'folder')
         .toXmlNodes()
         .expand((nodes) => nodes)
-        .map((node) => _fromNode(node, system, romsPath))
+        .map((node) => Game.fromXmlNode(node, system, romsPath))
         .toList();
     return games;
   }
@@ -154,8 +153,9 @@ Future<GameList> games(GamesRef ref, String systemId) async {
 
 List<Game> _uniqueGames(List<Game> allGames) {
   final roms = <String>{};
-  allGames.retainWhere((game) => roms.add(game.uniqueKey));
-  return allGames;
+  final uniqueGames = [...allGames];
+  uniqueGames.retainWhere((game) => roms.add(game.uniqueKey));
+  return uniqueGames;
 }
 
 List<Game> _sortGames(Settings settings, List<Game> allGames) {
@@ -182,39 +182,4 @@ List<Game> _sortGames(Settings settings, List<Game> allGames) {
     return a.name.compareTo(b.name);
   });
   return games;
-}
-
-Game _fromNode(XmlNode node, System system, String romsPath) {
-  final id = node.attributes.firstWhereOrNull((element) => element.name.local == "id")?.value;
-  final name = node.findElements("name").first.text;
-  final path = node.findElements("path").first.text;
-  final description = node.findElements("desc").firstOrNull?.text;
-  final genre = node.findElements("genre").firstOrNull?.text;
-  final genreid = node.findElements("genreid").firstOrNull?.text;
-  final developer = node.findElements("developer").firstOrNull?.text;
-  final publisher = node.findElements("publisher").firstOrNull?.text;
-  final players = node.findElements("players").firstOrNull?.text;
-  final ratingString = node.findElements("rating").firstOrNull?.text;
-  final rating = ratingString != null ? double.tryParse(ratingString) : null;
-  final yearString = node.findElements("releasedate").firstOrNull?.text;
-  final year = yearString != null && yearString.length > 4 ? int.parse(yearString.substring(0, 4)) : null;
-  final image = node.findElements("image").firstOrNull?.text;
-  final video = node.findElements("video").firstOrNull?.text;
-  final thumbnail = node.findElements("thumbnail").firstOrNull?.text;
-  final favorite = node.findElements("favorite").firstOrNull?.text == "true";
-  return Game(system, name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
-      id: id,
-      description: description,
-      genre: genre,
-      genreid: genreid,
-      rating: rating != null ? 10 * rating : null,
-      imageUrl: image != null ? "$romsPath/$image" : null,
-      videoUrl: video != null ? "$romsPath/$video" : null,
-      thumbnailUrl: thumbnail != null ? "$romsPath/$thumbnail" : null,
-      developer: developer,
-      publisher: publisher,
-      players: players,
-      year: year,
-      favorite: favorite,
-      isFolder: node is XmlElement && node.name.local == "folder");
 }

@@ -132,11 +132,22 @@ const Map<GameGenres, int> gameGenreValues = {
 
 class Genres {
   static bool isSubGenre(GameGenres genre) {
-    return genre.index & 0xFF != 0;
+    final value = gameGenreValues[genre] ?? 0;
+    return value & 0xFF != 0;
   }
 
   static bool topGenreMatching(GameGenres sub, GameGenres top) {
     return (sub.index >> 8) == (top.index >> 8);
+  }
+
+  static GameGenres getTopGenre(GameGenres genre) {
+    final value = (gameGenreValues[genre] ?? 0) & 0xFF00;
+    for (final g in GameGenres.values) {
+      if (gameGenreValues[g] == value) {
+        return g;
+      }
+    }
+    return GameGenres.None;
   }
 
   String getResourcePath(GameGenres genre) {
@@ -269,12 +280,11 @@ class Genres {
     GameGenres.Educative: "Educative",
   };
 
-  static String getName(GameGenres genre) {
+  static String getName(GameGenres? genre, {String ifNull = "Unknown"}) {
     if (longNameMap.containsKey(genre)) {
       return longNameMap[genre]!;
     }
-    debugPrint('[Genres] Unknown GameGenre ${genre.index}');
-    return 'Unknown';
+    return ifNull;
   }
 
   static const Map<GameGenres, String> shortNameMap = {
@@ -412,8 +422,11 @@ class Genres {
     return GameGenres.None;
   }
 
-  static GameGenres lookupFromId(int id) {
-    for (final item in Genres.orderedList) {
+  static GameGenres? lookupFromId(int? id) {
+    if (id == null) {
+      return null;
+    }
+    for (final item in GameGenres.values) {
       if (gameGenreValues[item] == id) {
         return item;
       }

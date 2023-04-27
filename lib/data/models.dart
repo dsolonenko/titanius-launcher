@@ -1,3 +1,7 @@
+import 'package:titanius/data/genres.dart';
+import 'package:xml/xml.dart';
+import 'package:collection/collection.dart';
+
 import 'android_intent.dart';
 
 const systemAllGames = System(
@@ -94,7 +98,7 @@ class Game {
   final String? id;
   final String? description;
   final String? genre;
-  final String? genreid;
+  final GameGenres? genreId;
   final String? developer;
   final String? publisher;
   final String? players;
@@ -115,7 +119,7 @@ class Game {
     this.id,
     this.description,
     this.genre,
-    this.genreid,
+    this.genreId,
     this.imageUrl,
     this.videoUrl,
     this.thumbnailUrl,
@@ -130,4 +134,40 @@ class Game {
 
   String get romPath => "$path/${rom.replaceFirst("./", "")}";
   String get uniqueKey => id != null ? "id/$id" : "${system.id}/$name";
+  String get genreToShow => Genres.getName(genreId, ifNull: genre ?? "-");
+
+  factory Game.fromXmlNode(XmlNode node, System system, String romsPath) {
+    final id = node.attributes.firstWhereOrNull((element) => element.name.local == "id")?.value;
+    final name = node.findElements("name").first.text;
+    final path = node.findElements("path").first.text;
+    final description = node.findElements("desc").firstOrNull?.text;
+    final genre = node.findElements("genre").firstOrNull?.text;
+    final genreId = node.findElements("genreid").firstOrNull?.text;
+    final developer = node.findElements("developer").firstOrNull?.text;
+    final publisher = node.findElements("publisher").firstOrNull?.text;
+    final players = node.findElements("players").firstOrNull?.text;
+    final ratingString = node.findElements("rating").firstOrNull?.text;
+    final rating = ratingString != null ? double.tryParse(ratingString) : null;
+    final yearString = node.findElements("releasedate").firstOrNull?.text;
+    final year = yearString != null && yearString.length > 4 ? int.parse(yearString.substring(0, 4)) : null;
+    final image = node.findElements("image").firstOrNull?.text;
+    final video = node.findElements("video").firstOrNull?.text;
+    final thumbnail = node.findElements("thumbnail").firstOrNull?.text;
+    final favorite = node.findElements("favorite").firstOrNull?.text == "true";
+    return Game(system, name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
+        id: id,
+        description: description,
+        genre: genre,
+        genreId: genreId != null ? Genres.lookupFromId(int.tryParse(genreId)) : null,
+        rating: rating != null ? 10 * rating : null,
+        imageUrl: image != null ? "$romsPath/$image" : null,
+        videoUrl: video != null ? "$romsPath/$video" : null,
+        thumbnailUrl: thumbnail != null ? "$romsPath/$thumbnail" : null,
+        developer: developer,
+        publisher: publisher,
+        players: players,
+        year: year,
+        favorite: favorite,
+        isFolder: node is XmlElement && node.name.local == "folder");
+  }
 }

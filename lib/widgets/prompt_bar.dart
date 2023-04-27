@@ -29,7 +29,15 @@ class PromptBar extends StatelessWidget {
                 buttons: e.buttons,
                 prompt: e.prompt,
               )),
-          Expanded(child: Text(text, textScaleFactor: 0.8, textAlign: TextAlign.center)),
+          Expanded(
+            child: Text(
+              text,
+              textScaleFactor: 0.8,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           ...actions.map((e) => GamepadPromptWidget(
                 buttons: e.buttons,
                 prompt: e.prompt,

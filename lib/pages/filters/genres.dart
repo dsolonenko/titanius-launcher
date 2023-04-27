@@ -7,8 +7,9 @@ class GenresFilterPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final games = ref.watch(gamesInFolderProvider(system));
+    final filter = ref.watch(temporaryGameFilterProvider(system));
 
-    final selected = useState(GameGenres.None);
+    final selected = useState<GameGenres?>(null);
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system/filter/genres") return;
@@ -30,22 +31,34 @@ class GenresFilterPage extends HookConsumerWidget {
       ),
       body: games.when(
         data: (gamelist) {
-          final genres = gamelist.games.map((game) => Genres.lookupFromId(game.genreId)).toSet().toList()..sort();
-          return ListView.builder(
+          final gameGenres = gamelist.games.map((game) => game.genreId).toSet();
+          final genres = [...Genres.orderedList];
+          genres.retainWhere((element) => gameGenres.contains(element));
+          return GroupedListView<GameGenres, String>(
             key: PageStorageKey("filter/$system/genres"),
-            itemCount: genres.length,
-            itemBuilder: (context, index) {
-              final genre = genres[index];
+            elements: genres,
+            groupBy: (genre) => Genres.getName(Genres.getTopGenre(genre)),
+            groupSeparatorBuilder: (String value) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                value,
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
+            indexedItemBuilder: (context, genre, index) {
+              final isSelected = filter.genres.contains(genre);
               return ListTile(
-                autofocus: selected.value == genre,
+                autofocus: selected.value == genre || (selected.value == null && index == 0),
                 onFocusChange: (value) {
                   if (value) {
                     selected.value = genre;
                   }
                 },
-                onTap: () {},
-                title: Text(genre.name),
-                trailing: checkBoxOffIcon,
+                onTap: () {
+                  ref.read(temporaryGameFilterProvider(system).notifier).toggleGenre(genre);
+                },
+                title: Text(Genres.getName(genre)),
+                trailing: isSelected ? checkBoxOnIcon : checkBoxOffIcon,
               );
             },
           );
