@@ -15,6 +15,9 @@ class AppsSettingsPage extends HookConsumerWidget {
       if (key == GamepadButton.b) {
         GoRouter.of(context).go("/games/android");
       }
+      if (key == GamepadButton.y) {
+        ref.refresh(installedAppsProvider).then((value) => debugPrint("Refreshed"));
+      }
     });
 
     return Scaffold(
@@ -24,6 +27,7 @@ class AppsSettingsPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
+          GamepadPrompt([GamepadButton.y], "Refresh"),
           GamepadPrompt([GamepadButton.a], "Change"),
           GamepadPrompt([GamepadButton.b], "Back"),
         ],
