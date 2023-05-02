@@ -1682,7 +1682,7 @@
             "component": "org.dolphinemu.mmjr/org.dolphinemu.dolphinemu.ui.main.MainActivity",
             "action": "android.intent.action.VIEW",
             "args": {
-              "AutoStartFile": "{file.uri}"
+              "AutoStartFile": "{file.documenturi}"
             }
           }
         },
@@ -1693,7 +1693,7 @@
             "component": "org.dolphinemu.handheld/org.dolphinemu.dolphinemu.ui.main.MainActivity",
             "action": "android.intent.action.VIEW",
             "args": {
-              "AutoStartFile": "{file.uri}"
+              "AutoStartFile": "{file.documenturi}"
             }
           }
         },
@@ -1704,7 +1704,7 @@
             "component": "org.dolphinemu.dolphinemu/.ui.main.MainActivity",
             "action": "android.intent.action.VIEW",
             "args": {
-              "AutoStartFile": "{file.uri}"
+              "AutoStartFile": "{file.documenturi}"
             }
           }
         }
@@ -2558,7 +2558,7 @@
             "component": "org.dolphinemu.dolphinemu/.ui.main.MainActivity",
             "action": "android.intent.action.VIEW",
             "args": {
-              "AutoStartFile": "{file.uri}"
+              "AutoStartFile": "{file.documenturi}"
             }
           }
         },
@@ -2569,7 +2569,7 @@
             "component": "org.dolphinemu.mmjr/org.dolphinemu.dolphinemu.ui.main.MainActivity",
             "action": "android.intent.action.VIEW",
             "args": {
-              "AutoStartFile": "{file.uri}"
+              "AutoStartFile": "{file.documenturi}"
             }
           }
         },
@@ -2580,7 +2580,7 @@
             "component": "org.dolphinemu.handheld/org.dolphinemu.dolphinemu.ui.main.MainActivity",
             "action": "android.intent.action.VIEW",
             "args": {
-              "AutoStartFile": "{file.uri}"
+              "AutoStartFile": "{file.documenturi}"
             }
           }
         }

@@ -95,10 +95,10 @@ class SystemsPage extends HookConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          games.when(data: (games) => gamesStats(games),
+                          games.when(
+                              data: (games) => _gamesStats(games),
                               error: (error, stackTrace) => const Text("Error loading games"),
-                              loading: () => Container()
-                          ),
+                              loading: () => Container()),
                           const SizedBox(height: 8),
                           PageViewDotIndicator(
                             currentItem: selectedSystem < systems.length ? selectedSystem : 0,
@@ -122,11 +122,11 @@ class SystemsPage extends HookConsumerWidget {
   Widget _systemLogo(System system) {
     switch (system.id) {
       case "favourites":
-        return _collectionLogo(Icons.star_rounded, Colors.orange, "Favourites");
+        return _collectionLogo(Icons.star_rounded, Colors.orangeAccent, "Favourites");
       case "recent":
         return _collectionLogo(Icons.history_rounded, Colors.redAccent, "Recent");
       case "all":
-        return _collectionLogo(Icons.apps_rounded, Colors.indigo, "All Games");
+        return _collectionLogo(Icons.apps_rounded, Colors.indigoAccent, "All Games");
       default:
         return Image.asset(
           "assets/images/color/${system.logo}",
@@ -155,14 +155,13 @@ class SystemsPage extends HookConsumerWidget {
     );
   }
 
-  Widget gamesStats(GameList games) {
+  Widget _gamesStats(GameList games) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SizedBox(width: 8),
-        Text(
-          "${games.games.length}", style: const TextStyle(fontSize: 20)),
-        const Text(" games",
+        Text("${games.games.length}", style: const TextStyle(color: Colors.white, fontSize: 20)),
+        const Text(
+          " games",
           style: TextStyle(color: Colors.grey, fontSize: 20),
         ),
       ],

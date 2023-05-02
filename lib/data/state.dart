@@ -184,7 +184,7 @@ Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) 
 }
 
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<GameList> gamesForCurrentSystem(GamesForCurrentSystemRef ref) async {
   final allSystems = await ref.watch(detectedSystemsProvider.future);
   if (allSystems.isEmpty) {
