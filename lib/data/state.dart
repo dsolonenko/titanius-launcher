@@ -2,13 +2,14 @@ import 'dart:io';
 
 import 'package:device_apps/device_apps.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:titanius/data/genres.dart';
-import 'package:titanius/data/repo.dart';
 import 'package:video_player/video_player.dart';
 
 import 'games.dart';
+import 'genres.dart';
 import 'models.dart';
+import 'repo.dart';
 import 'stack.dart';
+import 'systems.dart';
 
 part 'state.g.dart';
 
@@ -180,6 +181,19 @@ Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) 
     });
   }
   return Future.value(null);
+}
+
+
+@Riverpod(keepAlive: true)
+Future<GameList> gamesForCurrentSystem(GamesForCurrentSystemRef ref) async {
+  final allSystems = await ref.watch(detectedSystemsProvider.future);
+  if (allSystems.isEmpty) {
+    return const GameList(systemAllGames, ".", []);
+  }
+  final selectedSystem = ref.watch(selectedSystemProvider);
+  final system = allSystems[selectedSystem.clamp(0, allSystems.length - 1)];
+  final gamelist = await ref.watch(gamesProvider(system.id).future);
+  return gamelist;
 }
 
 @riverpod

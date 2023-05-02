@@ -2,15 +2,15 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:titanius/data/games.dart';
-import 'package:titanius/data/models.dart';
-import 'package:titanius/gamepad.dart';
 import 'package:page_view_dot_indicator/page_view_dot_indicator.dart';
-import 'package:titanius/widgets/prompt_bar.dart';
 
+import '../data/games.dart';
+import '../data/models.dart';
 import '../data/state.dart';
 import '../data/systems.dart';
+import '../gamepad.dart';
 import '../widgets/appbar.dart';
+import '../widgets/prompt_bar.dart';
 
 class SystemsPage extends HookConsumerWidget {
   const SystemsPage({super.key});
@@ -18,13 +18,14 @@ class SystemsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allSystems = ref.watch(detectedSystemsProvider);
-    final allGames = ref.read(allGamesProvider);
     final selectedSystem = ref.watch(selectedSystemProvider);
     final pageController = PageController(initialPage: selectedSystem);
 
-    // Forces games loading in backgroud
-    allGames.whenData((games) {
-      debugPrint("Games: ${games.length}");
+    final games = ref.watch(gamesForCurrentSystemProvider);
+
+    // Forces games loading in background
+    games.whenData((games) {
+      debugPrint("Games: ${games.games.length}");
     });
 
     useGamepad(ref, (location, key) {
@@ -90,11 +91,22 @@ class SystemsPage extends HookConsumerWidget {
               systems.isNotEmpty
                   ? Container(
                       alignment: Alignment.bottomCenter,
-                      child: PageViewDotIndicator(
-                        currentItem: selectedSystem < systems.length ? selectedSystem : 0,
-                        count: systems.length,
-                        unselectedColor: Theme.of(context).colorScheme.background.lighten(10),
-                        selectedColor: Theme.of(context).colorScheme.primary,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          games.when(data: (games) => gamesStats(games),
+                              error: (error, stackTrace) => const Text("Error loading games"),
+                              loading: () => Container()
+                          ),
+                          const SizedBox(height: 8),
+                          PageViewDotIndicator(
+                            currentItem: selectedSystem < systems.length ? selectedSystem : 0,
+                            count: systems.length,
+                            unselectedColor: Theme.of(context).colorScheme.background.lighten(10),
+                            selectedColor: Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
                       ),
                     )
                   : Container(),
@@ -140,6 +152,20 @@ class SystemsPage extends HookConsumerWidget {
           Text(text, style: const TextStyle(color: Colors.white, fontSize: 80)),
         ],
       ),
+    );
+  }
+
+  Widget gamesStats(GameList games) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(width: 8),
+        Text(
+          "${games.games.length}", style: const TextStyle(fontSize: 20)),
+        const Text(" games",
+          style: TextStyle(color: Colors.grey, fontSize: 20),
+        ),
+      ],
     );
   }
 }
