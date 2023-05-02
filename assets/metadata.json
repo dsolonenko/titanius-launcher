@@ -2765,7 +2765,7 @@
           "intent": {
             "component": "org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
