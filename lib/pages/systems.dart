@@ -156,6 +156,7 @@ class SystemsPage extends HookConsumerWidget {
   }
 
   Widget _gamesStats(GameList games) {
+    if (games.games.isEmpty) return Container();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
