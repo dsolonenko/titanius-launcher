@@ -54,8 +54,9 @@ class RomsSettingsPage extends HookConsumerWidget {
                     ),
                     indexedItemBuilder: (context, e, index) {
                       if (e is GrantedUri) {
+                        final isSelected = (index == 0 && selected.value == null) || selected.value == e;
                         return ListTile(
-                          autofocus: (index == 0 && selected.value == null) || selected.value == e,
+                          autofocus: isSelected,
                           onFocusChange: (value) {
                             if (value) {
                               selected.value = e;
@@ -73,7 +74,7 @@ class RomsSettingsPage extends HookConsumerWidget {
                           },
                           title: Text(e.grantedFullPath),
                           subtitle: Text(Uri.decodeComponent(e.uri.path)),
-                          trailing: removing.value
+                          trailing: isSelected && removing.value
                               ? const GamepadPromptWidget(buttons: [GamepadButton.a], prompt: "Confirm?")
                               : const Icon(Icons.delete_rounded),
                         );
