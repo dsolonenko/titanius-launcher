@@ -16,7 +16,7 @@ class SystemProxy extends HookConsumerWidget {
     final allSystems = ref.watch(detectedSystemsProvider);
 
     useGamepad(ref, (location, key) {
-      if (!location.startsWith("/games/$system")) return;
+      if (location != "/games/$system") return;
       if (allSystems.value == null || allSystems.value!.isEmpty) return;
       if (key == GamepadButton.r2 || (system != "android" && key == GamepadButton.right)) {
         final currentSystem = ref.read(selectedSystemProvider);
