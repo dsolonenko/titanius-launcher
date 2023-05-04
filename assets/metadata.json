@@ -1009,7 +1009,7 @@
           "intent": {
             "component": "com.explusalpha.NesEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -1172,7 +1172,7 @@
           "intent": {
             "component": "com.explusalpha.GbcEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -1357,7 +1357,7 @@
           "intent": {
             "component": "com.explusalpha.GbaEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -1542,7 +1542,7 @@
           "intent": {
             "component": "com.explusalpha.GbcEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -2217,7 +2217,7 @@
           "intent": {
             "component": "org.mupen64plusae.v3.fzurita.pro/paulscode.android.mupen64plusae.SplashActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -2226,7 +2226,7 @@
           "intent": {
             "component": "org.mupen64plusae.v3.alpha/paulscode.android.mupen64plusae.SplashActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -2425,7 +2425,7 @@
           "intent": {
             "component": "com.explusalpha.NesEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -2538,7 +2538,7 @@
           "intent": {
             "component": "skyline.emu/emu.skyline.EmulationActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         }
       ]
@@ -2753,7 +2753,7 @@
           "intent": {
             "component": "org.ppsspp.ppsspp/.PpssppActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}",
+            "data": "{file.documenturi}",
             "flags": [
               "--activity-clear-task"
             ]
@@ -2901,7 +2901,7 @@
           "intent": {
             "component": "com.explusalpha.MdEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -3083,7 +3083,7 @@
           "intent": {
             "component": "com.explusalpha.MdEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -3180,7 +3180,7 @@
           "intent": {
             "component": "com.explusalpha.MdEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -3568,7 +3568,7 @@
           }
         },
         {
-          "id": "beetle_psx_hw",
+          "id": "ra64/beetle_psx_hw",
           "name": "Beetle PSX HW",
           "intent": {
             "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
@@ -3585,7 +3585,7 @@
           }
         },
         {
-          "id": "beetle_psx",
+          "id": "ra64/beetle_psx",
           "name": "Beetle PSX",
           "intent": {
             "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
@@ -3725,7 +3725,7 @@
           "intent": {
             "component": "com.explusalpha.PceEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -3780,7 +3780,7 @@
           "intent": {
             "component": "com.explusalpha.Snes9xPlus/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -4150,7 +4150,7 @@
           "intent": {
             "component": "com.explusalpha.PceEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
@@ -4204,7 +4204,7 @@
           "intent": {
             "component": "com.explusalpha.PceEmu/com.imagine.BaseActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.uri}"
+            "data": "{file.documenturi}"
           }
         },
         {
