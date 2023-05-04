@@ -162,6 +162,9 @@ List<Game> _sortGames(Settings settings, List<Game> allGames) {
   bool favouriteOnTop = settings.favouritesOnTop;
   final games = allGames.sorted((a, b) {
     // folders on top
+    if (a.isFolder && b.isFolder) {
+      return a.name.compareTo(b.name);
+    }
     if (a.isFolder) {
       return -1;
     }
