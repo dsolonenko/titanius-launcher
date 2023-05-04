@@ -65,6 +65,7 @@ dependencies:
   async_task: ^1.0.20
   grouped_list: ^5.1.2
   shared_storage: ^0.7.1
+  onscreen_keyboard: ^1.0.3
 
 dev_dependencies:
   flutter_test:

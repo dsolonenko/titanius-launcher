@@ -49,7 +49,11 @@ final _router = GoRouter(
             GoRoute(
               path: "genres",
               builder: (context, state) => GenresFilterPage(system: state.params['system']!),
-            )
+            ),
+            GoRoute(
+              path: "name",
+              builder: (context, state) => NameFilterPage(system: state.params['system']!),
+            ),
           ],
         ),
       ],

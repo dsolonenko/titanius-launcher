@@ -95,25 +95,26 @@ class CurrentGameNavigation extends _$CurrentGameNavigation {
 
 class GameFilter {
   final String system;
-  final String? search;
+  final String search;
   final Set<GameGenres> genres;
 
-  factory GameFilter.empty(String system) => GameFilter(system, search: null, genres: {});
+  factory GameFilter.empty(String system) => GameFilter(system, search: "", genres: {});
 
-  GameFilter(this.system, {this.search, this.genres = const {}});
+  GameFilter(this.system, {this.search = "", this.genres = const {}});
 
-  get isEmpty => search == null && genres.isEmpty;
+  get isEmpty => search.isEmpty && genres.isEmpty;
 
-  get description =>
-      isEmpty ? "All" : [search, genres.map((g) => Genres.getName(g)).join(", ")].where((e) => e != null).join(", ");
+  get description => isEmpty
+      ? "All"
+      : [search, genres.map((g) => Genres.getName(g)).join(", ")].where((e) => e.toString().isNotEmpty).join(", ");
 
   List<Game> apply(List<Game> games) {
     if (isEmpty) {
       return games;
     }
     final filteredGames = [...games];
-    if (search != null) {
-      final term = search!.toLowerCase();
+    if (search.isNotEmpty) {
+      final term = search.toLowerCase();
       filteredGames.retainWhere((game) => game.name.toLowerCase().contains(term));
     }
     if (genres.isNotEmpty) {
@@ -152,6 +153,10 @@ class TemporaryGameFilter extends _$TemporaryGameFilter {
     state = GameFilter(state.system, search: state.search, genres: genres);
   }
 
+  void setSearch(String? text) {
+    state = GameFilter(state.system, search: text ?? "", genres: state.genres);
+  }
+
   void set(GameFilter filter) {
     state = filter;
   }
@@ -182,7 +187,6 @@ Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) 
   }
   return Future.value(null);
 }
-
 
 @riverpod
 Future<GameList> gamesForCurrentSystem(GamesForCurrentSystemRef ref) async {
