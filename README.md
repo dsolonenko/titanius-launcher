@@ -35,7 +35,7 @@ For instance, if you're using the standalone Drastic for DS, the shared folder i
 ## Daijishō Wallpaper Packs
 
 Titanius Launcher supports [Daijishō Wallpaper Packs](https://daijishou.github.io/Gallery/).
-All credit goes to the original contributors. The images are loaded over network from GitHub, so you'll need an internet connection to use them.
+All credit goes to the original contributors. The images are loaded over network directly from the Daijishō's GitHub repo, so you'll need an internet connection to use them.
 
 ## Notes
 
