@@ -22,9 +22,14 @@ class Settings {
   bool get showGameVideos => _getBoolean('showGameVideos', false);
   bool get fadeToVideo => _getBoolean('fadeToVideo', false);
   bool get muteVideo => _getBoolean('muteVideo', true);
+  String? get daijishoWallpaperPack => _getString('daijishoWallpaperPack');
 
   bool _getBoolean(String key, bool defaultValue) {
     return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
+  }
+
+  String? _getString(String key) {
+    return settings.containsKey(key) ? settings[key]!.value : null;
   }
 }
 
@@ -118,10 +123,28 @@ class SettingsRepo {
     return _setBoolean('muteVideo', value);
   }
 
-  Future<void> _setBoolean(String key, bool value) async {
+  Future<void> setDaijishoWallpaperPack(String value) async {
+    return _setSetting('daijishoWallpaperPack', value);
+  }
+
+  Future<void> resetDaijishoWallpaperPack() async {
+    return _resetSetting('daijishoWallpaperPack');
+  }
+
+  Future<void> _resetSetting(String key) async {
     await isar.writeTxn(() async {
-      await isar.settings.put(Setting(key: key, value: value.toString()));
+      await isar.settings.deleteByKey(key);
     });
+  }
+
+  Future<void> _setSetting(String key, String value) async {
+    await isar.writeTxn(() async {
+      await isar.settings.put(Setting(key: key, value: value));
+    });
+  }
+
+  Future<void> _setBoolean(String key, bool value) async {
+    return _setSetting(key, value.toString());
   }
 }
 

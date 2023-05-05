@@ -1,8 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collection/collection.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:page_view_dot_indicator/page_view_dot_indicator.dart';
+import 'package:titanius/data/daijisho.dart';
 
 import '../data/games.dart';
 import '../data/models.dart';
@@ -19,9 +22,10 @@ class SystemsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final allSystems = ref.watch(detectedSystemsProvider);
     final selectedSystem = ref.watch(selectedSystemProvider);
-    final pageController = PageController(initialPage: selectedSystem);
-
+    final wallpaperPack = ref.watch(daijishoCurrentThemeDataProvider);
     final games = ref.watch(gamesForCurrentSystemProvider);
+
+    final pageController = PageController(initialPage: selectedSystem);
 
     // Forces games loading in background
     games.whenData((games) {
@@ -63,82 +67,103 @@ class SystemsPage extends HookConsumerWidget {
         ],
       ),
       body: allSystems.when(
-        data: (systems) {
-          return Stack(
-            children: [
-              PageView.builder(
-                onPageChanged: (value) {
-                  ref.read(selectedSystemProvider.notifier).set(value);
-                },
-                controller: pageController,
-                itemCount: systems.length,
-                itemBuilder: (context, index) {
-                  if (index >= systems.length) return Container();
-                  final system = systems[index];
-                  return Row(children: [
-                    const Spacer(flex: 1),
-                    Expanded(
-                      flex: 3,
-                      child: GestureDetector(
-                        onTap: () => GoRouter.of(context).go("/games/${system.id}"),
-                        child: _systemLogo(system),
-                      ),
-                    ),
-                    const Spacer(flex: 1),
-                  ]);
-                },
-              ),
-              systems.isNotEmpty
-                  ? Container(
-                      alignment: Alignment.bottomCenter,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          games.when(
-                              data: (games) => _gamesStats(games),
-                              error: (error, stackTrace) => const Text("Error loading games"),
-                              loading: () => Container()),
-                          const SizedBox(height: 8),
-                          PageViewDotIndicator(
-                            currentItem: selectedSystem < systems.length ? selectedSystem : 0,
-                            count: systems.length,
-                            unselectedColor: Theme.of(context).colorScheme.background.lighten(10),
-                            selectedColor: Theme.of(context).colorScheme.primary,
-                          ),
-                        ],
-                      ),
-                    )
-                  : Container(),
-            ],
-          );
-        },
+        data: (systems) => wallpaperPack.when(
+          data: (wallpaperPack) {
+            return Stack(
+              children: [
+                PageView.builder(
+                  onPageChanged: (value) {
+                    ref.read(selectedSystemProvider.notifier).set(value);
+                  },
+                  controller: pageController,
+                  itemCount: systems.length,
+                  itemBuilder: (context, index) {
+                    if (index >= systems.length) return Container();
+                    final system = systems[index];
+                    return GestureDetector(
+                      onTap: () => GoRouter.of(context).go("/games/${system.id}"),
+                      child: _systemLogo(context, system, wallpaperPack),
+                    );
+                  },
+                ),
+                systems.isNotEmpty
+                    ? Container(
+                        alignment: Alignment.bottomCenter,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            games.when(
+                                data: (games) => _gamesStats(games),
+                                error: (error, stackTrace) => const Text("Error loading games"),
+                                loading: () => Container()),
+                            const SizedBox(height: 8),
+                            PageViewDotIndicator(
+                              currentItem: selectedSystem < systems.length ? selectedSystem : 0,
+                              count: systems.length,
+                              unselectedColor: Theme.of(context).colorScheme.background.lighten(10),
+                              selectedColor: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      )
+                    : Container(),
+              ],
+            );
+          },
+          loading: () => const CircularProgressIndicator(),
+          error: (error, stackTrace) => Text(error.toString()),
+        ),
         loading: () => const CircularProgressIndicator(),
         error: (error, stackTrace) => Text(error.toString()),
       ),
     );
   }
 
-  Widget _systemLogo(System system) {
+  Widget _systemLogo(BuildContext context, System system, WallpaperPack? wallpaperPack) {
     switch (system.id) {
       case "favourites":
-        return _collectionLogo(Icons.star_rounded, Colors.orangeAccent, "Favourites");
+        return _textLogo(Icons.star_rounded, Colors.orangeAccent, "Favourites");
       case "recent":
-        return _collectionLogo(Icons.history_rounded, Colors.redAccent, "Recent");
+        return _textLogo(Icons.history_rounded, Colors.redAccent, "Recent");
       case "all":
-        return _collectionLogo(Icons.apps_rounded, Colors.indigoAccent, "All Games");
+        return _textLogo(Icons.apps_rounded, Colors.indigoAccent, "All Games");
       default:
-        return Image.asset(
-          "assets/images/color/${system.logo}",
-          fit: BoxFit.cover,
-          filterQuality: FilterQuality.high,
-          isAntiAlias: true,
-          errorBuilder: (context, url, error) => const Icon(Icons.error),
-        );
+        if (wallpaperPack != null) {
+          final wallpaper =
+              wallpaperPack.wallpaperList.firstWhereOrNull((element) => element.matchPlatformShortname == system.id);
+          if (wallpaper != null) {
+            return CachedNetworkImage(
+              imageUrl: wallpaper.imageUrl(wallpaperPack.rootPath),
+              fit: BoxFit.fill,
+            );
+          } else {
+            if (wallpaperPack.hasDefaultWallpaper) {
+              return CachedNetworkImage(
+                imageUrl: wallpaperPack.defaultWallpaperUrl(wallpaperPack.rootPath),
+                fit: BoxFit.fill,
+              );
+            } else {
+              return _textLogo(Icons.gamepad_rounded, Theme.of(context).primaryColor, system.name);
+            }
+          }
+        } else {
+          return Padding(
+            padding: const EdgeInsets.all(60.0),
+            child: Image.asset(
+              "assets/images/color/${system.logo}",
+              fit: BoxFit.fitWidth,
+              filterQuality: FilterQuality.high,
+              isAntiAlias: true,
+              errorBuilder: (context, url, error) => const Icon(Icons.error),
+            ),
+          );
+        }
     }
   }
 
-  Widget _collectionLogo(IconData icon, Color iconColor, String text) {
+  Widget _textLogo(IconData icon, Color iconColor, String text) {
     return Center(
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -85,6 +85,10 @@ final _router = GoRouter(
         path: 'ui',
         builder: (context, state) => const UISettingsPage(),
       ),
+      GoRoute(
+        path: 'daijisho',
+        builder: (context, state) => const DaijishoWallpaperPacksPage(),
+      ),
     ]),
   ],
 );
