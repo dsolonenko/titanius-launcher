@@ -8,8 +8,7 @@ import 'wifi.dart';
 
 final batteryProvider = StreamProvider<BatteryInfo>((ref) {
   final battery = Battery();
-  return battery.onBatteryStateChanged.asyncMap(
-      (event) async => BatteryInfo(event, await battery.batteryLevel));
+  return battery.onBatteryStateChanged.asyncMap((event) async => BatteryInfo(event, await battery.batteryLevel));
 });
 
 class BatteryInfo {
@@ -30,7 +29,7 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       height: preferredSize.height,
-      color: Theme.of(context).appBarTheme.backgroundColor,
+      color: Theme.of(context).appBarTheme.backgroundColor?.withOpacity(0),
       alignment: Alignment.centerRight,
       child: Row(mainAxisSize: MainAxisSize.max, children: const [
         TimeWidget(),

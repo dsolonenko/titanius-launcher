@@ -56,6 +56,8 @@ class SystemsPage extends HookConsumerWidget {
     });
 
     return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
         navigations: [
@@ -99,6 +101,8 @@ class SystemsPage extends HookConsumerWidget {
                                 loading: () => Container()),
                             const SizedBox(height: 8),
                             PageViewDotIndicator(
+                              size: const Size(8, 8),
+                              unselectedSize: const Size(8, 8),
                               currentItem: selectedSystem < systems.length ? selectedSystem : 0,
                               count: systems.length,
                               unselectedColor: Theme.of(context).colorScheme.background.lighten(10),

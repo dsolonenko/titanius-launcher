@@ -35,8 +35,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
               return GroupedListView<System, String>(
                 key: const PageStorageKey("settings/systems"),
                 elements: systems,
-                groupBy: (element) =>
-                    element.isCollection ? "Collections" : "Systems",
+                groupBy: (element) => element.isCollection ? "Collections" : "Systems",
                 groupSeparatorBuilder: (String value) => Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
@@ -47,8 +46,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                 indexedItemBuilder: (context, system, index) {
                   final showSystem = enabledSystems.showSystem(system.id);
                   return ListTile(
-                    autofocus: selected.value == system.id ||
-                        (selected.value.isEmpty && index == 0),
+                    autofocus: selected.value == system.id || (selected.value.isEmpty && index == 0),
                     onFocusChange: (value) {
                       if (value) {
                         selected.value = system.id;
@@ -61,9 +59,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                           .setShowSystem(system.id, showSystem ? false : true)
                           .then((value) {
                         ref.read(selectedSystemProvider.notifier).set(0);
-                        ref
-                            .refresh(enabledSystemsProvider)
-                            .then((value) => debugPrint("Refreshed"));
+                        ref.refresh(enabledSystemsProvider).then((value) => debugPrint("Refreshed"));
                       });
                     },
                     title: Text(system.name),
