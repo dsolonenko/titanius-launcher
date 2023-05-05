@@ -32,6 +32,11 @@ For instance, if you're using the standalone Drastic for DS, the shared folder i
 
 **Note**: Unfortunately, this is a necessary step that requires using a touchscreen.
 
+## Daijishō Wallpaper Packs
+
+Titanius Launcher supports [Daijishō Wallpaper Packs](https://daijishou.github.io/Gallery/).
+All credit goes to the original contributors. The images are loaded over network from GitHub, so you'll need an internet connection to use them.
+
 ## Notes
 
 1. This is a work in progress. Expect some bugs and crashes.
@@ -70,4 +75,5 @@ Settings:
 - [PromptFont by Shinmera](https://github.com/Shinmera/promptfont/)
 - [Console logos created by Dan Patrick](https://archive.org/details/console-logos-professionally-redrawn-plus-official-versions)
 - [App icon created by Irfansusanto20 - Flaticon](https://www.flaticon.com/free-icons/game-console)
+- [Daijishō contributors for Wallpaper Packs](https://daijishou.github.io/Gallery/)
 - Initial emulators configs imported from Daijishō and Pegasus Frontend
