@@ -944,6 +944,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
+  preload_page_view:
+    dependency: "direct main"
+    description:
+      name: preload_page_view
+      sha256: "698e4d6eb1fa3489768c9d2d8c8322ed686015af633d04cc537c57e38566834a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.6"
   process:
     dependency: transitive
     description:

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:page_view_dot_indicator/page_view_dot_indicator.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 import 'package:titanius/data/daijisho.dart';
 
 import '../data/games.dart';
@@ -25,7 +26,7 @@ class SystemsPage extends HookConsumerWidget {
     final wallpaperPack = ref.watch(daijishoCurrentThemeDataProvider);
     final games = ref.watch(gamesForCurrentSystemProvider);
 
-    final pageController = PageController(initialPage: selectedSystem);
+    final pageController = PreloadPageController(initialPage: selectedSystem);
 
     // Forces games loading in background
     games.whenData((games) {
@@ -73,10 +74,11 @@ class SystemsPage extends HookConsumerWidget {
           data: (wallpaperPack) {
             return Stack(
               children: [
-                PageView.builder(
+                PreloadPageView.builder(
                   onPageChanged: (value) {
                     ref.read(selectedSystemProvider.notifier).set(value);
                   },
+                  preloadPagesCount: systems.length,
                   controller: pageController,
                   itemCount: systems.length,
                   itemBuilder: (context, index) {
@@ -84,7 +86,7 @@ class SystemsPage extends HookConsumerWidget {
                     final system = systems[index];
                     return GestureDetector(
                       onTap: () => GoRouter.of(context).go("/games/${system.id}"),
-                      child: _systemLogo(context, system, wallpaperPack),
+                      child: _systemLogo(ref, context, system, wallpaperPack),
                     );
                   },
                 ),
@@ -96,7 +98,7 @@ class SystemsPage extends HookConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             games.when(
-                                data: (games) => _gamesStats(games),
+                                data: (games) => _gamesStats(context, games),
                                 error: (error, stackTrace) => const Text("Error loading games"),
                                 loading: () => Container()),
                             const SizedBox(height: 8),
@@ -125,7 +127,7 @@ class SystemsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _systemLogo(BuildContext context, System system, WallpaperPack? wallpaperPack) {
+  Widget _systemLogo(WidgetRef ref, BuildContext context, System system, WallpaperPack? wallpaperPack) {
     switch (system.id) {
       case "favourites":
         return _textLogo(Icons.star_rounded, Colors.orangeAccent, "Favourites");
@@ -138,16 +140,12 @@ class SystemsPage extends HookConsumerWidget {
           final wallpaper =
               wallpaperPack.wallpaperList.firstWhereOrNull((element) => element.matchPlatformShortname == system.id);
           if (wallpaper != null) {
-            return CachedNetworkImage(
-              imageUrl: wallpaper.imageUrl(wallpaperPack.rootPath),
-              fit: BoxFit.fill,
-            );
+            final imageUrl = wallpaper.imageUrl(wallpaperPack.rootPath);
+            return _cachedImage(imageUrl);
           } else {
             if (wallpaperPack.hasDefaultWallpaper) {
-              return CachedNetworkImage(
-                imageUrl: wallpaperPack.defaultWallpaperUrl(wallpaperPack.rootPath),
-                fit: BoxFit.fill,
-              );
+              final imageUrl = wallpaperPack.defaultWallpaperUrl(wallpaperPack.rootPath);
+              return _cachedImage(imageUrl);
             } else {
               return _textLogo(Icons.gamepad_rounded, Theme.of(context).primaryColor, system.name);
             }
@@ -167,6 +165,15 @@ class SystemsPage extends HookConsumerWidget {
     }
   }
 
+  CachedNetworkImage _cachedImage(String imageUrl) {
+    return CachedNetworkImage(
+      key: ValueKey(imageUrl),
+      imageUrl: imageUrl,
+      filterQuality: FilterQuality.high,
+      fit: BoxFit.fill,
+    );
+  }
+
   Widget _textLogo(IconData icon, Color iconColor, String text) {
     return Center(
       child: Row(
@@ -184,17 +191,11 @@ class SystemsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _gamesStats(GameList games) {
+  Widget _gamesStats(BuildContext context, GameList games) {
     if (games.games.isEmpty) return Container();
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text("${games.games.length}", style: const TextStyle(color: Colors.white, fontSize: 20)),
-        const Text(
-          " games",
-          style: TextStyle(color: Colors.grey, fontSize: 20),
-        ),
-      ],
+    return Text(
+      "${games.games.length} games",
+      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 20),
     );
   }
 }
