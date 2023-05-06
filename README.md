@@ -19,7 +19,7 @@ Grab the latest apk from the [Releases](https://github.com/dsolonenko/titanius-l
 Titanius Launcher is designed without a built-in game scraper, with the intention of reusing your existing, pre-scraped ROMs library on both Linux devices running AmberELEC, ArkOS, etc., and your Android device.
 
 1. Organize your ROMs in a folder structure like this: [AmberELEC](https://amberelec.org/systems/)
-2. Use [Skraper](https://www.skraper.net/) to scrape your ROMs and generate `gamelist.xml` files, along with images and/or videos
+2. Use [Skraper](https://www.skraper.net/) to scrape your ROMs and generate `gamelist.xml` files, along with images and/or videos. Have a look at the [Wiki](https://github.com/dsolonenko/titanius-launcher/wiki/Skraper-Settings) for the best settings.
 3. Transfer your ROMs to your Android device's Internal Storage or SD card in one of these locations: `Internal Storage/Roms`, `SD Card/. (Root)`, `SD Card/Roms`
 4. Set up Titanius Launcher to include the ROMs folder
 5. Have fun!
