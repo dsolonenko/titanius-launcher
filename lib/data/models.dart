@@ -109,6 +109,7 @@ class Game {
   final double? rating;
   bool favorite;
   bool isFolder;
+  bool hidden;
 
   Game(
     this.system,
@@ -130,6 +131,7 @@ class Game {
     this.year,
     this.favorite = false,
     this.isFolder = false,
+    this.hidden = false,
   });
 
   String get romPath => "$path/${rom.replaceFirst("./", "")}";
@@ -154,6 +156,7 @@ class Game {
     final video = node.findElements("video").firstOrNull?.text;
     final thumbnail = node.findElements("thumbnail").firstOrNull?.text;
     final favorite = node.findElements("favorite").firstOrNull?.text == "true";
+    final hidden = node.findElements("hidden").firstOrNull?.text == "true";
     return Game(system, name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
         id: id,
         description: description,
@@ -168,6 +171,7 @@ class Game {
         players: players,
         year: year,
         favorite: favorite,
-        isFolder: node is XmlElement && node.name.local == "folder");
+        isFolder: node is XmlElement && node.name.local == "folder",
+        hidden: hidden);
   }
 }

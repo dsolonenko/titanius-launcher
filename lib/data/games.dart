@@ -115,13 +115,18 @@ Future<List<Game>> _processFolder(String romsFolder, String folder, System syste
 
 @Riverpod(keepAlive: true)
 Future<GameList> games(GamesRef ref, String systemId) async {
-  final allGames = await ref.watch(allGamesProvider.future);
+  final allGamelistGames = await ref.watch(allGamesProvider.future);
   final systems = await ref.watch(allSupportedSystemsProvider.future);
   final settings = await ref.watch(settingsProvider.future);
   final recentGames = await ref.watch(recentGamesProvider.future);
 
   final system = systems.firstWhere((system) => system.id == systemId);
   final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
+
+  final allGames = [...allGamelistGames];
+  if (!settings.showHiddenGames) {
+    allGames.removeWhere((game) => game.hidden);
+  }
 
   for (var game in allGames) {
     game.favorite = favouritesMap[game.romPath] ?? game.favorite;

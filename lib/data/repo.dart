@@ -17,6 +17,7 @@ class Settings {
   Settings(this.settings, this.favourites);
 
   bool get favouritesOnTop => _getBoolean('favouritesOnTop', false);
+  bool get showHiddenGames => _getBoolean('showHiddenGames', false);
   bool get uniqueGamesInCollections => _getBoolean('uniqueGamesInCollections', false);
   bool get compactGameList => _getBoolean('compactGameList', false);
   bool get showGameVideos => _getBoolean('showGameVideos', false);
@@ -101,6 +102,10 @@ class SettingsRepo {
 
   Future<void> setFavoutesOnTop(bool value) async {
     return _setBoolean('favouritesOnTop', value);
+  }
+
+  Future<void> setShowHiddenGames(bool value) async {
+    return _setBoolean('showHiddenGames', value);
   }
 
   Future<void> setUniqueGamesInCollections(bool value) async {

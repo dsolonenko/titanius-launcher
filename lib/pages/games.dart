@@ -139,9 +139,11 @@ class GamesPage extends HookConsumerWidget {
                             minVerticalPadding: 0,
                             leading: game.isFolder
                                 ? const Icon(Icons.folder, size: 14)
-                                : system != "favourites" && game.favorite
-                                    ? const Icon(Icons.star, size: 14)
-                                    : null,
+                                : game.hidden
+                                    ? const Icon(Icons.visibility_off_rounded, size: 14, color: Colors.grey)
+                                    : system != "favourites" && game.favorite
+                                        ? const Icon(Icons.star_rounded, size: 14)
+                                        : null,
                             autofocus: isSelected,
                             selected: isSelected,
                             onFocusChange: (value) {
@@ -151,11 +153,12 @@ class GamesPage extends HookConsumerWidget {
                                 ref.read(selectedGameProvider(system).notifier).set(game);
                               }
                             },
-                            title: Text(
-                              game.name,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
+                            title: Text(game.name,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  color: game.hidden ? Colors.grey : null,
+                                )),
                             subtitle: gamelist.system.isCollection
                                 ? Text(
                                     game.system.name,
