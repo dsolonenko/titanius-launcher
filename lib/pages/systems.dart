@@ -39,12 +39,12 @@ class SystemsPage extends HookConsumerWidget {
       if (key == GamepadButton.r1 || key == GamepadButton.r2 || key == GamepadButton.right) {
         final currentSystem = ref.read(selectedSystemProvider);
         final next = (currentSystem + 1) % allSystems.value!.length;
-        pageController.animateToPage(next, duration: const Duration(milliseconds: 200), curve: Curves.ease);
+        pageController.jumpToPage(next);
       }
       if (key == GamepadButton.l1 || key == GamepadButton.l2 || key == GamepadButton.left) {
         final currentSystem = ref.read(selectedSystemProvider);
         final prev = currentSystem - 1 < 0 ? allSystems.value!.length - 1 : currentSystem - 1;
-        pageController.animateToPage(prev, duration: const Duration(milliseconds: 200), curve: Curves.ease);
+        pageController.jumpToPage(prev);
       }
       if (key == GamepadButton.a) {
         final currentSystemIndex = ref.read(selectedSystemProvider);
@@ -152,7 +152,7 @@ class SystemsPage extends HookConsumerWidget {
           }
         } else {
           return Padding(
-            padding: const EdgeInsets.all(60.0),
+            padding: const EdgeInsets.all(100.0),
             child: Image.asset(
               "assets/images/color/${system.logo}",
               fit: BoxFit.fitWidth,
