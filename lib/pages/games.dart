@@ -189,7 +189,7 @@ class GamesPage extends HookConsumerWidget {
             ],
           );
         },
-        loading: () => const CircularProgressIndicator(),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Text(error.toString()),
       ),
     );
