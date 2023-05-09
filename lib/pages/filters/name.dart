@@ -24,7 +24,7 @@ class NameFilterPage extends HookConsumerWidget {
           navigations: [],
           actions: [
             GamepadPrompt([GamepadButton.a], "Change"),
-            GamepadPrompt([GamepadButton.b], "Back"),
+            GamepadPrompt([GamepadButton.b], "Apply"),
           ],
         ),
         body: Center(

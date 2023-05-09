@@ -67,6 +67,7 @@ dependencies:
   shared_storage: ^0.7.1
   onscreen_keyboard: ^1.0.3
   preload_page_view: ^0.1.6
+  toggle_switch: ^2.1.0
 
 dev_dependencies:
   flutter_test:

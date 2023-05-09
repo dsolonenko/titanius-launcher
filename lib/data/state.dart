@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_apps/device_apps.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_player/video_player.dart';
 
@@ -96,17 +97,26 @@ class CurrentGameNavigation extends _$CurrentGameNavigation {
 class GameFilter {
   final String system;
   final String search;
+  final bool? favourite;
   final Set<GameGenres> genres;
 
   factory GameFilter.empty(String system) => GameFilter(system, search: "", genres: {});
 
-  GameFilter(this.system, {this.search = "", this.genres = const {}});
+  GameFilter(this.system, {this.search = "", this.genres = const {}, this.favourite});
 
-  get isEmpty => search.isEmpty && genres.isEmpty;
+  get isEmpty => search.isEmpty && genres.isEmpty && favourite == null;
 
   get description => isEmpty
       ? "All"
-      : [search, genres.map((g) => Genres.getName(g)).join(", ")].where((e) => e.toString().isNotEmpty).join(", ");
+      : [
+          favourite == null
+              ? ""
+              : favourite == true
+                  ? "Fav"
+                  : "Non-Fav",
+          search,
+          genres.map((g) => Genres.getName(g)).join(", ")
+        ].where((e) => e.toString().isNotEmpty).join(", ");
 
   List<Game> apply(List<Game> games) {
     if (isEmpty) {
@@ -120,6 +130,9 @@ class GameFilter {
     if (genres.isNotEmpty) {
       filteredGames.retainWhere((game) => game.genreId != null && genres.contains(game.genreId));
     }
+    if (favourite != null) {
+      filteredGames.retainWhere((game) => game.favorite == favourite);
+    }
     return filteredGames;
   }
 }
@@ -132,7 +145,8 @@ class CurrentGameFilter extends _$CurrentGameFilter {
   }
 
   void set(GameFilter filter) {
-    state = filter;
+    debugPrint("set filter ${filter.description}");
+    state = GameFilter(filter.system, search: filter.search, genres: filter.genres, favourite: filter.favourite);
   }
 }
 
@@ -150,11 +164,15 @@ class TemporaryGameFilter extends _$TemporaryGameFilter {
     } else {
       genres.add(genre);
     }
-    state = GameFilter(state.system, search: state.search, genres: genres);
+    state = GameFilter(state.system, search: state.search, genres: genres, favourite: state.favourite);
   }
 
   void setSearch(String? text) {
-    state = GameFilter(state.system, search: text ?? "", genres: state.genres);
+    state = GameFilter(state.system, search: text ?? "", genres: state.genres, favourite: state.favourite);
+  }
+
+  void setFavourite(bool? favourite) {
+    state = GameFilter(state.system, search: state.search, genres: state.genres, favourite: favourite);
   }
 
   void set(GameFilter filter) {

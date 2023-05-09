@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onscreen_keyboard/onscreen_keyboard.dart';
 import 'package:titanius/data/genres.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 import '../data/state.dart';
 import '../gamepad.dart';
@@ -84,8 +85,43 @@ class FiltersPage extends HookConsumerWidget {
                 Text(filter.genres.isEmpty ? "All" : filter.genres.map((genre) => Genres.getName(genre)).join(", ")),
             trailing: const Icon(Icons.arrow_forward_ios_rounded),
           ),
+          ListTile(
+            onFocusChange: (value) {},
+            onTap: () {
+              switch (filter.favourite) {
+                case null:
+                  ref.read(temporaryGameFilterProvider(system).notifier).setFavourite(true);
+                  break;
+                case true:
+                  ref.read(temporaryGameFilterProvider(system).notifier).setFavourite(false);
+                  break;
+                case false:
+                  ref.read(temporaryGameFilterProvider(system).notifier).setFavourite(null);
+                  break;
+              }
+            },
+            title: const Text('Is Favourite'),
+            trailing: ToggleSwitch(
+              changeOnTap: false,
+              cancelToggle: (index) async => true,
+              minWidth: 40.0,
+              minHeight: 24.0,
+              cornerRadius: 20.0,
+              inactiveBgColor: Colors.black,
+              inactiveFgColor: Colors.grey,
+              initialLabelIndex: boolToIndex(filter.favourite),
+              totalSwitches: 3,
+              labels: const ['No', 'All', 'Yes'],
+            ),
+          ),
         ],
       ),
     );
   }
+}
+
+int boolToIndex(bool? favourite) {
+  if (favourite == null) return 1;
+  if (favourite) return 2;
+  return 0;
 }
