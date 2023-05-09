@@ -152,10 +152,10 @@ class SystemsPage extends HookConsumerWidget {
           }
         } else {
           return Padding(
-            padding: const EdgeInsets.all(100.0),
+            padding: const EdgeInsets.all(120.0),
             child: Image.asset(
               "assets/images/color/${system.logo}",
-              fit: BoxFit.fitWidth,
+              fit: BoxFit.contain,
               filterQuality: FilterQuality.high,
               isAntiAlias: true,
               errorBuilder: (context, url, error) => const Icon(Icons.error),
@@ -182,10 +182,10 @@ class SystemsPage extends HookConsumerWidget {
           Icon(
             icon,
             color: iconColor,
-            size: 80,
+            size: 120,
           ),
           const SizedBox(width: 8),
-          Text(text, style: const TextStyle(color: Colors.white, fontSize: 80)),
+          Text(text, style: const TextStyle(color: Colors.white, fontSize: 120)),
         ],
       ),
     );
