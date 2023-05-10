@@ -109,7 +109,6 @@ Future<List<Game>> _processFolder(String romsFolder, String folder, System syste
         .expand((nodes) => nodes)
         .map((node) => Game.fromXmlNode(node, system, romsPath))
         .toList();
-    games.retainWhere((game) => game.isFolder ? Directory(game.romPath).existsSync() : File(game.romPath).existsSync());
     return games;
   }
   return [];
