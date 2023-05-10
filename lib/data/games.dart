@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:async_task/async_task.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xml/xml_events.dart';
 import 'package:collection/collection.dart';
@@ -127,6 +128,13 @@ Future<GameList> games(GamesRef ref, String systemId) async {
   final allGames = [...allGamelistGames];
   if (!settings.showHiddenGames) {
     allGames.removeWhere((game) => game.hidden);
+  }
+  if (settings.checkMissingGames) {
+    Stopwatch stopwatch = Stopwatch()..start();
+    allGames
+        .retainWhere((game) => game.isFolder ? Directory(game.romPath).existsSync() : File(game.romPath).existsSync());
+    stopwatch.stop();
+    debugPrint("checkMissingGames took ${stopwatch.elapsedMilliseconds}ms");
   }
 
   for (var game in allGames) {

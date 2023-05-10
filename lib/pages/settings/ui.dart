@@ -38,6 +38,8 @@ class UISettingsPage extends HookConsumerWidget {
                   true, (p0, p1) => p0.setUniqueGamesInCollections(p1)),
               _setting(ref, selectedSetting, 'Show Hidden Games', settings.showHiddenGames, true,
                   (p0, p1) => p0.setShowHiddenGames(p1)),
+              _setting(ref, selectedSetting, 'Check Missing games', settings.checkMissingGames, true,
+                  (p0, p1) => p0.setCheckMissingGames(p1)),
               _setting(ref, selectedSetting, 'Show Game Videos', settings.showGameVideos, true,
                   (p0, p1) => p0.setShowGameVideos(p1)),
               _setting(ref, selectedSetting, 'Fade Screenshot To Video', settings.fadeToVideo, settings.showGameVideos,
