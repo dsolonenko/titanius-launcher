@@ -1,4 +1,3 @@
-import 'package:async_task/async_task_extension.dart';
 import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:device_apps/device_apps.dart';

@@ -59,7 +59,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                           .setShowSystem(system.id, showSystem ? false : true)
                           .then((value) {
                         ref.read(selectedSystemProvider.notifier).set(0);
-                        ref.refresh(enabledSystemsProvider).then((value) => debugPrint("Refreshed"));
+                        final _ = ref.refresh(enabledSystemsProvider);
                       });
                     },
                     title: Text(system.name),

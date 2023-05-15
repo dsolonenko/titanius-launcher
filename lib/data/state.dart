@@ -189,19 +189,21 @@ Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) 
   final game = ref.watch(selectedGameProvider(system));
   final settings = ref.watch(settingsProvider.future);
   if (game != null && game.videoUrl != null) {
-    return settings.then((value) {
-      if (value.showGameVideos) {
-        final controller = VideoPlayerController.file(File(game.videoUrl!));
-        controller.setLooping(true);
-        controller.setVolume(0);
-        ref.onDispose(() => controller.dispose());
-        return controller.initialize().then((value) {
-          controller.play();
-          return controller;
-        });
-      }
-      return null;
-    });
+    return settings.then(
+      (value) {
+        if (value.showGameVideos) {
+          final controller = VideoPlayerController.file(File(game.videoUrl!));
+          controller.setLooping(true);
+          controller.setVolume(0);
+          ref.onDispose(() => controller.dispose());
+          return controller.initialize().then((value) {
+            controller.play();
+            return controller;
+          });
+        }
+        return null;
+      },
+    );
   }
   return Future.value(null);
 }

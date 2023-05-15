@@ -16,7 +16,7 @@ class AppsSettingsPage extends HookConsumerWidget {
         GoRouter.of(context).go("/games/android");
       }
       if (key == GamepadButton.y) {
-        ref.refresh(installedAppsProvider).then((value) => debugPrint("Refreshed"));
+        final _ = ref.refresh(installedAppsProvider);
       }
     });
 

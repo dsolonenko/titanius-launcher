@@ -1,6 +1,5 @@
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
-import 'package:async_task/async_task_extension.dart';
 import 'package:flutter/foundation.dart';
 
 import 'models.dart';

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:async_task/async_task_extension.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

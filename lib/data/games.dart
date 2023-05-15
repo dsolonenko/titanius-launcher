@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:async_task/async_task.dart';
 import 'package:flutter/foundation.dart';
+import 'package:isolated_worker/isolated_worker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xml/xml_events.dart';
 import 'package:collection/collection.dart';
@@ -32,35 +32,30 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
     return [];
   }
 
-  var asyncExecutor = AsyncExecutor(
-    sequential: false,
-    parallelism: Platform.numberOfProcessors - 1,
-    taskTypeRegister: _taskTypeRegister,
-  );
-  asyncExecutor.logger.enabled = true;
+  final stopwatch = Stopwatch()..start();
+
   try {
-    List<GamelistParser> tasks = [];
+    List<Future<List<Game>>> tasks = [];
     for (var system in detectedSystems) {
       for (var romsFolder in romFolders) {
         for (var folder in system.folders) {
-          tasks.add(GamelistParser(GamelistTaskParams(romsFolder, folder, system)));
+          final task = IsolatedWorker().run(_processFolder, GamelistTaskParams(romsFolder, folder, system));
+          tasks.add(task);
         }
       }
     }
 
-    final futures = asyncExecutor.executeAll(tasks);
-    final results = await Future.wait(futures);
+    final results = await Future.wait(tasks);
     for (var r in results) {
       allGames.addAll(r);
     }
   } finally {
-    asyncExecutor.close();
+    stopwatch.stop();
+    debugPrint("Gamelist parsing took ${stopwatch.elapsedMilliseconds}ms");
   }
 
   return allGames;
 }
-
-List<AsyncTask> _taskTypeRegister() => [GamelistParser(GamelistTaskParams("", "", systemAllGames))];
 
 class GamelistTaskParams {
   final String romsFolder;
@@ -70,48 +65,31 @@ class GamelistTaskParams {
   GamelistTaskParams(this.romsFolder, this.folder, this.system);
 }
 
-class GamelistParser extends AsyncTask<GamelistTaskParams, List<Game>> {
-  final GamelistTaskParams params;
+Future<List<Game>> _processFolder(GamelistTaskParams params) async {
+  try {
+    final romsPath = "${params.romsFolder}/${params.folder}";
+    final gamelistPath = "$romsPath/gamelist.xml";
 
-  GamelistParser(this.params);
-
-  @override
-  AsyncTask<GamelistTaskParams, List<Game>> instantiate(GamelistTaskParams parameters,
-      [Map<String, SharedData>? sharedData]) {
-    return GamelistParser(parameters);
+    final file = File(gamelistPath);
+    final exists = await file.exists();
+    if (exists) {
+      final games = await file
+          .openRead()
+          .transform(utf8.decoder)
+          .toXmlEvents()
+          .normalizeEvents()
+          .selectSubtreeEvents((event) => event.name == 'game' || event.name == 'folder')
+          .toXmlNodes()
+          .expand((nodes) => nodes)
+          .map((node) => Game.fromXmlNode(node, params.system, romsPath))
+          .toList();
+      return games;
+    }
+    return [];
+  } catch (e) {
+    debugPrint("Error processing folder ${params.folder}: $e");
+    return [];
   }
-
-  @override
-  GamelistTaskParams parameters() {
-    return params;
-  }
-
-  @override
-  FutureOr<List<Game>> run() async {
-    return _processFolder(params.romsFolder, params.folder, params.system);
-  }
-}
-
-Future<List<Game>> _processFolder(String romsFolder, String folder, System system) async {
-  final romsPath = "$romsFolder/$folder";
-  final gamelistPath = "$romsPath/gamelist.xml";
-
-  final file = File(gamelistPath);
-  final exists = await file.exists();
-  if (exists) {
-    final games = await file
-        .openRead()
-        .transform(utf8.decoder)
-        .toXmlEvents()
-        .normalizeEvents()
-        .selectSubtreeEvents((event) => event.name == 'game' || event.name == 'folder')
-        .toXmlNodes()
-        .expand((nodes) => nodes)
-        .map((node) => Game.fromXmlNode(node, system, romsPath))
-        .toList();
-    return games;
-  }
-  return [];
 }
 
 @Riverpod(keepAlive: true)
