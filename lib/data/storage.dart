@@ -8,7 +8,7 @@ part 'storage.g.dart';
 
 @Riverpod(keepAlive: true)
 Future<Isar> isar(IsarRef ref) async {
-  final dir = await getApplicationDocumentsDirectory();
+  final dir = await getApplicationSupportDirectory();
   return Isar.open(
     [SettingSchema, AlternativeEmulatorSchema, FavouriteSchema, RecentGameSchema, AndroidAppSchema],
     directory: dir.path,
