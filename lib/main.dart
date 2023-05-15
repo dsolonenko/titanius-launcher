@@ -15,10 +15,11 @@ import 'pages/systems.dart';
 
 void main() async {
   await _ensureStoragePermission();
-  await SystemDateTimeFormat().initialize(timeFormatFallback: "HH:mm");
   runApp(
     const ProviderScope(
-      child: MyApp(),
+      child: SDTFScope(
+        child: MyApp(),
+      ),
     ),
   );
 }
@@ -40,19 +41,19 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/games/:system',
-      builder: (context, state) => SystemProxy(system: state.params['system']!),
+      builder: (context, state) => SystemProxy(system: state.pathParameters['system']!),
       routes: [
         GoRoute(
           path: 'filter',
-          builder: (context, state) => FiltersPage(system: state.params['system']!),
+          builder: (context, state) => FiltersPage(system: state.pathParameters['system']!),
           routes: [
             GoRoute(
               path: "genres",
-              builder: (context, state) => GenresFilterPage(system: state.params['system']!),
+              builder: (context, state) => GenresFilterPage(system: state.pathParameters['system']!),
             ),
             GoRoute(
               path: "name",
-              builder: (context, state) => NameFilterPage(system: state.params['system']!),
+              builder: (context, state) => NameFilterPage(system: state.pathParameters['system']!),
             ),
           ],
         ),
@@ -62,34 +63,37 @@ final _router = GoRouter(
       path: '/select_apps',
       builder: (context, state) => const AppsSettingsPage(),
     ),
-    GoRoute(path: '/settings', builder: (context, state) => SettingsPage(source: state.queryParams['source']), routes: [
-      GoRoute(
-        path: 'roms',
-        builder: (context, state) => const RomsSettingsPage(),
-      ),
-      GoRoute(
-        path: 'systems',
-        builder: (context, state) => const ShowSystemsSettingsPage(),
-      ),
-      GoRoute(
-        path: 'emulators',
-        builder: (context, state) => const AlternativeEmulatorsSettingPage(),
+    GoRoute(
+        path: '/settings',
+        builder: (context, state) => SettingsPage(source: state.queryParameters['source']),
         routes: [
           GoRoute(
-            path: ":system",
-            builder: (context, state) => SelectAlternativeEmulatorSettingPage(state.params['system']!),
-          )
-        ],
-      ),
-      GoRoute(
-        path: 'ui',
-        builder: (context, state) => const UISettingsPage(),
-      ),
-      GoRoute(
-        path: 'daijisho',
-        builder: (context, state) => const DaijishoWallpaperPacksPage(),
-      ),
-    ]),
+            path: 'roms',
+            builder: (context, state) => const RomsSettingsPage(),
+          ),
+          GoRoute(
+            path: 'systems',
+            builder: (context, state) => const ShowSystemsSettingsPage(),
+          ),
+          GoRoute(
+            path: 'emulators',
+            builder: (context, state) => const AlternativeEmulatorsSettingPage(),
+            routes: [
+              GoRoute(
+                path: ":system",
+                builder: (context, state) => SelectAlternativeEmulatorSettingPage(state.pathParameters['system']!),
+              )
+            ],
+          ),
+          GoRoute(
+            path: 'ui',
+            builder: (context, state) => const UISettingsPage(),
+          ),
+          GoRoute(
+            path: 'daijisho',
+            builder: (context, state) => const DaijishoWallpaperPacksPage(),
+          ),
+        ]),
   ],
 );
 

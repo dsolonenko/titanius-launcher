@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:titanius/data/genres.dart';
 import 'package:xml/xml.dart';
 import 'package:collection/collection.dart';
@@ -140,23 +141,23 @@ class Game {
 
   factory Game.fromXmlNode(XmlNode node, System system, String romsPath) {
     final id = node.attributes.firstWhereOrNull((element) => element.name.local == "id")?.value;
-    final name = node.findElements("name").first.text;
-    final path = node.findElements("path").first.text;
-    final description = node.findElements("desc").firstOrNull?.text;
-    final genre = node.findElements("genre").firstOrNull?.text;
-    final genreId = node.findElements("genreid").firstOrNull?.text;
-    final developer = node.findElements("developer").firstOrNull?.text;
-    final publisher = node.findElements("publisher").firstOrNull?.text;
-    final players = node.findElements("players").firstOrNull?.text;
-    final ratingString = node.findElements("rating").firstOrNull?.text;
+    final name = node.findElements("name").first.innerText;
+    final path = node.findElements("path").first.innerText;
+    final description = node.findElements("desc").firstOrNull?.innerText;
+    final genre = node.findElements("genre").firstOrNull?.innerText;
+    final genreId = node.findElements("genreid").firstOrNull?.innerText;
+    final developer = node.findElements("developer").firstOrNull?.innerText;
+    final publisher = node.findElements("publisher").firstOrNull?.innerText;
+    final players = node.findElements("players").firstOrNull?.innerText;
+    final ratingString = node.findElements("rating").firstOrNull?.innerText;
     final rating = ratingString != null ? double.tryParse(ratingString) : null;
-    final yearString = node.findElements("releasedate").firstOrNull?.text;
+    final yearString = node.findElements("releasedate").firstOrNull?.innerText;
     final year = yearString != null && yearString.length > 4 ? int.parse(yearString.substring(0, 4)) : null;
-    final image = node.findElements("image").firstOrNull?.text;
-    final video = node.findElements("video").firstOrNull?.text;
-    final thumbnail = node.findElements("thumbnail").firstOrNull?.text;
-    final favorite = node.findElements("favorite").firstOrNull?.text == "true";
-    final hidden = node.findElements("hidden").firstOrNull?.text == "true";
+    final image = node.findElements("image").firstOrNull?.innerText;
+    final video = node.findElements("video").firstOrNull?.innerText;
+    final thumbnail = node.findElements("thumbnail").firstOrNull?.innerText;
+    final favorite = node.findElements("favorite").firstOrNull?.innerText == "true";
+    final hidden = node.findElements("hidden").firstOrNull?.innerText == "true";
     return Game(system, name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
         id: id,
         description: description,
