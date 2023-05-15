@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:titanius/data/genres.dart';
 import 'package:xml/xml.dart';
 import 'package:collection/collection.dart';

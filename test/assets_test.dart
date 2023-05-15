@@ -14,8 +14,9 @@ Future<void> main() async {
           // define your overrides here if required
         ]);
 
-        final allSystems = await container.read(allSupportedSystemsProvider.future);
-        expect(allSystems.length, 69);
+        final allSystemsWithCollections = await container.read(allSupportedSystemsProvider.future);
+        expect(allSystemsWithCollections.length, 72);
+        final allSystems = allSystemsWithCollections.where((element) => !element.isCollection);
         for (final system in allSystems) {
           await rootBundle.load("assets/images/white/${system.logo}");
           await rootBundle.load("assets/images/color/${system.logo}");
