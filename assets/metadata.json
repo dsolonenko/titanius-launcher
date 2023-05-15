@@ -2065,6 +2065,21 @@
       ],
       "emulators": [
         {
+          "id": "org.citra.citra_emu",
+          "name": "Citra",
+          "intent": {
+            "component": "org.citra.citra_emu/org.citra.citra_emu.activities.EmulationActivity",
+            "action": "android.intent.action.VIEW",
+            "args": {
+              "GamePath": "{file.path}"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
           "id": "citra_mmj_antutu",
           "name": "Citra MMJ (Antutu)",
           "intent": {
@@ -2084,21 +2099,6 @@
           "name": "Citra MMJ",
           "intent": {
             "component": "org.citra.emu/org.citra.emu.ui.EmulationActivity",
-            "action": "android.intent.action.VIEW",
-            "args": {
-              "GamePath": "{file.path}"
-            },
-            "flags": [
-              "--activity-clear-task",
-              "--activity-clear-top"
-            ]
-          }
-        },
-        {
-          "id": "org.citra.citra_emu",
-          "name": "Citra",
-          "intent": {
-            "component": "org.citra.citra_emu/org.citra.citra_emu.activities.EmulationActivity",
             "action": "android.intent.action.VIEW",
             "args": {
               "GamePath": "{file.path}"
@@ -2743,10 +2743,26 @@
       "name": "PlayStation Portable",
       "logo": "Sony PSP.png",
       "folders": [
-        "psp",
-        "pspminis"
+        "psp"
       ],
       "emulators": [
+        {
+          "id": "ra64/ppsspp",
+          "name": "PPSSPP",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/ppsspp_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
         {
           "id": "ppsspp",
           "name": "PPSSPP",
@@ -2767,7 +2783,17 @@
             "action": "android.intent.action.VIEW",
             "data": "{file.documenturi}"
           }
-        },
+        }
+      ]
+    },
+    {
+      "id": "psp",
+      "name": "PlayStation Portable (Minis)",
+      "logo": "Sony PSP Minis.png",
+      "folders": [
+        "pspminis"
+      ],
+      "emulators": [
         {
           "id": "ra64/ppsspp",
           "name": "PPSSPP",
@@ -2783,6 +2809,27 @@
               "--activity-clear-task",
               "--activity-clear-top"
             ]
+          }
+        },
+        {
+          "id": "ppsspp",
+          "name": "PPSSPP",
+          "intent": {
+            "component": "org.ppsspp.ppsspp/.PpssppActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.documenturi}",
+            "flags": [
+              "--activity-clear-task"
+            ]
+          }
+        },
+        {
+          "id": "ppsspp_gold",
+          "name": "PPSSPP Gold",
+          "intent": {
+            "component": "org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.documenturi}"
           }
         }
       ]
