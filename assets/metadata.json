@@ -90,6 +90,50 @@
       ]
     },
     {
+      "id": "gx4000",
+      "name": "Amstad GX4000",
+      "logo": "Amstrad GX4000.png",
+      "folders": [
+        "gx4000"
+      ],
+      "emulators": [
+        {
+          "id": "ra64/cap32",
+          "name": "Caprice32",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/cap32_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "ra64/crocods",
+          "name": "CrocoDS",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/crocods_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "id": "atari2600",
       "name": "Atari 2600",
       "logo": "Atari 2600.png",
@@ -738,6 +782,84 @@
       "logo": "Commodore Amiga.png",
       "folders": [
         "amiga"
+      ],
+      "emulators": [
+        {
+          "id": "ra64/puae",
+          "name": "PUAE",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/puae_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "ra64/puae2021",
+          "name": "PUAE 2021",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/puae2021_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "ra64/fsuae",
+          "name": "FS-UAE",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fsuae_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "ra64/uae4arm",
+          "name": "UAE4ARM",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/uae4arm_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "amigacd32",
+      "name": "Commodore Amiga CD32",
+      "logo": "Commodore Amiga CD32.png",
+      "folders": [
+        "amigacd32"
       ],
       "emulators": [
         {
