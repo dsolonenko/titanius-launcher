@@ -45,7 +45,7 @@ class LaunchIntent {
         case "--activity-no-history":
           return Flag.FLAG_ACTIVITY_NO_HISTORY;
       }
-      return Flag.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
+      return 0;
     }).toList();
     if (needsUri || needsDocumentUri) {
       flags.add(Flag.FLAG_GRANT_READ_URI_PERMISSION);
