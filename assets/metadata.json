@@ -1794,9 +1794,21 @@
       "name": "GameCube",
       "logo": "Nintendo GameCube.png",
       "folders": [
-        "gc"
+        "gc",
+        "gamecube"
       ],
       "emulators": [
+        {
+          "id": "dolphin",
+          "name": "Dolphin Emulator",
+          "intent": {
+            "component": "org.dolphinemu.dolphinemu/.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "args": {
+              "AutoStartFile": "{file.documenturi}"
+            }
+          }
+        },
         {
           "id": "dolphin_mmjr",
           "name": "Dolphin MMJR",
@@ -1813,17 +1825,6 @@
           "name": "Dolphin for Handheld",
           "intent": {
             "component": "org.dolphinemu.handheld/org.dolphinemu.dolphinemu.ui.main.MainActivity",
-            "action": "android.intent.action.VIEW",
-            "args": {
-              "AutoStartFile": "{file.documenturi}"
-            }
-          }
-        },
-        {
-          "id": "dolphin",
-          "name": "Dolphin Emulator",
-          "intent": {
-            "component": "org.dolphinemu.dolphinemu/.ui.main.MainActivity",
             "action": "android.intent.action.VIEW",
             "args": {
               "AutoStartFile": "{file.documenturi}"
@@ -2909,7 +2910,7 @@
       ]
     },
     {
-      "id": "psp",
+      "id": "pspminis",
       "name": "PlayStation Portable (Minis)",
       "logo": "Sony PSP Minis.png",
       "folders": [
