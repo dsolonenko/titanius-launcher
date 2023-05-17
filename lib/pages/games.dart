@@ -71,13 +71,8 @@ class GamesPage extends HookConsumerWidget {
       }
       if (key == GamepadButton.y) {
         final selectedGame = ref.read(selectedGameProvider(system));
-        debugPrint("Favourite: $selectedGame");
         if (selectedGame != null) {
-          ref
-              .read(settingsRepoProvider)
-              .value!
-              .saveFavourite(selectedGame.romPath, !selectedGame.favorite)
-              .then((value) => ref.refresh(settingsProvider));
+          GoRouter.of(context).push("/games/$system/game/${selectedGame.hash}");
         }
       }
     });
@@ -93,7 +88,7 @@ class GamesPage extends HookConsumerWidget {
         ],
         actions: const [
           GamepadPrompt([GamepadButton.x], "Details"),
-          GamepadPrompt([GamepadButton.y], "Favourite"),
+          GamepadPrompt([GamepadButton.y], "Settings"),
           GamepadPrompt([GamepadButton.b], "Back"),
           GamepadPrompt([GamepadButton.a], "Launch"),
         ],

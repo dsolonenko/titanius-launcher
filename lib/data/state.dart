@@ -208,6 +208,19 @@ Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) 
   return Future.value(null);
 }
 
+@Riverpod(keepAlive: true)
+class DeletedGames extends _$DeletedGames {
+  @override
+  Set<String> build(String system) {
+    return {};
+  }
+
+  void deleteGame(Game game) {
+    debugPrint("Delete game ${game.romPath}");
+    state = {...state, game.romPath};
+  }
+}
+
 @riverpod
 Future<GameList> gamesForCurrentSystem(GamesForCurrentSystemRef ref) async {
   final allSystems = await ref.watch(detectedSystemsProvider.future);
@@ -236,6 +249,8 @@ Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
 Future<GameList> filteredGamesInFolder(FilteredGamesInFolderRef ref, String system) async {
   final gamelist = await ref.watch(gamesInFolderProvider(system).future);
   final filter = ref.watch(currentGameFilterProvider(system));
+  final deletedGames = ref.watch(deletedGamesProvider(system));
+  gamelist.games.removeWhere((game) => deletedGames.contains(game.romPath));
   final games = filter.apply(gamelist.games);
   return GameList(gamelist.system, gamelist.currentFolder, games);
 }

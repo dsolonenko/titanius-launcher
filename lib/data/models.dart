@@ -137,6 +137,7 @@ class Game {
   String get romPath => "$path/${rom.replaceFirst("./", "")}";
   String get uniqueKey => id != null ? "id/$id" : "${system.id}/$name";
   String get genreToShow => Genres.getName(genreId, ifNull: genre ?? "-");
+  int get hash => fastHash(rom);
 
   factory Game.fromXmlNode(XmlNode node, System system, String romsPath) {
     final id = node.attributes.firstWhereOrNull((element) => element.name.local == "id")?.value;
@@ -174,4 +175,20 @@ class Game {
         isFolder: node is XmlElement && node.name.local == "folder",
         hidden: hidden);
   }
+}
+
+/// FNV-1a 64bit hash algorithm optimized for Dart Strings
+int fastHash(String string) {
+  var hash = 0xcbf29ce484222325;
+
+  var i = 0;
+  while (i < string.length) {
+    final codeUnit = string.codeUnitAt(i++);
+    hash ^= codeUnit >> 8;
+    hash *= 0x100000001b3;
+    hash ^= codeUnit & 0xFF;
+    hash *= 0x100000001b3;
+  }
+
+  return hash;
 }

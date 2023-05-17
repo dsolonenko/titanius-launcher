@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:titanius/pages/filter.dart';
 
+import 'pages/game_settings.dart';
 import 'pages/settings.dart';
 import 'pages/system_proxy.dart';
 import 'pages/systems.dart';
@@ -43,6 +44,13 @@ final _router = GoRouter(
       path: '/games/:system',
       builder: (context, state) => SystemProxy(system: state.pathParameters['system']!),
       routes: [
+        GoRoute(
+          path: "game/:hash",
+          builder: (context, state) => GameSettingsPage(
+            system: state.pathParameters['system']!,
+            hash: int.parse(state.pathParameters['hash']!),
+          ),
+        ),
         GoRoute(
           path: 'filter',
           builder: (context, state) => FiltersPage(system: state.pathParameters['system']!),
