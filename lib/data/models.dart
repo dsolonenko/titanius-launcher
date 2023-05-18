@@ -92,7 +92,8 @@ class Emulator {
 class Game {
   final System system;
   final String name;
-  final String path;
+  final String volumePath;
+  final String systemFolder;
   final String folder;
   final String rom;
   final String? id;
@@ -114,7 +115,8 @@ class Game {
   Game(
     this.system,
     this.name,
-    this.path,
+    this.volumePath,
+    this.systemFolder,
     this.folder,
     this.rom, {
     this.id,
@@ -134,12 +136,13 @@ class Game {
     this.hidden = false,
   });
 
-  String get romPath => "$path/${rom.replaceFirst("./", "")}";
+  String get absoluteRomPath => "$volumePath/$romPath";
+  String get romPath => "$systemFolder/${rom.replaceFirst("./", "")}";
   String get uniqueKey => id != null ? "id/$id" : "${system.id}/$name";
   String get genreToShow => Genres.getName(genreId, ifNull: genre ?? "-");
   int get hash => fastHash(rom);
 
-  factory Game.fromXmlNode(XmlNode node, System system, String romsPath) {
+  factory Game.fromXmlNode(XmlNode node, System system, String volumePath, String systemFolder) {
     final id = node.attributes.firstWhereOrNull((element) => element.name.local == "id")?.value;
     final name = node.findElements("name").first.innerText;
     final path = node.findElements("path").first.innerText;
@@ -158,7 +161,8 @@ class Game {
     final thumbnail = node.findElements("thumbnail").firstOrNull?.innerText;
     final favorite = node.findElements("favorite").firstOrNull?.innerText == "true";
     final hidden = node.findElements("hidden").firstOrNull?.innerText == "true";
-    return Game(system, name, romsPath, path.substring(0, path.lastIndexOf("/")), path,
+    final romsPath = "$volumePath/$systemFolder";
+    return Game(system, name, volumePath, systemFolder, path.substring(0, path.lastIndexOf("/")), path,
         id: id,
         description: description,
         genre: genre,

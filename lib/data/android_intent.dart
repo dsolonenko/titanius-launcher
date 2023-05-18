@@ -57,7 +57,7 @@ class LaunchIntent {
             ? "$package${parts[1]}"
             : parts[1]
         : null;
-    final romLocation = await _locateRom(game.romPath);
+    final romLocation = await _locateRom(game.absoluteRomPath);
     debugPrint("Rom location: $romLocation");
     final args = {
       for (var k in this.args.keys) k: _tokenValue(this.args[k], romLocation),

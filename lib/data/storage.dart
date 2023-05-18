@@ -10,7 +10,14 @@ part 'storage.g.dart';
 Future<Isar> isar(IsarRef ref) async {
   final dir = await getApplicationSupportDirectory();
   return Isar.open(
-    [SettingSchema, AlternativeEmulatorSchema, FavouriteSchema, RecentGameSchema, AndroidAppSchema],
+    [
+      SettingSchema,
+      AlternativeEmulatorSchema,
+      GameEmulatorSchema,
+      FavouriteSchema,
+      RecentGameSchema,
+      AndroidAppSchema,
+    ],
     directory: dir.path,
   );
 }

@@ -45,6 +45,15 @@ class AlternativeEmulator {
 }
 
 @collection
+class GameEmulator {
+  Id id = Isar.autoIncrement;
+  @Index(unique: true, replace: true)
+  String romPath;
+  String emulator;
+  GameEmulator({required this.romPath, this.emulator = ""});
+}
+
+@collection
 class Favourite {
   Id id = Isar.autoIncrement;
   @Index(unique: true, replace: true)
@@ -91,10 +100,10 @@ class SettingsRepo {
     return Settings(settingsMap, favourites);
   }
 
-  Future<void> saveFavourite(String path, bool isFavourite) async {
-    debugPrint("Favourite $path $isFavourite");
+  Future<void> toggleFavourite(Game game) async {
+    debugPrint("Favourite ${game.romPath} ${game.favorite}");
     await isar.writeTxn(() async {
-      await isar.favourites.put(Favourite(romPath: path, favourite: isFavourite)).catchError((e) {
+      await isar.favourites.put(Favourite(romPath: game.romPath, favourite: !game.favorite)).catchError((e) {
         debugPrint(e);
         return 0;
       });
@@ -211,10 +220,30 @@ class PerSystemConfigurationRepo {
     return isar.alternativeEmulators.where().findAll();
   }
 
-  Future<void> saveAlternativeEmulator(AlternativeEmulator config) async {
+  Future<void> saveAlternativeEmulator(String system, String emulator) async {
     await isar.writeTxn(() async {
-      await isar.alternativeEmulators.put(config);
+      await isar.alternativeEmulators.put(AlternativeEmulator(system: system, emulator: emulator));
     });
+  }
+}
+
+class PerGameConfigurationRepo {
+  final Isar isar;
+
+  PerGameConfigurationRepo(this.isar);
+
+  Future<List<GameEmulator>> _getGameEmulators() {
+    return isar.gameEmulators.where().findAll();
+  }
+
+  Future<void> saveGameEmulator(Game game, String emulator) async {
+    await isar.writeTxn(() async {
+      await isar.gameEmulators.put(GameEmulator(romPath: game.romPath, emulator: emulator));
+    });
+  }
+
+  Future<GameEmulator?> _getGameEmulator(Game game) {
+    return isar.gameEmulators.where().romPathEqualTo(game.romPath).findFirst();
   }
 }
 
@@ -329,6 +358,27 @@ Future<PerSystemConfigurationRepo> perSystemConfigurationRepo(PerSystemConfigura
 Future<List<AlternativeEmulator>> perSystemConfigurations(PerSystemConfigurationsRef ref) async {
   final repo = await ref.watch(perSystemConfigurationRepoProvider.future);
   return repo._getAlternativeEmulators();
+}
+
+@Riverpod(keepAlive: true)
+Future<PerGameConfigurationRepo> perGameConfigurationRepo(PerGameConfigurationRepoRef ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return PerGameConfigurationRepo(isar);
+}
+
+@Riverpod(keepAlive: true)
+Future<List<GameEmulator>> perGameConfigurations(PerGameConfigurationsRef ref) async {
+  final repo = await ref.watch(perGameConfigurationRepoProvider.future);
+  return repo._getGameEmulators();
+}
+
+@riverpod
+Future<GameEmulator?> perGameConfiguration(PerGameConfigurationRef ref, Game? game) async {
+  if (game == null) {
+    return null;
+  }
+  final repo = await ref.watch(perGameConfigurationRepoProvider.future);
+  return repo._getGameEmulator(game);
 }
 
 @Riverpod(keepAlive: true)

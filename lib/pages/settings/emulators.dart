@@ -96,8 +96,7 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
                   ref
                       .read(perSystemConfigurationRepoProvider)
                       .value!
-                      .saveAlternativeEmulator(
-                          AlternativeEmulator(system: system, emulator: selected.system.emulators[index].id))
+                      .saveAlternativeEmulator(system, selected.system.emulators[index].id)
                       .then((value) => ref.refresh(perSystemConfigurationsProvider));
                   context.pop();
                 },

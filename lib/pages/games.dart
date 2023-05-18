@@ -71,7 +71,7 @@ class GamesPage extends HookConsumerWidget {
       }
       if (key == GamepadButton.y) {
         final selectedGame = ref.read(selectedGameProvider(system));
-        if (selectedGame != null) {
+        if (selectedGame != null && !selectedGame.isFolder) {
           GoRouter.of(context).push("/games/$system/game/${selectedGame.hash}");
         }
       }
@@ -165,7 +165,7 @@ class GamesPage extends HookConsumerWidget {
                                 ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
                                 ref.read(selectedGameProvider(system).notifier).reset();
                               } else {
-                                _launchGame(context, ref, game);
+                                _launchGame(ref, game);
                               }
                             },
                           );
@@ -190,14 +190,23 @@ class GamesPage extends HookConsumerWidget {
     );
   }
 
-  void _launchGame(BuildContext context, WidgetRef ref, Game game) async {
+  void _launchGame(WidgetRef ref, Game game) async {
     ref.read(recentGamesRepoProvider).value!.saveRecentGame(game).then((value) => ref.refresh(recentGamesProvider));
-    ref.read(alternativeEmulatorsProvider.future).then((value) {
-      final emulators = value.firstWhereOrNull((element) => element.system.id == game.system.id);
-      emulators?.defaultEmulator?.intent
-          .toIntent(game)
-          .then((intent) => intent.launch().catchError(handleIntentError(context, intent)));
-    });
+    final gameEmulator = await ref.read(perGameConfigurationProvider(game).future);
+    if (gameEmulator != null && gameEmulator.emulator != "default") {
+      final emulator = game.system.emulators.firstWhereOrNull((element) => element.id == gameEmulator.emulator);
+      _launchGameWithEmulator(emulator, game);
+    } else {
+      final alternativeEmulators = await ref.read(alternativeEmulatorsProvider.future);
+      final emulators = alternativeEmulators.firstWhereOrNull((element) => element.system.id == game.system.id);
+      final emulator = emulators?.defaultEmulator;
+      _launchGameWithEmulator(emulator, game);
+    }
+  }
+
+  void _launchGameWithEmulator(Emulator? emulator, Game game) {
+    debugPrint("Launching ${game.romPath} with ${emulator?.id}");
+    emulator?.intent.toIntent(game).then((intent) => intent.launch().catchError(handleIntentError(intent)));
   }
 
   _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
@@ -378,7 +387,7 @@ class GamesPage extends HookConsumerWidget {
   }
 }
 
-Function handleIntentError(BuildContext context, AndroidIntent intent) {
+Function handleIntentError(AndroidIntent intent) {
   return (err) {
     debugPrint(err.toString());
     Fluttertoast.showToast(

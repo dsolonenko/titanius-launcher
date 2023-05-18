@@ -81,7 +81,7 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
           .selectSubtreeEvents((event) => event.name == 'game' || event.name == 'folder')
           .toXmlNodes()
           .expand((nodes) => nodes)
-          .map((node) => Game.fromXmlNode(node, params.system, romsPath))
+          .map((node) => Game.fromXmlNode(node, params.system, params.romsFolder, params.folder))
           .toList();
       return games;
     }

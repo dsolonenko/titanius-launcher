@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -19,6 +20,7 @@ class GameSettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final game = ref.read(selectedGameProvider(system));
+    final gameEmulator = ref.watch(perGameConfigurationProvider(game));
 
     if (game == null) {
       return const Scaffold(
@@ -28,7 +30,6 @@ class GameSettingsPage extends HookConsumerWidget {
       );
     }
 
-    final selectedEmulator = useState(0);
     final selected = useState("");
 
     useGamepad(ref, (location, key) {
@@ -36,22 +37,27 @@ class GameSettingsPage extends HookConsumerWidget {
       if (key == GamepadButton.b) {
         GoRouter.of(context).go("/games/$system");
       }
-      if (key == GamepadButton.right) {
+      if (key == GamepadButton.right || key == GamepadButton.left) {
         if (selected.value == "emulator") {
-          int next = selectedEmulator.value + 1;
-          if (next > game.system.emulators.length) {
-            next = 0;
+          final emulators = ["default", ...game.system.emulators.map((e) => e.id)];
+          int index = emulators.indexWhere((id) => id == (gameEmulator.value?.emulator ?? "default"));
+          if (key == GamepadButton.right) {
+            index++;
+          } else {
+            index--;
           }
-          selectedEmulator.value = next;
-        }
-      }
-      if (key == GamepadButton.left) {
-        if (selected.value == "emulator") {
-          int prev = selectedEmulator.value - 1;
-          if (prev < 0) {
-            prev = game.system.emulators.length;
+          if (index < 0) {
+            index = game.system.emulators.length - 1;
           }
-          selectedEmulator.value = prev;
+          if (index >= game.system.emulators.length) {
+            index = 0;
+          }
+          final emulator = emulators[index];
+          ref
+              .read(perGameConfigurationRepoProvider)
+              .value!
+              .saveGameEmulator(game, emulator)
+              .then((value) => ref.refresh(perGameConfigurationProvider(game)));
         }
       }
     });
@@ -91,7 +97,7 @@ class GameSettingsPage extends HookConsumerWidget {
             }
           },
           onTap: () {
-            ref.read(settingsRepoProvider).value!.saveFavourite(game.romPath, !game.favorite).then((value) {
+            ref.read(settingsRepoProvider).value!.toggleFavourite(game).then((value) {
               final _ = ref.refresh(settingsProvider);
               GoRouter.of(context).pop();
             });
@@ -102,8 +108,14 @@ class GameSettingsPage extends HookConsumerWidget {
         group: "Options",
         widget: ListTile(
           title: const Text("Emulator"),
-          trailing: SelectorWidget(
-              text: selectedEmulator.value == 0 ? "Default" : game.system.emulators[selectedEmulator.value - 1].name),
+          trailing: gameEmulator.when(
+            data: (data) {
+              final emulator = game.system.emulators.firstWhereOrNull((element) => element.id == data?.emulator);
+              return SelectorWidget(text: emulator?.name ?? "Default");
+            },
+            loading: () => const CircularProgressIndicator(),
+            error: (error, stack) => const Text("Error"),
+          ),
           onFocusChange: (value) {
             if (value) {
               selected.value = "emulator";
