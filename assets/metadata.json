@@ -33,8 +33,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/opera_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -61,8 +60,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/crocods_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -78,8 +76,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/cap32_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -105,8 +102,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/cap32_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -122,8 +118,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/crocods_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -149,8 +144,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/stella2014_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -166,8 +160,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/stella_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -219,8 +212,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/a5200_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -236,8 +228,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/atari800_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -263,8 +254,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/prosystem_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -291,8 +281,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/virtualjaguar_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -333,8 +322,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/handy_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -350,8 +338,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_lynx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -377,8 +364,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/hatari_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -404,8 +390,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/flycast_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -449,8 +434,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbalpha2012_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -474,8 +458,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbneo_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -491,8 +474,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbalpha2012_cps1_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -518,8 +500,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbalpha2012_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -543,8 +524,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbneo_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -560,8 +540,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbalpha2012_cps2_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -587,8 +566,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbalpha2012_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -612,8 +590,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbneo_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -629,8 +606,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbalpha2012_cps3_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -656,8 +632,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bluemsx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -673,8 +648,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gearcoleco_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -700,8 +674,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/vice_x64_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -731,8 +704,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/frodo_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -748,8 +720,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/x64sdl_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -765,8 +736,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/vice_x64sc_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -792,8 +762,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/puae_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -809,8 +778,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/puae2021_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -826,8 +794,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fsuae_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -843,8 +810,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/uae4arm_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -870,8 +836,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/puae_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -887,8 +852,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/puae2021_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -904,8 +868,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fsuae_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -921,8 +884,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/uae4arm_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -949,8 +911,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/dosbox_pure_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -966,8 +927,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/dosbox_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -983,8 +943,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/dosbox_svn_ce_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1000,8 +959,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/dosbox_svn_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1017,8 +975,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/dosbox_core_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1044,8 +1001,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/flycast_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1089,8 +1045,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/freechaf_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1116,8 +1071,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/nestopia_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1151,8 +1105,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fceumm_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1168,8 +1121,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mesen_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1195,8 +1147,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbneo_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1223,8 +1174,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gw_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1251,8 +1201,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gambatte_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1323,8 +1272,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/emux_gb_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1340,8 +1288,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gearboy_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1357,8 +1304,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/sameboy_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1374,8 +1320,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/tgbdual_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1391,8 +1336,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fixgb_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1408,8 +1352,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mesen-s_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1436,8 +1379,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mgba_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1508,8 +1450,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/vba_next_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1525,8 +1466,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/vbam_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1542,8 +1482,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_gba_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1559,8 +1498,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/meteor_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1576,8 +1514,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gpsp_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1593,8 +1530,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/tempgba_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1621,8 +1557,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gambatte_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1693,8 +1628,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/emux_gb_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1710,8 +1644,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gearboy_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1727,8 +1660,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/sameboy_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1744,8 +1676,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/tgbdual_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1761,8 +1692,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fixgb_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1778,8 +1708,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mesen-s_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1849,8 +1778,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/freeintv_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1877,8 +1805,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mame2003_plus_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1895,8 +1822,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mamearcade_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1913,8 +1839,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mamemess_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1955,8 +1880,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bluemsx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -1985,8 +1909,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fmsx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2012,8 +1935,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbneo_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2047,8 +1969,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/neocd_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2064,8 +1985,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fbneo_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2091,8 +2011,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_ngp_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2116,8 +2035,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/race_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2143,8 +2061,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_ngp_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2168,8 +2085,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/race_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2255,8 +2171,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/citra2018_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2272,8 +2187,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/citra_canary_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2289,8 +2203,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/citra_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2316,8 +2229,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/parallel_n64_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2369,8 +2281,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mupen64plus_next_gles3_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2386,8 +2297,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mupen64plus_next_gles2_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2403,8 +2313,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mupen64plus_next_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2430,8 +2339,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/melonds_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2470,8 +2378,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/desmume_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2487,8 +2394,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/desmume2015_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2516,8 +2422,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fceumm_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2533,8 +2438,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/quicknes_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2568,8 +2472,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/nestopia_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2585,8 +2488,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/emux_nes_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2602,8 +2504,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mesen_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2619,8 +2520,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bnes_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2636,8 +2536,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fixnes_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2725,8 +2624,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/quasi88_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2752,8 +2650,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/np2kai_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2769,8 +2666,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/nekop2_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2796,8 +2692,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_pcfx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2823,8 +2718,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/retro8_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2850,8 +2744,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/same_cdi_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2877,8 +2770,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/ppsspp_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2925,8 +2817,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/ppsspp_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2973,8 +2864,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/pokemini_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3001,8 +2891,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/scummvm_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3028,8 +2917,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/picodrive_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3056,8 +2944,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3082,8 +2969,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_wide_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3099,8 +2985,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/picodrive_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3127,8 +3012,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3157,8 +3041,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_wide_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3174,8 +3057,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/smsplus_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3191,8 +3073,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/picodrive_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3208,8 +3089,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gearsystem_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3236,8 +3116,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3271,8 +3150,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_wide_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3288,8 +3166,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/picodrive_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3305,8 +3182,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/blastem_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3333,8 +3209,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3368,8 +3243,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_wide_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3385,8 +3259,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/picodrive_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3402,8 +3275,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/blastem_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3430,8 +3302,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3456,8 +3327,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_wide_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3473,8 +3343,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/smsplus_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3490,8 +3359,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/picodrive_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3507,8 +3375,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gearsystem_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3534,8 +3401,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/flycast_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3570,8 +3436,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/gearsystem_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3587,8 +3452,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bluemsx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3614,8 +3478,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/yabasanshiro_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3695,8 +3558,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_saturn_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3712,8 +3574,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/yabause_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3739,8 +3600,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/px68k_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3767,8 +3627,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/pcsx_rearmed_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3874,8 +3733,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/duckstation_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3891,8 +3749,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/swanstation_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3948,8 +3805,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/play_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3975,8 +3831,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_supergrafx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4001,8 +3856,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_pce_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4030,8 +3884,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/snes9x_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4056,8 +3909,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/higan_sfc_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4073,8 +3925,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/higan_sfc_balanced_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4090,8 +3941,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_supafaust_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4107,8 +3957,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_snes_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4124,8 +3973,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/snes9x2002_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4141,8 +3989,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/snes9x2005_plus_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4158,8 +4005,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/snes9x2005_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4175,8 +4021,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/snes9x2010_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4192,8 +4037,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bsnes2014_accuracy_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4209,8 +4053,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bsnes2014_balanced_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4226,8 +4069,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bsnes2014_performance_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4243,8 +4085,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bsnes_cplusplus98_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4260,8 +4101,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bsnes_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4277,8 +4117,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bsnes_hd_beta_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4294,8 +4133,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bsnes_mercury_accuracy_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4311,8 +4149,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bsnes_mercury_balanced_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4328,8 +4165,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/bsnes_mercury_performance_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4345,8 +4181,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mesen-s_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4372,8 +4207,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/tic80_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4400,8 +4234,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_pce_fast_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4426,8 +4259,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_pce_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4454,8 +4286,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_pce_fast_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4480,8 +4311,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_pce_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4507,8 +4337,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/vecx_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4534,8 +4363,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_vb_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4561,8 +4389,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/potator_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4588,8 +4415,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_wswan_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4615,8 +4441,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/mednafen_wswan_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4642,8 +4467,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/81_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -4669,8 +4493,7 @@
             "args": {
               "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
               "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/fuse_libretro_android.so",
-              "ROM": "{file.path}",
-              "QUITFOCUS": "1"
+              "ROM": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",

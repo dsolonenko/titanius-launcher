@@ -14,8 +14,7 @@ import 'pages/settings.dart';
 import 'pages/system_proxy.dart';
 import 'pages/systems.dart';
 
-void main() async {
-  await _ensureStoragePermission();
+void main() {
   runApp(
     const ProviderScope(
       child: SDTFScope(
@@ -111,16 +110,29 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    return ProviderScope(
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'Titanius Launcher',
-        theme: _buildTheme(Brightness.dark),
-        themeMode: ThemeMode.dark,
-        routerConfig: _router,
-      ),
-    );
+    return FutureBuilder(
+        builder: ((context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return FutureBuilder(
+                builder: ((context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return MaterialApp.router(
+                      debugShowCheckedModeBanner: false,
+                      title: 'Titanius Launcher',
+                      theme: _buildTheme(Brightness.dark),
+                      themeMode: ThemeMode.dark,
+                      routerConfig: _router,
+                    );
+                  } else {
+                    return _waitPage();
+                  }
+                }),
+                future: SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive));
+          } else {
+            return _waitPage();
+          }
+        }),
+        future: _ensureStoragePermission());
   }
 
   ThemeData _buildTheme(brightness) {
@@ -131,6 +143,20 @@ class MyApp extends StatelessWidget {
     return baseTheme.copyWith(
       textTheme: baseTheme.textTheme.apply(
         fontFamily: 'Staatliches',
+      ),
+    );
+  }
+
+  Widget _waitPage() {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Titanius Launcher',
+      theme: _buildTheme(Brightness.dark),
+      themeMode: ThemeMode.dark,
+      home: const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
     );
   }
