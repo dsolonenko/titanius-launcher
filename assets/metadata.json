@@ -1791,7 +1791,7 @@
     {
       "id": "mame",
       "name": "Arcade (MAME)",
-      "logo": "Arcade Classics.png",
+      "logo": "MAME.png",
       "folders": [
         "arcade",
         "mame"
