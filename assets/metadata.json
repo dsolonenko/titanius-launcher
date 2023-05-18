@@ -3220,12 +3220,107 @@
       ]
     },
     {
-      "id": "genesis",
-      "name": "Sega Mega Drive/Genesis",
+      "id": "megadrive",
+      "name": "Sega Mega Drive",
       "logo": "Sega Mega Drive.png",
       "folders": [
         "megadrive",
-        "megadrive-japan",
+        "megadrive-japan"
+      ],
+      "emulators": [
+        {
+          "id": "ra64/genesis_plus_gx",
+          "name": "Genesis Plus GX",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "com.explusalpha.mdemu",
+          "name": "MD.emu",
+          "intent": {
+            "component": "com.explusalpha.MdEmu/com.imagine.BaseActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.documenturi}"
+          }
+        },
+        {
+          "id": "com.androidemu.gens",
+          "name": "Gensoid",
+          "intent": {
+            "component": "com.androidemu.gens/.EmulatorActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}"
+          }
+        },
+        {
+          "id": "ra64/genesis_plus_gx_wide",
+          "name": "Genesis Plus GX Wide",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/genesis_plus_gx_wide_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "ra64/picodrive",
+          "name": "PicoDrive",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/picodrive_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "ra64/blastem",
+          "name": "BlastEm",
+          "intent": {
+            "component": "com.retroarch.aarch64/com.retroarch.browser.retroactivity.RetroActivityFuture",
+            "args": {
+              "CONFIGFILE": "/storage/emulated/0/Android/data/com.retroarch.aarch64/files/retroarch.cfg",
+              "LIBRETRO": "/data/data/com.retroarch.aarch64/cores/blastem_libretro_android.so",
+              "ROM": "{file.path}",
+              "QUITFOCUS": "1"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "genesis",
+      "name": "Sega Genesis",
+      "logo": "Sega Genesis.png",
+      "folders": [
         "genesis",
         "genh"
       ],
