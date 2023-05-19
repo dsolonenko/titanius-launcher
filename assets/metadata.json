@@ -2564,13 +2564,56 @@
           }
         }
       ]
-    },
+    },    
     {
       "id": "wii",
       "name": "Nintendo Wii",
       "logo": "Nintendo Wii.png",
       "folders": [
         "wii"
+      ],
+      "emulators": [
+        {
+          "id": "dolphin",
+          "name": "Dolphin Emulator",
+          "intent": {
+            "component": "org.dolphinemu.dolphinemu/.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "args": {
+              "AutoStartFile": "{file.documenturi}"
+            }
+          }
+        },
+        {
+          "id": "dolphin_mmjr",
+          "name": "Dolphin MMJR",
+          "intent": {
+            "component": "org.dolphinemu.mmjr/org.dolphinemu.dolphinemu.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "args": {
+              "AutoStartFile": "{file.documenturi}"
+            }
+          }
+        },
+        {
+          "id": "dolphin_handheld",
+          "name": "Dolphin for Handheld",
+          "intent": {
+            "component": "org.dolphinemu.handheld/org.dolphinemu.dolphinemu.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "args": {
+              "AutoStartFile": "{file.documenturi}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "wiiware",
+      "name": "Nintendo WiiWare",
+      "logo": "Nintendo WiiWare.png",
+      "folders": [
+        "wiiware"
       ],
       "emulators": [
         {

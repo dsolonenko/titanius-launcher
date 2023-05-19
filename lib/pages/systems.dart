@@ -195,7 +195,7 @@ class SystemsPage extends HookConsumerWidget {
     if (games.games.isEmpty) return Container();
     return Text(
       "${games.games.length} games",
-      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 20),
+      style: const TextStyle(color: Colors.white, fontSize: 20),
     );
   }
 }
