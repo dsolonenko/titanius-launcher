@@ -136,6 +136,7 @@ class Game {
     this.hidden = false,
   });
 
+  String get absoluteFolderPath => "$volumePath/$systemFolder";
   String get absoluteRomPath => "$volumePath/$romPath";
   String get romPath => "$systemFolder/${rom.replaceFirst("./", "")}";
   String get uniqueKey => id != null ? "id/$id" : "${system.id}/$name";

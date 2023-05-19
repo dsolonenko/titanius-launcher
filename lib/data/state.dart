@@ -221,6 +221,26 @@ class DeletedGames extends _$DeletedGames {
   }
 }
 
+@Riverpod(keepAlive: true)
+class HiddenGames extends _$HiddenGames {
+  @override
+  Set<String> build(String system) {
+    return {};
+  }
+
+  void hideGame(Game game) {
+    debugPrint("Hide game ${game.romPath}");
+    state = {...state, game.romPath};
+  }
+
+  void unhideGame(Game game) {
+    debugPrint("Unhide game ${game.romPath}");
+    final set = {...state};
+    set.remove(game.romPath);
+    state = set;
+  }
+}
+
 @riverpod
 Future<GameList> gamesForCurrentSystem(GamesForCurrentSystemRef ref) async {
   final allSystems = await ref.watch(detectedSystemsProvider.future);
@@ -248,9 +268,16 @@ Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
 @riverpod
 Future<GameList> filteredGamesInFolder(FilteredGamesInFolderRef ref, String system) async {
   final gamelist = await ref.watch(gamesInFolderProvider(system).future);
+  final settings = await ref.watch(settingsProvider.future);
   final filter = ref.watch(currentGameFilterProvider(system));
   final deletedGames = ref.watch(deletedGamesProvider(system));
+  final hiddenGames = ref.watch(hiddenGamesProvider(system));
+
   gamelist.games.removeWhere((game) => deletedGames.contains(game.romPath));
+
+  if (!settings.showHiddenGames) {
+    gamelist.games.removeWhere((game) => hiddenGames.contains(game.romPath));
+  }
   final games = filter.apply(gamelist.games);
   return GameList(gamelist.system, gamelist.currentFolder, games);
 }

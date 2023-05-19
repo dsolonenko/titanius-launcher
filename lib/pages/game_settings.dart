@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/widgets/selector.dart';
 import '../data/repo.dart';
 import '../data/state.dart';
@@ -30,6 +31,7 @@ class GameSettingsPage extends HookConsumerWidget {
       );
     }
 
+    final workingOnIt = useState(false);
     final selected = useState("");
 
     useGamepad(ref, (location, key) {
@@ -64,7 +66,7 @@ class GameSettingsPage extends HookConsumerWidget {
 
     final elements = [
       SettingElement(
-        group: "Game",
+        group: "Details",
         widget: ListTile(
           title: Text(game.name),
           subtitle: Text(game.rom),
@@ -97,10 +99,37 @@ class GameSettingsPage extends HookConsumerWidget {
             }
           },
           onTap: () {
-            ref.read(settingsRepoProvider).value!.toggleFavourite(game).then((value) {
-              final _ = ref.refresh(settingsProvider);
-              GoRouter.of(context).pop();
+            workingOnIt.value = true;
+            setFavouriteInGamelistXml(game, !game.favorite).then((value) {
+              if (value) {
+                game.favorite = !game.favorite;
+                GoRouter.of(context).pop();
+              }
             });
+          },
+        ),
+      ),
+      SettingElement(
+        group: "Game",
+        widget: ListTile(
+          title: game.hidden ? const Text("Show Game") : const Text("Hide Game"),
+          onTap: () {
+            workingOnIt.value = true;
+            setHiddenGameInGamelistXml(game, !game.hidden).then((value) {
+              if (value) {
+                if (game.hidden) {
+                  ref.read(hiddenGamesProvider(system).notifier).unhideGame(game);
+                } else {
+                  ref.read(hiddenGamesProvider(system).notifier).hideGame(game);
+                }
+                GoRouter.of(context).pop();
+              }
+            });
+          },
+          onFocusChange: (value) {
+            if (value) {
+              selected.value = "hide_game";
+            }
           },
         ),
       ),
@@ -136,22 +165,34 @@ class GameSettingsPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.b], "Back"),
         ],
       ),
-      body: GroupedListView<SettingElement, String>(
-        key: PageStorageKey("/games/$system/game/$hash"),
-        elements: elements,
-        groupBy: (element) => element.group,
-        groupSeparatorBuilder: (String value) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            value,
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ),
-        itemBuilder: (context, element) {
-          return element.widget;
-        },
-        sort: false,
-      ),
+      body: workingOnIt.value
+          ? Center(
+              child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                Container(
+                  width: 8,
+                ),
+                const Text("Working on it...")
+              ],
+            ))
+          : GroupedListView<SettingElement, String>(
+              key: PageStorageKey("/games/$system/game/$hash"),
+              elements: elements,
+              groupBy: (element) => element.group,
+              groupSeparatorBuilder: (String value) => Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  value,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
+              itemBuilder: (context, element) {
+                return element.widget;
+              },
+              sort: false,
+            ),
     );
   }
 }
