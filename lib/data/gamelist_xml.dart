@@ -21,10 +21,15 @@ Future<bool> _setNodeInGamelistXml(String systemFolderPath, String romPath, Stri
     final xmlFile = File('$systemFolderPath/gamelist.xml');
     if (await xmlFile.exists()) {
       final xmlContent = await xmlFile.readAsString();
-      final updatedXmlContent = _setNode(xmlContent, romPath, nodeName, nodeValue);
-      await xmlFile.writeAsString(updatedXmlContent);
-      debugPrint('Gamelist updated successfully');
-      return true;
+      final (updatedXmlContent, isUpdated) = _setNode(xmlContent, romPath, nodeName, nodeValue);
+      if (isUpdated) {
+        await xmlFile.writeAsString(updatedXmlContent);
+        debugPrint('Gamelist updated successfully');
+        return true;
+      } else {
+        debugPrint('Gamelist not updated');
+        return false;
+      }
     } else {
       debugPrint('Gamelist.xml not found');
       return false;
@@ -35,10 +40,11 @@ Future<bool> _setNodeInGamelistXml(String systemFolderPath, String romPath, Stri
   }
 }
 
-_setNode(String xmlContent, String romPath, String nodeName, String nodeValue) {
+(String, bool) _setNode(String xmlContent, String romPath, String nodeName, String nodeValue) {
   final document = XmlDocument.parse(xmlContent);
   final games = document.findAllElements('game');
 
+  bool updated = false;
   for (final game in games) {
     final pathElement = game.findElements('path').firstOrNull;
     if (pathElement?.innerText == romPath) {
@@ -48,9 +54,10 @@ _setNode(String xmlContent, String romPath, String nodeName, String nodeValue) {
       } else {
         game.children.add(XmlElement(XmlName(nodeName), [], [XmlText(nodeValue)]));
       }
+      updated = true;
       break;
     }
   }
 
-  return document.toXmlString(pretty: true, indent: '  ');
+  return (document.toXmlString(pretty: true, indent: '  '), updated);
 }

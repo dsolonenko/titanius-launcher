@@ -103,8 +103,8 @@ class GameSettingsPage extends HookConsumerWidget {
             setFavouriteInGamelistXml(game, !game.favorite).then((value) {
               if (value) {
                 game.favorite = !game.favorite;
-                GoRouter.of(context).pop();
               }
+              GoRouter.of(context).pop();
             });
           },
         ),
@@ -117,13 +117,14 @@ class GameSettingsPage extends HookConsumerWidget {
             workingOnIt.value = true;
             setHiddenGameInGamelistXml(game, !game.hidden).then((value) {
               if (value) {
+                game.hidden = !game.hidden;
                 if (game.hidden) {
                   ref.read(hiddenGamesProvider(system).notifier).unhideGame(game);
                 } else {
                   ref.read(hiddenGamesProvider(system).notifier).hideGame(game);
                 }
-                GoRouter.of(context).pop();
               }
+              GoRouter.of(context).pop();
             });
           },
           onFocusChange: (value) {
