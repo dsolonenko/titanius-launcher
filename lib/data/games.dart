@@ -100,7 +100,6 @@ Future<GameList> games(GamesRef ref, String systemId) async {
   final recentGames = await ref.watch(recentGamesProvider.future);
 
   final system = systems.firstWhere((system) => system.id == systemId);
-  final favouritesMap = {for (var favourite in settings.favourites) favourite.romPath: favourite.favourite};
 
   final allGames = [...allGamelistGames];
   if (!settings.showHiddenGames) {
@@ -112,10 +111,6 @@ Future<GameList> games(GamesRef ref, String systemId) async {
         .retainWhere((game) => game.isFolder ? Directory(game.romPath).existsSync() : File(game.romPath).existsSync());
     stopwatch.stop();
     debugPrint("checkMissingGames took ${stopwatch.elapsedMilliseconds}ms");
-  }
-
-  for (var game in allGames) {
-    game.favorite = favouritesMap[game.romPath] ?? game.favorite;
   }
 
   switch (system.id) {

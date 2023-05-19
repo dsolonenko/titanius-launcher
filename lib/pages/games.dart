@@ -102,7 +102,9 @@ class GamesPage extends HookConsumerWidget {
             );
           }
           final gameToShow = selectedGame ?? gamelist.games.first;
-          final selectedIndex = gamelist.games.indexOf(gameToShow).clamp(0, gamelist.games.length - 1);
+          final selectedIndex = gamelist.games
+              .indexWhere((game) => game.romPath == gameToShow.romPath)
+              .clamp(0, gamelist.games.length - 1);
           debugPrint("show=${gameToShow.rom}");
           return Row(
             children: [

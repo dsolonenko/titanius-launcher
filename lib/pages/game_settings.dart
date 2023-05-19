@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/widgets/selector.dart';
+import '../data/games.dart';
 import '../data/repo.dart';
 import '../data/state.dart';
 import '../gamepad.dart';
@@ -102,7 +103,8 @@ class GameSettingsPage extends HookConsumerWidget {
             workingOnIt.value = true;
             setFavouriteInGamelistXml(game, !game.favorite).then((value) {
               if (value) {
-                game.favorite = !game.favorite;
+                // ignore: unused_result
+                ref.refresh(allGamesProvider);
               }
               GoRouter.of(context).pop();
             });
@@ -117,12 +119,8 @@ class GameSettingsPage extends HookConsumerWidget {
             workingOnIt.value = true;
             setHiddenGameInGamelistXml(game, !game.hidden).then((value) {
               if (value) {
-                game.hidden = !game.hidden;
-                if (game.hidden) {
-                  ref.read(hiddenGamesProvider(system).notifier).unhideGame(game);
-                } else {
-                  ref.read(hiddenGamesProvider(system).notifier).hideGame(game);
-                }
+                // ignore: unused_result
+                ref.refresh(allGamesProvider);
               }
               GoRouter.of(context).pop();
             });

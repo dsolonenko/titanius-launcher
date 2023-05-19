@@ -12,9 +12,8 @@ part 'repo.g.dart';
 
 class Settings {
   final Map<String, Setting> settings;
-  final List<Favourite> favourites;
 
-  Settings(this.settings, this.favourites);
+  Settings(this.settings);
 
   bool get favouritesOnTop => _getBoolean('favouritesOnTop', false);
   bool get showHiddenGames => _getBoolean('showHiddenGames', false);
@@ -54,15 +53,6 @@ class GameEmulator {
 }
 
 @collection
-class Favourite {
-  Id id = Isar.autoIncrement;
-  @Index(unique: true, replace: true)
-  String romPath;
-  bool favourite;
-  Favourite({required this.romPath, this.favourite = false});
-}
-
-@collection
 class Setting {
   Id id = Isar.autoIncrement;
   @Index(unique: true, replace: true)
@@ -96,18 +86,7 @@ class SettingsRepo {
   Future<Settings> _getSettings() async {
     final settings = await isar.settings.where().findAll();
     final settingsMap = {for (final s in settings) s.key: s};
-    final favourites = await isar.favourites.where().findAll();
-    return Settings(settingsMap, favourites);
-  }
-
-  Future<void> toggleFavourite(Game game) async {
-    debugPrint("Favourite ${game.romPath} ${game.favorite}");
-    await isar.writeTxn(() async {
-      await isar.favourites.put(Favourite(romPath: game.romPath, favourite: !game.favorite)).catchError((e) {
-        debugPrint(e);
-        return 0;
-      });
-    });
+    return Settings(settingsMap);
   }
 
   Future<void> setFavoutesOnTop(bool value) async {
