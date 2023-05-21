@@ -12,6 +12,7 @@ import '../data/games.dart';
 import '../data/repo.dart';
 import '../data/state.dart';
 import '../gamepad.dart';
+import '../widgets/gamepad_prompt.dart';
 import '../widgets/prompt_bar.dart';
 
 class GameSettingsPage extends HookConsumerWidget {
@@ -33,6 +34,7 @@ class GameSettingsPage extends HookConsumerWidget {
     }
 
     final workingOnIt = useState(false);
+    final confirmDelete = useState(false);
     final selected = useState("");
 
     useGamepad(ref, (location, key) {
@@ -128,6 +130,34 @@ class GameSettingsPage extends HookConsumerWidget {
           onFocusChange: (value) {
             if (value) {
               selected.value = "hide_game";
+            }
+          },
+        ),
+      ),
+      SettingElement(
+        group: "Game",
+        widget: ListTile(
+          title: confirmDelete.value
+              ? const GamepadPromptWidget(
+                  buttons: [GamepadButton.a], prompt: "Are you sure? Delete cannot be reversed.")
+              : const Text("Delete Game"),
+          onTap: () {
+            if (confirmDelete.value) {
+              workingOnIt.value = true;
+              deleteGame(game).then((value) {
+                if (value) {
+                  // ignore: unused_result
+                  ref.refresh(allGamesProvider);
+                }
+                GoRouter.of(context).pop();
+              });
+            } else {
+              confirmDelete.value = true;
+            }
+          },
+          onFocusChange: (value) {
+            if (value) {
+              selected.value = "delete_game";
             }
           },
         ),
