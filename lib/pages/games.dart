@@ -207,7 +207,7 @@ class GamesPage extends HookConsumerWidget {
   }
 
   void _launchGameWithEmulator(Emulator? emulator, Game game) {
-    debugPrint("Launching ${game.romPath} with ${emulator?.id}");
+    debugPrint("Launching ${game.absoluteRomPath} with ${emulator?.id}");
     emulator?.intent.toIntent(game).then((intent) => intent.launch().catchError(handleIntentError(intent)));
   }
 

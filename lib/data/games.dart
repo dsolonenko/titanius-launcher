@@ -105,10 +105,11 @@ Future<GameList> games(GamesRef ref, String systemId) async {
   if (!settings.showHiddenGames) {
     allGames.removeWhere((game) => game.hidden);
   }
+
   if (settings.checkMissingGames) {
     Stopwatch stopwatch = Stopwatch()..start();
-    allGames
-        .retainWhere((game) => game.isFolder ? Directory(game.romPath).existsSync() : File(game.romPath).existsSync());
+    allGames.retainWhere((game) =>
+        game.isFolder ? Directory(game.absoluteRomPath).existsSync() : File(game.absoluteRomPath).existsSync());
     stopwatch.stop();
     debugPrint("checkMissingGames took ${stopwatch.elapsedMilliseconds}ms");
   }
