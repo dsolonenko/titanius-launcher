@@ -146,8 +146,16 @@ List<Game> _uniqueGames(List<Game> allGames) {
 }
 
 List<Game> _sortGames(Settings settings, List<Game> allGames) {
-  bool favouriteOnTop = settings.favouritesOnTop;
-  final games = allGames.sorted((a, b) {
+  final sorter = GameSorter(settings);
+  return allGames.sorted(sorter.compare);
+}
+
+class GameSorter {
+  final Settings settings;
+
+  GameSorter(this.settings);
+
+  int compare(Game a, Game b) {
     // folders on top
     if (a.isFolder && b.isFolder) {
       return a.name.compareTo(b.name);
@@ -158,9 +166,14 @@ List<Game> _sortGames(Settings settings, List<Game> allGames) {
     if (b.isFolder) {
       return 1;
     }
-    if (favouriteOnTop) {
+    if (settings.favouritesOnTop) {
       if (a.favorite && b.favorite) {
-        return a.name.compareTo(b.name);
+        final c = a.name.compareTo(b.name);
+        if (c == 0) {
+          return a.rom.compareTo(b.rom);
+        } else {
+          return c;
+        }
       }
       if (a.favorite) {
         return -1;
@@ -169,7 +182,11 @@ List<Game> _sortGames(Settings settings, List<Game> allGames) {
         return 1;
       }
     }
-    return a.name.compareTo(b.name);
-  });
-  return games;
+    final c = a.name.compareTo(b.name);
+    if (c == 0) {
+      return a.rom.compareTo(b.rom);
+    } else {
+      return c;
+    }
+  }
 }
