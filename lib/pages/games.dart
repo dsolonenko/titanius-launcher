@@ -101,13 +101,10 @@ class GamesPage extends HookConsumerWidget {
               child: Text("No games found"),
             );
           }
-          int selectedIndex = 0;
+          final selectedIndex = selectedGame == null
+              ? 0
+              : lowerBound(gamelist.games, selectedGame, compare: gamelist.compare).clamp(0, gamelist.games.length - 1);
           final gameToShow = selectedGame ?? gamelist.games.first;
-          if (selectedGame != null) {
-            final sorter = GameSorter(settings.value!);
-            selectedIndex =
-                lowerBound(gamelist.games, selectedGame, compare: sorter.compare).clamp(0, gamelist.games.length - 1);
-          }
           debugPrint("show=${gameToShow.rom}");
           return Row(
             children: [
@@ -130,7 +127,7 @@ class GamesPage extends HookConsumerWidget {
                         itemCount: gamelist.games.length,
                         itemBuilder: (context, index) {
                           final game = gamelist.games[index];
-                          final isSelected = selectedIndex == index;
+                          final isSelected = gameToShow.romPath == game.romPath;
                           return ListTile(
                             key: ValueKey(game.romPath),
                             visualDensity: VisualDensity.compact,

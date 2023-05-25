@@ -225,7 +225,12 @@ class DeletedGames extends _$DeletedGames {
 Future<GameList> gamesForCurrentSystem(GamesForCurrentSystemRef ref) async {
   final allSystems = await ref.watch(detectedSystemsProvider.future);
   if (allSystems.isEmpty) {
-    return const GameList(systemAllGames, ".", []);
+    return const GameList(
+      systemAllGames,
+      ".",
+      [],
+      null,
+    );
   }
   final selectedSystem = ref.watch(selectedSystemProvider);
   final system = allSystems[selectedSystem.clamp(0, allSystems.length - 1)];
@@ -241,7 +246,7 @@ Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
     return gamelist;
   } else {
     final gamesInFolder = gamelist.games.where((game) => game.folder == navigation.folder).toList();
-    return GameList(gamelist.system, navigation.folder, gamesInFolder);
+    return GameList(gamelist.system, navigation.folder, gamesInFolder, gamelist.compare);
   }
 }
 
@@ -250,5 +255,5 @@ Future<GameList> filteredGamesInFolder(FilteredGamesInFolderRef ref, String syst
   final gamelist = await ref.watch(gamesInFolderProvider(system).future);
   final filter = ref.watch(currentGameFilterProvider(system));
   final games = filter.apply(gamelist.games);
-  return GameList(gamelist.system, gamelist.currentFolder, games);
+  return GameList(gamelist.system, gamelist.currentFolder, games, gamelist.compare);
 }
