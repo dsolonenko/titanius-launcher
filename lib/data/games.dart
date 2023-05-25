@@ -17,8 +17,9 @@ class GameList {
   final System system;
   final String currentFolder;
   final List<Game> games;
+  final int Function(Game, Game)? compare;
 
-  const GameList(this.system, this.currentFolder, this.games);
+  const GameList(this.system, this.currentFolder, this.games, this.compare);
 }
 
 @Riverpod(keepAlive: true)
@@ -116,25 +117,33 @@ Future<GameList> games(GamesRef ref, String systemId) async {
 
   switch (system.id) {
     case "favourites":
-      final games = allGames.where((game) => game.favorite).sortedBy((game) => game.name);
+      compare(Game a, Game b) => a.name.compareTo(b.name);
+      final games = allGames.where((game) => game.favorite).sorted(compare);
       final gamesInCollection = settings.uniqueGamesInCollections ? _uniqueGames(games) : games;
-      return GameList(system, ".", gamesInCollection);
+      return GameList(system, ".", gamesInCollection, (a, b) => a.name.compareTo(b.name));
     case "recent":
       Map<String, int> recentGamesMap = {
         for (var item in recentGames) item.romPath: item.timestamp,
       };
-      final games = allGames.where((game) => recentGamesMap.containsKey(game.romPath)).toList();
-      games.sort((a, b) => recentGamesMap[b.romPath]!.compareTo(recentGamesMap[a.romPath]!));
+      compare(Game a, Game b) => recentGamesMap[b.romPath]!.compareTo(recentGamesMap[a.romPath]!);
+      final games = allGames.where((game) => recentGamesMap.containsKey(game.romPath)).sorted(compare);
       final gamesInCollection = settings.uniqueGamesInCollections ? _uniqueGames(games) : games;
-      return GameList(system, ".", gamesInCollection);
+      return GameList(
+        system,
+        ".",
+        gamesInCollection,
+        compare,
+      );
     case "all":
+      final sorter = GameSorter(settings);
       final gamesButNotFolders = allGames.where((game) => !game.isFolder).toList();
       final games = settings.uniqueGamesInCollections ? _uniqueGames(gamesButNotFolders) : gamesButNotFolders;
       final gamesInCollection = _sortGames(settings, games);
-      return GameList(system, ".", gamesInCollection);
+      return GameList(system, ".", gamesInCollection, sorter.compare);
     default:
+      final sorter = GameSorter(settings);
       final games = _sortGames(settings, allGames.where((game) => game.system.id == system.id).toList());
-      return GameList(system, ".", games);
+      return GameList(system, ".", games, sorter.compare);
   }
 }
 
@@ -146,8 +155,16 @@ List<Game> _uniqueGames(List<Game> allGames) {
 }
 
 List<Game> _sortGames(Settings settings, List<Game> allGames) {
-  bool favouriteOnTop = settings.favouritesOnTop;
-  final games = allGames.sorted((a, b) {
+  final sorter = GameSorter(settings);
+  return allGames.sorted(sorter.compare);
+}
+
+class GameSorter {
+  final Settings settings;
+
+  GameSorter(this.settings);
+
+  int compare(Game a, Game b) {
     // folders on top
     if (a.isFolder && b.isFolder) {
       return a.name.compareTo(b.name);
@@ -158,9 +175,14 @@ List<Game> _sortGames(Settings settings, List<Game> allGames) {
     if (b.isFolder) {
       return 1;
     }
-    if (favouriteOnTop) {
+    if (settings.favouritesOnTop) {
       if (a.favorite && b.favorite) {
-        return a.name.compareTo(b.name);
+        final c = a.name.compareTo(b.name);
+        if (c == 0) {
+          return a.rom.compareTo(b.rom);
+        } else {
+          return c;
+        }
       }
       if (a.favorite) {
         return -1;
@@ -169,7 +191,11 @@ List<Game> _sortGames(Settings settings, List<Game> allGames) {
         return 1;
       }
     }
-    return a.name.compareTo(b.name);
-  });
-  return games;
+    final c = a.name.compareTo(b.name);
+    if (c == 0) {
+      return a.rom.compareTo(b.rom);
+    } else {
+      return c;
+    }
+  }
 }

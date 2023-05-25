@@ -101,10 +101,10 @@ class GamesPage extends HookConsumerWidget {
               child: Text("No games found"),
             );
           }
+          final selectedIndex = selectedGame == null
+              ? 0
+              : lowerBound(gamelist.games, selectedGame, compare: gamelist.compare).clamp(0, gamelist.games.length - 1);
           final gameToShow = selectedGame ?? gamelist.games.first;
-          final selectedIndex = gamelist.games
-              .indexWhere((game) => game.romPath == gameToShow.romPath)
-              .clamp(0, gamelist.games.length - 1);
           debugPrint("show=${gameToShow.rom}");
           return Row(
             children: [
@@ -127,7 +127,7 @@ class GamesPage extends HookConsumerWidget {
                         itemCount: gamelist.games.length,
                         itemBuilder: (context, index) {
                           final game = gamelist.games[index];
-                          final isSelected = selectedIndex == index;
+                          final isSelected = gameToShow.romPath == game.romPath;
                           return ListTile(
                             key: ValueKey(game.romPath),
                             visualDensity: VisualDensity.compact,
@@ -211,7 +211,7 @@ class GamesPage extends HookConsumerWidget {
     emulator?.intent.toIntent(game).then((intent) => intent.launch().catchError(handleIntentError(intent)));
   }
 
-  _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
+  Widget _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
     final gamesInFolder = ref
         .read(gamesProvider(system))
         .value!
