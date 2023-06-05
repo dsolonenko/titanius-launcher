@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -103,13 +104,19 @@ class GameSettingsPage extends HookConsumerWidget {
           },
           onTap: () {
             workingOnIt.value = true;
-            setFavouriteInGamelistXml(game, !game.favorite).then((value) {
-              if (value) {
-                // ignore: unused_result
-                ref.refresh(allGamesProvider);
-              }
-              GoRouter.of(context).pop();
-            });
+            setFavouriteInGamelistXml(game, !game.favorite).then(
+              (value) {
+                if (value) {
+                  // ignore: unused_result
+                  ref.refresh(allGamesProvider);
+                }
+                GoRouter.of(context).pop();
+              },
+              onError: (error, stack) {
+                workingOnIt.value = false;
+                _showError(context, error);
+              },
+            );
           },
         ),
       ),
@@ -119,13 +126,19 @@ class GameSettingsPage extends HookConsumerWidget {
           title: game.hidden ? const Text("Show Game") : const Text("Hide Game"),
           onTap: () {
             workingOnIt.value = true;
-            setHiddenGameInGamelistXml(game, !game.hidden).then((value) {
-              if (value) {
-                // ignore: unused_result
-                ref.refresh(allGamesProvider);
-              }
-              GoRouter.of(context).pop();
-            });
+            setHiddenGameInGamelistXml(game, !game.hidden).then(
+              (value) {
+                if (value) {
+                  // ignore: unused_result
+                  ref.refresh(allGamesProvider);
+                }
+                GoRouter.of(context).pop();
+              },
+              onError: (error, stack) {
+                workingOnIt.value = false;
+                _showError(context, error);
+              },
+            );
           },
           onFocusChange: (value) {
             if (value) {
@@ -144,13 +157,19 @@ class GameSettingsPage extends HookConsumerWidget {
           onTap: () {
             if (confirmDelete.value) {
               workingOnIt.value = true;
-              deleteGame(game).then((value) {
-                if (value) {
-                  // ignore: unused_result
-                  ref.refresh(allGamesProvider);
-                }
-                GoRouter.of(context).pop();
-              });
+              deleteGame(game).then(
+                (value) {
+                  if (value) {
+                    // ignore: unused_result
+                    ref.refresh(allGamesProvider);
+                  }
+                  GoRouter.of(context).pop();
+                },
+                onError: (error, stack) {
+                  workingOnIt.value = false;
+                  _showError(context, error);
+                },
+              );
             } else {
               confirmDelete.value = true;
             }
@@ -223,6 +242,18 @@ class GameSettingsPage extends HookConsumerWidget {
               sort: false,
             ),
     );
+  }
+
+  void _showError(BuildContext context, err) {
+    debugPrint(err.toString());
+    Fluttertoast.showToast(
+        msg: "Unable to change game settings: ${err.toString()}",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 }
 
