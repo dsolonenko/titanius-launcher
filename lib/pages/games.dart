@@ -101,6 +101,7 @@ class GamesPage extends HookConsumerWidget {
               child: Text("No games found"),
             );
           }
+          debugPrint("Selected game is ${selectedGame?.romPath}");
           final selectedIndex = selectedGame == null
               ? 0
               : lowerBound(gamelist.games, selectedGame, compare: gamelist.compare).clamp(0, gamelist.games.length - 1);
@@ -127,7 +128,7 @@ class GamesPage extends HookConsumerWidget {
                         itemCount: gamelist.games.length,
                         itemBuilder: (context, index) {
                           final game = gamelist.games[index];
-                          final isSelected = gameToShow.romPath == game.romPath;
+                          final isSelected = index == selectedIndex;
                           return ListTile(
                             key: ValueKey(game.romPath),
                             visualDensity: VisualDensity.compact,
