@@ -115,12 +115,17 @@ class Wallpaper {
 }
 
 Future<WallpaperPack?> daijishoWallpaperPack(String rootPath) async {
-  final response = await http.get(Uri.parse(
-      "https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/$rootPath/index.json"));
+  try {
+    final response = await http.get(Uri.parse(
+        "https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/$rootPath/index.json"));
 
-  if (response.statusCode == 200) {
-    return WallpaperPack.fromJson(rootPath, json.decode(response.body));
-  } else {
+    if (response.statusCode == 200) {
+      return WallpaperPack.fromJson(rootPath, json.decode(response.body));
+    } else {
+      debugPrint('Failed to load wallpaper pack $rootPath');
+      return null;
+    }
+  } catch (e) {
     debugPrint('Failed to load wallpaper pack $rootPath');
     return null;
   }
