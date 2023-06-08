@@ -5,15 +5,15 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onscreen_keyboard/onscreen_keyboard.dart';
-import 'package:titanius/data/genres.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import '../data/state.dart';
-import '../gamepad.dart';
-import '../widgets/prompt_bar.dart';
+import 'package:titanius/data/genres.dart';
+import 'package:titanius/data/state.dart';
+import 'package:titanius/gamepad.dart';
+import 'package:titanius/widgets/prompt_bar.dart';
 
-part 'filters/genres.dart';
-part 'filters/name.dart';
+part 'package:titanius/pages/filters/genres.dart';
+part 'package:titanius/pages/filters/name.dart';
 
 const checkBoxSize = 40.0;
 const checkBoxOnIcon = Icon(

@@ -1,8 +1,8 @@
-import 'package:titanius/data/genres.dart';
 import 'package:xml/xml.dart';
 import 'package:collection/collection.dart';
 
-import 'android_intent.dart';
+import 'package:titanius/data/android_intent.dart';
+import 'package:titanius/data/genres.dart';
 
 const systemAllGames = System(
   id: 'all',

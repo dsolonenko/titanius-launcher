@@ -2,7 +2,8 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/foundation.dart';
 
-import 'models.dart';
+import 'package:titanius/data/models.dart';
+
 import 'android_saf.dart' as saf;
 
 class RomLocation {

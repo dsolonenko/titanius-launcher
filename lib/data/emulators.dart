@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'repo.dart';
-import 'models.dart';
-import 'systems.dart';
+import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/models.dart';
+import 'package:titanius/data/systems.dart';
 
 part 'emulators.g.dart';
 

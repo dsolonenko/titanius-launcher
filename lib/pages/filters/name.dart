@@ -1,4 +1,4 @@
-part of '../filter.dart';
+part of 'package:titanius/pages/filter.dart';
 
 class NameFilterPage extends HookConsumerWidget {
   final String system;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../gamepad.dart';
-import 'gamepad_prompt.dart';
+import 'package:titanius/gamepad.dart';
+import 'package:titanius/widgets/gamepad_prompt.dart';
 
 class GamepadPrompt {
   final List<GamepadButton> buttons;

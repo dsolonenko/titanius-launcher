@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:xml/xml.dart';
 
-import 'models.dart';
+import 'package:titanius/data/models.dart';
 
 Future<bool> deleteGame(Game game) async {
   return File(game.absoluteRomPath).delete().then((value) {

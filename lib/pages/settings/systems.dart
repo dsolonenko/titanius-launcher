@@ -1,4 +1,4 @@
-part of '../settings.dart';
+part of 'package:titanius/pages/settings.dart';
 
 class ShowSystemsSettingsPage extends HookConsumerWidget {
   const ShowSystemsSettingsPage({super.key});

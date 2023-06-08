@@ -7,14 +7,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/widgets/selector.dart';
-import '../data/games.dart';
-import '../data/repo.dart';
-import '../data/state.dart';
-import '../gamepad.dart';
-import '../widgets/gamepad_prompt.dart';
-import '../widgets/prompt_bar.dart';
+import 'package:titanius/data/games.dart';
+import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/state.dart';
+import 'package:titanius/gamepad.dart';
+import 'package:titanius/widgets/gamepad_prompt.dart';
+import 'package:titanius/widgets/prompt_bar.dart';
 
 class GameSettingsPage extends HookConsumerWidget {
   final String system;

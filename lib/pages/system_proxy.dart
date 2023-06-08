@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:titanius/pages/games.dart';
 
-import '../data/state.dart';
-import '../data/systems.dart';
-import '../gamepad.dart';
-import 'android.dart';
+import 'package:titanius/pages/android.dart';
+import 'package:titanius/pages/games.dart';
+import 'package:titanius/data/state.dart';
+import 'package:titanius/data/systems.dart';
+import 'package:titanius/gamepad.dart';
 
 class SystemProxy extends HookConsumerWidget {
   final String system;

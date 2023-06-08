@@ -8,25 +8,25 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_storage/saf.dart' as saf;
 
-import '../data/android_apps.dart';
-import '../data/android_saf.dart';
-import '../data/daijisho.dart';
-import '../data/emulators.dart';
-import '../data/games.dart';
-import '../data/models.dart';
-import '../data/repo.dart';
-import '../data/state.dart';
-import '../data/systems.dart';
-import '../gamepad.dart';
-import '../widgets/gamepad_prompt.dart';
-import '../widgets/prompt_bar.dart';
+import 'package:titanius/data/android_apps.dart';
+import 'package:titanius/data/android_saf.dart';
+import 'package:titanius/data/daijisho.dart';
+import 'package:titanius/data/emulators.dart';
+import 'package:titanius/data/games.dart';
+import 'package:titanius/data/models.dart';
+import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/state.dart';
+import 'package:titanius/data/systems.dart';
+import 'package:titanius/gamepad.dart';
+import 'package:titanius/widgets/gamepad_prompt.dart';
+import 'package:titanius/widgets/prompt_bar.dart';
 
-part 'settings/systems.dart';
-part 'settings/emulators.dart';
-part 'settings/ui.dart';
-part 'settings/roms.dart';
-part 'settings/apps.dart';
-part 'settings/daijisho.dart';
+part 'package:titanius/pages/settings/systems.dart';
+part 'package:titanius/pages/settings/emulators.dart';
+part 'package:titanius/pages/settings/ui.dart';
+part 'package:titanius/pages/settings/roms.dart';
+part 'package:titanius/pages/settings/apps.dart';
+part 'package:titanius/pages/settings/daijisho.dart';
 
 const toggleSize = 40.0;
 const toggleOnIcon = Icon(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../gamepad.dart';
+import 'package:titanius/gamepad.dart';
 
 const gamepadFontMappings = {
   GamepadButton.up: "\u{219F}",

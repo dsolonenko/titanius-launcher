@@ -9,10 +9,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:titanius/pages/filter.dart';
 
-import 'pages/game_settings.dart';
-import 'pages/settings.dart';
-import 'pages/system_proxy.dart';
-import 'pages/systems.dart';
+import 'package:titanius/pages/game_settings.dart';
+import 'package:titanius/pages/settings.dart';
+import 'package:titanius/pages/system_proxy.dart';
+import 'package:titanius/pages/systems.dart';
 
 void main() {
   runApp(

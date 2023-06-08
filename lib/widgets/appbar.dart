@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'battery.dart';
-import 'time.dart';
-import 'wifi.dart';
+import 'package:titanius/widgets/battery.dart';
+import 'package:titanius/widgets/time.dart';
+import 'package:titanius/widgets/wifi.dart';
 
 final batteryProvider = StreamProvider<BatteryInfo>((ref) {
   final battery = Battery();

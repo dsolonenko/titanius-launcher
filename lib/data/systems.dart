@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:titanius/data/repo.dart';
 
-import 'models.dart';
+import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/models.dart';
 
 part 'systems.g.dart';
 

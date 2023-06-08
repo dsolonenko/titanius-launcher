@@ -5,12 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_player/video_player.dart';
 
-import 'games.dart';
-import 'genres.dart';
-import 'models.dart';
-import 'repo.dart';
-import 'stack.dart';
-import 'systems.dart';
+import 'package:titanius/data/games.dart';
+import 'package:titanius/data/genres.dart';
+import 'package:titanius/data/models.dart';
+import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/stack.dart';
+import 'package:titanius/data/systems.dart';
 
 part 'state.g.dart';
 

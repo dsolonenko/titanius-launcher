@@ -10,17 +10,17 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
 import 'package:titanius/data/emulators.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/widgets/fade_image_to_video.dart';
-
-import '../data/repo.dart';
-import '../data/state.dart';
-import '../gamepad.dart';
-import '../data/games.dart';
-import '../widgets/appbar.dart';
-import '../widgets/info_tile.dart';
-import '../widgets/prompt_bar.dart';
+import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/state.dart';
+import 'package:titanius/gamepad.dart';
+import 'package:titanius/data/games.dart';
+import 'package:titanius/widgets/appbar.dart';
+import 'package:titanius/widgets/info_tile.dart';
+import 'package:titanius/widgets/prompt_bar.dart';
 
 const double verticalSpacing = 4;
 

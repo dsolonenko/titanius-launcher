@@ -5,8 +5,8 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'models.dart';
-import 'storage.dart';
+import 'package:titanius/data/models.dart';
+import 'package:titanius/data/storage.dart';
 
 part 'repo.g.dart';
 

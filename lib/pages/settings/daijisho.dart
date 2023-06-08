@@ -1,4 +1,4 @@
-part of '../settings.dart';
+part of 'package:titanius/pages/settings.dart';
 
 class DaijishoWallpaperPacksPage extends HookConsumerWidget {
   const DaijishoWallpaperPacksPage({super.key});

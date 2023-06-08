@@ -6,15 +6,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:page_view_dot_indicator/page_view_dot_indicator.dart';
 import 'package:preload_page_view/preload_page_view.dart';
-import 'package:titanius/data/daijisho.dart';
 
-import '../data/games.dart';
-import '../data/models.dart';
-import '../data/state.dart';
-import '../data/systems.dart';
-import '../gamepad.dart';
-import '../widgets/appbar.dart';
-import '../widgets/prompt_bar.dart';
+import 'package:titanius/data/daijisho.dart';
+import 'package:titanius/data/games.dart';
+import 'package:titanius/data/models.dart';
+import 'package:titanius/data/state.dart';
+import 'package:titanius/data/systems.dart';
+import 'package:titanius/gamepad.dart';
+import 'package:titanius/widgets/appbar.dart';
+import 'package:titanius/widgets/prompt_bar.dart';
 
 class SystemsPage extends HookConsumerWidget {
   const SystemsPage({super.key});

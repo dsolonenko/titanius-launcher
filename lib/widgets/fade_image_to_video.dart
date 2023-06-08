@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-import '../data/models.dart';
-import '../data/repo.dart';
+import 'package:titanius/data/models.dart';
+import 'package:titanius/data/repo.dart';
 
 class FadeImageToVideo extends StatefulWidget {
   final Game game;

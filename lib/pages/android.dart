@@ -6,13 +6,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:titanius/data/android_apps.dart';
 
-import '../data/state.dart';
-import '../gamepad.dart';
-import '../widgets/appbar.dart';
-import '../widgets/info_tile.dart';
-import '../widgets/prompt_bar.dart';
+import 'package:titanius/data/android_apps.dart';
+import 'package:titanius/data/state.dart';
+import 'package:titanius/gamepad.dart';
+import 'package:titanius/widgets/appbar.dart';
+import 'package:titanius/widgets/info_tile.dart';
+import 'package:titanius/widgets/prompt_bar.dart';
 
 const double verticalSpacing = 10;
 
