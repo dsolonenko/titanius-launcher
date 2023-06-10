@@ -4447,7 +4447,8 @@
       "name": "WonderSwan",
       "logo": "WonderSwan.png",
       "folders": [
-        "ws"
+        "ws",
+        "wonderswan"
       ],
       "emulators": [
         {
@@ -4473,7 +4474,8 @@
       "name": "WonderSwan Color",
       "logo": "Wonderswan Color.png",
       "folders": [
-        "wsc"
+        "wsc",
+        "wonderswancolor"
       ],
       "emulators": [
         {
