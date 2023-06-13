@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:go_router/go_router.dart';
 
 enum GamepadButton {
@@ -95,6 +96,12 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
         hook.listener(hook.location, GamepadButton.start);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonSelect || e.logicalKey == LogicalKeyboardKey.insert) {
         hook.listener(hook.location, GamepadButton.select);
+      } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeUp) {
+        FlutterVolumeController.raiseVolume(null).then((value) => debugPrint("Volume raised"));
+      } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeDown) {
+        FlutterVolumeController.lowerVolume(null).then((value) => debugPrint("Volume lowered"));
+      } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeMute) {
+        FlutterVolumeController.toggleMute().then((value) => debugPrint("Volume muted"));
       }
     } else if (e is KeyRepeatEvent) {
       debugPrint("Gamepad repeat ${e.logicalKey}");

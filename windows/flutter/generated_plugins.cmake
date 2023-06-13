@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus
   connectivity_plus
+  flutter_volume_controller
   isar_flutter_libs
   permission_handler_windows
   system_date_time_format
