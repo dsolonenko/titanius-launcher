@@ -39,8 +39,10 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
       });
     } else {
       _controller.initialize().then((value) {
-        _controller.play();
-        setState(() {});
+        if (mounted && !_lostFocus) {
+          _controller.play();
+          setState(() {});
+        }
       });
     }
   }
@@ -71,7 +73,9 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
 
     // Start playing the video after the remaining fade-out time.
     Future.delayed(Duration(milliseconds: remainingTime), () {
-      _controller.play();
+      if (mounted && !_lostFocus) {
+        _controller.play();
+      }
     });
   }
 
@@ -80,10 +84,21 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
     return FocusDetector(
       onFocusLost: () {
         debugPrint('Focus lost');
-        _controller.dispose();
         if (mounted) {
+          _controller.pause();
           setState(() {
             _lostFocus = true;
+          });
+        }
+      },
+      onFocusGained: () {
+        debugPrint('Focus gained');
+        if (mounted) {
+          if (_controller.value.isInitialized) {
+            _controller.play();
+          }
+          setState(() {
+            _lostFocus = false;
           });
         }
       },
