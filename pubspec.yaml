@@ -68,7 +68,8 @@ dependencies:
   toggle_switch: ^2.1.0
   isolated_worker: ^0.1.1
   flutter_volume_controller: ^1.2.6
-
+  focus_detector_v2: ^3.1.0+1
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

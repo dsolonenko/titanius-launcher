@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:video_player/video_player.dart';
 
 import 'package:titanius/data/models.dart';
@@ -19,6 +20,7 @@ class FadeImageToVideo extends StatefulWidget {
 class FadeImageToVideoState extends State<FadeImageToVideo> {
   late VideoPlayerController _controller;
   bool _showImage = true;
+  bool _lostFocus = false;
 
   @override
   void initState() {
@@ -75,7 +77,29 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.settings.fadeToVideo) {
+    return FocusDetector(
+      onFocusLost: () {
+        debugPrint('Focus lost');
+        _controller.dispose();
+        if (mounted) {
+          setState(() {
+            _lostFocus = true;
+          });
+        }
+      },
+      child: _buildVideoPlayer(),
+    );
+  }
+
+  Widget _buildVideoPlayer() {
+    if (_lostFocus) {
+      return Image.file(
+        File(widget.game.imageUrl!),
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+        key: const ValueKey<int>(1),
+      );
+    } else if (widget.settings.fadeToVideo) {
       return AnimatedSwitcher(
         duration: const Duration(milliseconds: 500),
         child: _showImage
@@ -85,7 +109,7 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
                 filterQuality: FilterQuality.high,
                 key: const ValueKey<int>(1),
               )
-            : _controller.value.isInitialized
+            : mounted && _controller.value.isInitialized
                 ? AspectRatio(
                     key: const ValueKey<int>(2),
                     aspectRatio: _controller.value.aspectRatio,

@@ -38,7 +38,6 @@ class GamesPage extends HookConsumerWidget {
     final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
 
     final showDetails = useState(false);
-    final runningGame = useState(false);
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
@@ -150,7 +149,6 @@ class GamesPage extends HookConsumerWidget {
                                 debugPrint(
                                     "Focus on ${game.rom}, list=${itemPositionsListener.itemPositions.value.map((e) => e.index.toString()).join(",")}");
                                 ref.read(selectedGameProvider(system).notifier).set(game);
-                                runningGame.value = false;
                               }
                             },
                             title: Text(game.name,
@@ -171,7 +169,6 @@ class GamesPage extends HookConsumerWidget {
                                 ref.read(selectedGameProvider(system).notifier).reset();
                               } else {
                                 _launchGame(ref, game);
-                                runningGame.value = true;
                               }
                             },
                           );
@@ -185,7 +182,7 @@ class GamesPage extends HookConsumerWidget {
                 flex: 2,
                 child: gameToShow.isFolder
                     ? _gameFolder(ref, context, gameToShow)
-                    : _gameDetails(settings, gameToShow, showDetails, runningGame),
+                    : _gameDetails(settings, gameToShow, showDetails),
               ),
             ],
           );
@@ -262,21 +259,20 @@ class GamesPage extends HookConsumerWidget {
         .set(games.value!.games[index.clamp(0, games.value!.games.length - 1)]);
   }
 
-  Widget _gameDetails(AsyncValue<Settings> settings, Game gameToShow, ValueNotifier<bool> showDetails,
-      ValueNotifier<bool> runningGame) {
+  Widget _gameDetails(AsyncValue<Settings> settings, Game gameToShow, ValueNotifier<bool> showDetails) {
     if (showDetails.value) {
       return _gameDetailsLong(gameToShow);
     } else {
-      return _gameDetailsShort(settings, gameToShow, runningGame);
+      return _gameDetailsShort(settings, gameToShow);
     }
   }
 
-  Widget _gameDetailsShort(AsyncValue<Settings> settings, Game gameToShow, ValueNotifier<bool> runningGame) {
+  Widget _gameDetailsShort(AsyncValue<Settings> settings, Game gameToShow) {
     return Column(
       children: [
         Expanded(
           child: settings.when(
-              data: (settings) => settings.showGameVideos && gameToShow.videoUrl != null && !runningGame.value
+              data: (settings) => settings.showGameVideos && gameToShow.videoUrl != null
                   ? _gameVideo(settings, gameToShow)
                   : _gameImage(gameToShow),
               error: (_, __) => _gameImage(gameToShow),

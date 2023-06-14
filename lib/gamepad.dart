@@ -117,6 +117,10 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
         hook.listener(hook.location, GamepadButton.l2);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight2) {
         hook.listener(hook.location, GamepadButton.r2);
+      } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeUp) {
+        FlutterVolumeController.raiseVolume(null).then((value) => debugPrint("Volume raised"));
+      } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeDown) {
+        FlutterVolumeController.lowerVolume(null).then((value) => debugPrint("Volume lowered"));
       }
     }
     return true;
