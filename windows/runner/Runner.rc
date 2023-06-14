@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "app.titanius" "\0"
+            VALUE "CompanyName", "titanius.app" "\0"
             VALUE "FileDescription", "titanius" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "titanius" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 app.titanius. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2023 Denis Solonenko. All rights reserved." "\0"
             VALUE "OriginalFilename", "titanius.exe" "\0"
-            VALUE "ProductName", "titanius" "\0"
+            VALUE "ProductName", "Titanius Launcher" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

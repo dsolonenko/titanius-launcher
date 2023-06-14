@@ -39,6 +39,17 @@ class GamesPage extends HookConsumerWidget {
 
     final showDetails = useState(false);
 
+    useEffect(() {
+      if (system == "recent") {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // ignore: unused_result
+          ref.refresh(recentGamesProvider);
+          ref.read(selectedGameProvider(system).notifier).reset();
+        });
+      }
+      return null;
+    }, const []);
+
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
       if (key == GamepadButton.l1 || key == GamepadButton.r1) {
