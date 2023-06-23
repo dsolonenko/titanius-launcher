@@ -33,7 +33,7 @@ class NameFilterPage extends HookConsumerWidget {
             children: [
               Text(filter.search, style: Theme.of(context).textTheme.headlineLarge),
               SizedBox(
-                width: 2 * MediaQuery.of(context).size.width / 3,
+                width: 2 * MediaQuery.sizeOf(context).width / 3,
                 child: OnscreenKeyboard(
                   value: filter.search,
                   buttonColor: Theme.of(context).colorScheme.background.lighten(10),

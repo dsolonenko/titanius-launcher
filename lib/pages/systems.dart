@@ -130,11 +130,11 @@ class SystemsPage extends HookConsumerWidget {
   Widget _systemLogo(WidgetRef ref, BuildContext context, System system, WallpaperPack? wallpaperPack) {
     switch (system.id) {
       case "favourites":
-        return _textLogo(Icons.star_rounded, Colors.orangeAccent, "Favourites");
+        return _textLogo(context, Icons.star_rounded, Colors.orangeAccent, "Favourites");
       case "recent":
-        return _textLogo(Icons.history_rounded, Colors.redAccent, "Recent");
+        return _textLogo(context, Icons.history_rounded, Colors.redAccent, "Recent");
       case "all":
-        return _textLogo(Icons.apps_rounded, Colors.indigoAccent, "All Games");
+        return _textLogo(context, Icons.apps_rounded, Colors.indigoAccent, "All Games");
       default:
         if (wallpaperPack != null) {
           final wallpaper =
@@ -147,7 +147,7 @@ class SystemsPage extends HookConsumerWidget {
               final imageUrl = wallpaperPack.defaultWallpaperUrl(wallpaperPack.rootPath);
               return _cachedImage(imageUrl);
             } else {
-              return _textLogo(Icons.gamepad_rounded, Theme.of(context).primaryColor, system.name);
+              return _textLogo(context, Icons.gamepad_rounded, Theme.of(context).primaryColor, system.name);
             }
           }
         } else {
@@ -174,19 +174,20 @@ class SystemsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _textLogo(IconData icon, Color iconColor, String text) {
+  Widget _textLogo(BuildContext context, IconData icon, Color iconColor, String text) {
     return Center(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: iconColor,
-            size: 120,
+      child: SizedBox(
+        width: MediaQuery.sizeOf(context).width / 2,
+        child: FittedBox(
+          fit: BoxFit.fitWidth,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: iconColor),
+              Text(text, style: const TextStyle(color: Colors.white)),
+            ],
           ),
-          const SizedBox(width: 8),
-          Text(text, style: const TextStyle(color: Colors.white, fontSize: 120)),
-        ],
+        ),
       ),
     );
   }
