@@ -112,12 +112,9 @@ class GamesPage extends HookConsumerWidget {
               child: Text("No games found"),
             );
           }
-          debugPrint("Selected game is ${selectedGame?.romPath}");
-          final selectedIndex = selectedGame == null
-              ? 0
-              : lowerBound(gamelist.games, selectedGame, compare: gamelist.compare).clamp(0, gamelist.games.length - 1);
-          final gameToShow = selectedGame ?? gamelist.games.first;
-          debugPrint("show=${gameToShow.rom}");
+          final selectedIndex = findGame(gamelist, selectedGame);
+          final gameToShow = gamelist.games[selectedIndex];
+          debugPrint("Selected game is $selectedIndex: ${gameToShow.rom}");
           return Row(
             children: [
               Expanded(
@@ -158,7 +155,7 @@ class GamesPage extends HookConsumerWidget {
                             onFocusChange: (value) {
                               if (value) {
                                 debugPrint(
-                                    "Focus on ${game.rom}, list=${itemPositionsListener.itemPositions.value.map((e) => e.index.toString()).join(",")}");
+                                    "Focus on $index: ${game.rom}, list=${itemPositionsListener.itemPositions.value.sorted((a, b) => a.index.compareTo(b.index)).map((e) => e.index.toString()).join(",")}");
                                 ref.read(selectedGameProvider(system).notifier).set(game);
                               }
                             },
@@ -260,14 +257,13 @@ class GamesPage extends HookConsumerWidget {
   }
 
   void _goTo(WidgetRef ref, ItemScrollController scrollController, int index) {
+    final games = ref.read(filteredGamesInFolderProvider(system));
+    index = index.clamp(0, games.value!.games.length - 1).toInt();
     scrollController.jumpTo(
       index: index,
       alignment: 0,
     );
-    final games = ref.read(filteredGamesInFolderProvider(system));
-    ref
-        .read(selectedGameProvider(system).notifier)
-        .set(games.value!.games[index.clamp(0, games.value!.games.length - 1)]);
+    ref.read(selectedGameProvider(system).notifier).set(games.value!.games[index]);
   }
 
   Widget _gameDetails(AsyncValue<Settings> settings, Game gameToShow, ValueNotifier<bool> showDetails) {
@@ -398,6 +394,17 @@ class GamesPage extends HookConsumerWidget {
         Text(text, style: const TextStyle(color: Colors.white, fontSize: 18)),
       ],
     );
+  }
+
+  int findGame(GameList gamelist, Game? selectedGame) {
+    if (selectedGame == null) {
+      return 0;
+    }
+    final index = binarySearch(gamelist.games, selectedGame, compare: gamelist.compare);
+    if (index >= 0) {
+      return index;
+    }
+    return lowerBound(gamelist.games, selectedGame, compare: gamelist.compare).clamp(0, gamelist.games.length - 1);
   }
 }
 

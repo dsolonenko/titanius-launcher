@@ -151,15 +151,21 @@ class SystemsPage extends HookConsumerWidget {
             }
           }
         } else {
-          return Padding(
-            padding: const EdgeInsets.all(120.0),
-            child: Image.asset(
-              "assets/images/color/${system.logo}",
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.high,
-              isAntiAlias: true,
-              errorBuilder: (context, url, error) => const Icon(Icons.error),
-            ),
+          return Row(
+            children: [
+              const Expanded(flex: 1, child: SizedBox()),
+              Expanded(
+                flex: 4,
+                child: Image.asset(
+                  "assets/images/color/${system.logo}",
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.high,
+                  isAntiAlias: true,
+                  errorBuilder: (context, url, error) => const Icon(Icons.error),
+                ),
+              ),
+              const Expanded(flex: 1, child: SizedBox()),
+            ],
           );
         }
     }
@@ -175,20 +181,24 @@ class SystemsPage extends HookConsumerWidget {
   }
 
   Widget _textLogo(BuildContext context, IconData icon, Color iconColor, String text) {
-    return Center(
-      child: SizedBox(
-        width: MediaQuery.sizeOf(context).width / 2,
-        child: FittedBox(
-          fit: BoxFit.fitWidth,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: iconColor),
-              Text(text, style: const TextStyle(color: Colors.white)),
-            ],
+    return Row(
+      children: [
+        const Expanded(flex: 1, child: SizedBox()),
+        Expanded(
+          flex: 4,
+          child: FittedBox(
+            fit: BoxFit.fitWidth,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: iconColor),
+                Text(text, style: const TextStyle(color: Colors.white)),
+              ],
+            ),
           ),
         ),
-      ),
+        const Expanded(flex: 1, child: SizedBox()),
+      ],
     );
   }
 
