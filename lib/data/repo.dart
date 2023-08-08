@@ -24,6 +24,8 @@ class Settings {
   bool get fadeToVideo => _getBoolean('fadeToVideo', false);
   bool get muteVideo => _getBoolean('muteVideo', true);
   String? get daijishoWallpaperPack => _getString('daijishoWallpaperPack');
+  String? get screenScraperUser => _getString('screenScraperUser');
+  String? get screenScraperPwd => _getString('screenScraperPwd');
 
   bool _getBoolean(String key, bool defaultValue) {
     return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
@@ -127,6 +129,14 @@ class SettingsRepo {
 
   Future<void> resetDaijishoWallpaperPack() async {
     return _resetSetting('daijishoWallpaperPack');
+  }
+
+  Future<void> setScreenScraperUser(String value) async {
+    return _setSetting('screenScraperUser', value);
+  }
+
+  Future<void> setScreenScraperPwd(String value) async {
+    return _setSetting('screenScraperPwd', value);
   }
 
   Future<void> _resetSetting(String key) async {

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:xml/xml.dart';
 import 'package:collection/collection.dart';
 
@@ -6,6 +8,7 @@ import 'package:titanius/data/genres.dart';
 
 const systemAllGames = System(
   id: 'all',
+  screenScraperId: 0,
   name: 'All Games',
   logo: "",
   folders: [],
@@ -15,6 +18,7 @@ const systemAllGames = System(
 
 const systemFavourites = System(
   id: 'favourites',
+  screenScraperId: 0,
   name: 'Favourites',
   logo: "",
   folders: [],
@@ -24,6 +28,7 @@ const systemFavourites = System(
 
 const systemRecent = System(
   id: 'recent',
+  screenScraperId: 0,
   name: 'Recent',
   logo: "",
   folders: [],
@@ -35,6 +40,7 @@ const collections = [systemRecent, systemFavourites, systemAllGames];
 
 class System {
   final String id;
+  final int screenScraperId;
   final String name;
   final String logo;
   final List<String> folders;
@@ -43,6 +49,7 @@ class System {
 
   const System(
       {required this.id,
+      required this.screenScraperId,
       required this.name,
       required this.logo,
       required this.folders,
@@ -57,6 +64,7 @@ class System {
   factory System.fromJson(Map<String, dynamic> json) {
     return System(
       id: json['id'],
+      screenScraperId: json['screenScraperId'],
       name: json['name'],
       logo: json['logo'],
       folders: List<String>.from(json['folders']),
@@ -111,6 +119,7 @@ class Game {
   bool favorite;
   bool isFolder;
   bool hidden;
+  bool fromGamelistXml;
 
   Game(
     this.system,
@@ -134,6 +143,7 @@ class Game {
     this.favorite = false,
     this.isFolder = false,
     this.hidden = false,
+    this.fromGamelistXml = false,
   });
 
   String get absoluteFolderPath => "$volumePath/$systemFolder";
@@ -163,23 +173,61 @@ class Game {
     final favorite = node.findElements("favorite").firstOrNull?.innerText == "true";
     final hidden = node.findElements("hidden").firstOrNull?.innerText == "true";
     final romsPath = "$volumePath/$systemFolder";
-    return Game(system, name, volumePath, systemFolder, path.substring(0, path.lastIndexOf("/")), path,
-        id: id,
-        description: description,
-        genre: genre,
-        genreId: genreId != null ? Genres.lookupFromId(int.tryParse(genreId)) : null,
-        rating: rating != null ? 10 * rating : null,
-        imageUrl: image != null ? "$romsPath/${image.replaceFirst("./", "")}" : null,
-        videoUrl: video != null ? "$romsPath/${video.replaceFirst("./", "")}" : null,
-        thumbnailUrl: thumbnail != null ? "$romsPath/${thumbnail.replaceFirst("./", "")}" : null,
-        developer: developer,
-        publisher: publisher,
-        players: players,
-        year: year,
-        favorite: favorite,
-        isFolder: node is XmlElement && node.name.local == "folder",
-        hidden: hidden);
+    return Game(
+      system,
+      name,
+      volumePath,
+      systemFolder,
+      path.substring(0, path.lastIndexOf("/")),
+      path,
+      id: id,
+      description: description,
+      genre: genre,
+      genreId: genreId != null ? Genres.lookupFromId(int.tryParse(genreId)) : null,
+      rating: rating != null ? 10 * rating : null,
+      imageUrl: image != null ? "$romsPath/${image.replaceFirst("./", "")}" : null,
+      videoUrl: video != null ? "$romsPath/${video.replaceFirst("./", "")}" : null,
+      thumbnailUrl: thumbnail != null ? "$romsPath/${thumbnail.replaceFirst("./", "")}" : null,
+      developer: developer,
+      publisher: publisher,
+      players: players,
+      year: year,
+      favorite: favorite,
+      isFolder: node is XmlElement && node.name.local == "folder",
+      hidden: hidden,
+      fromGamelistXml: true,
+    );
   }
+
+  factory Game.fromFile(FileSystemEntity file, System system, String volumePath, String systemFolder) {
+    final romsPath = "$volumePath/$systemFolder";
+    final path = file.absolute.path.replaceFirst(romsPath, "./");
+    final fileName = file.uri.pathSegments.last;
+    final name = fileName.substring(0, fileName.lastIndexOf("."));
+    return Game(
+      system,
+      name,
+      volumePath,
+      systemFolder,
+      path.substring(0, path.lastIndexOf("/")),
+      path,
+      fromGamelistXml: false,
+    );
+  }
+
+  bool get needsScraping =>
+      id == null ||
+      description == null ||
+      genre == null ||
+      genreId == null ||
+      rating == null ||
+      developer == null ||
+      publisher == null ||
+      players == null ||
+      year == null ||
+      imageUrl == null ||
+      videoUrl == null ||
+      thumbnailUrl == null;
 }
 
 /// FNV-1a 64bit hash algorithm optimized for Dart Strings

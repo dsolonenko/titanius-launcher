@@ -27,15 +27,22 @@ Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
   final allSystems = await ref.watch(allSupportedSystemsProvider.future);
   final enabledSystems = await ref.watch(enabledSystemsProvider.future);
   final romFolders = await ref.watch(romFoldersProvider.future);
-  final detectedSystems =
-      allSystems.where((system) => enabledSystems.showSystem(system.id) && _hasGamelist(system, romFolders)).toList();
+  final detectedSystems = [
+    for (final system in allSystems)
+      if (enabledSystems.showSystem(system.id) && await _hasGames(system, romFolders)) system
+  ];
   return detectedSystems;
 }
 
-bool _hasGamelist(System system, List<String> romFolders) {
-  if (system.folders.isEmpty) {
-    return true;
+Future<bool> _hasGames(System system, List<String> romFolders) async {
+  for (final folder in system.folders) {
+    for (final romFolder in romFolders) {
+      final path = Directory('$romFolder/$folder');
+      final hasFiles = path.existsSync() && !await path.list().isEmpty;
+      if (hasFiles) {
+        return true;
+      }
+    }
   }
-  return system.folders
-      .any((folder) => romFolders.any((romsFolder) => File("$romsFolder/$folder/gamelist.xml").existsSync()));
+  return false;
 }

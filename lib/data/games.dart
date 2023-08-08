@@ -70,11 +70,11 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
   try {
     final romsPath = "${params.romsFolder}/${params.folder}";
     final gamelistPath = "$romsPath/gamelist.xml";
-
     final file = File(gamelistPath);
     final exists = await file.exists();
+    var gamesFromGamelistXml = [];
     if (exists) {
-      final games = await file
+      gamesFromGamelistXml = await file
           .openRead()
           .transform(utf8.decoder)
           .toXmlEvents()
@@ -84,13 +84,40 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
           .expand((nodes) => nodes)
           .map((node) => Game.fromXmlNode(node, params.system, params.romsFolder, params.folder))
           .toList();
-      return games;
     }
-    return [];
+    final dir = Directory(romsPath);
+    final allFiles = dir.listSync(recursive: true, followLinks: false);
+    final gamesFromGamelistXmlMap = {for (var e in gamesFromGamelistXml) e.absoluteRomPath: e};
+    // remove games that are already in the gamelist
+    allFiles.removeWhere((element) => gamesFromGamelistXmlMap.containsKey(element.absolute.path));
+    // remove non-roms
+    allFiles.removeWhere((element) => _nonRom(element));
+    final gamesFromFiles =
+        allFiles.map((file) => Game.fromFile(file, params.system, params.romsFolder, params.folder)).toList();
+    return [...gamesFromGamelistXml, ...gamesFromFiles];
   } catch (e) {
     debugPrint("Error processing folder ${params.folder}: $e");
     return [];
   }
+}
+
+bool _nonRom(FileSystemEntity element) {
+  if (element is Directory) {
+    return true;
+  }
+  final fileName = element.uri.pathSegments.last;
+  if (fileName.contains("gamelist.xml")) {
+    return true;
+  }
+  if (fileName.startsWith(".")) {
+    return true;
+  }
+  return fileName.endsWith(".mp4") ||
+      fileName.endsWith(".png") ||
+      fileName.endsWith(".jpg") ||
+      fileName.endsWith(".jpeg") ||
+      fileName.endsWith(".gif") ||
+      fileName.endsWith(".txt");
 }
 
 @Riverpod(keepAlive: true)

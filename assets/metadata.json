@@ -2,6 +2,7 @@
   "systems": [
     {
       "id": "android",
+      "screenScraperId": 0,
       "name": "Android",
       "logo": "Android.png",
       "folders": [],
@@ -19,6 +20,7 @@
     },
     {
       "id": "3do",
+      "screenScraperId": 29,
       "name": "3DO",
       "logo": "3DO Interactive Multiplayer.png",
       "folders": [
@@ -45,6 +47,7 @@
     },
     {
       "id": "cpc",
+      "screenScraperId": 65,
       "name": "Amstrad CPC",
       "logo": "Amstrad CPC.png",
       "folders": [
@@ -88,6 +91,7 @@
     },
     {
       "id": "gx4000",
+      "screenScraperId": 87,
       "name": "Amstad GX4000",
       "logo": "Amstrad GX4000.png",
       "folders": [
@@ -130,6 +134,7 @@
     },
     {
       "id": "atari2600",
+      "screenScraperId": 26,
       "name": "Atari 2600",
       "logo": "Atari 2600.png",
       "folders": [
@@ -198,6 +203,7 @@
     },
     {
       "id": "atari5200",
+      "screenScraperId": 40,
       "name": "Atari 5200",
       "logo": "Atari 5200.png",
       "folders": [
@@ -240,6 +246,7 @@
     },
     {
       "id": "atari7800",
+      "screenScraperId": 41,
       "name": "Atari 7800",
       "logo": "Atari 7800.png",
       "folders": [
@@ -266,6 +273,7 @@
     },
     {
       "id": "jaguar",
+      "screenScraperId": 27,
       "name": "Atari Jaguar",
       "logo": "Atari Jaguar.png",
       "folders": [
@@ -307,6 +315,7 @@
     },
     {
       "id": "lynx",
+      "screenScraperId": 28,
       "name": "Atari Lynx",
       "logo": "Atari Lynx.png",
       "folders": [
@@ -350,6 +359,7 @@
     },
     {
       "id": "atarist",
+      "screenScraperId": 42,
       "name": "Atari ST",
       "logo": "Atari ST.png",
       "folders": [
@@ -376,6 +386,7 @@
     },
     {
       "id": "atomiswave",
+      "screenScraperId": 53,
       "name": "Atomiswave",
       "logo": "Sammy Atomiswave.png",
       "folders": [
@@ -420,6 +431,7 @@
     },
     {
       "id": "cps1",
+      "screenScraperId": 6,
       "name": "CP System I",
       "logo": "Capcom Play System.png",
       "folders": [
@@ -486,6 +498,7 @@
     },
     {
       "id": "cps2",
+      "screenScraperId": 7,
       "name": "CP System II",
       "logo": "Capcom Play System II.png",
       "folders": [
@@ -552,6 +565,7 @@
     },
     {
       "id": "cps3",
+      "screenScraperId": 8,
       "name": "CP System III",
       "logo": "Capcom Play System III.png",
       "folders": [
@@ -618,6 +632,7 @@
     },
     {
       "id": "coleco",
+      "screenScraperId": 48,
       "name": "ColecoVision",
       "logo": "ColecoVision.png",
       "folders": [
@@ -660,6 +675,7 @@
     },
     {
       "id": "c64",
+      "screenScraperId": 66,
       "name": "Commodore 64",
       "logo": "Commodore 64.png",
       "folders": [
@@ -748,6 +764,7 @@
     },
     {
       "id": "amiga",
+      "screenScraperId": 64,
       "name": "Commodore Amiga",
       "logo": "Commodore Amiga.png",
       "folders": [
@@ -822,6 +839,7 @@
     },
     {
       "id": "amigacd32",
+      "screenScraperId": 130,
       "name": "Commodore Amiga CD32",
       "logo": "Commodore Amiga CD32.png",
       "folders": [
@@ -896,6 +914,7 @@
     },
     {
       "id": "dos",
+      "screenScraperId": 135,
       "name": "DOS",
       "logo": "MS-DOS.png",
       "folders": [
@@ -987,6 +1006,7 @@
     },
     {
       "id": "dreamcast",
+      "screenScraperId": 23,
       "name": "Dreamcast",
       "logo": "Sega Dreamcast.png",
       "folders": [
@@ -1031,6 +1051,7 @@
     },
     {
       "id": "channelf",
+      "screenScraperId": 80,
       "name": "Fairchild Channel F",
       "logo": "Fairchild Channel F.png",
       "folders": [
@@ -1057,6 +1078,7 @@
     },
     {
       "id": "fds",
+      "screenScraperId": 106,
       "name": "Famicom Disk System",
       "logo": "Nintendo Famicom Disk System.png",
       "folders": [
@@ -1133,6 +1155,7 @@
     },
     {
       "id": "fbneo",
+      "screenScraperId": 75,
       "name": "Arcade (FinalBurn Neo)",
       "logo": "Final Burn Neo.png",
       "folders": [
@@ -1159,6 +1182,7 @@
     },
     {
       "id": "gw",
+      "screenScraperId": 52,
       "name": "Game & Watch",
       "logo": "Nintendo Game & Watch.png",
       "folders": [
@@ -1186,6 +1210,7 @@
     },
     {
       "id": "gb",
+      "screenScraperId": 9,
       "name": "Game Boy",
       "logo": "Nintendo Game Boy.png",
       "folders": [
@@ -1364,6 +1389,7 @@
     },
     {
       "id": "gba",
+      "screenScraperId": 12,
       "name": "Game Boy Advance",
       "logo": "Nintendo Game Boy Advance.png",
       "folders": [
@@ -1542,6 +1568,7 @@
     },
     {
       "id": "gbc",
+      "screenScraperId": 10,
       "name": "Game Boy Color",
       "logo": "Nintendo Game Boy Color.png",
       "folders": [
@@ -1720,6 +1747,7 @@
     },
     {
       "id": "gc",
+      "screenScraperId": 13,
       "name": "GameCube",
       "logo": "Nintendo GameCube.png",
       "folders": [
@@ -1764,6 +1792,7 @@
     },
     {
       "id": "intellivision",
+      "screenScraperId": 115,
       "name": "Intellivision",
       "logo": "Mattel Intellivision.png",
       "folders": [
@@ -1790,6 +1819,7 @@
     },
     {
       "id": "mame",
+      "screenScraperId": 75,
       "name": "Arcade (MAME)",
       "logo": "MAME.png",
       "folders": [
@@ -1865,6 +1895,7 @@
     },
     {
       "id": "msx",
+      "screenScraperId": 113,
       "name": "MSX/MSX2",
       "logo": "Microsoft MSX.png",
       "folders": [
@@ -1921,6 +1952,7 @@
     },
     {
       "id": "neogeo",
+      "screenScraperId": 142,
       "name": "Neo Geo",
       "logo": "SNK Neo Geo.png",
       "folders": [
@@ -1955,6 +1987,7 @@
     },
     {
       "id": "neogeocd",
+      "screenScraperId": 70,
       "name": "Neo Geo CD",
       "logo": "SNK Neo Geo CD.png",
       "folders": [
@@ -1997,6 +2030,7 @@
     },
     {
       "id": "ngp",
+      "screenScraperId": 25,
       "name": "NeoGeo Pocket",
       "logo": "SNK Neo Geo Pocket.png",
       "folders": [
@@ -2047,6 +2081,7 @@
     },
     {
       "id": "ngpc",
+      "screenScraperId": 82,
       "name": "NeoGeo Pocket Color",
       "logo": "SNK Neo Geo Pocket Color.png",
       "folders": [
@@ -2097,6 +2132,7 @@
     },
     {
       "id": "3ds",
+      "screenScraperId": 17,
       "name": "Nintendo 3DS",
       "logo": "Nintendo 3DS.png",
       "folders": [
@@ -2215,6 +2251,7 @@
     },
     {
       "id": "n64",
+      "screenScraperId": 14,
       "name": "Nintendo 64",
       "logo": "Nintendo 64.png",
       "folders": [
@@ -2325,6 +2362,7 @@
     },
     {
       "id": "nds",
+      "screenScraperId": 15,
       "name": "Nintendo DS",
       "logo": "Nintendo DS.png",
       "folders": [
@@ -2406,6 +2444,7 @@
     },
     {
       "id": "nes",
+      "screenScraperId": 3,
       "name": "Nintendo Entertainment System",
       "logo": "Nintendo Entertainment System.png",
       "folders": [
@@ -2548,6 +2587,7 @@
     },
     {
       "id": "switch",
+      "screenScraperId": 225,
       "name": "Nintendo Switch",
       "logo": "Nintendo Switch.png",
       "folders": [
@@ -2567,6 +2607,7 @@
     },    
     {
       "id": "wii",
+      "screenScraperId": 16,
       "name": "Nintendo Wii",
       "logo": "Nintendo Wii.png",
       "folders": [
@@ -2610,6 +2651,7 @@
     },
     {
       "id": "wiiware",
+      "screenScraperId": 16,
       "name": "Nintendo WiiWare",
       "logo": "Nintendo WiiWare.png",
       "folders": [
@@ -2653,6 +2695,7 @@
     },
     {
       "id": "pc88",
+      "screenScraperId": 221,
       "name": "PC-88",
       "logo": "NEC PC-8801.png",
       "folders": [
@@ -2679,6 +2722,7 @@
     },
     {
       "id": "pc98",
+      "screenScraperId": 208,
       "name": "PC-98",
       "logo": "NEC PC-9801.png",
       "folders": [
@@ -2721,6 +2765,7 @@
     },
     {
       "id": "pcfx",
+      "screenScraperId": 72,
       "name": "PC-FX",
       "logo": "NEC PC-FX.png",
       "folders": [
@@ -2747,6 +2792,7 @@
     },
     {
       "id": "pico8",
+      "screenScraperId": 234,
       "name": "PICO-8",
       "logo": "Pico-8.png",
       "folders": [
@@ -2773,6 +2819,7 @@
     },
     {
       "id": "cdi",
+      "screenScraperId": 133,
       "name": "Philips CD-i",
       "logo": "Philips CD-i.png",
       "folders": [
@@ -2799,6 +2846,7 @@
     },
     {
       "id": "psp",
+      "screenScraperId": 61,
       "name": "PlayStation Portable",
       "logo": "Sony PSP.png",
       "folders": [
@@ -2846,6 +2894,7 @@
     },
     {
       "id": "pspminis",
+      "screenScraperId": 172,
       "name": "PlayStation Portable (Minis)",
       "logo": "Sony PSP Minis.png",
       "folders": [
@@ -2893,6 +2942,7 @@
     },
     {
       "id": "pokemini",
+      "screenScraperId": 211,
       "name": "Pokemon Mini",
       "logo": "Nintendo Pokemon Mini.png",
       "folders": [
@@ -2919,6 +2969,7 @@
     },
     {
       "id": "scummvm",
+      "screenScraperId": 123,
       "name": "ScummVM",
       "logo": "ScummVM.png",
       "smallLogo": "assets/images/small/ScummVM.png",
@@ -2946,6 +2997,7 @@
     },
     {
       "id": "sega32x",
+      "screenScraperId": 19,
       "name": "Sega 32X",
       "logo": "Sega 32X.png",
       "folders": [
@@ -2972,6 +3024,7 @@
     },
     {
       "id": "segacd",
+      "screenScraperId": 20,
       "name": "Sega CD",
       "logo": "Sega CD.png",
       "folders": [
@@ -3040,6 +3093,7 @@
     },
     {
       "id": "gamegear",
+      "screenScraperId": 21,
       "name": "Sega Game Gear",
       "logo": "Sega Game Gear.png",
       "folders": [
@@ -3144,6 +3198,7 @@
     },
     {
       "id": "megadrive",
+      "screenScraperId": 1,
       "name": "Sega Mega Drive",
       "logo": "Sega Mega Drive.png",
       "folders": [
@@ -3237,6 +3292,7 @@
     },
     {
       "id": "genesis",
+      "screenScraperId": 1,
       "name": "Sega Genesis",
       "logo": "Sega Genesis.png",
       "folders": [
@@ -3330,6 +3386,7 @@
     },
     {
       "id": "master",
+      "screenScraperId": 2,
       "name": "Sega Master System",
       "logo": "Sega Master System.png",
       "folders": [
@@ -3430,6 +3487,7 @@
     },
     {
       "id": "naomi",
+      "screenScraperId": 56,
       "name": "Sega NAOMI",
       "logo": "Sega Naomi.png",
       "folders": [
@@ -3465,6 +3523,7 @@
     },
     {
       "id": "sg1000",
+      "screenScraperId": 109,
       "name": "Sega SG-1000",
       "logo": "Sega SG-1000.png",
       "folders": [
@@ -3507,6 +3566,7 @@
     },
     {
       "id": "saturn",
+      "screenScraperId": 22,
       "name": "Sega Saturn",
       "logo": "Sega Saturn.png",
       "folders": [
@@ -3629,6 +3689,7 @@
     },
     {
       "id": "x68000",
+      "screenScraperId": 79,
       "name": "Sharp X68000",
       "logo": "Sharp X68000.png",
       "folders": [
@@ -3655,6 +3716,7 @@
     },
     {
       "id": "psx",
+      "screenScraperId": 57,
       "name": "Sony PlayStation",
       "logo": "Sony Playstation.png",
       "folders": [
@@ -3804,6 +3866,7 @@
     },
     {
       "id": "ps2",
+      "screenScraperId": 58,
       "name": "Sony PlayStation 2",
       "logo": "Sony Playstation 2.png",
       "folders": [
@@ -3860,6 +3923,7 @@
     },
     {
       "id": "supergrafx",
+      "screenScraperId": 105,
       "name": "SuperGrafx",
       "logo": "NEC PC Engine SuperGrafx.png",
       "folders": [
@@ -3911,6 +3975,7 @@
     },
     {
       "id": "snes",
+      "screenScraperId": 4,
       "name": "Super Nintendo Entertainment System",
       "logo": "Super Nintendo Entertainment System.png",
       "folders": [
@@ -4236,6 +4301,7 @@
     },
     {
       "id": "tic80",
+      "screenScraperId": 222,
       "name": "TIC-80",
       "logo": "TIC-80.png",
       "folders": [
@@ -4262,6 +4328,7 @@
     },
     {
       "id": "tg16",
+      "screenScraperId": 31,
       "name": "TurboGrafx-16",
       "logo": "NEC TurboGrafx-16.png",
       "folders": [
@@ -4314,6 +4381,7 @@
     },
     {
       "id": "tgcd",
+      "screenScraperId": 114,
       "name": "TurboGrafx-CD",
       "logo": "NEC TurboGrafx-CD.png",
       "folders": [
@@ -4366,6 +4434,7 @@
     },
     {
       "id": "vectrex",
+      "screenScraperId": 102,
       "name": "Vectrex",
       "logo": "GCE Vectrex.png",
       "folders": [
@@ -4392,6 +4461,7 @@
     },
     {
       "id": "virtualboy",
+      "screenScraperId": 11,
       "name": "Virtual Boy",
       "logo": "Nintendo Virtual Boy.png",
       "folders": [
@@ -4418,6 +4488,7 @@
     },
     {
       "id": "supervision",
+      "screenScraperId": 207,
       "name": "Watara Supervision",
       "logo": "Watara Supervision.png",
       "folders": [
@@ -4444,6 +4515,7 @@
     },
     {
       "id": "ws",
+      "screenScraperId": 45,
       "name": "WonderSwan",
       "logo": "WonderSwan.png",
       "folders": [
@@ -4471,6 +4543,7 @@
     },
     {
       "id": "wsc",
+      "screenScraperId": 46,
       "name": "WonderSwan Color",
       "logo": "Wonderswan Color.png",
       "folders": [
@@ -4498,6 +4571,7 @@
     },
     {
       "id": "zx81",
+      "screenScraperId": 77,
       "name": "ZX 81",
       "logo": "Sinclair ZX81.png",
       "folders": [
@@ -4524,6 +4598,7 @@
     },
     {
       "id": "zxspectrum",
+      "screenScraperId": 76,
       "name": "ZX Spectrum",
       "logo": "Sinclair ZX Spectrum.png",
       "folders": [
