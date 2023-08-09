@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:onscreen_keyboard/onscreen_keyboard.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import 'package:titanius/data/genres.dart';
+import 'package:screenscraper/screenscraper.dart' show GameGenres, Genres;
 import 'package:titanius/data/state.dart';
 import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/prompt_bar.dart';

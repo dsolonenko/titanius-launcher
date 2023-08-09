@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:screenscraper/screenscraper.dart';
 import 'package:xml/xml.dart';
 import 'package:collection/collection.dart';
 
 import 'package:titanius/data/android_intent.dart';
-import 'package:titanius/data/genres.dart';
 
 const systemAllGames = System(
   id: 'all',
@@ -166,7 +167,7 @@ class Game {
     final ratingString = node.findElements("rating").firstOrNull?.innerText;
     final rating = ratingString != null ? double.tryParse(ratingString) : null;
     final yearString = node.findElements("releasedate").firstOrNull?.innerText;
-    final year = yearString != null && yearString.length > 4 ? int.parse(yearString.substring(0, 4)) : null;
+    final year = yearString != null && yearString.length >= 4 ? int.parse(yearString.substring(0, 4)) : null;
     final image = node.findElements("image").firstOrNull?.innerText;
     final video = node.findElements("video").firstOrNull?.innerText;
     final thumbnail = node.findElements("thumbnail").firstOrNull?.innerText;
@@ -199,11 +200,35 @@ class Game {
     );
   }
 
+  XmlNode toXmlNode() {
+    return XmlElement(XmlName("game"), [
+      XmlAttribute(XmlName("id"), id ?? ""),
+      XmlAttribute(XmlName("source"), "ScreenScraper.fr"),
+    ], [
+      XmlElement(XmlName("path"), [], [XmlText(rom)]),
+      XmlElement(XmlName("name"), [], [XmlText(name)]),
+      XmlElement(XmlName("desc"), [], [XmlText(description ?? "")]),
+      XmlElement(XmlName("rating"), [], [XmlText(((rating ?? 0) / 10).toString())]),
+      XmlElement(XmlName("releasedate"), [], [XmlText(year?.toString() ?? "")]),
+      XmlElement(XmlName("developer"), [], [XmlText(developer ?? "")]),
+      XmlElement(XmlName("publisher"), [], [XmlText(publisher ?? "")]),
+      XmlElement(XmlName("genre"), [], [XmlText(genre ?? "")]),
+      XmlElement(XmlName("genreid"), [], [XmlText(Genres.lookupId(genreId)?.toString() ?? "")]),
+      XmlElement(XmlName("players"), [], [XmlText(players ?? "")]),
+      XmlElement(XmlName("image"), [], [XmlText(imageUrl ?? "")]),
+      XmlElement(XmlName("thumbnail"), [], [XmlText(thumbnailUrl ?? "")]),
+      XmlElement(XmlName("video"), [], [XmlText(videoUrl ?? "")]),
+      XmlElement(XmlName("favorite"), [], [XmlText(favorite ? "true" : "false")]),
+      XmlElement(XmlName("hidden"), [], [XmlText(hidden ? "true" : "false")]),
+    ]);
+  }
+
   factory Game.fromFile(FileSystemEntity file, System system, String volumePath, String systemFolder) {
     final romsPath = "$volumePath/$systemFolder";
-    final path = file.absolute.path.replaceFirst(romsPath, "./");
+    final path = file.absolute.path.replaceFirst(romsPath, ".");
     final fileName = file.uri.pathSegments.last;
     final name = fileName.substring(0, fileName.lastIndexOf("."));
+    debugPrint("Game from file romsPath=$romsPath path=$path fileName=$fileName");
     return Game(
       system,
       name,

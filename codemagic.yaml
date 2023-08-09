@@ -17,6 +17,7 @@ workflows:
         BUILD_NAME: "0.3.$PROJECT_BUILD_NUMBER"
       groups:
         - github
+        - screenscraper
       flutter: stable
     cache:
       cache_paths:

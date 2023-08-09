@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:device_apps/device_apps.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:screenscraper/screenscraper.dart' show GameGenres, Genres;
 import 'package:video_player/video_player.dart';
 
 import 'package:titanius/data/games.dart';
-import 'package:titanius/data/genres.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/stack.dart';

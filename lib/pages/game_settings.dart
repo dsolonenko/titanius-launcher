@@ -9,6 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:titanius/data/gamelist_xml.dart';
+import 'package:titanius/data/scraper.dart';
 import 'package:titanius/widgets/selector.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/repo.dart';
@@ -118,6 +119,43 @@ class GameSettingsPage extends HookConsumerWidget {
                 _showError(context, error);
               },
             );
+          },
+        ),
+      ),
+      SettingElement(
+        group: "Game",
+        widget: ListTile(
+          title: const Text("Scrape Game"),
+          onTap: () async {
+            workingOnIt.value = true;
+            final scraper = await ref.read(scraperProvider.future);
+            scraper.scrape(game).then(
+              (value) {
+                updateGameInGamelistXml(value).then(
+                  (value) {
+                    if (value) {
+                      // ignore: unused_result
+                      ref.refresh(allGamesProvider);
+                    }
+                    GoRouter.of(context).pop();
+                  },
+                  onError: (error, stack) {
+                    workingOnIt.value = false;
+                    _showError(context, error);
+                  },
+                );
+                workingOnIt.value = false;
+              },
+              onError: (error, stack) {
+                workingOnIt.value = false;
+                _showError(context, error);
+              },
+            );
+          },
+          onFocusChange: (value) {
+            if (value) {
+              selected.value = "scrape_game";
+            }
           },
         ),
       ),

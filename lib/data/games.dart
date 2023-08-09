@@ -69,6 +69,10 @@ class GamelistTaskParams {
 Future<List<Game>> _processFolder(GamelistTaskParams params) async {
   try {
     final romsPath = "${params.romsFolder}/${params.folder}";
+    final pathExists = await Directory(romsPath).exists();
+    if (!pathExists) {
+      return [];
+    }
     final gamelistPath = "$romsPath/gamelist.xml";
     final file = File(gamelistPath);
     final exists = await file.exists();
@@ -106,10 +110,10 @@ bool _nonRom(FileSystemEntity element) {
     return true;
   }
   final fileName = element.uri.pathSegments.last;
-  if (fileName.contains("gamelist.xml")) {
+  if (fileName.contains("gamelist")) {
     return true;
   }
-  if (fileName.startsWith(".")) {
+  if (fileName.startsWith(".") || fileName.startsWith("ZZZ")) {
     return true;
   }
   return fileName.endsWith(".mp4") ||
@@ -117,7 +121,8 @@ bool _nonRom(FileSystemEntity element) {
       fileName.endsWith(".jpg") ||
       fileName.endsWith(".jpeg") ||
       fileName.endsWith(".gif") ||
-      fileName.endsWith(".txt");
+      fileName.endsWith(".txt") ||
+      fileName.endsWith(".cfg");
 }
 
 @Riverpod(keepAlive: true)
