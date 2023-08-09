@@ -23,24 +23,27 @@ class Scraper {
           userPassword: userPassword,
         );
 
-  Future<Game> scrape(Game rom) async {
-    debugPrint("Scraping ${rom.rom}");
+  Future<Game> scrape(Game rom, void Function(String msg) progress) async {
+    progress("Scraping ${rom.rom}...");
     final game = await _scraper.scrapeRom(systemId: rom.system.screenScraperId, romPath: rom.absoluteRomPath);
-    debugPrint("ScreenScraper ID is ${game.gameId}");
+    progress("ScreenScraper ID is ${game.gameId}");
     final file = File(rom.absoluteRomPath);
     final fileName = file.uri.pathSegments.last;
     final fileNameNoExt = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
     final romsPath = "${rom.volumePath}/${rom.systemFolder}";
     var imageUrl = rom.imageUrl;
     if (imageUrl == null && game.media.screenshot != null) {
+      progress("Downloading screenshot...");
       imageUrl = await _downloadMedia(game.media.screenshot!, fileNameNoExt, "$romsPath/media/images");
     }
     var videoUrl = rom.videoUrl;
     if (videoUrl == null && game.media.videoNormalized != null) {
+      progress("Downloading video...");
       videoUrl = await _downloadMedia(game.media.videoNormalized!, fileNameNoExt, "$romsPath/media/videos");
     }
     var thumbnailUrl = rom.thumbnailUrl;
     if (thumbnailUrl == null && game.media.wheel != null) {
+      progress("Downloading wheel...");
       thumbnailUrl = await _downloadMedia(game.media.wheel!, fileNameNoExt, "$romsPath/media/wheels");
     }
     return Game(

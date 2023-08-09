@@ -76,17 +76,19 @@ class SettingsPage extends HookConsumerWidget {
           ListTile(
             autofocus: true,
             onFocusChange: (value) {},
-            onTap: () async {},
-            title: const Text('Scraper'),
-          ),
-          ListTile(
-            autofocus: false,
-            onFocusChange: (value) {},
             onTap: () {
               // ignore: unused_result
               ref.refresh(detectedSystemsProvider).whenData((value) => ref.read(allGamesProvider));
             },
             title: const Text('Refresh GameLists'),
+          ),
+          ListTile(
+            onFocusChange: (value) {},
+            onTap: () async {
+              context.push("/settings/scraper");
+            },
+            title: const Text('Scraper'),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded),
           ),
           ListTile(
             onFocusChange: (value) {},

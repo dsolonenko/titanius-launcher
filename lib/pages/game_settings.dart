@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
 
 import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/scraper.dart';
@@ -128,9 +129,15 @@ class GameSettingsPage extends HookConsumerWidget {
           title: const Text("Scrape Game"),
           onTap: () async {
             workingOnIt.value = true;
+            ProgressDialog pd = ProgressDialog(context: context);
+            pd.show(
+              backgroundColor: Colors.black,
+              msgColor: Colors.white,
+            );
             final scraper = await ref.read(scraperProvider.future);
-            scraper.scrape(game).then(
+            scraper.scrape(game, (msg) => pd.update(msg: msg)).then(
               (value) {
+                pd.update(msg: "Writing gamelist.xml...");
                 updateGameInGamelistXml(value).then(
                   (value) {
                     if (value) {
@@ -144,6 +151,7 @@ class GameSettingsPage extends HookConsumerWidget {
                     _showError(context, error);
                   },
                 );
+                pd.close();
                 workingOnIt.value = false;
               },
               onError: (error, stack) {
