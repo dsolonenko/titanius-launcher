@@ -1,11 +1,14 @@
+import 'dart:ui';
+
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onscreen_keyboard/onscreen_keyboard.dart';
+import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
 
 import 'package:titanius/data/repo.dart';
@@ -43,7 +46,7 @@ class ScraperPage extends HookConsumerWidget {
       }
       if (key == GamepadButton.y) {
         if (confirm.value) {
-          GoRouter.of(context).pop();
+          _startScraper(ref).then((value) => GoRouter.of(context).pop());
         } else {
           confirm.value = true;
         }
@@ -194,18 +197,55 @@ class ScraperPage extends HookConsumerWidget {
             ),
     );
   }
+}
 
-  void _showError(BuildContext context, err) {
-    debugPrint(err.toString());
-    Fluttertoast.showToast(
-        msg: "Unable to change game settings: ${err.toString()}",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
+Future<void> _startScraper(WidgetRef ref) async {
+  debugPrint("Starting scraping...");
+  final allGames = await ref.read(allGamesProvider.future);
+  final settings = await ref.read(settingsProvider.future);
+  final systemsToScrape = settings.scrapeTheseSystems.toSet();
+  final roms = allGames
+      .where((g) => systemsToScrape.contains(g.system.id))
+      .map((g) => g.asRomToScrape())
+      .map((r) => r.toJson())
+      .toList();
+  debugPrint("Got ${roms.length} roms to scrape");
+  final service = FlutterBackgroundService();
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart,
+      autoStart: false,
+      isForegroundMode: true,
+    ),
+    iosConfiguration: IosConfiguration(
+      autoStart: false,
+    ),
+  );
+  debugPrint("Starting service");
+  await service.startService();
+  service.invoke("scrape", {"roms": roms});
+}
+
+@pragma('vm:entry-point')
+void onStart(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized();
+
+  service.on('scrape').listen((event) {
+    final roms = (event!["roms"] as List).map((e) => RomToScrape.fromJson(e)).toList();
+    debugPrint("Scraping ${roms.length} roms...");
+    service.invoke(
+      'update',
+      {
+        "success": 0,
+        "error": 0,
+        "total": roms.length,
+      },
+    );
+  });
+
+  service.on('stop').listen((event) {
+    service.stopSelf();
+  });
 }
 
 class SettingElement {

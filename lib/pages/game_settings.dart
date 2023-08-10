@@ -135,7 +135,7 @@ class GameSettingsPage extends HookConsumerWidget {
               msgColor: Colors.white,
             );
             final scraper = await ref.read(scraperProvider.future);
-            scraper.scrape(game, (msg) => pd.update(msg: msg)).then(
+            scraper.scrape(game.asRomToScrape(), (msg) => pd.update(msg: msg)).then(
               (value) {
                 pd.update(msg: "Writing gamelist.xml...");
                 updateGameInGamelistXml(value).then(

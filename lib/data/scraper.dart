@@ -23,9 +23,9 @@ class Scraper {
           userPassword: userPassword,
         );
 
-  Future<Game> scrape(Game rom, void Function(String msg) progress) async {
+  Future<Game> scrape(RomToScrape rom, void Function(String msg) progress) async {
     progress("Scraping ${rom.rom}...");
-    final game = await _scraper.scrapeRom(systemId: rom.system.screenScraperId, romPath: rom.absoluteRomPath);
+    final game = await _scraper.scrapeRom(systemId: rom.systemScreenScraperId, romPath: rom.absoluteRomPath);
     progress("ScreenScraper ID is ${game.gameId}");
     final file = File(rom.absoluteRomPath);
     final fileName = file.uri.pathSegments.last;
@@ -47,7 +47,7 @@ class Scraper {
       thumbnailUrl = await _downloadMedia(game.media.wheel!, fileNameNoExt, "$romsPath/media/wheels");
     }
     return Game(
-      rom.system,
+      systemAllGames, //dummy
       game.name,
       rom.volumePath,
       rom.systemFolder,

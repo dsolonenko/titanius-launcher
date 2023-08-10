@@ -6,6 +6,9 @@ import 'package:xml/xml.dart';
 import 'package:collection/collection.dart';
 
 import 'package:titanius/data/android_intent.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'models.g.dart';
 
 const systemAllGames = System(
   id: 'all',
@@ -96,6 +99,38 @@ class Emulator {
   }
 
   get isStandalone => intent.isStandalone;
+}
+
+@JsonSerializable()
+class RomToScrape {
+  final int systemScreenScraperId;
+  final String folder;
+  final String rom;
+  final String absoluteRomPath;
+  final String volumePath;
+  final String systemFolder;
+  final String? imageUrl;
+  final String? videoUrl;
+  final String? thumbnailUrl;
+  final bool favorite;
+  final bool hidden;
+
+  RomToScrape({
+    required this.systemScreenScraperId,
+    required this.folder,
+    required this.rom,
+    required this.absoluteRomPath,
+    required this.volumePath,
+    required this.systemFolder,
+    this.imageUrl,
+    this.videoUrl,
+    this.thumbnailUrl,
+    this.favorite = false,
+    this.hidden = false,
+  });
+
+  factory RomToScrape.fromJson(Map<String, dynamic> json) => _$RomToScrapeFromJson(json);
+  Map<String, dynamic> toJson() => _$RomToScrapeToJson(this);
 }
 
 class Game {
@@ -253,6 +288,22 @@ class Game {
       imageUrl == null ||
       videoUrl == null ||
       thumbnailUrl == null;
+
+  RomToScrape asRomToScrape() {
+    return RomToScrape(
+      systemScreenScraperId: system.screenScraperId,
+      folder: folder,
+      rom: rom,
+      absoluteRomPath: absoluteRomPath,
+      volumePath: volumePath,
+      systemFolder: systemFolder,
+      imageUrl: imageUrl,
+      videoUrl: videoUrl,
+      thumbnailUrl: thumbnailUrl,
+      favorite: favorite,
+      hidden: hidden,
+    );
+  }
 }
 
 /// FNV-1a 64bit hash algorithm optimized for Dart Strings
