@@ -20,6 +20,7 @@ import 'package:titanius/data/systems.dart';
 import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/gamepad_prompt.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
+import 'package:titanius/widgets/icons.dart';
 
 part 'package:titanius/pages/settings/systems.dart';
 part 'package:titanius/pages/settings/emulators.dart';
@@ -27,17 +28,6 @@ part 'package:titanius/pages/settings/ui.dart';
 part 'package:titanius/pages/settings/roms.dart';
 part 'package:titanius/pages/settings/apps.dart';
 part 'package:titanius/pages/settings/daijisho.dart';
-
-const toggleSize = 40.0;
-const toggleOnIcon = Icon(
-  Icons.toggle_on_outlined,
-  size: toggleSize,
-);
-const toggleOffIcon = Icon(
-  Icons.toggle_off_outlined,
-  size: toggleSize,
-  color: Colors.grey,
-);
 
 class SettingsPage extends HookConsumerWidget {
   final String? source;
@@ -84,11 +74,11 @@ class SettingsPage extends HookConsumerWidget {
           ),
           ListTile(
             onFocusChange: (value) {},
-            onTap: () async {
+            onTap: () {
               context.push("/settings/scraper");
             },
             title: const Text('Scraper'),
-            trailing: const Icon(Icons.arrow_forward_ios_rounded),
+            trailing: arrowRight,
           ),
           ListTile(
             onFocusChange: (value) {},
@@ -96,7 +86,7 @@ class SettingsPage extends HookConsumerWidget {
               context.push("/settings/roms");
             },
             title: const Text('ROMs Folders'),
-            trailing: const Icon(Icons.arrow_forward_ios_rounded),
+            trailing: arrowRight,
           ),
           ListTile(
             onFocusChange: (value) {},
@@ -104,7 +94,7 @@ class SettingsPage extends HookConsumerWidget {
               context.push("/settings/systems");
             },
             title: const Text('Systems/Collections'),
-            trailing: const Icon(Icons.arrow_forward_ios_rounded),
+            trailing: arrowRight,
           ),
           ListTile(
             onFocusChange: (value) {},
@@ -112,7 +102,7 @@ class SettingsPage extends HookConsumerWidget {
               context.push("/settings/emulators");
             },
             title: const Text('Emulators'),
-            trailing: const Icon(Icons.arrow_forward_ios_rounded),
+            trailing: arrowRight,
           ),
           ListTile(
             onFocusChange: (value) {},
@@ -120,7 +110,7 @@ class SettingsPage extends HookConsumerWidget {
               context.push("/settings/ui");
             },
             title: const Text('UI Settings'),
-            trailing: const Icon(Icons.arrow_forward_ios_rounded),
+            trailing: arrowRight,
           ),
           ListTile(
             onFocusChange: (value) {},
@@ -128,7 +118,7 @@ class SettingsPage extends HookConsumerWidget {
               context.push("/settings/daijisho");
             },
             title: const Text('Daijishō Wallpaper Pack'),
-            trailing: const Icon(Icons.arrow_forward_ios_rounded),
+            trailing: arrowRight,
           ),
         ],
       ),

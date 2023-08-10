@@ -26,7 +26,7 @@ class GameSettingsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final game = ref.read(selectedGameProvider(system));
+    final game = ref.watch(selectedGameProvider(system));
     final gameEmulator = ref.watch(perGameConfigurationProvider(game));
 
     if (game == null) {

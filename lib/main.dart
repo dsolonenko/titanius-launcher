@@ -11,6 +11,7 @@ import 'package:titanius/pages/filter.dart';
 
 import 'package:titanius/pages/game_settings.dart';
 import 'package:titanius/pages/settings.dart';
+import 'package:titanius/pages/scraper.dart';
 import 'package:titanius/pages/system_proxy.dart';
 import 'package:titanius/pages/systems.dart';
 
@@ -77,6 +78,20 @@ final _router = GoRouter(
         path: '/settings',
         builder: (context, state) => SettingsPage(source: state.queryParameters['source']),
         routes: [
+          GoRoute(path: 'scraper', builder: (context, state) => const ScraperPage(), routes: [
+            GoRoute(
+              path: 'username',
+              builder: (context, state) => const ScraperUseramePage(),
+            ),
+            GoRoute(
+              path: 'password',
+              builder: (context, state) => const ScraperPasswordPage(),
+            ),
+            GoRoute(
+              path: 'systems',
+              builder: (context, state) => const ScraperSystemsPage(),
+            ),
+          ]),
           GoRoute(
             path: 'roms',
             builder: (context, state) => const RomsSettingsPage(),

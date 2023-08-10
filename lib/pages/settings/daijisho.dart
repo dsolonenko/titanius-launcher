@@ -70,7 +70,7 @@ class DaijishoWallpaperPacksPage extends HookConsumerWidget {
                   ],
                 ),
                 subtitle: Text(pack.description, maxLines: 2, overflow: TextOverflow.ellipsis),
-                trailing: CachedNetworkImage(
+                leading: CachedNetworkImage(
                   imageUrl: pack.thumbnailUrl,
                   width: 48,
                   height: 48,

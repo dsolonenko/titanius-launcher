@@ -26,6 +26,8 @@ class Settings {
   String? get daijishoWallpaperPack => _getString('daijishoWallpaperPack');
   String? get screenScraperUser => _getString('screenScraperUser');
   String? get screenScraperPwd => _getString('screenScraperPwd');
+  String? get scrapeTheseGames => _getString('scrapeTheseGames');
+  List<String> get scrapeTheseSystems => _getStringList('scrapeTheseSystems');
 
   bool _getBoolean(String key, bool defaultValue) {
     return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
@@ -33,6 +35,10 @@ class Settings {
 
   String? _getString(String key) {
     return settings.containsKey(key) ? settings[key]!.value : null;
+  }
+
+  List<String> _getStringList(String key) {
+    return settings.containsKey(key) ? settings[key]!.value.split(",") : [];
   }
 }
 
@@ -137,6 +143,29 @@ class SettingsRepo {
 
   Future<void> setScreenScraperPwd(String value) async {
     return _setSetting('screenScraperPwd', value);
+  }
+
+  Future<void> setScrapeTheseGames(String value) async {
+    return _setSetting('scrapeTheseGames', value);
+  }
+
+  Future<void> setScrapeTheseSystem(String id, bool scrape) async {
+    final settings = await _getSettings();
+    final systems = settings.scrapeTheseSystems.toSet();
+    if (scrape) {
+      systems.add(id);
+    } else {
+      systems.remove(id);
+    }
+    return _setSetting('scrapeTheseSystems', systems.join(","));
+  }
+
+  Future<void> setScrapeTheseSystems(List<String> ids) async {
+    if (ids.isEmpty) {
+      return _resetSetting('scrapeTheseSystems');
+    } else {
+      return _setSetting('scrapeTheseSystems', ids.join(","));
+    }
   }
 
   Future<void> _resetSetting(String key) async {

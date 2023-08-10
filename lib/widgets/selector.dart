@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:titanius/widgets/icons.dart';
 
 class SelectorWidget extends HookConsumerWidget {
   final String text;
@@ -10,9 +11,9 @@ class SelectorWidget extends HookConsumerWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.arrow_left, size: 40),
+        const Icon(Icons.arrow_left, size: toggleSize),
         Text(text),
-        const Icon(Icons.arrow_right, size: 40),
+        const Icon(Icons.arrow_right, size: toggleSize),
       ],
     );
   }
