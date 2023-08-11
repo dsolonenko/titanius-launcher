@@ -8,6 +8,6 @@ abstract class Env {
   static final devId = _Env.devId;
   @EnviedField(varName: 'SSDEVPWD', obfuscate: true)
   static final devPassword = _Env.devPassword;
-  @EnviedField(varName: 'SSAPPNAME')
-  static const appName = _Env.appName;
+  @EnviedField(varName: 'SSAPPNAME', obfuscate: true)
+  static final appName = _Env.appName;
 }

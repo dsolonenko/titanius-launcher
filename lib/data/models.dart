@@ -143,7 +143,7 @@ class Game {
   final String? id;
   final String? description;
   final String? genre;
-  final GameGenres? genreId;
+  final GameGenre? genreId;
   final String? developer;
   final String? publisher;
   final String? players;
@@ -186,7 +186,7 @@ class Game {
   String get absoluteRomPath => "$volumePath/$romPath";
   String get romPath => "$systemFolder/${rom.replaceFirst("./", "")}";
   String get uniqueKey => id != null ? "id/$id" : "${system.id}/$name";
-  String get genreToShow => Genres.getName(genreId, ifNull: genre ?? "-");
+  String get genreToShow => genreId?.longName ?? "-";
   int get hash => fastHash(rom);
 
   factory Game.fromXmlNode(XmlNode node, System system, String volumePath, String systemFolder) {
@@ -219,7 +219,7 @@ class Game {
       id: id,
       description: description,
       genre: genre,
-      genreId: genreId != null ? Genres.lookupFromId(int.tryParse(genreId)) : null,
+      genreId: genreId != null ? GameGenre.lookupFromId(int.tryParse(genreId)) : null,
       rating: rating != null ? 10 * rating : null,
       imageUrl: image != null ? "$romsPath/${image.replaceFirst("./", "")}" : null,
       videoUrl: video != null ? "$romsPath/${video.replaceFirst("./", "")}" : null,
@@ -248,7 +248,7 @@ class Game {
       XmlElement(XmlName("developer"), [], [XmlText(developer ?? "")]),
       XmlElement(XmlName("publisher"), [], [XmlText(publisher ?? "")]),
       XmlElement(XmlName("genre"), [], [XmlText(genre ?? "")]),
-      XmlElement(XmlName("genreid"), [], [XmlText(Genres.lookupId(genreId)?.toString() ?? "")]),
+      XmlElement(XmlName("genreid"), [], [XmlText(genreId?.id.toString() ?? "")]),
       XmlElement(XmlName("players"), [], [XmlText(players ?? "")]),
       XmlElement(XmlName("image"), [], [XmlText(imageUrl ?? "")]),
       XmlElement(XmlName("thumbnail"), [], [XmlText(thumbnailUrl ?? "")]),

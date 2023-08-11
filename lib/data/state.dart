@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:device_apps/device_apps.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:screenscraper/screenscraper.dart' show GameGenres, Genres;
+import 'package:screenscraper/screenscraper.dart' show GameGenre;
 import 'package:video_player/video_player.dart';
 
 import 'package:titanius/data/games.dart';
@@ -98,7 +98,7 @@ class GameFilter {
   final String system;
   final String search;
   final bool? favourite;
-  final Set<GameGenres> genres;
+  final Set<GameGenre> genres;
 
   factory GameFilter.empty(String system) => GameFilter(system, search: "", genres: {});
 
@@ -115,7 +115,7 @@ class GameFilter {
                   ? "Fav"
                   : "Non-Fav",
           search,
-          genres.map((g) => Genres.getName(g)).join(", ")
+          genres.map((g) => g.longName).join(", ")
         ].where((e) => e.toString().isNotEmpty).join(", ");
 
   List<Game> apply(List<Game> games) {
@@ -157,7 +157,7 @@ class TemporaryGameFilter extends _$TemporaryGameFilter {
     return GameFilter.empty(system);
   }
 
-  void toggleGenre(GameGenres genre) {
+  void toggleGenre(GameGenre genre) {
     final genres = state.genres;
     if (genres.contains(genre)) {
       genres.remove(genre);
