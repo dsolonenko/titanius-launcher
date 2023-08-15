@@ -5,9 +5,9 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onscreen_keyboard/onscreen_keyboard.dart';
+import 'package:screenscraper/screenscraper.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import 'package:screenscraper/screenscraper.dart' show GameGenres, Genres;
 import 'package:titanius/data/state.dart';
 import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
@@ -81,8 +81,7 @@ class FiltersPage extends HookConsumerWidget {
               context.push("/games/$system/filter/genres");
             },
             title: const Text('Genres'),
-            subtitle:
-                Text(filter.genres.isEmpty ? "All" : filter.genres.map((genre) => Genres.getName(genre)).join(", ")),
+            subtitle: Text(filter.genres.isEmpty ? "All" : filter.genres.map((genre) => genre.longName).join(", ")),
             trailing: const Icon(Icons.arrow_forward_ios_rounded),
           ),
           ListTile(

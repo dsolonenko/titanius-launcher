@@ -9,7 +9,7 @@ class GenresFilterPage extends HookConsumerWidget {
     final games = ref.watch(gamesInFolderProvider(system));
     final filter = ref.watch(temporaryGameFilterProvider(system));
 
-    final selected = useState<GameGenres?>(null);
+    final selected = useState<GameGenre?>(null);
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system/filter/genres") return;
@@ -32,12 +32,12 @@ class GenresFilterPage extends HookConsumerWidget {
       body: games.when(
         data: (gamelist) {
           final gameGenres = gamelist.games.map((game) => game.genreId).toSet();
-          final genres = [...Genres.orderedList];
+          final genres = [...GameGenre.values];
           genres.retainWhere((element) => gameGenres.contains(element));
-          return GroupedListView<GameGenres, String>(
+          return GroupedListView<GameGenre, String>(
             key: PageStorageKey("filter/$system/genres"),
             elements: genres,
-            groupBy: (genre) => Genres.getName(Genres.getTopGenre(genre)),
+            groupBy: (genre) => GameGenre.getTopGenre(genre).longName,
             groupSeparatorBuilder: (String value) => Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
@@ -57,7 +57,7 @@ class GenresFilterPage extends HookConsumerWidget {
                 onTap: () {
                   ref.read(temporaryGameFilterProvider(system).notifier).toggleGenre(genre);
                 },
-                title: Text(Genres.getName(genre)),
+                title: Text(genre.longName),
                 trailing: isSelected ? checkBoxOnIcon : checkBoxOffIcon,
               );
             },
