@@ -24,9 +24,9 @@ class Scraper {
         );
 
   Future<Game> scrape(RomToScrape rom, void Function(String msg) progress) async {
-    progress("Scraping ${rom.rom}...");
+    progress("Scraping...");
     final game = await _scraper.scrapeRom(systemId: rom.systemScreenScraperId, romPath: rom.absoluteRomPath);
-    progress("ScreenScraper ID is ${game.gameId}");
+    debugPrint("ScreenScraper ID for ${rom.absoluteRomPath} is ${game.gameId}");
     final file = File(rom.absoluteRomPath);
     final fileName = file.uri.pathSegments.last;
     final fileNameNoExt = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;

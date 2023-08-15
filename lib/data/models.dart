@@ -72,8 +72,20 @@ class System {
       name: json['name'],
       logo: json['logo'],
       folders: List<String>.from(json['folders']),
-      emulators: List<Emulator>.from(json['emulators'].map((x) => Emulator.fromJson(x))),
+      emulators:
+          json.containsKey("emulators") ? List<Emulator>.from(json['emulators'].map((x) => Emulator.fromJson(x))) : [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'screenScraperId': screenScraperId,
+      'name': name,
+      'logo': logo,
+      'folders': folders,
+      //'emulators': emulators.map((e) => e.id).toList(),
+    };
   }
 }
 

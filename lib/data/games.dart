@@ -76,9 +76,8 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
     final gamelistPath = "$romsPath/gamelist.xml";
     final file = File(gamelistPath);
     final exists = await file.exists();
-    var gamesFromGamelistXml = [];
     if (exists) {
-      gamesFromGamelistXml = await file
+      final gamesFromGamelistXml = await file
           .openRead()
           .transform(utf8.decoder)
           .toXmlEvents()
@@ -88,41 +87,13 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
           .expand((nodes) => nodes)
           .map((node) => Game.fromXmlNode(node, params.system, params.romsFolder, params.folder))
           .toList();
+      return gamesFromGamelistXml;
     }
-    final dir = Directory(romsPath);
-    final allFiles = dir.listSync(recursive: true, followLinks: false);
-    final gamesFromGamelistXmlMap = {for (var e in gamesFromGamelistXml) e.absoluteRomPath: e};
-    // remove games that are already in the gamelist
-    allFiles.removeWhere((element) => gamesFromGamelistXmlMap.containsKey(element.absolute.path));
-    // remove non-roms
-    allFiles.removeWhere((element) => _nonRom(element));
-    final gamesFromFiles =
-        allFiles.map((file) => Game.fromFile(file, params.system, params.romsFolder, params.folder)).toList();
-    return [...gamesFromGamelistXml, ...gamesFromFiles];
+    return [];
   } catch (e) {
     debugPrint("Error processing folder ${params.folder}: $e");
     return [];
   }
-}
-
-bool _nonRom(FileSystemEntity element) {
-  if (element is Directory) {
-    return true;
-  }
-  final fileName = element.uri.pathSegments.last;
-  if (fileName.contains("gamelist")) {
-    return true;
-  }
-  if (fileName.startsWith(".") || fileName.startsWith("ZZZ")) {
-    return true;
-  }
-  return fileName.endsWith(".mp4") ||
-      fileName.endsWith(".png") ||
-      fileName.endsWith(".jpg") ||
-      fileName.endsWith(".jpeg") ||
-      fileName.endsWith(".gif") ||
-      fileName.endsWith(".txt") ||
-      fileName.endsWith(".cfg");
 }
 
 @Riverpod(keepAlive: true)

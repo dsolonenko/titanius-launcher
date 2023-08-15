@@ -5,7 +5,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final systems = ref.watch(detectedSystemsProvider);
+    final systems = ref.watch(allSupportedSystemsProvider);
     final settings = ref.watch(settingsProvider);
 
     final selected = useState("");
@@ -21,7 +21,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
         });
       }
       if (key == GamepadButton.y) {
-        final all = systems.value!.map((e) => e.id).toList();
+        final all = systems.value!.where((element) => !element.isCollection).map((e) => e.id).toList();
         ref.read(settingsRepoProvider).value!.setScrapeTheseSystems(all).then((value) {
           final _ = ref.refresh(settingsProvider);
         });
@@ -48,7 +48,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
             data: (settings) {
               return GroupedListView<System, String>(
                 key: const PageStorageKey("settings/scraper/systems"),
-                elements: systems,
+                elements: systems.where((element) => !element.isCollection).toList(),
                 groupBy: (system) {
                   final showSystem = settings.scrapeTheseSystems.contains(system.id);
                   return showSystem ? "Selected" : "Systems";
@@ -79,6 +79,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
                       });
                     },
                     title: Text(system.name),
+                    subtitle: Text("Folders: ${system.folders.join(", ")}"),
                     trailing: showSystem ? toggleOnIcon : toggleOffIcon,
                   );
                 },

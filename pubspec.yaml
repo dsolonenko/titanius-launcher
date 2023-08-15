@@ -73,7 +73,7 @@ dependencies:
   background_downloader: ^7.9.0
   envied: ^0.3.0+3
   sn_progress_dialog: ^1.1.3
-  flutter_background_service: ^4.0.0
+  flutter_background_service: ^5.0.1
   json_annotation: ^4.8.1
   
 dev_dependencies:

@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -8,10 +10,13 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onscreen_keyboard/onscreen_keyboard.dart';
+import 'package:titanius/data/files.dart';
+import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
 
 import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/scraper.dart';
 import 'package:titanius/data/systems.dart';
 import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
@@ -201,46 +206,174 @@ class ScraperPage extends HookConsumerWidget {
 
 Future<void> _startScraper(WidgetRef ref) async {
   debugPrint("Starting scraping...");
+  final romFolders = await ref.watch(romFoldersProvider.future);
   final allGames = await ref.read(allGamesProvider.future);
+  final allSystems = await ref.read(allSupportedSystemsProvider.future);
   final settings = await ref.read(settingsProvider.future);
   final systemsToScrape = settings.scrapeTheseSystems.toSet();
-  final roms = allGames
-      .where((g) => systemsToScrape.contains(g.system.id))
-      .map((g) => g.asRomToScrape())
-      .map((r) => r.toJson())
-      .toList();
-  debugPrint("Got ${roms.length} roms to scrape");
-  final service = FlutterBackgroundService();
-  await service.configure(
-    androidConfiguration: AndroidConfiguration(
-      onStart: onStart,
-      autoStart: false,
-      isForegroundMode: true,
-    ),
-    iosConfiguration: IosConfiguration(
-      autoStart: false,
-    ),
+  final systems = allSystems.where((s) => systemsToScrape.contains(s.id)).map((e) => e.toJson()).toList();
+  final existingRoms =
+      allGames.where((g) => systemsToScrape.contains(g.system.id)).map((g) => g.absoluteRomPath).toList();
+  dynamic service;
+  if (Platform.isAndroid) {
+    service = FlutterBackgroundService();
+    await service.configure(
+      androidConfiguration: AndroidConfiguration(
+        onStart: onStart,
+        autoStart: false,
+        isForegroundMode: true,
+      ),
+      iosConfiguration: IosConfiguration(
+        autoStart: false,
+      ),
+    );
+    debugPrint("Starting service");
+    await service.startService();
+  } else {
+    debugPrint("Emulating service");
+    service = FakeServiceInstance();
+    onStart(service);
+  }
+  service.invoke(
+    "scrape",
+    {
+      "username": settings.screenScraperUser,
+      "password": settings.screenScraperPwd,
+      "romFolders": romFolders,
+      "roms": existingRoms,
+      "systems": systems,
+    },
   );
-  debugPrint("Starting service");
-  await service.startService();
-  service.invoke("scrape", {"roms": roms});
+}
+
+class FakeServiceInstance extends ServiceInstance {
+  final scrapeController = StreamController<Map<String, dynamic>?>();
+  @override
+  void invoke(String method, [Map<String, dynamic>? args]) {
+    debugPrint("Invoking $method with $args");
+    if (method == "scrape") {
+      scrapeController.add(args);
+    }
+  }
+
+  @override
+  Stream<Map<String, dynamic>?> on(String method) {
+    debugPrint("Listening to $method");
+    if (method != "scrape") {
+      return const Stream.empty();
+    }
+    return scrapeController.stream;
+  }
+
+  @override
+  Future<void> stopSelf() async {
+    debugPrint("Stopping service");
+    scrapeController.close();
+  }
 }
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
 
-  service.on('scrape').listen((event) {
-    final roms = (event!["roms"] as List).map((e) => RomToScrape.fromJson(e)).toList();
-    debugPrint("Scraping ${roms.length} roms...");
+  service.on('scrape').listen((event) async {
+    debugPrint("Got scrape request: $event");
+    final username = event!["username"] as String;
+    final password = event["password"] as String;
+    final romFolders = event["romFolders"] as List<String>;
+    final roms = event["roms"] as List<String>;
+    final systems = (event["systems"] as List).map((e) => System.fromJson(e)).toList();
+    debugPrint("Scraping ${systems.length} systems with ${roms.length} existing roms...");
     service.invoke(
       'update',
       {
         "success": 0,
         "error": 0,
-        "total": roms.length,
+        "pending": 0,
+        "msg": "Starting...",
       },
     );
+
+    try {
+      final gamesToScrape = <Game>[];
+      for (var system in systems) {
+        for (var romsFolder in romFolders) {
+          for (var folder in system.folders) {
+            final games = await listGamesFromFiles(
+              romsFolder: romsFolder,
+              folder: folder,
+              system: system,
+            );
+            gamesToScrape.addAll(games);
+            service.invoke(
+              'update',
+              {
+                "success": 0,
+                "error": 0,
+                "pending": gamesToScrape.length,
+                "msg": "Discovering...",
+              },
+            );
+          }
+        }
+      }
+      service.invoke(
+        'update',
+        {
+          "success": 0,
+          "error": 0,
+          "pending": gamesToScrape.length,
+          "msg": "Scraping...",
+        },
+      );
+      var success = 0;
+      var error = 0;
+      var pending = gamesToScrape.length;
+      final scraper = Scraper(userName: username, userPassword: password);
+      for (var game in gamesToScrape) {
+        try {
+          final scrapedGame = await scraper.scrape(game.asRomToScrape(), (msg) {
+            service.invoke(
+              'update',
+              {
+                "success": success,
+                "error": error,
+                "pending": pending,
+                "msg": "${game.rom}: $msg",
+              },
+            );
+          });
+          service.invoke(
+            'update',
+            {
+              "success": success,
+              "error": error,
+              "pending": pending,
+              "msg": "${game.rom}: Writing gamelist.xml...",
+            },
+          );
+          await updateGameInGamelistXml(scrapedGame);
+          success++;
+        } catch (e) {
+          error++;
+        }
+        if (success + error > 1) {
+          break;
+        }
+        pending--;
+      }
+      service.invoke(
+        'update',
+        {
+          "success": success,
+          "error": error,
+          "pending": pending,
+          "msg": "Done",
+        },
+      );
+    } finally {
+      service.stopSelf();
+    }
   });
 
   service.on('stop').listen((event) {
