@@ -49,14 +49,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  background_downloader:
-    dependency: "direct main"
-    description:
-      name: background_downloader
-      sha256: dca018b102a8c5efb09aadf587c07729d6cb2c9840e471e725c746c2195a1cd3
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.9.0"
   battery_plus:
     dependency: "direct main"
     description:
@@ -361,6 +353,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  dio:
+    dependency: "direct main"
+    description:
+      name: dio
+      sha256: ce75a1b40947fea0a0e16ce73337122a86762e38b982e1ccb909daa3b9bc4197
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.2"
   envied:
     dependency: "direct main"
     description:

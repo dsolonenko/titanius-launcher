@@ -1,11 +1,10 @@
 import 'dart:io';
 
-import 'package:background_downloader/background_downloader.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screenscraper/screenscraper.dart' show MediaLink, RomScraper;
 import 'package:titanius/data/env.dart';
-import 'package:titanius/data/files.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
 
@@ -13,6 +12,7 @@ part 'scraper.g.dart';
 
 class Scraper {
   final RomScraper _scraper;
+  final dio = Dio();
 
   Scraper({required String userName, required String userPassword})
       : _scraper = RomScraper(
@@ -75,23 +75,16 @@ class Scraper {
   Future<String?> _downloadMedia(MediaLink mediaLink, String fileNameNoExt, String destinationFolder) async {
     final mediaName = "$fileNameNoExt.${mediaLink.format}";
     debugPrint("Downloading $destinationFolder/$mediaName");
-    final task = DownloadTask(
-      url: mediaLink.url,
-      filename: mediaName,
-      baseDirectory: BaseDirectory.temporary,
-    );
-    final result = await FileDownloader().download(task);
-    if (result.status == TaskStatus.complete) {
-      final filePath = await task.filePath();
-      debugPrint("Downloaded to $filePath");
-      final newFilePath = "$destinationFolder/$mediaName";
-      File(newFilePath).parent.createSync(recursive: true);
-      final newFile = await moveFile(File(filePath), newFilePath);
+    final newFilePath = "$destinationFolder/$mediaName";
+    final newFile = File(newFilePath);
+    newFile.parent.createSync(recursive: true);
+    final response = await dio.download(mediaLink.url, "$destinationFolder/$mediaName");
+    debugPrint("Response: ${response.statusCode} ${response.statusMessage}");
+    if (response.statusCode == 200) {
       return newFile.absolute.path;
     } else {
-      debugPrint("Error downloading $mediaName: ${result.exception.toString()}");
+      return null;
     }
-    return null;
   }
 
   close() {

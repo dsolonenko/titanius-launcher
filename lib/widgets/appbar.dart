@@ -3,6 +3,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:titanius/widgets/battery.dart';
+import 'package:titanius/widgets/scraper_progress.dart';
 import 'package:titanius/widgets/time.dart';
 import 'package:titanius/widgets/wifi.dart';
 
@@ -33,6 +34,8 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
       alignment: Alignment.centerRight,
       child: const Row(mainAxisSize: MainAxisSize.max, children: [
         TimeWidget(),
+        Spacer(),
+        ScraperProgressWidget(),
         Spacer(),
         WifiWidget(),
         BatteryWidget(),
