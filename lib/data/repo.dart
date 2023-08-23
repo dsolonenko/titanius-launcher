@@ -157,7 +157,7 @@ class SettingsRepo {
     } else {
       systems.remove(id);
     }
-    return _setSetting('scrapeTheseSystems', systems.join(","));
+    return setScrapeTheseSystems(systems.toList());
   }
 
   Future<void> setScrapeTheseSystems(List<String> ids) async {

@@ -34,7 +34,7 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
       alignment: Alignment.centerRight,
       child: const Row(mainAxisSize: MainAxisSize.max, children: [
         TimeWidget(),
-        Spacer(),
+        SizedBox(width: 16),
         ScraperProgressWidget(),
         Spacer(),
         WifiWidget(),

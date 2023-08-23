@@ -10,6 +10,7 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onscreen_keyboard/onscreen_keyboard.dart';
+import 'package:screenscraper/screenscraper.dart' show DoneForTheDayException, DoNotRetryException;
 import 'package:titanius/data/files.dart';
 import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/games.dart';
@@ -20,6 +21,7 @@ import 'package:titanius/data/scraper.dart';
 import 'package:titanius/data/systems.dart';
 import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
+import 'package:titanius/widgets/scraper_progress.dart';
 import 'package:titanius/widgets/selector.dart';
 import 'package:titanius/widgets/icons.dart';
 
@@ -214,9 +216,9 @@ Future<void> _startScraper(WidgetRef ref) async {
   final systems = allSystems.where((s) => systemsToScrape.contains(s.id)).map((e) => e.toJson()).toList();
   final existingRoms =
       allGames.where((g) => systemsToScrape.contains(g.system.id)).map((g) => g.absoluteRomPath).toList();
+  final service = ref.read(scraperServiceProvider);
 
   if (Platform.isAndroid) {
-    final service = FlutterBackgroundService();
     await service.configure(
       androidConfiguration: AndroidConfiguration(
         onStart: onStart,
@@ -242,7 +244,7 @@ Future<void> _startScraper(WidgetRef ref) async {
     );
   } else {
     debugPrint("Emulating service");
-    final service = FakeServiceInstance();
+
     onStart(service);
     debugPrint("Invoking service");
     service.invoke(
@@ -255,32 +257,6 @@ Future<void> _startScraper(WidgetRef ref) async {
         "systems": systems,
       },
     );
-  }
-}
-
-class FakeServiceInstance extends ServiceInstance {
-  final scrapeController = StreamController<Map<String, dynamic>?>();
-  @override
-  void invoke(String method, [Map<String, dynamic>? args]) {
-    debugPrint("Invoking $method with $args");
-    if (method == "scrape") {
-      scrapeController.add(args);
-    }
-  }
-
-  @override
-  Stream<Map<String, dynamic>?> on(String method) {
-    debugPrint("Listening to $method");
-    if (method != "scrape") {
-      return const Stream.empty();
-    }
-    return scrapeController.stream;
-  }
-
-  @override
-  Future<void> stopSelf() async {
-    debugPrint("Stopping service");
-    scrapeController.close();
   }
 }
 
@@ -303,6 +279,8 @@ void onStart(ServiceInstance service) async {
           "success": 0,
           "error": 0,
           "pending": 0,
+          "system": "",
+          "rom": "",
           "msg": "Starting...",
         },
       );
@@ -324,6 +302,8 @@ void onStart(ServiceInstance service) async {
                   "success": 0,
                   "error": 0,
                   "pending": gamesToScrape.length,
+                  "system": "",
+                  "rom": "",
                   "msg": "Discovering...",
                 },
               );
@@ -336,6 +316,8 @@ void onStart(ServiceInstance service) async {
             "success": 0,
             "error": 0,
             "pending": gamesToScrape.length,
+            "system": "",
+            "rom": "",
             "msg": "Scraping...",
           },
         );
@@ -352,7 +334,9 @@ void onStart(ServiceInstance service) async {
                   "success": success,
                   "error": error,
                   "pending": pending,
-                  "msg": "${game.rom}: $msg",
+                  "system": game.system.id,
+                  "rom": game.rom,
+                  "msg": msg,
                 },
               );
             });
@@ -362,11 +346,42 @@ void onStart(ServiceInstance service) async {
                 "success": success,
                 "error": error,
                 "pending": pending,
-                "msg": "${game.rom}: Writing gamelist.xml...",
+                "system": game.system.id,
+                "rom": game.rom,
+                "msg": "Writing gamelist.xml...",
               },
             );
             await updateGameInGamelistXml(scrapedGame);
             success++;
+          } on DoNotRetryException {
+            debugPrint("Error scraping ${game.rom}: Fatal error");
+            service.invoke(
+              'update',
+              {
+                "success": success,
+                "error": error,
+                "pending": pending,
+                "system": "",
+                "rom": "",
+                "msg": "Fatal error",
+              },
+            );
+            return;
+          } on DoneForTheDayException {
+            debugPrint("Error scraping ${game.rom}: Done for the day");
+            error++;
+            service.invoke(
+              'update',
+              {
+                "success": success,
+                "error": error,
+                "pending": pending,
+                "system": "",
+                "rom": "",
+                "msg": "Quota exceeded",
+              },
+            );
+            return;
           } catch (e) {
             debugPrint("Error scraping ${game.rom}: $e");
             error++;
@@ -376,7 +391,9 @@ void onStart(ServiceInstance service) async {
                 "success": success,
                 "error": error,
                 "pending": pending,
-                "msg": "Error scraping ${game.rom}",
+                "system": game.system.id,
+                "rom": game.rom,
+                "msg": "Error",
               },
             );
           }
@@ -388,6 +405,8 @@ void onStart(ServiceInstance service) async {
             "success": success,
             "error": error,
             "pending": pending,
+            "system": "",
+            "rom": "",
             "msg": "Done",
           },
         );

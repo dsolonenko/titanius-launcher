@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:screenscraper/screenscraper.dart' show MediaLink, RomScraper;
+import 'package:screenscraper/screenscraper.dart'
+    show MediaLink, RomScraper, ScreenScraperException, WaitAndRetryException;
 import 'package:titanius/data/env.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
+import 'package:retry/retry.dart';
 
 part 'scraper.g.dart';
 
@@ -25,7 +28,11 @@ class Scraper {
 
   Future<Game> scrape(RomToScrape rom, void Function(String msg) progress) async {
     progress("Scraping...");
-    final game = await _scraper.scrapeRom(systemId: rom.systemScreenScraperId, romPath: rom.absoluteRomPath);
+    const r = RetryOptions(maxAttempts: 5, delayFactor: Duration(seconds: 1));
+    final game = await r.retry(
+      () => _scraper.scrapeRom(systemId: rom.systemScreenScraperId, romPath: rom.absoluteRomPath),
+      retryIf: (e) => e is SocketException || e is TimeoutException || e is WaitAndRetryException,
+    );
     debugPrint("ScreenScraper ID for ${rom.absoluteRomPath} is ${game.gameId}");
     final file = File(rom.absoluteRomPath);
     final fileName = file.uri.pathSegments.last;
@@ -34,17 +41,26 @@ class Scraper {
     var imageUrl = rom.imageUrl;
     if (game.media.screenshot != null) {
       progress("Downloading screenshot...");
-      imageUrl = await _downloadMedia(game.media.screenshot!, fileNameNoExt, "$romsPath/media/images");
+      imageUrl = await r.retry(
+        () => _downloadMedia(game.media.screenshot!, fileNameNoExt, "$romsPath/media/images"),
+        retryIf: (e) => e is SocketException || e is TimeoutException || e is WaitAndRetryException,
+      );
     }
     var videoUrl = rom.videoUrl;
     if (game.media.videoNormalized != null) {
       progress("Downloading video...");
-      videoUrl = await _downloadMedia(game.media.videoNormalized!, fileNameNoExt, "$romsPath/media/videos");
+      videoUrl = await r.retry(
+        () => _downloadMedia(game.media.videoNormalized!, fileNameNoExt, "$romsPath/media/videos"),
+        retryIf: (e) => e is SocketException || e is TimeoutException || e is WaitAndRetryException,
+      );
     }
     var thumbnailUrl = rom.thumbnailUrl;
     if (game.media.wheel != null) {
       progress("Downloading wheel...");
-      thumbnailUrl = await _downloadMedia(game.media.wheel!, fileNameNoExt, "$romsPath/media/wheels");
+      thumbnailUrl = await r.retry(
+        () => _downloadMedia(game.media.wheel!, fileNameNoExt, "$romsPath/media/wheels"),
+        retryIf: (e) => e is SocketException || e is TimeoutException || e is WaitAndRetryException,
+      );
     }
     return Game(
       systemAllGames, //dummy
@@ -79,11 +95,11 @@ class Scraper {
     final newFile = File(newFilePath);
     newFile.parent.createSync(recursive: true);
     final response = await dio.download(mediaLink.url, "$destinationFolder/$mediaName");
-    debugPrint("Response: ${response.statusCode} ${response.statusMessage}");
+    debugPrint("Response: ${response.statusCode} ${response.statusMessage} => ${response.data}");
     if (response.statusCode == 200) {
       return newFile.absolute.path;
     } else {
-      return null;
+      throw ScreenScraperException.fromHttpResponse(response.statusCode ?? 401, response.data.toString());
     }
   }
 
