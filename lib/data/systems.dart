@@ -35,6 +35,9 @@ Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
 }
 
 bool _hasGames(System system, List<String> romFolders) {
+  if (system.isCollection) {
+    return true;
+  }
   for (final folder in system.folders) {
     for (final romFolder in romFolders) {
       final gamelist = File('$romFolder/$folder/gamelist.xml');

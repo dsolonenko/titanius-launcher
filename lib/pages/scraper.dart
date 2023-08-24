@@ -181,8 +181,11 @@ class ScraperPage extends HookConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Icon(Icons.bolt, size: 48),
+                  SizedBox(height: 8),
                   Text("Start scraping?"),
-                  Text("It will take a while..."),
+                  SizedBox(height: 8),
+                  Text("It may take a while... Please refresh gamelists after scraping is done."),
                 ],
               ),
             )
@@ -214,10 +217,8 @@ Future<void> _startScraper(WidgetRef ref) async {
   final settings = await ref.read(settingsProvider.future);
   final systemsToScrape = settings.scrapeTheseSystems.toSet();
   final systems = allSystems.where((s) => systemsToScrape.contains(s.id)).map((e) => e.toJson()).toList();
-  final existingRoms =
-      allGames.where((g) => systemsToScrape.contains(g.system.id)).map((g) => g.absoluteRomPath).toList();
+  final existingRoms = allGames.where((g) => systemsToScrape.contains(g.system.id)).toList();
   final service = ref.read(scraperServiceProvider);
-
   if (Platform.isAndroid) {
     await service.configure(
       androidConfiguration: AndroidConfiguration(
@@ -229,35 +230,29 @@ Future<void> _startScraper(WidgetRef ref) async {
         autoStart: false,
       ),
     );
+    final isRunning = await service.isServiceRunning();
+    if (isRunning) {
+      debugPrint("Already running");
+      return;
+    }
     debugPrint("Starting service");
     await service.startService();
-    debugPrint("Invoking service");
-    service.invoke(
-      "scrape",
-      {
-        "username": settings.screenScraperUser,
-        "password": settings.screenScraperPwd,
-        "romFolders": romFolders,
-        "roms": existingRoms,
-        "systems": systems,
-      },
-    );
   } else {
     debugPrint("Emulating service");
-
     onStart(service);
-    debugPrint("Invoking service");
-    service.invoke(
-      "scrape",
-      {
-        "username": settings.screenScraperUser,
-        "password": settings.screenScraperPwd,
-        "romFolders": romFolders,
-        "roms": existingRoms,
-        "systems": systems,
-      },
-    );
   }
+  debugPrint("Invoking service");
+  service.invoke(
+    "scrape",
+    {
+      "username": settings.screenScraperUser,
+      "password": settings.screenScraperPwd,
+      "romFolders": romFolders,
+      "roms": existingRoms,
+      "scrapeTheseGames": settings.scrapeTheseGames ?? "all_games",
+      "systems": systems,
+    },
+  );
 }
 
 @pragma('vm:entry-point')
@@ -270,9 +265,11 @@ void onStart(ServiceInstance service) async {
       final username = event!["username"] as String?;
       final password = event["password"] as String?;
       final romFolders = (event["romFolders"] as List).map((e) => e.toString()).toList();
-      final roms = (event["roms"] as List).map((e) => e.toString()).toList();
+      final roms = event["roms"] as List<Game>;
+      final romsMap = {for (var rom in roms) rom.absoluteRomPath: rom};
       final systems = (event["systems"] as List).map((e) => System.fromJson(e)).toList();
-      debugPrint("Scraping ${systems.length} systems with ${roms.length} existing roms...");
+      final scrapeTheseGames = event["scrapeTheseGames"] as String;
+      debugPrint("Scraping $scrapeTheseGames for ${systems.length} systems with ${roms.length} existing roms...");
       service.invoke(
         'update',
         {
@@ -290,12 +287,6 @@ void onStart(ServiceInstance service) async {
         for (var system in systems) {
           for (var romsFolder in romFolders) {
             for (var folder in system.folders) {
-              final games = await listGamesFromFiles(
-                romsFolder: romsFolder,
-                folder: folder,
-                system: system,
-              );
-              gamesToScrape.addAll(games);
               service.invoke(
                 'update',
                 {
@@ -307,6 +298,33 @@ void onStart(ServiceInstance service) async {
                   "msg": "Discovering...",
                 },
               );
+              final games = await listGamesFromFiles(
+                romsFolder: romsFolder,
+                folder: folder,
+                system: system,
+              );
+              for (final g in games) {
+                final game = romsMap[g.absoluteRomPath];
+                if (game == null) {
+                  gamesToScrape.add(g);
+                } else {
+                  switch (scrapeTheseGames) {
+                    case "all_games":
+                      gamesToScrape.add(game);
+                      break;
+                    case "favourites":
+                      if (game.favorite) {
+                        gamesToScrape.add(game);
+                      }
+                      break;
+                    case "missing_details":
+                      if (game.needsScraping) {
+                        gamesToScrape.add(game);
+                      }
+                      break;
+                  }
+                }
+              }
             }
           }
         }
@@ -321,13 +339,14 @@ void onStart(ServiceInstance service) async {
             "msg": "Scraping...",
           },
         );
+
         var success = 0;
         var error = 0;
         var pending = gamesToScrape.length;
         final scraper = Scraper(userName: username ?? "", userPassword: password ?? "");
         for (var game in gamesToScrape) {
           try {
-            final scrapedGame = await scraper.scrape(game.asRomToScrape(), (msg) {
+            final scrapedGame = await scraper.scrape(game, (msg) {
               service.invoke(
                 'update',
                 {

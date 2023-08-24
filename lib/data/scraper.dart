@@ -26,11 +26,11 @@ class Scraper {
           userPassword: userPassword,
         );
 
-  Future<Game> scrape(RomToScrape rom, void Function(String msg) progress) async {
+  Future<Game> scrape(Game rom, void Function(String msg) progress) async {
     progress("Scraping...");
     const r = RetryOptions(maxAttempts: 5, delayFactor: Duration(seconds: 1));
     final game = await r.retry(
-      () => _scraper.scrapeRom(systemId: rom.systemScreenScraperId, romPath: rom.absoluteRomPath),
+      () => _scraper.scrapeRom(systemId: rom.system.screenScraperId, romPath: rom.absoluteRomPath),
       retryIf: (e) => e is SocketException || e is TimeoutException || e is WaitAndRetryException,
     );
     debugPrint("ScreenScraper ID for ${rom.absoluteRomPath} is ${game.gameId}");

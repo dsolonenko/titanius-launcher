@@ -721,7 +721,7 @@ packages:
     source: hosted
     version: "0.6.7"
   json_annotation:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: json_annotation
       sha256: b10a7b2ff83d83c777edba3c6a0f97045ddadd56c944e1a23a3fdf43a1bf4467
@@ -1092,10 +1092,10 @@ packages:
     dependency: "direct main"
     description:
       name: screenscraper
-      sha256: "509261b8aeb2500a44eb754216078a188bd8f417b12fe6f1eace42aae554f668"
+      sha256: "87b175eadb06f28de5ba326559ee6d9268221c9b5d3ff8b948ddecf8d943c360"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.4"
+    version: "0.1.5"
   scrollable_positioned_list:
     dependency: "direct main"
     description:
