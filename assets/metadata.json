@@ -1778,6 +1778,17 @@
           }
         },
         {
+          "id": "dolphin_mmjr_legacy",
+          "name": "Dolphin MMJR (Legacy)",
+          "intent": {
+            "component": "org.dolphinemu.mmjr/org.dolphinemu.dolphinemu.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "args": {
+              "AutoStartFile": "{file.path}"
+            }
+          }
+        },
+        {
           "id": "dolphin_handheld",
           "name": "Dolphin for Handheld",
           "intent": {
@@ -2882,12 +2893,33 @@
           }
         },
         {
+          "id": "ppsspp_legacy",
+          "name": "PPSSPP (Legacy)",
+          "intent": {
+            "component": "org.ppsspp.ppsspp/.PpssppActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}",
+            "flags": [
+              "--activity-clear-task"
+            ]
+          }
+        },
+        {
           "id": "ppsspp_gold",
           "name": "PPSSPP Gold",
           "intent": {
             "component": "org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity",
             "action": "android.intent.action.VIEW",
             "data": "{file.documenturi}"
+          }
+        },
+        {
+          "id": "ppsspp_gold_legacy",
+          "name": "PPSSPP Gold (Legacy)",
+          "intent": {
+            "component": "org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}"
           }
         }
       ]
