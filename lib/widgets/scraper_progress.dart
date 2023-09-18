@@ -77,7 +77,7 @@ class ScraperService extends _$ScraperService {
 class ScraperProgressState extends _$ScraperProgressState {
   @override
   ScraperProgress build() {
-    return ScraperProgress(pending: 0, success: 0, error: 0, system: "", rom: "", message: "Idle");
+    return ScraperProgress(pending: 0, success: 0, error: 0, system: "", rom: "", message: "");
   }
 
   void set(ScraperProgress progress) {
@@ -105,6 +105,10 @@ class ScraperProgressWidget extends HookConsumerWidget {
       });
       return () => sub.cancel();
     }, []);
+
+    if (progressState.message == "") {
+      return const SizedBox.shrink();
+    }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
