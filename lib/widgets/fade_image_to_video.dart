@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:fade_indexed_stack/fade_indexed_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:video_player/video_player.dart';
@@ -112,30 +113,27 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
         File(widget.game.imageUrl!),
         fit: BoxFit.contain,
         filterQuality: FilterQuality.high,
-        key: const ValueKey<int>(1),
       );
     } else if (widget.settings.fadeToVideo) {
-      return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        child: _showImage
-            ? Image.file(
-                File(widget.game.imageUrl!),
-                fit: BoxFit.contain,
-                filterQuality: FilterQuality.high,
-                key: const ValueKey<int>(1),
-              )
-            : mounted && _controller.value.isInitialized
-                ? AspectRatio(
-                    key: const ValueKey<int>(2),
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
-                  )
-                : const Center(child: CircularProgressIndicator()),
+      return FadeIndexedStack(
+        duration: const Duration(milliseconds: 100),
+        index: _showImage ? 0 : 1,
+        sizing: StackFit.expand,
+        children: [
+          Image.file(
+            File(widget.game.imageUrl!),
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+          ),
+          AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            child: VideoPlayer(_controller),
+          ),
+        ],
       );
     } else {
       return _controller.value.isInitialized
           ? AspectRatio(
-              key: const ValueKey<int>(2),
               aspectRatio: _controller.value.aspectRatio,
               child: VideoPlayer(_controller),
             )

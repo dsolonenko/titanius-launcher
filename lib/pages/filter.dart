@@ -5,6 +5,7 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onscreen_keyboard/onscreen_keyboard.dart';
+import 'package:prompt_dialog/prompt_dialog.dart';
 import 'package:screenscraper/screenscraper.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -68,8 +69,17 @@ class FiltersPage extends HookConsumerWidget {
           ),
           ListTile(
             onFocusChange: (value) {},
-            onTap: () {
-              context.push("/games/$system/filter/name");
+            onTap: () async {
+              final value = await prompt(
+                context,
+                title: const Text("Name Filter"),
+                initialValue: filter.search,
+                isSelectedInitialValue: true,
+                controller: TextEditingController(text: filter.search),
+              );
+              if (value != null) {
+                ref.read(temporaryGameFilterProvider(system).notifier).setSearch(value);
+              }
             },
             title: const Text('Name'),
             subtitle: Text(filter.search.isEmpty ? "All" : "Contains: ${filter.search}"),
