@@ -39,6 +39,7 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
         }
       });
     } else {
+      _showImage = false;
       _controller.initialize().then((value) {
         if (mounted && !_lostFocus) {
           _controller.play();
@@ -108,36 +109,21 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
   }
 
   Widget _buildVideoPlayer() {
-    if (_lostFocus) {
-      return Image.file(
-        File(widget.game.imageUrl!),
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.high,
-      );
-    } else if (widget.settings.fadeToVideo) {
-      return FadeIndexedStack(
-        duration: const Duration(milliseconds: 100),
-        index: _showImage ? 0 : 1,
-        sizing: StackFit.expand,
-        children: [
-          Image.file(
-            File(widget.game.imageUrl!),
-            fit: BoxFit.contain,
-            filterQuality: FilterQuality.high,
-          ),
-          AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            child: VideoPlayer(_controller),
-          ),
-        ],
-      );
-    } else {
-      return _controller.value.isInitialized
-          ? AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: VideoPlayer(_controller),
-            )
-          : const Center(child: CircularProgressIndicator());
-    }
+    return FadeIndexedStack(
+      duration: const Duration(milliseconds: 100),
+      index: _lostFocus || _showImage ? 0 : 1,
+      sizing: StackFit.expand,
+      children: [
+        Image.file(
+          File(widget.game.imageUrl!),
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
+        ),
+        AspectRatio(
+          aspectRatio: _controller.value.aspectRatio,
+          child: VideoPlayer(_controller),
+        ),
+      ],
+    );
   }
 }
