@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prompt_dialog/prompt_dialog.dart';
 import 'package:shared_storage/saf.dart' as saf;
 
 import 'package:titanius/data/android_apps.dart';
@@ -24,6 +25,7 @@ import 'package:titanius/widgets/icons.dart';
 
 part 'package:titanius/pages/settings/systems.dart';
 part 'package:titanius/pages/settings/emulators.dart';
+part 'package:titanius/pages/settings/cemulators.dart';
 part 'package:titanius/pages/settings/ui.dart';
 part 'package:titanius/pages/settings/roms.dart';
 part 'package:titanius/pages/settings/apps.dart';
@@ -104,6 +106,14 @@ class SettingsPage extends HookConsumerWidget {
               context.push("/settings/emulators");
             },
             title: const Text('Emulators'),
+            trailing: arrowRight,
+          ),
+          ListTile(
+            onFocusChange: (value) {},
+            onTap: () {
+              context.push("/settings/cemulators");
+            },
+            title: const Text('Custom Emulators'),
             trailing: arrowRight,
           ),
           ListTile(

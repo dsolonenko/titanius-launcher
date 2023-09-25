@@ -101,6 +101,16 @@ final _router = GoRouter(
             builder: (context, state) => const ShowSystemsSettingsPage(),
           ),
           GoRoute(
+            path: 'cemulators',
+            builder: (context, state) => const CustomEmulatorsPage(),
+            routes: [
+              GoRoute(
+                path: "edit",
+                builder: (context, state) => const EditCustomEmulatorPage(),
+              )
+            ],
+          ),
+          GoRoute(
             path: 'emulators',
             builder: (context, state) => const AlternativeEmulatorsSettingPage(),
             routes: [

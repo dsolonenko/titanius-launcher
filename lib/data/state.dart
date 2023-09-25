@@ -184,6 +184,30 @@ class TemporaryGameFilter extends _$TemporaryGameFilter {
   }
 }
 
+@Riverpod(keepAlive: true)
+class TemporaryEmulator extends _$TemporaryEmulator {
+  @override
+  CustomEmulator build() {
+    return CustomEmulator.empty();
+  }
+
+  void set(CustomEmulator emulator) {
+    state = CustomEmulator(
+      name: emulator.name,
+      package: emulator.package,
+      action: emulator.action,
+      activity: emulator.activity,
+      data: emulator.data,
+      args: emulator.args,
+      flags: emulator.flags,
+    );
+  }
+
+  void reset() {
+    state = CustomEmulator.empty();
+  }
+}
+
 @riverpod
 Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) {
   final game = ref.watch(selectedGameProvider(system));

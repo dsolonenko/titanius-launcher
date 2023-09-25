@@ -13,6 +13,7 @@ Future<Isar> isar(IsarRef ref) async {
     [
       SettingSchema,
       AlternativeEmulatorSchema,
+      CustomEmulatorSchema,
       GameEmulatorSchema,
       RecentGameSchema,
       AndroidAppSchema,

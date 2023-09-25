@@ -43,6 +43,39 @@ class Settings {
 }
 
 @collection
+class CustomEmulator {
+  Id id = Isar.autoIncrement;
+  @Index(unique: true, replace: true)
+  String name;
+  String package;
+  String activity;
+  String action;
+  String data;
+  List<String> args;
+  List<String> flags;
+  CustomEmulator({
+    required this.name,
+    required this.package,
+    required this.action,
+    required this.data,
+    required this.activity,
+    this.args = const [],
+    this.flags = const [],
+  });
+
+  CustomEmulator.empty()
+      : this(
+          name: "Custom PPSSPP",
+          package: "org.ppsspp.ppsspp",
+          activity: ".PpssppActivity",
+          action: "android.intent.action.VIEW",
+          data: "{file.documenturi}",
+          args: [],
+          flags: ["--activity-clear-task", "--activity-clear-top"],
+        );
+}
+
+@collection
 class AlternativeEmulator {
   Id id = Isar.autoIncrement;
   @Index(unique: true, replace: true)
@@ -245,6 +278,27 @@ class PerSystemConfigurationRepo {
   }
 }
 
+class CustomEmulatorsRepo {
+  final Isar isar;
+  CustomEmulatorsRepo(this.isar);
+
+  Future<List<CustomEmulator>> _getCustomEmulators() {
+    return isar.customEmulators.where().findAll();
+  }
+
+  Future<void> saveCustomEmulator(CustomEmulator emulator) async {
+    await isar.writeTxn(() async {
+      await isar.customEmulators.put(emulator);
+    });
+  }
+
+  Future<void> deleteCustomEmulator(String name) async {
+    await isar.writeTxn(() async {
+      await isar.customEmulators.deleteByName(name);
+    });
+  }
+}
+
 class PerGameConfigurationRepo {
   final Isar isar;
 
@@ -376,6 +430,18 @@ Future<PerSystemConfigurationRepo> perSystemConfigurationRepo(PerSystemConfigura
 Future<List<AlternativeEmulator>> perSystemConfigurations(PerSystemConfigurationsRef ref) async {
   final repo = await ref.watch(perSystemConfigurationRepoProvider.future);
   return repo._getAlternativeEmulators();
+}
+
+@Riverpod(keepAlive: true)
+Future<CustomEmulatorsRepo> customEmulatorsRepo(CustomEmulatorsRepoRef ref) async {
+  final isar = await ref.watch(isarProvider.future);
+  return CustomEmulatorsRepo(isar);
+}
+
+@Riverpod(keepAlive: true)
+Future<List<CustomEmulator>> customEmulators(CustomEmulatorsRef ref) async {
+  final repo = await ref.watch(customEmulatorsRepoProvider.future);
+  return repo._getCustomEmulators();
 }
 
 @Riverpod(keepAlive: true)
