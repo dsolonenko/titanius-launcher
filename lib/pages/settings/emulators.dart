@@ -11,6 +11,13 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/emulators") return;
+      if (key == GamepadButton.x) {
+        ref
+            .read(perSystemConfigurationRepoProvider)
+            .value!
+            .deleteAlternativeEmulator(selected.value)
+            .then((value) => ref.refresh(perSystemConfigurationsProvider));
+      }
       if (key == GamepadButton.b) {
         GoRouter.of(context).pop();
       }
@@ -24,6 +31,7 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
         navigations: [],
         actions: [
           GamepadPrompt([GamepadButton.a], "Change"),
+          GamepadPrompt([GamepadButton.x], "Default"),
           GamepadPrompt([GamepadButton.b], "Back"),
         ],
       ),
@@ -35,6 +43,7 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
             itemCount: emulators.length,
             itemBuilder: (context, index) {
               final isStandalone = emulators[index].defaultEmulator!.isStandalone;
+              final isCustom = emulators[index].defaultEmulator!.isCustom;
               return ListTile(
                 autofocus: selected.value == emulators[index].system.id || (selected.value.isEmpty && index == 0),
                 onFocusChange: (value) {
@@ -46,7 +55,8 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
                   context.push("/settings/emulators/${emulators[index].system.id}");
                 },
                 title: Text(emulators[index].system.name),
-                trailing: Text("${emulators[index].defaultEmulator!.name}${isStandalone ? " (Standalone)" : ""}"),
+                trailing: Text(
+                    "${emulators[index].defaultEmulator!.name}${isCustom ? " (Custom)" : isStandalone ? " (Standalone)" : ""}"),
               );
             },
           );
@@ -85,22 +95,31 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
       body: emulators.when(
         data: (emulators) {
           final selected = emulators.firstWhere((e) => e.system.id == system);
-          return ListView.builder(
-            itemCount: selected.system.emulators.length,
-            itemBuilder: (context, index) {
-              final isStandalone = selected.system.emulators[index].isStandalone;
+          return GroupedListView<Emulator, String>(
+            key: PageStorageKey("settings/emulators/$system"),
+            elements: selected.emulators,
+            groupBy: (element) => element.isCustom ? "Custom" : "Built-In",
+            groupSeparatorBuilder: (String value) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                value,
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
+            indexedItemBuilder: (context, emulator, index) {
+              final isStandalone = emulator.isStandalone;
               return ListTile(
                 autofocus: index == 0,
-                selected: selected.defaultEmulator?.id == selected.system.emulators[index].id,
+                selected: selected.defaultEmulator?.id == emulator.id,
                 onTap: () {
                   ref
                       .read(perSystemConfigurationRepoProvider)
                       .value!
-                      .saveAlternativeEmulator(system, selected.system.emulators[index].id)
+                      .saveAlternativeEmulator(system, emulator.id)
                       .then((value) => ref.refresh(perSystemConfigurationsProvider));
                   context.pop();
                 },
-                title: Text(selected.system.emulators[index].name),
+                title: Text(emulator.name),
                 leading: index == 0 ? const Icon(Icons.star) : null,
                 minLeadingWidth: 20,
                 trailing: isStandalone ? const Text("Standalone") : null,

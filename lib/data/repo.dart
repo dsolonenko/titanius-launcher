@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:titanius/data/android_intent.dart';
 
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/storage.dart';
@@ -73,6 +74,20 @@ class CustomEmulator {
           args: [],
           flags: ["--activity-clear-task", "--activity-clear-top"],
         );
+
+  Emulator toEmulator() {
+    return Emulator(
+      id: "custom:$name",
+      name: name,
+      intent: LaunchIntent(
+        target: "$package/$activity",
+        action: action,
+        data: data,
+        args: <String, dynamic>{for (final arg in args) arg.split("=")[0]: arg.split("=")[1]},
+        flags: List<String>.from(flags),
+      ),
+    );
+  }
 }
 
 @collection
@@ -274,6 +289,12 @@ class PerSystemConfigurationRepo {
   Future<void> saveAlternativeEmulator(String system, String emulator) async {
     await isar.writeTxn(() async {
       await isar.alternativeEmulators.put(AlternativeEmulator(system: system, emulator: emulator));
+    });
+  }
+
+  Future<void> deleteAlternativeEmulator(String system) async {
+    await isar.writeTxn(() async {
+      await isar.alternativeEmulators.deleteBySystem(system);
     });
   }
 }

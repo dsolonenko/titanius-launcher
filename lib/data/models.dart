@@ -13,7 +13,7 @@ const systemAllGames = System(
   name: 'All Games',
   logo: "",
   folders: [],
-  emulators: [],
+  builtInEmulators: [],
   isCollection: true,
 );
 
@@ -23,7 +23,7 @@ const systemFavourites = System(
   name: 'Favourites',
   logo: "",
   folders: [],
-  emulators: [],
+  builtInEmulators: [],
   isCollection: true,
 );
 
@@ -33,7 +33,7 @@ const systemRecent = System(
   name: 'Recent',
   logo: "",
   folders: [],
-  emulators: [],
+  builtInEmulators: [],
   isCollection: true,
 );
 
@@ -45,7 +45,7 @@ class System {
   final String name;
   final String logo;
   final List<String> folders;
-  final List<Emulator> emulators;
+  final List<Emulator> builtInEmulators;
   final bool isCollection;
 
   const System(
@@ -54,7 +54,7 @@ class System {
       required this.name,
       required this.logo,
       required this.folders,
-      required this.emulators,
+      required this.builtInEmulators,
       this.isCollection = false});
 
   @override
@@ -69,7 +69,7 @@ class System {
       name: json['name'],
       logo: json['logo'],
       folders: List<String>.from(json['folders']),
-      emulators:
+      builtInEmulators:
           json.containsKey("emulators") ? List<Emulator>.from(json['emulators'].map((x) => Emulator.fromJson(x))) : [],
     );
   }
@@ -108,6 +108,7 @@ class Emulator {
   }
 
   get isStandalone => intent.isStandalone;
+  get isCustom => id.startsWith("custom:");
 }
 
 class Game {

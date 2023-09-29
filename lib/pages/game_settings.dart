@@ -28,6 +28,7 @@ class GameSettingsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final game = ref.watch(selectedGameProvider(system));
     final gameEmulator = ref.watch(perGameConfigurationProvider(game));
+    final customEmulators = ref.watch(customEmulatorsProvider);
 
     if (game == null) {
       return const Scaffold(
@@ -47,8 +48,12 @@ class GameSettingsPage extends HookConsumerWidget {
         GoRouter.of(context).go("/games/$system");
       }
       if (key == GamepadButton.right || key == GamepadButton.left) {
-        if (selected.value == "emulator") {
-          final emulators = ["default", ...game.system.emulators.map((e) => e.id)];
+        if (selected.value == "emulator" && customEmulators.hasValue) {
+          final emulators = [
+            "default",
+            ...game.system.builtInEmulators.map((e) => e.id),
+            ...customEmulators.value!.map((e) => e.toEmulator().id)
+          ];
           int index = emulators.indexWhere((id) => id == (gameEmulator.value?.emulator ?? "default"));
           if (key == GamepadButton.right) {
             index++;
@@ -56,9 +61,9 @@ class GameSettingsPage extends HookConsumerWidget {
             index--;
           }
           if (index < 0) {
-            index = game.system.emulators.length - 1;
+            index = emulators.length - 1;
           }
-          if (index >= game.system.emulators.length) {
+          if (index >= emulators.length) {
             index = 0;
           }
           final emulator = emulators[index];
@@ -67,6 +72,7 @@ class GameSettingsPage extends HookConsumerWidget {
               .value!
               .saveGameEmulator(game, emulator)
               .then((value) => ref.refresh(perGameConfigurationProvider(game)));
+          debugPrint("Selected emulator: $emulator");
         }
       }
     });
@@ -234,8 +240,15 @@ class GameSettingsPage extends HookConsumerWidget {
           title: const Text("Emulator"),
           trailing: gameEmulator.when(
             data: (data) {
-              final emulator = game.system.emulators.firstWhereOrNull((element) => element.id == data?.emulator);
-              return SelectorWidget(text: emulator?.name ?? "Default");
+              return customEmulators.when(
+                data: (customEmulators) {
+                  final emulators = [...game.system.builtInEmulators, ...customEmulators.map((e) => e.toEmulator())];
+                  final emulator = emulators.firstWhereOrNull((element) => element.id == data?.emulator);
+                  return SelectorWidget(text: emulator?.name ?? "Default");
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (error, stack) => const Text("Error"),
+              );
             },
             loading: () => const CircularProgressIndicator(),
             error: (error, stack) => const Text("Error"),

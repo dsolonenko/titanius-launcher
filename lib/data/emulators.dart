@@ -9,18 +9,26 @@ part 'emulators.g.dart';
 
 class EmulatorList {
   final System system;
+  final List<Emulator> emulators;
   final Emulator? defaultEmulator;
 
-  EmulatorList(this.system, this.defaultEmulator);
+  EmulatorList(this.system, this.emulators, this.defaultEmulator);
 }
 
 @Riverpod(keepAlive: true)
 Future<List<EmulatorList>> alternativeEmulators(AlternativeEmulatorsRef ref) async {
   final perSystemConfigurations = await ref.watch(perSystemConfigurationsProvider.future);
   final systems = await ref.watch(detectedSystemsProvider.future);
+  final customEmulators = await ref.watch(customEmulatorsProvider.future);
+  final emulators = customEmulators.map((e) => e.toEmulator()).toList();
   return systems
+      .whereNot((element) => element.isCollection)
       .map((v) => EmulatorList(
-          v, defaultEmulator(v.emulators, perSystemConfigurations.firstWhereOrNull((e) => e.system == v.id))))
+            v,
+            [...v.builtInEmulators, ...emulators],
+            defaultEmulator([...v.builtInEmulators, ...emulators],
+                perSystemConfigurations.firstWhereOrNull((e) => e.system == v.id)),
+          ))
       .toList();
 }
 

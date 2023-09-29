@@ -204,8 +204,10 @@ class GamesPage extends HookConsumerWidget {
   void _launchGame(WidgetRef ref, Game game) async {
     await ref.read(recentGamesRepoProvider).value!.saveRecentGame(game);
     final gameEmulator = await ref.read(perGameConfigurationProvider(game).future);
+    final customEmulators = await ref.read(customEmulatorsProvider.future);
     if (gameEmulator != null && gameEmulator.emulator != "default") {
-      final emulator = game.system.emulators.firstWhereOrNull((element) => element.id == gameEmulator.emulator);
+      final emulators = [...game.system.builtInEmulators, ...customEmulators.map((e) => e.toEmulator())];
+      final emulator = emulators.firstWhereOrNull((element) => element.id == gameEmulator.emulator);
       _launchGameWithEmulator(emulator, game);
     } else {
       final alternativeEmulators = await ref.read(alternativeEmulatorsProvider.future);
