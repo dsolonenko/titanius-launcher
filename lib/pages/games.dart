@@ -116,6 +116,8 @@ class GamesPage extends HookConsumerWidget {
           final gameToShow = gamelist.games[selectedIndex];
           debugPrint("Selected game is $selectedIndex: ${gameToShow.rom}");
           return Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 flex: 1,
@@ -187,7 +189,7 @@ class GamesPage extends HookConsumerWidget {
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: gameToShow.isFolder
                     ? _gameFolder(ref, context, gameToShow)
                     : _gameDetails(settings, gameToShow, showDetails),
@@ -278,6 +280,7 @@ class GamesPage extends HookConsumerWidget {
 
   Widget _gameDetailsShort(AsyncValue<Settings> settings, Game gameToShow) {
     return Column(
+      mainAxisSize: MainAxisSize.max,
       children: [
         Expanded(
           child: settings.when(
