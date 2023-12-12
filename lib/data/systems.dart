@@ -35,6 +35,9 @@ Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
 }
 
 bool _hasGames(System system, List<String> romFolders) {
+  if (system.id == 'android') {
+    return true;
+  }
   if (system.isCollection) {
     return true;
   }
