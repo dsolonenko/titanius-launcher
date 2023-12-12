@@ -74,7 +74,6 @@ class SettingsPage extends HookConsumerWidget {
             },
             title: const Text('Refresh GameLists'),
           ),
-          /*
           ListTile(
             onFocusChange: (value) {},
             onTap: () {
@@ -83,7 +82,6 @@ class SettingsPage extends HookConsumerWidget {
             title: const Text('Scraper'),
             trailing: arrowRight,
           ),
-          */
           ListTile(
             onFocusChange: (value) {},
             onTap: () {

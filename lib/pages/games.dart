@@ -190,9 +190,12 @@ class GamesPage extends HookConsumerWidget {
               ),
               Expanded(
                 flex: 3,
-                child: gameToShow.isFolder
-                    ? _gameFolder(ref, context, gameToShow)
-                    : _gameDetails(settings, gameToShow, showDetails),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: gameToShow.isFolder
+                      ? _gameFolder(ref, context, gameToShow)
+                      : _gameDetails(settings, gameToShow, showDetails),
+                ),
               ),
             ],
           );
