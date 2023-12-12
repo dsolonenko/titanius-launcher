@@ -36,13 +36,12 @@ extension GoRouterLocation on GoRouter {
 }
 
 void useGamepad(WidgetRef ref, void Function(String location, GamepadButton key) listener) {
-  return use(_GamepadHook(GoRouter.of(ref.context).location, listener));
+  return use(_GamepadHook(listener));
 }
 
 class _GamepadHook extends Hook<void> {
-  final String location;
   final void Function(String location, GamepadButton key) listener;
-  const _GamepadHook(this.location, this.listener);
+  const _GamepadHook(this.listener);
 
   @override
   _GamepadHookState createState() => _GamepadHookState();
@@ -65,48 +64,49 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
   }
 
   bool listener(KeyEvent e) {
+    String currentLocation = GoRouter.of(context).location;
     if (e is KeyDownEvent) {
-      debugPrint("Gamepad down ${hook.location}: ${e.logicalKey}");
+      debugPrint("Gamepad down $currentLocation: ${e.logicalKey}");
       if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
-        hook.listener(hook.location, GamepadButton.up);
+        hook.listener(currentLocation, GamepadButton.up);
       } else if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
-        hook.listener(hook.location, GamepadButton.down);
+        hook.listener(currentLocation, GamepadButton.down);
       } else if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
-        hook.listener(hook.location, GamepadButton.left);
+        hook.listener(currentLocation, GamepadButton.left);
       } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
-        hook.listener(hook.location, GamepadButton.right);
+        hook.listener(currentLocation, GamepadButton.right);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonA || e.logicalKey == LogicalKeyboardKey.numpad2) {
-        hook.listener(hook.location, GamepadButton.a);
+        hook.listener(currentLocation, GamepadButton.a);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonB ||
           e.logicalKey == LogicalKeyboardKey.backspace ||
           e.logicalKey == LogicalKeyboardKey.numpad6) {
-        hook.listener(hook.location, GamepadButton.b);
+        hook.listener(currentLocation, GamepadButton.b);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonX ||
           e.logicalKey == LogicalKeyboardKey.numpad4 ||
           e.logicalKey == LogicalKeyboardKey.keyX) {
-        hook.listener(hook.location, GamepadButton.x);
+        hook.listener(currentLocation, GamepadButton.x);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonY ||
           e.logicalKey == LogicalKeyboardKey.numpad8 ||
           e.logicalKey == LogicalKeyboardKey.keyY) {
-        hook.listener(hook.location, GamepadButton.y);
+        hook.listener(currentLocation, GamepadButton.y);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonC) {
-        hook.listener(hook.location, GamepadButton.c);
+        hook.listener(currentLocation, GamepadButton.c);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonZ) {
-        hook.listener(hook.location, GamepadButton.z);
+        hook.listener(currentLocation, GamepadButton.z);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonLeft1) {
-        hook.listener(hook.location, GamepadButton.l1);
+        hook.listener(currentLocation, GamepadButton.l1);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight1) {
-        hook.listener(hook.location, GamepadButton.r1);
+        hook.listener(currentLocation, GamepadButton.r1);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonLeft2) {
-        hook.listener(hook.location, GamepadButton.l2);
+        hook.listener(currentLocation, GamepadButton.l2);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight2) {
-        hook.listener(hook.location, GamepadButton.r2);
+        hook.listener(currentLocation, GamepadButton.r2);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonStart || e.logicalKey == LogicalKeyboardKey.enter) {
-        hook.listener(hook.location, GamepadButton.start);
+        hook.listener(currentLocation, GamepadButton.start);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonSelect ||
           e.logicalKey == LogicalKeyboardKey.insert ||
           e.logicalKey == LogicalKeyboardKey.tab) {
-        hook.listener(hook.location, GamepadButton.select);
+        hook.listener(currentLocation, GamepadButton.select);
       } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeUp) {
         FlutterVolumeController.raiseVolume(null).then((value) => debugPrint("Volume raised"));
       } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeDown) {
@@ -117,17 +117,17 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
     } else if (e is KeyRepeatEvent) {
       debugPrint("Gamepad repeat ${e.logicalKey}");
       if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
-        hook.listener(hook.location, GamepadButton.left);
+        hook.listener(currentLocation, GamepadButton.left);
       } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
-        hook.listener(hook.location, GamepadButton.right);
+        hook.listener(currentLocation, GamepadButton.right);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonLeft1) {
-        hook.listener(hook.location, GamepadButton.l1);
+        hook.listener(currentLocation, GamepadButton.l1);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight1) {
-        hook.listener(hook.location, GamepadButton.r1);
+        hook.listener(currentLocation, GamepadButton.r1);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonLeft2) {
-        hook.listener(hook.location, GamepadButton.l2);
+        hook.listener(currentLocation, GamepadButton.l2);
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight2) {
-        hook.listener(hook.location, GamepadButton.r2);
+        hook.listener(currentLocation, GamepadButton.r2);
       } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeUp) {
         FlutterVolumeController.raiseVolume(null).then((value) => debugPrint("Volume raised"));
       } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeDown) {

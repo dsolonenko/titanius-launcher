@@ -23,6 +23,7 @@ Future<List<EmulatorList>> alternativeEmulators(AlternativeEmulatorsRef ref) asy
   final emulators = customEmulators.map((e) => e.toEmulator()).toList();
   return systems
       .whereNot((element) => element.isCollection)
+      .whereNot((element) => element.id == "android")
       .map((v) => EmulatorList(
             v,
             [...v.builtInEmulators, ...emulators],
