@@ -339,7 +339,7 @@ class GamesPage extends HookConsumerWidget {
                   filterQuality: FilterQuality.high,
                 ),
               )
-            : Text(gameToShow.name, textScaleFactor: 2),
+            : Text(gameToShow.name, textScaler: const TextScaler.linear(2)),
         Text(
           gameToShow.rom,
         ),

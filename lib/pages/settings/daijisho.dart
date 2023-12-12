@@ -64,9 +64,10 @@ class DaijishoWallpaperPacksPage extends HookConsumerWidget {
                   children: [
                     Text(pack.name),
                     const SizedBox(width: 8),
-                    const Text("by", textScaleFactor: 0.6, style: TextStyle(color: Colors.grey)),
+                    const Text("by", textScaler: TextScaler.linear(0.6), style: TextStyle(color: Colors.grey)),
                     const SizedBox(width: 4),
-                    Text(pack.authors.join(", "), textScaleFactor: 0.8, style: const TextStyle(color: Colors.grey)),
+                    Text(pack.authors.join(", "),
+                        textScaler: const TextScaler.linear(0.8), style: const TextStyle(color: Colors.grey)),
                   ],
                 ),
                 subtitle: Text(pack.description, maxLines: 2, overflow: TextOverflow.ellipsis),

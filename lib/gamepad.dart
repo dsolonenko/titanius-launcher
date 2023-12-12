@@ -26,6 +26,15 @@ enum GamepadButton {
   select,
 }
 
+extension GoRouterLocation on GoRouter {
+  String get location {
+    final RouteMatch lastMatch = routerDelegate.currentConfiguration.last;
+    final RouteMatchList matchList =
+        lastMatch is ImperativeRouteMatch ? lastMatch.matches : routerDelegate.currentConfiguration;
+    return matchList.uri.toString();
+  }
+}
+
 void useGamepad(WidgetRef ref, void Function(String location, GamepadButton key) listener) {
   return use(_GamepadHook(GoRouter.of(ref.context).location, listener));
 }

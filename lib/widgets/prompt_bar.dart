@@ -32,7 +32,7 @@ class PromptBar extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              textScaleFactor: 0.8,
+              textScaler: const TextScaler.linear(0.8),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

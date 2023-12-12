@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 
 class TimeWidget extends StatelessWidget {
-  const TimeWidget({Key? key}) : super(key: key);
+  const TimeWidget({super.key});
 
   @override
   Widget build(BuildContext context) => StreamBuilder(

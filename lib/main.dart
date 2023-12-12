@@ -76,7 +76,7 @@ final _router = GoRouter(
     ),
     GoRoute(
         path: '/settings',
-        builder: (context, state) => SettingsPage(source: state.queryParameters['source']),
+        builder: (context, state) => SettingsPage(source: state.uri.queryParameters['source']),
         routes: [
           GoRoute(path: 'scraper', builder: (context, state) => const ScraperPage(), routes: [
             GoRoute(

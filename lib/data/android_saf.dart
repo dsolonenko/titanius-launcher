@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_storage/saf.dart' as saf;
+import 'package:shared_storage/shared_storage.dart' as saf;
 
 part 'android_saf.g.dart';
 

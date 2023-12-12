@@ -7,7 +7,7 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
-import 'package:shared_storage/saf.dart' as saf;
+import 'package:shared_storage/shared_storage.dart' as saf;
 
 import 'package:titanius/data/android_apps.dart';
 import 'package:titanius/data/android_saf.dart';
