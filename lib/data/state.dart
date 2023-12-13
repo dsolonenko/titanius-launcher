@@ -194,12 +194,7 @@ class TemporaryEmulator extends _$TemporaryEmulator {
   void set(CustomEmulator emulator) {
     state = CustomEmulator(
       name: emulator.name,
-      package: emulator.package,
-      action: emulator.action,
-      activity: emulator.activity,
-      data: emulator.data,
-      args: emulator.args,
-      flags: emulator.flags,
+      amStartCommand: emulator.amStartCommand,
     );
   }
 

@@ -129,6 +129,7 @@ class GameSettingsPage extends HookConsumerWidget {
           },
         ),
       ),
+      /*
       SettingElement(
         group: "Game",
         widget: ListTile(
@@ -173,6 +174,7 @@ class GameSettingsPage extends HookConsumerWidget {
           },
         ),
       ),
+      */
       SettingElement(
         group: "Game",
         widget: ListTile(

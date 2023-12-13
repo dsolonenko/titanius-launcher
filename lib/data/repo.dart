@@ -48,44 +48,25 @@ class CustomEmulator {
   Id id = Isar.autoIncrement;
   @Index(unique: true, replace: true)
   String name;
-  String package;
-  String activity;
-  String action;
-  String data;
-  List<String> args;
-  List<String> flags;
+  String amStartCommand;
   CustomEmulator({
     required this.name,
-    required this.package,
-    required this.action,
-    required this.data,
-    required this.activity,
-    this.args = const [],
-    this.flags = const [],
+    required this.amStartCommand,
   });
 
   CustomEmulator.empty()
       : this(
           name: "Custom PPSSPP",
-          package: "org.ppsspp.ppsspp",
-          activity: ".PpssppActivity",
-          action: "android.intent.action.VIEW",
-          data: "{file.documenturi}",
-          args: [],
-          flags: ["--activity-clear-task", "--activity-clear-top"],
+          amStartCommand: 'am start -n org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity '
+              '-a android.intent.action.VIEW -d "{file.documenturi}" '
+              '--activity-clear-task --activity-clear-top --activity-no-history',
         );
 
   Emulator toEmulator() {
     return Emulator(
       id: "custom:$name",
       name: name,
-      intent: LaunchIntent(
-        target: "$package/$activity",
-        action: action,
-        data: data,
-        args: <String, dynamic>{for (final arg in args) arg.split("=")[0]: arg.split("=")[1]},
-        flags: List<String>.from(flags),
-      ),
+      intent: LaunchIntent.parseAmStartCommand(amStartCommand),
     );
   }
 }

@@ -77,7 +77,7 @@ class CustomEmulatorsPage extends HookConsumerWidget {
                   context.push("/settings/cemulators/edit");
                 },
                 title: Text(emulator.name),
-                subtitle: Text("${emulator.package}/${emulator.activity}"),
+                subtitle: Text(emulator.amStartCommand, maxLines: 1, overflow: TextOverflow.ellipsis),
                 trailing: isSelected && confirm.value ? const Text("Delete?") : null,
               );
             },
@@ -115,33 +115,6 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
           GoRouter.of(context).pop();
         });
       }
-      if (key == GamepadButton.x) {
-        switch (selected.value) {
-          case "name":
-            emulator.name = CustomEmulator.empty().name;
-            break;
-          case "package":
-            emulator.package = CustomEmulator.empty().package;
-            break;
-          case "activity":
-            emulator.activity = CustomEmulator.empty().activity;
-            break;
-          case "action":
-            emulator.action = CustomEmulator.empty().action;
-            break;
-          case "data":
-            emulator.data = CustomEmulator.empty().data;
-            break;
-          case "args":
-            emulator.args = CustomEmulator.empty().args;
-            break;
-          case "flags":
-            emulator.flags = CustomEmulator.empty().flags;
-            break;
-          default:
-        }
-        ref.read(temporaryEmulatorProvider.notifier).set(emulator);
-      }
       if (key == GamepadButton.b) {
         GoRouter.of(context).pop();
       }
@@ -155,7 +128,6 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
         navigations: [],
         actions: [
           GamepadPrompt([GamepadButton.y], "Save"),
-          GamepadPrompt([GamepadButton.x], "Default"),
           GamepadPrompt([GamepadButton.b], "Cancel"),
         ],
       ),
@@ -199,12 +171,12 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
             },
           ),
           ListTile(
-            autofocus: selected.value == "package",
-            title: const Text("Package"),
-            subtitle: Text(emulator.package),
+            autofocus: selected.value == "command",
+            title: const Text("Command"),
+            subtitle: Text(emulator.amStartCommand),
             onFocusChange: (value) {
               if (value) {
-                selected.value = "package";
+                selected.value = "command";
               }
             },
             onTap: () async {
@@ -212,189 +184,22 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
               try {
                 final v = await prompt(
                   context,
-                  title: const Text("Package"),
-                  initialValue: emulator.package,
+                  title: const Text("Command"),
+                  initialValue: emulator.amStartCommand,
                   isSelectedInitialValue: true,
                   decoration: const InputDecoration(
-                    helperText: "com.ppsspp.ppsspp",
+                    helperText: "am start command line",
                     border: OutlineInputBorder(),
                   ),
                   validator: (s) {
                     if (s == null || s.isEmpty) {
-                      return "Package cannot be empty";
+                      return "Cannot be empty";
                     }
                     return null;
                   },
                 );
                 if (v != null) {
-                  emulator.package = v;
-                  ref.read(temporaryEmulatorProvider.notifier).set(emulator);
-                }
-              } finally {
-                inPrompt.value = false;
-              }
-            },
-          ),
-          ListTile(
-            autofocus: selected.value == "activity",
-            title: const Text("Activity"),
-            subtitle: Text(emulator.activity),
-            onFocusChange: (value) {
-              if (value) {
-                selected.value = "activity";
-              }
-            },
-            onTap: () async {
-              inPrompt.value = true;
-              try {
-                final v = await prompt(
-                  context,
-                  title: const Text("Activity"),
-                  initialValue: emulator.activity,
-                  isSelectedInitialValue: true,
-                  decoration: const InputDecoration(
-                    helperText: ".PpssppActivity",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (s) {
-                    if (s == null || s.isEmpty) {
-                      return "Activity cannot be empty";
-                    }
-                    return null;
-                  },
-                );
-                if (v != null) {
-                  emulator.activity = v;
-                  ref.read(temporaryEmulatorProvider.notifier).set(emulator);
-                }
-              } finally {
-                inPrompt.value = false;
-              }
-            },
-          ),
-          ListTile(
-            autofocus: selected.value == "action",
-            title: const Text("Action"),
-            subtitle: Text(emulator.action),
-            onFocusChange: (value) {
-              if (value) {
-                selected.value = "action";
-              }
-            },
-            onTap: () async {
-              inPrompt.value = true;
-              try {
-                final v = await prompt(
-                  context,
-                  title: const Text("Action"),
-                  initialValue: emulator.action,
-                  isSelectedInitialValue: true,
-                  decoration: const InputDecoration(
-                    helperText: "android.intent.action.VIEW",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (s) {
-                    if (s == null || s.isEmpty) {
-                      return "Action cannot be empty";
-                    }
-                    return null;
-                  },
-                );
-                if (v != null) {
-                  emulator.action = v;
-                  ref.read(temporaryEmulatorProvider.notifier).set(emulator);
-                }
-              } finally {
-                inPrompt.value = false;
-              }
-            },
-          ),
-          ListTile(
-            autofocus: selected.value == "data",
-            title: const Text("Data"),
-            subtitle: Text(emulator.data),
-            onFocusChange: (value) {
-              if (value) {
-                selected.value = "data";
-              }
-            },
-            onTap: () async {
-              inPrompt.value = true;
-              try {
-                final v = await prompt(
-                  context,
-                  title: const Text("Data"),
-                  initialValue: emulator.data,
-                  isSelectedInitialValue: true,
-                  decoration: const InputDecoration(
-                    helperText: "{file.documenturi} or {file.path}",
-                    border: OutlineInputBorder(),
-                  ),
-                );
-                if (v != null) {
-                  emulator.data = v;
-                  ref.read(temporaryEmulatorProvider.notifier).set(emulator);
-                }
-              } finally {
-                inPrompt.value = false;
-              }
-            },
-          ),
-          ListTile(
-            autofocus: selected.value == "args",
-            title: const Text("Args"),
-            subtitle: Text(emulator.args.join(" ")),
-            onFocusChange: (value) {
-              if (value) {
-                selected.value = "args";
-              }
-            },
-            onTap: () async {
-              inPrompt.value = true;
-              try {
-                final v = await prompt(
-                  context,
-                  title: const Text("Args"),
-                  initialValue: emulator.args.join(" "),
-                  isSelectedInitialValue: true,
-                  decoration: const InputDecoration(
-                    helperText: "ROM={file.path} CONFIGFILE=/config.cfg",
-                    border: OutlineInputBorder(),
-                  ),
-                );
-                if (v != null) {
-                  emulator.args = v.isEmpty ? [] : v.split(" ");
-                  ref.read(temporaryEmulatorProvider.notifier).set(emulator);
-                }
-              } finally {
-                inPrompt.value = false;
-              }
-            },
-          ),
-          ListTile(
-            autofocus: selected.value == "flags",
-            title: const Text("Flags"),
-            subtitle: Text(emulator.flags.join(" ")),
-            onFocusChange: (value) {
-              if (value) {
-                selected.value = "flags";
-              }
-            },
-            onTap: () async {
-              inPrompt.value = true;
-              try {
-                final v = await prompt(
-                  context,
-                  title: const Text("Flags"),
-                  initialValue: emulator.flags.join(" "),
-                  isSelectedInitialValue: true,
-                  decoration: const InputDecoration(
-                    helperText: "--activity-clear-task --activity-clear-top",
-                    border: OutlineInputBorder(),
-                  ),
-                );
-                if (v != null) {
-                  emulator.flags = v.isEmpty ? [] : v.split(" ");
+                  emulator.amStartCommand = v.replaceAll("\n", ' ');
                   ref.read(temporaryEmulatorProvider.notifier).set(emulator);
                 }
               } finally {

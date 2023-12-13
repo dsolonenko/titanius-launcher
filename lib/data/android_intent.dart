@@ -99,4 +99,103 @@ class LaunchIntent {
         return v;
     }
   }
+
+  static LaunchIntent parseAmStartCommand(String command) {
+    LaunchIntent intent = LaunchIntent(target: '', action: '', data: '', args: {}, flags: []);
+    List<String> parts = command.split(' ');
+
+    for (int i = 0; i < parts.length; i++) {
+      switch (parts[i]) {
+        case '-n':
+          intent = LaunchIntent(
+            target: parts[i + 1],
+            action: intent.action,
+            data: intent.data,
+            args: intent.args,
+            flags: intent.flags,
+          );
+          i++;
+          break;
+        case '-a':
+          intent = LaunchIntent(
+            target: intent.target,
+            action: trim(parts[i + 1]),
+            data: intent.data,
+            args: intent.args,
+            flags: intent.flags,
+          );
+          i++;
+          break;
+        case '-d':
+          intent = LaunchIntent(
+            target: intent.target,
+            action: intent.action,
+            data: trim(parts[i + 1]),
+            args: intent.args,
+            flags: intent.flags,
+          );
+          i++;
+          break;
+        case '-e':
+          var args = intent.args;
+          if (i + 2 < parts.length && parts[i + 2].startsWith('-')) {
+            args[parts[i + 1]] = '';
+            i++;
+          } else if (i + 2 == parts.length) {
+            args[parts[i + 1]] = '';
+            i++;
+          } else {
+            args[parts[i + 1]] = parts[i + 2];
+            i += 2;
+          }
+          intent = LaunchIntent(
+            target: intent.target,
+            action: intent.action,
+            data: intent.data,
+            args: args,
+            flags: intent.flags,
+          );
+          break;
+        default:
+          if (parts[i].startsWith('--')) {
+            intent = LaunchIntent(
+              target: intent.target,
+              action: intent.action,
+              data: intent.data,
+              args: intent.args,
+              flags: [...intent.flags, parts[i]],
+            );
+          }
+          break;
+      }
+    }
+
+    return intent;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is LaunchIntent &&
+        other.target == target &&
+        other.action == action &&
+        other.data == data &&
+        mapEquals(other.args, args) &&
+        listEquals(other.flags, flags);
+  }
+
+  @override
+  int get hashCode {
+    return target.hashCode ^ action.hashCode ^ data.hashCode ^ args.hashCode ^ flags.hashCode;
+  }
+
+  @override
+  String toString() {
+    return 'LaunchIntent(target: $target, action: $action, data: $data, args: $args, flags: $flags)';
+  }
+}
+
+trim(String s) {
+  return s.replaceAll("'", '').replaceAll('"', '').trim();
 }
