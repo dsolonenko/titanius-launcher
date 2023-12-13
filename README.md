@@ -5,10 +5,10 @@
 Titanius Launcher is a minimalistic, controller-first retro game launcher designed for those who want to enjoy a seamless gaming experience on their Android devices. 
 Inspired by EmulationStation and AmberELEC, it allows users to easily integrate their pre-scraped ROMs libraries from Linux systems like AmberELEC and ArkOS. 
 
-- [x] Designed for Android devices with built-in controllers, such as Retroid 3/3+/Flip, Odin Lite/Pro, Anbernic RG552, Logitech G Cloud, ...
+- [x] Designed for Android devices with built-in controllers, such as Retroid 3/3+/Flip, Odin 2/Lite/Pro, Anbernic RG552, Logitech G Cloud, ...
 - [x] Minimalistic, controller-first UI
-- [x] Reuse your existing pre-scraped ROMs library from Linux systems like AmberELEC and ArkOS
-- [x] Supports around 70 systems with Retroarch 64-bit and standlone emulators
+- [x] Reuse your existing pre-scraped ROMs library from Linux systems like AmberELEC
+- [x] Out of the box supports around 70 systems with Retroarch 64-bit and standlone emulators
 
 ## Download
 
@@ -30,7 +30,10 @@ Due to the Storage Access Framework (SAF) restrictions, you might have to grant 
 To accomplish this, navigate to Settings -> ROMs Folders -> Add Shared Folder and add the relevant folders. Ensure that these folders correspond to the ones used in your standalone emulators. 
 For instance, if you're using the standalone Drastic for DS, the shared folder in Titanius Launcher and the Drastic folder should both be set to `[ROMs Folder Location]/Roms/nds`.
 
-**Note**: Unfortunately, this is a necessary step that requires using a touchscreen.
+## Custom Emulators
+
+Sometimes it is necessary to use a custom emulator for a particular system. To do so, navigate to Settings -> Custom Emulators and add a new emulator.
+You'll need to provide the emulator's name and `am start` command. For examples, please check launch commands in the [Pegasus config generator](https://pegasus-frontend.org/tools/metagen-android/).
 
 ## Daijishō Wallpaper Packs
 
