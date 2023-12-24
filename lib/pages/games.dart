@@ -120,7 +120,7 @@ class GamesPage extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                flex: 1,
+                flex: 3,
                 child: Column(
                   children: [
                     Container(
@@ -145,12 +145,20 @@ class GamesPage extends HookConsumerWidget {
                             horizontalTitleGap: 0,
                             minLeadingWidth: 22,
                             minVerticalPadding: 0,
+                            focusColor: Colors.white,
+                            selectedColor: Colors.black,
+                            selectedTileColor: Colors.white,
+                            textColor: Colors.grey,
+                            iconColor: Colors.grey,
                             leading: game.isFolder
                                 ? const Icon(Icons.folder, size: 14)
                                 : game.hidden
-                                    ? const Icon(Icons.visibility_off_rounded, size: 14, color: Colors.grey)
+                                    ? const Icon(Icons.visibility_off_rounded, size: 14)
                                     : system != "favourites" && game.favorite
-                                        ? const Icon(Icons.star_rounded, size: 14)
+                                        ? const Icon(
+                                            Icons.star_rounded,
+                                            size: 14,
+                                          )
                                         : null,
                             autofocus: isSelected,
                             selected: isSelected,
@@ -161,12 +169,11 @@ class GamesPage extends HookConsumerWidget {
                                 ref.read(selectedGameProvider(system).notifier).set(game);
                               }
                             },
-                            title: Text(game.name,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: game.hidden ? Colors.grey : null,
-                                )),
+                            title: Text(
+                              game.name,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                             subtitle: gamelist.system.isCollection
                                 ? Text(
                                     game.system.name,
@@ -189,8 +196,9 @@ class GamesPage extends HookConsumerWidget {
                 ),
               ),
               Expanded(
-                flex: 3,
-                child: Padding(
+                flex: 5,
+                child: Container(
+                  //color: Colors.black.brighten(10),
                   padding: const EdgeInsets.all(8.0),
                   child: gameToShow.isFolder
                       ? _gameFolder(ref, context, gameToShow)

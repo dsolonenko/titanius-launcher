@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:screenscraper/screenscraper.dart';
 import 'package:xml/xml.dart';
 import 'package:collection/collection.dart';
@@ -241,7 +240,7 @@ class Game {
     final path = file.absolute.path.replaceFirst(romsPath, ".");
     final fileName = file.uri.pathSegments.last;
     final name = fileName.substring(0, fileName.lastIndexOf("."));
-    debugPrint("Game from file romsPath=$romsPath path=$path fileName=$fileName");
+    //debugPrint("Game from file romsPath=$romsPath path=$path fileName=$fileName");
     return Game(
       system,
       name,

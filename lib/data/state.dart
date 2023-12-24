@@ -10,7 +10,6 @@ import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/stack.dart';
-import 'package:titanius/data/systems.dart';
 
 part 'state.g.dart';
 
@@ -242,7 +241,7 @@ class DeletedGames extends _$DeletedGames {
 
 @riverpod
 Future<GameList> gamesForCurrentSystem(GamesForCurrentSystemRef ref) async {
-  final allSystems = await ref.watch(detectedSystemsProvider.future);
+  final allSystems = await ref.watch(loadedSystemsProvider.future);
   if (allSystems.isEmpty) {
     return const GameList(
       systemAllGames,

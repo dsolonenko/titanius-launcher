@@ -11,7 +11,6 @@ import 'package:titanius/data/daijisho.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/state.dart';
-import 'package:titanius/data/systems.dart';
 import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/appbar.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
@@ -21,7 +20,7 @@ class SystemsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allSystems = ref.watch(detectedSystemsProvider);
+    final allSystems = ref.watch(loadedSystemsProvider);
     final selectedSystem = ref.watch(selectedSystemProvider);
     final wallpaperPack = ref.watch(daijishoCurrentThemeDataProvider);
     final games = ref.watch(gamesForCurrentSystemProvider);

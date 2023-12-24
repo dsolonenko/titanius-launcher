@@ -26,28 +26,9 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
 Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
   final allSystems = await ref.watch(allSupportedSystemsProvider.future);
   final enabledSystems = await ref.watch(enabledSystemsProvider.future);
-  final romFolders = await ref.watch(romFoldersProvider.future);
   final detectedSystems = [
     for (final system in allSystems)
-      if (enabledSystems.showSystem(system.id) && _hasGames(system, romFolders)) system
+      if (enabledSystems.showSystem(system.id)) system
   ];
   return detectedSystems;
-}
-
-bool _hasGames(System system, List<String> romFolders) {
-  if (system.id == 'android') {
-    return true;
-  }
-  if (system.isCollection) {
-    return true;
-  }
-  for (final folder in system.folders) {
-    for (final romFolder in romFolders) {
-      final gamelist = File('$romFolder/$folder/gamelist.xml');
-      if (gamelist.existsSync()) {
-        return true;
-      }
-    }
-  }
-  return false;
 }

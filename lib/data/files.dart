@@ -48,5 +48,6 @@ bool _nonRom(FileSystemEntity element) {
       fileName.endsWith(".txt") ||
       fileName.endsWith(".sav") ||
       fileName.endsWith(".p2k") ||
-      fileName.endsWith(".cfg");
+      fileName.endsWith(".cfg") ||
+      fileName.endsWith(".bak");
 }

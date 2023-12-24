@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:titanius/data/games.dart';
 
 import 'package:titanius/pages/android.dart';
 import 'package:titanius/pages/games.dart';
 import 'package:titanius/data/state.dart';
-import 'package:titanius/data/systems.dart';
 import 'package:titanius/gamepad.dart';
 
 class SystemProxy extends HookConsumerWidget {
@@ -13,7 +13,7 @@ class SystemProxy extends HookConsumerWidget {
   const SystemProxy({super.key, required this.system});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allSystems = ref.watch(detectedSystemsProvider);
+    final allSystems = ref.watch(loadedSystemsProvider);
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;

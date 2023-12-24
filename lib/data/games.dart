@@ -10,6 +10,7 @@ import 'package:collection/collection.dart';
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/systems.dart';
+import 'package:titanius/data/files.dart';
 
 part 'games.g.dart';
 
@@ -20,6 +21,21 @@ class GameList {
   final int Function(Game, Game)? compare;
 
   const GameList(this.system, this.currentFolder, this.games, this.compare);
+}
+
+@Riverpod(keepAlive: true)
+Future<List<System>> loadedSystems(LoadedSystemsRef ref) async {
+  final allSystems = await ref.watch(detectedSystemsProvider.future);
+  final allGames = await ref.watch(allGamesProvider.future);
+  final Set<String> systems = {};
+  for (var game in allGames) {
+    systems.add(game.system.id);
+  }
+  final loadedSystems = [
+    for (final system in allSystems)
+      if (system.id == "android" || system.isCollection || systems.contains(system.id)) system
+  ];
+  return loadedSystems;
 }
 
 @Riverpod(keepAlive: true)
@@ -52,7 +68,7 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
     }
   } finally {
     stopwatch.stop();
-    debugPrint("Gamelist parsing took ${stopwatch.elapsedMilliseconds}ms");
+    debugPrint("Games fetching took ${stopwatch.elapsedMilliseconds}ms");
   }
 
   return allGames;
@@ -73,8 +89,12 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
     if (!pathExists) {
       return [];
     }
-    final gamelistPath = "$romsPath/gamelist.xml";
-    final file = File(gamelistPath);
+    final gamesFromFiles = await listGamesFromFiles(
+      romsFolder: params.romsFolder,
+      folder: params.folder,
+      system: params.system,
+    );
+    final file = File("$romsPath/gamelist.xml");
     final exists = await file.exists();
     if (exists) {
       final gamesFromGamelistXml = await file
@@ -87,9 +107,20 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
           .expand((nodes) => nodes)
           .map((node) => Game.fromXmlNode(node, params.system, params.romsFolder, params.folder))
           .toList();
-      return gamesFromGamelistXml;
+      final romsMap = {for (var rom in gamesFromGamelistXml) rom.absoluteRomPath: rom};
+      final List<Game> games = [];
+      for (var g in gamesFromFiles) {
+        final game = romsMap[g.absoluteRomPath];
+        if (game != null) {
+          games.add(game);
+        } else {
+          games.add(g);
+        }
+      }
+      return games;
+    } else {
+      return gamesFromFiles;
     }
-    return [];
   } catch (e) {
     debugPrint("Error processing folder ${params.folder}: $e");
     return [];

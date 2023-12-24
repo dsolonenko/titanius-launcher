@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:titanius/data/games.dart';
 
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/models.dart';
-import 'package:titanius/data/systems.dart';
 
 part 'emulators.g.dart';
 
@@ -18,7 +18,7 @@ class EmulatorList {
 @Riverpod(keepAlive: true)
 Future<List<EmulatorList>> alternativeEmulators(AlternativeEmulatorsRef ref) async {
   final perSystemConfigurations = await ref.watch(perSystemConfigurationsProvider.future);
-  final systems = await ref.watch(detectedSystemsProvider.future);
+  final systems = await ref.watch(loadedSystemsProvider.future);
   final customEmulators = await ref.watch(customEmulatorsProvider.future);
   final emulators = customEmulators.map((e) => e.toEmulator()).toList();
   return systems
