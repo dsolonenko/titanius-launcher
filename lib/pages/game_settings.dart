@@ -153,6 +153,7 @@ class GameSettingsPage extends HookConsumerWidget {
                     GoRouter.of(context).pop();
                   },
                   onError: (error, stack) {
+                    pd.close();
                     workingOnIt.value = false;
                     _showError(context, error);
                   },
@@ -161,6 +162,7 @@ class GameSettingsPage extends HookConsumerWidget {
                 workingOnIt.value = false;
               },
               onError: (error, stack) {
+                pd.close();
                 workingOnIt.value = false;
                 _showError(context, error);
               },

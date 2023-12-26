@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 part 'scraper_progress.g.dart';
 
 class ScraperProgress {
+  final int total;
   final int pending;
   final int success;
   final int error;
@@ -18,6 +21,7 @@ class ScraperProgress {
   final String message;
 
   ScraperProgress({
+    required this.total,
     required this.pending,
     required this.success,
     required this.error,
@@ -77,13 +81,15 @@ class ScraperService extends _$ScraperService {
 class ScraperProgressState extends _$ScraperProgressState {
   @override
   ScraperProgress build() {
-    return ScraperProgress(pending: 0, success: 0, error: 0, system: "", rom: "", message: "");
+    return ScraperProgress(total: 0, pending: 0, success: 0, error: 0, system: "", rom: "", message: "");
   }
 
   void set(ScraperProgress progress) {
     state = progress;
   }
 }
+
+final f = NumberFormat("0.0%");
 
 class ScraperProgressWidget extends HookConsumerWidget {
   const ScraperProgressWidget({super.key});
@@ -95,6 +101,7 @@ class ScraperProgressWidget extends HookConsumerWidget {
     useEffect(() {
       final sub = scraperService.on("update").listen((event) {
         ref.read(scraperProgressStateProvider.notifier).set(ScraperProgress(
+              total: event!["total"] as int,
               pending: event!["pending"] as int,
               success: event["success"] as int,
               error: event["error"] as int,
@@ -106,30 +113,21 @@ class ScraperProgressWidget extends HookConsumerWidget {
       return () => sub.cancel();
     }, []);
 
-    if (progressState.message == "") {
+    if (progressState.message == "" || progressState.pending == 0) {
       return const SizedBox.shrink();
     }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text("Scraper"),
-        const SizedBox(width: 6),
-        if (progressState.pending > 0) const Icon(Icons.pending),
-        if (progressState.pending > 0) Text("${progressState.pending}"),
-        if (progressState.pending > 0) const SizedBox(width: 4),
-        if (progressState.success > 0) const Icon(Icons.check_circle),
-        if (progressState.success > 0) Text("${progressState.success}"),
-        if (progressState.success > 0) const SizedBox(width: 4),
-        if (progressState.error > 0) const Icon(Icons.error),
-        if (progressState.error > 0) Text("${progressState.error}"),
-        const SizedBox(width: 6),
-        if (progressState.system != "") Text(progressState.system),
-        if (progressState.rom != "") const Text("> "),
-        if (progressState.rom != "") Text(progressState.rom),
-        if (progressState.message != "") const Text("> "),
-        Text(progressState.message),
-      ],
+    final double percent =
+        progressState.total > 0 ? (progressState.total - progressState.pending) / progressState.total : 0;
+
+    return LinearPercentIndicator(
+      width: 100,
+      lineHeight: 16,
+      percent: percent,
+      progressColor: Colors.green,
+      backgroundColor: Colors.grey,
+      center: Text(f.format(percent)),
+      barRadius: const Radius.circular(8),
     );
   }
 }

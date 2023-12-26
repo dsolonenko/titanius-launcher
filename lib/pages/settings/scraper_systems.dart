@@ -5,7 +5,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final systems = ref.watch(allSupportedSystemsProvider);
+    final systems = ref.watch(loadedSystemsProvider);
     final settings = ref.watch(settingsProvider);
 
     final selected = useState("");
@@ -50,8 +50,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
                 key: const PageStorageKey("settings/scraper/systems"),
                 elements: systems.where((element) => !element.isCollection).toList(),
                 groupBy: (system) {
-                  final showSystem = settings.scrapeTheseSystems.contains(system.id);
-                  return showSystem ? "Selected" : "Systems";
+                  return "Systems";
                 },
                 groupSeparatorBuilder: (String value) => Padding(
                   padding: const EdgeInsets.all(8.0),

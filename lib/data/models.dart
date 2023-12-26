@@ -5,6 +5,9 @@ import 'package:xml/xml.dart';
 import 'package:collection/collection.dart';
 
 import 'package:titanius/data/android_intent.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'models.g.dart';
 
 const systemAllGames = System(
   id: 'all',
@@ -110,6 +113,7 @@ class Emulator {
   get isCustom => id.startsWith("custom:");
 }
 
+@JsonSerializable()
 class Game {
   final System system;
   final String name;
@@ -270,6 +274,10 @@ class Game {
   String toString() {
     return 'Game{${system.id}/$rom}';
   }
+
+  factory Game.fromJson(Map<String, dynamic> json) => _$GameFromJson(json);
+
+  Map<String, dynamic> toJson() => _$GameToJson(this);
 }
 
 /// FNV-1a 64bit hash algorithm optimized for Dart Strings

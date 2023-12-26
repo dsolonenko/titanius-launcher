@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screenscraper/screenscraper.dart'
-    show MediaLink, RomScraper, ScreenScraperException, WaitAndRetryException;
+    show DoNotRetryException, DoneForTheDayException, MediaLink, RomScraper, ScreenScraperException;
 import 'package:titanius/data/env.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
@@ -24,6 +24,7 @@ class Scraper {
           softwareName: Env.appName,
           userName: userName,
           userPassword: userPassword,
+          httpLogging: true,
         );
 
   Future<Game> scrape(Game rom, void Function(String msg) progress) async {
@@ -31,7 +32,7 @@ class Scraper {
     const r = RetryOptions(maxAttempts: 5, delayFactor: Duration(seconds: 1));
     final game = await r.retry(
       () => _scraper.scrapeRom(systemId: rom.system.screenScraperId, romPath: rom.absoluteRomPath),
-      retryIf: (e) => e is SocketException || e is TimeoutException || e is WaitAndRetryException,
+      retryIf: (e) => _canRetryScraper(e),
     );
     debugPrint("ScreenScraper ID for ${rom.absoluteRomPath} is ${game.gameId}");
     final file = File(rom.absoluteRomPath);
@@ -43,7 +44,7 @@ class Scraper {
       progress("Downloading screenshot...");
       imageUrl = await r.retry(
         () => _downloadMedia(game.media.screenshot!, fileNameNoExt, "$romsPath/media/images"),
-        retryIf: (e) => e is SocketException || e is TimeoutException || e is WaitAndRetryException,
+        retryIf: (e) => _canRetryScraper(e),
       );
     }
     var videoUrl = rom.videoUrl;
@@ -51,7 +52,7 @@ class Scraper {
       progress("Downloading video...");
       videoUrl = await r.retry(
         () => _downloadMedia(game.media.videoNormalized!, fileNameNoExt, "$romsPath/media/videos"),
-        retryIf: (e) => e is SocketException || e is TimeoutException || e is WaitAndRetryException,
+        retryIf: (e) => _canRetryScraper(e),
       );
     }
     var thumbnailUrl = rom.thumbnailUrl;
@@ -59,7 +60,7 @@ class Scraper {
       progress("Downloading wheel...");
       thumbnailUrl = await r.retry(
         () => _downloadMedia(game.media.wheel!, fileNameNoExt, "$romsPath/media/wheels"),
-        retryIf: (e) => e is SocketException || e is TimeoutException || e is WaitAndRetryException,
+        retryIf: (e) => _canRetryScraper(e),
       );
     }
     return Game(
@@ -106,6 +107,10 @@ class Scraper {
   close() {
     _scraper.close();
   }
+}
+
+bool _canRetryScraper(Exception e) {
+  return !(e is DoNotRetryException || e is DoneForTheDayException);
 }
 
 @Riverpod(keepAlive: true)

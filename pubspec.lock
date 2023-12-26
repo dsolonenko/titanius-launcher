@@ -721,7 +721,7 @@ packages:
     source: hosted
     version: "0.6.7"
   json_annotation:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: json_annotation
       sha256: b10a7b2ff83d83c777edba3c6a0f97045ddadd56c944e1a23a3fdf43a1bf4467
@@ -912,6 +912,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1"
+  percent_indicator:
+    dependency: "direct main"
+    description:
+      name: percent_indicator
+      sha256: c37099ad833a883c9d71782321cb65c3a848c21b6939b6185f0ff6640d05814c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.3"
   permission_handler:
     dependency: "direct main"
     description:
@@ -1108,10 +1116,10 @@ packages:
     dependency: "direct main"
     description:
       name: screenscraper
-      sha256: "5c0c80f5d132829b2c0a3882076e933bbd2d9a3676b2b6b581cd836e6b96773c"
+      sha256: c892cb43c3719fdddf6f0f5468ca63b6a454a4debbfd233037a1665b63f121cf
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.6"
+    version: "0.1.10"
   scrollable_positioned_list:
     dependency: "direct main"
     description:

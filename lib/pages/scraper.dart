@@ -217,7 +217,7 @@ Future<void> _startScraper(WidgetRef ref) async {
   final settings = await ref.read(settingsProvider.future);
   final systemsToScrape = settings.scrapeTheseSystems.toSet();
   final systems = allSystems.where((s) => systemsToScrape.contains(s.id)).map((e) => e.toJson()).toList();
-  final existingRoms = allGames.where((g) => systemsToScrape.contains(g.system.id)).toList();
+  final existingRoms = allGames.where((g) => systemsToScrape.contains(g.system.id)).map((e) => e.toJson()).toList();
   final service = ref.read(scraperServiceProvider);
   if (Platform.isAndroid) {
     await service.configure(
@@ -230,7 +230,7 @@ Future<void> _startScraper(WidgetRef ref) async {
         autoStart: false,
       ),
     );
-    final isRunning = await service.isServiceRunning();
+    final isRunning = await service.isRunning();
     if (isRunning) {
       debugPrint("Already running");
       return;
@@ -265,7 +265,7 @@ void onStart(ServiceInstance service) async {
       final username = event!["username"] as String?;
       final password = event["password"] as String?;
       final romFolders = (event["romFolders"] as List).map((e) => e.toString()).toList();
-      final roms = event["roms"] as List<Game>;
+      final roms = (event["roms"] as List).map((e) => Game.fromJson(e)).toList();
       final romsMap = {for (var rom in roms) rom.absoluteRomPath: rom};
       final systems = (event["systems"] as List).map((e) => System.fromJson(e)).toList();
       final scrapeTheseGames = event["scrapeTheseGames"] as String;
@@ -273,6 +273,7 @@ void onStart(ServiceInstance service) async {
       service.invoke(
         'update',
         {
+          "total": 0,
           "success": 0,
           "error": 0,
           "pending": 0,
@@ -290,6 +291,7 @@ void onStart(ServiceInstance service) async {
               service.invoke(
                 'update',
                 {
+                  "total": 0,
                   "success": 0,
                   "error": 0,
                   "pending": gamesToScrape.length,
@@ -331,6 +333,7 @@ void onStart(ServiceInstance service) async {
         service.invoke(
           'update',
           {
+            "total": 0,
             "success": 0,
             "error": 0,
             "pending": gamesToScrape.length,
@@ -350,6 +353,7 @@ void onStart(ServiceInstance service) async {
               service.invoke(
                 'update',
                 {
+                  "total": gamesToScrape.length,
                   "success": success,
                   "error": error,
                   "pending": pending,
@@ -362,6 +366,7 @@ void onStart(ServiceInstance service) async {
             service.invoke(
               'update',
               {
+                "total": gamesToScrape.length,
                 "success": success,
                 "error": error,
                 "pending": pending,
@@ -377,6 +382,7 @@ void onStart(ServiceInstance service) async {
             service.invoke(
               'update',
               {
+                "total": gamesToScrape.length,
                 "success": success,
                 "error": error,
                 "pending": pending,
@@ -392,6 +398,7 @@ void onStart(ServiceInstance service) async {
             service.invoke(
               'update',
               {
+                "total": gamesToScrape.length,
                 "success": success,
                 "error": error,
                 "pending": pending,
@@ -407,6 +414,7 @@ void onStart(ServiceInstance service) async {
             service.invoke(
               'update',
               {
+                "total": gamesToScrape.length,
                 "success": success,
                 "error": error,
                 "pending": pending,
@@ -421,6 +429,7 @@ void onStart(ServiceInstance service) async {
         service.invoke(
           'update',
           {
+            "total": gamesToScrape.length,
             "success": success,
             "error": error,
             "pending": pending,
