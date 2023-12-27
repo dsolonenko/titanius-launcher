@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onscreen_keyboard/onscreen_keyboard.dart';
+import 'package:prompt_dialog/prompt_dialog.dart';
 import 'package:screenscraper/screenscraper.dart' show DoneForTheDayException, DoNotRetryException;
 import 'package:titanius/data/files.dart';
 import 'package:titanius/data/gamelist_xml.dart';
@@ -25,8 +24,6 @@ import 'package:titanius/widgets/scraper_progress.dart';
 import 'package:titanius/widgets/selector.dart';
 import 'package:titanius/widgets/icons.dart';
 
-part 'package:titanius/pages/settings/scraper_name.dart';
-part 'package:titanius/pages/settings/scraper_pwd.dart';
 part 'package:titanius/pages/settings/scraper_systems.dart';
 
 const scrapeTheseGamesOptions = ["all_games", "favourites", "missing_details"];
@@ -41,8 +38,12 @@ class ScraperPage extends HookConsumerWidget {
 
     final selected = useState("");
     final confirm = useState(false);
+    final inPrompt = useState(false);
 
     useGamepad(ref, (location, key) {
+      if (inPrompt.value) {
+        return;
+      }
       if (location != "/settings/scraper") return;
       if (key == GamepadButton.b) {
         if (confirm.value) {
@@ -95,8 +96,35 @@ class ScraperPage extends HookConsumerWidget {
               selected.value = "username";
             }
           },
-          onTap: () {
-            context.push("/settings/scraper/username");
+          onTap: () async {
+            inPrompt.value = true;
+            try {
+              final v = await prompt(
+                context,
+                title: const Text("Name"),
+                initialValue: settings.value!.screenScraperUser ?? "",
+                isSelectedInitialValue: true,
+                decoration: const InputDecoration(
+                  helperText: "Screenscraper username",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (s) {
+                  if (s == null || s.isEmpty) {
+                    return "Name cannot be empty";
+                  }
+                  return null;
+                },
+              );
+              if (v != null) {
+                ref
+                    .read(settingsRepoProvider)
+                    .value!
+                    .setScreenScraperUser(v)
+                    .then((value) => ref.refresh(settingsProvider));
+              }
+            } finally {
+              inPrompt.value = false;
+            }
           },
         ),
       ),
@@ -105,8 +133,35 @@ class ScraperPage extends HookConsumerWidget {
         widget: ListTile(
           title: const Text("Password"),
           trailing: arrowRight,
-          onTap: () {
-            context.push("/settings/scraper/password");
+          onTap: () async {
+            inPrompt.value = true;
+            try {
+              final v = await prompt(
+                context,
+                title: const Text("Password"),
+                initialValue: settings.value!.screenScraperPwd ?? "",
+                isSelectedInitialValue: true,
+                decoration: const InputDecoration(
+                  helperText: "Screenscraper password",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (s) {
+                  if (s == null || s.isEmpty) {
+                    return "Password cannot be empty";
+                  }
+                  return null;
+                },
+              );
+              if (v != null) {
+                ref
+                    .read(settingsRepoProvider)
+                    .value!
+                    .setScreenScraperPwd(v)
+                    .then((value) => ref.refresh(settingsProvider));
+              }
+            } finally {
+              inPrompt.value = false;
+            }
           },
           onFocusChange: (value) {
             if (value) {

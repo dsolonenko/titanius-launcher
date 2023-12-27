@@ -128,6 +128,7 @@ class ScraperProgressWidget extends HookConsumerWidget {
       backgroundColor: Colors.grey,
       center: Text(f.format(percent)),
       barRadius: const Radius.circular(8),
+      leading: Text(progressState.system),
     );
   }
 }

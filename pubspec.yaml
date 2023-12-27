@@ -63,16 +63,15 @@ dependencies:
   system_date_time_format: ^0.7.0
   grouped_list: ^5.1.2
   shared_storage: ^0.8.0
-  onscreen_keyboard: ^1.0.3
   preload_page_view: ^0.2.0
   toggle_switch: ^2.1.0
   isolated_worker: ^0.1.1
   flutter_volume_controller: ^1.2.6
   focus_detector_v2: ^3.1.0+1
-  screenscraper: ^0.1.10
+  screenscraper: ^0.1.14
   envied: ^0.5.2
   sn_progress_dialog: ^1.1.3
-  flutter_background_service: ^5.0.1
+  flutter_background_service: ^5.0.5
   dio: ^5.3.2
   retry: ^3.1.2
   prompt_dialog: ^1.0.14

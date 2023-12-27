@@ -48,7 +48,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
             data: (settings) {
               return GroupedListView<System, String>(
                 key: const PageStorageKey("settings/scraper/systems"),
-                elements: systems.where((element) => !element.isCollection).toList(),
+                elements: systems.where((e) => !e.isCollection && !e.isAndroid).toList(),
                 groupBy: (system) {
                   return "Systems";
                 },

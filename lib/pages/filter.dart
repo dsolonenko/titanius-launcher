@@ -1,10 +1,8 @@
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onscreen_keyboard/onscreen_keyboard.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
 import 'package:screenscraper/screenscraper.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -14,7 +12,6 @@ import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
 
 part 'package:titanius/pages/filters/genres.dart';
-part 'package:titanius/pages/filters/name.dart';
 
 const checkBoxSize = 40.0;
 const checkBoxOnIcon = Icon(
@@ -34,8 +31,12 @@ class FiltersPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filter = ref.watch(temporaryGameFilterProvider(system));
+    final inPrompt = useState(false);
 
     useGamepad(ref, (location, key) {
+      if (inPrompt.value) {
+        return;
+      }
       if (location != "/games/$system/filter") return;
       if (key == GamepadButton.b) {
         GoRouter.of(context).go("/games/$system");
@@ -70,15 +71,20 @@ class FiltersPage extends HookConsumerWidget {
           ListTile(
             onFocusChange: (value) {},
             onTap: () async {
-              final value = await prompt(
-                context,
-                title: const Text("Name Filter"),
-                initialValue: filter.search,
-                isSelectedInitialValue: true,
-                controller: TextEditingController(text: filter.search),
-              );
-              if (value != null) {
-                ref.read(temporaryGameFilterProvider(system).notifier).setSearch(value);
+              inPrompt.value = true;
+              try {
+                final value = await prompt(
+                  context,
+                  title: const Text("Name Filter"),
+                  initialValue: filter.search,
+                  isSelectedInitialValue: true,
+                  controller: TextEditingController(text: filter.search),
+                );
+                if (value != null) {
+                  ref.read(temporaryGameFilterProvider(system).notifier).setSearch(value);
+                }
+              } finally {
+                inPrompt.value = false;
               }
             },
             title: const Text('Name'),

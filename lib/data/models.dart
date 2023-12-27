@@ -59,6 +59,8 @@ class System {
       required this.builtInEmulators,
       this.isCollection = false});
 
+  bool get isAndroid => id == "android";
+
   @override
   String toString() {
     return 'Person{name: $name, folders: $folders}';

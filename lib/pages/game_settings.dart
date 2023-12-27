@@ -11,6 +11,7 @@ import 'package:sn_progress_dialog/progress_dialog.dart';
 
 import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/scraper.dart';
+import 'package:titanius/widgets/scraper_progress.dart';
 import 'package:titanius/widgets/selector.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/repo.dart';
@@ -134,7 +135,15 @@ class GameSettingsPage extends HookConsumerWidget {
         widget: ListTile(
           title: const Text("Scrape Game"),
           onTap: () async {
+            final scraperService = await ref.read(scraperServiceProvider);
+            if (await scraperService.isRunning()) {
+              if (context.mounted) {
+                _showError(context, "Scraper already running...");
+              }
+              return;
+            }
             workingOnIt.value = true;
+            // ignore: use_build_context_synchronously
             ProgressDialog pd = ProgressDialog(context: context);
             pd.show(
               backgroundColor: Colors.black,

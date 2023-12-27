@@ -62,10 +62,6 @@ final _router = GoRouter(
               path: "genres",
               builder: (context, state) => GenresFilterPage(system: state.pathParameters['system']!),
             ),
-            GoRoute(
-              path: "name",
-              builder: (context, state) => NameFilterPage(system: state.pathParameters['system']!),
-            ),
           ],
         ),
       ],
@@ -79,14 +75,6 @@ final _router = GoRouter(
         builder: (context, state) => SettingsPage(source: state.uri.queryParameters['source']),
         routes: [
           GoRoute(path: 'scraper', builder: (context, state) => const ScraperPage(), routes: [
-            GoRoute(
-              path: 'username',
-              builder: (context, state) => const ScraperUseramePage(),
-            ),
-            GoRoute(
-              path: 'password',
-              builder: (context, state) => const ScraperPasswordPage(),
-            ),
             GoRoute(
               path: 'systems',
               builder: (context, state) => const ScraperSystemsPage(),
