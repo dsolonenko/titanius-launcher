@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -9,9 +10,6 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
-import 'package:screenscraper/screenscraper.dart' show DoneForTheDayException, DoNotRetryException;
-import 'package:titanius/data/files.dart';
-import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
 
@@ -58,6 +56,11 @@ class ScraperPage extends HookConsumerWidget {
         } else {
           confirm.value = true;
         }
+      }
+      if (key == GamepadButton.x) {
+        debugPrint("Try stopping service");
+        final service = ref.read(scraperServiceProvider);
+        service.invoke("stop", {});
       }
       if (key == GamepadButton.right || key == GamepadButton.left) {
         if (selected.value == "scrape_these_games") {
@@ -314,195 +317,33 @@ Future<void> _startScraper(WidgetRef ref) async {
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
 
+  final CancellationToken cancellationToken = CancellationToken();
+
   service.on('scrape').listen((event) async {
     debugPrint("Got scrape request: $event");
-    try {
-      final username = event!["username"] as String?;
-      final password = event["password"] as String?;
-      final romFolders = (event["romFolders"] as List).map((e) => e.toString()).toList();
-      final roms = (event["roms"] as List).map((e) => Game.fromJson(e)).toList();
-      final romsMap = {for (var rom in roms) rom.absoluteRomPath: rom};
-      final systems = (event["systems"] as List).map((e) => System.fromJson(e)).toList();
-      final scrapeTheseGames = event["scrapeTheseGames"] as String;
-      debugPrint("Scraping $scrapeTheseGames for ${systems.length} systems with ${roms.length} existing roms...");
-      service.invoke(
-        'update',
-        {
-          "total": 0,
-          "success": 0,
-          "error": 0,
-          "pending": 0,
-          "system": "",
-          "rom": "",
-          "msg": "Starting...",
-        },
-      );
-
-      try {
-        final gamesToScrape = <Game>[];
-        for (var system in systems) {
-          for (var romsFolder in romFolders) {
-            for (var folder in system.folders) {
-              service.invoke(
-                'update',
-                {
-                  "total": 0,
-                  "success": 0,
-                  "error": 0,
-                  "pending": gamesToScrape.length,
-                  "system": "",
-                  "rom": "",
-                  "msg": "Discovering...",
-                },
-              );
-              final games = await listGamesFromFiles(
-                romsFolder: romsFolder,
-                folder: folder,
-                system: system,
-              );
-              for (final g in games) {
-                final game = romsMap[g.absoluteRomPath];
-                if (game == null) {
-                  gamesToScrape.add(g);
-                } else {
-                  switch (scrapeTheseGames) {
-                    case "all_games":
-                      gamesToScrape.add(game);
-                      break;
-                    case "favourites":
-                      if (game.favorite) {
-                        gamesToScrape.add(game);
-                      }
-                      break;
-                    case "missing_details":
-                      if (game.needsScraping) {
-                        gamesToScrape.add(game);
-                      }
-                      break;
-                  }
-                }
-              }
-            }
-          }
-        }
-        service.invoke(
-          'update',
-          {
-            "total": 0,
-            "success": 0,
-            "error": 0,
-            "pending": gamesToScrape.length,
-            "system": "",
-            "rom": "",
-            "msg": "Scraping...",
-          },
-        );
-
-        var success = 0;
-        var error = 0;
-        var pending = gamesToScrape.length;
-        final scraper = Scraper(userName: username ?? "", userPassword: password ?? "");
-        for (var game in gamesToScrape) {
-          try {
-            final scrapedGame = await scraper.scrape(game, (msg) {
-              service.invoke(
-                'update',
-                {
-                  "total": gamesToScrape.length,
-                  "success": success,
-                  "error": error,
-                  "pending": pending,
-                  "system": game.system.id,
-                  "rom": game.rom,
-                  "msg": msg,
-                },
-              );
-            });
-            service.invoke(
-              'update',
-              {
-                "total": gamesToScrape.length,
-                "success": success,
-                "error": error,
-                "pending": pending,
-                "system": game.system.id,
-                "rom": game.rom,
-                "msg": "Writing gamelist.xml...",
-              },
-            );
-            await updateGameInGamelistXml(scrapedGame);
-            success++;
-          } on DoNotRetryException {
-            debugPrint("Error scraping ${game.rom}: Fatal error");
-            service.invoke(
-              'update',
-              {
-                "total": gamesToScrape.length,
-                "success": success,
-                "error": error,
-                "pending": pending,
-                "system": "",
-                "rom": "",
-                "msg": "Fatal error",
-              },
-            );
-            return;
-          } on DoneForTheDayException {
-            debugPrint("Error scraping ${game.rom}: Done for the day");
-            error++;
-            service.invoke(
-              'update',
-              {
-                "total": gamesToScrape.length,
-                "success": success,
-                "error": error,
-                "pending": pending,
-                "system": "",
-                "rom": "",
-                "msg": "Quota exceeded",
-              },
-            );
-            return;
-          } catch (e) {
-            debugPrint("Error scraping ${game.rom}: $e");
-            error++;
-            service.invoke(
-              'update',
-              {
-                "total": gamesToScrape.length,
-                "success": success,
-                "error": error,
-                "pending": pending,
-                "system": game.system.id,
-                "rom": game.rom,
-                "msg": "Error",
-              },
-            );
-          }
-          pending--;
-        }
-        service.invoke(
-          'update',
-          {
-            "total": gamesToScrape.length,
-            "success": success,
-            "error": error,
-            "pending": pending,
-            "system": "",
-            "rom": "",
-            "msg": "Done",
-          },
-        );
-      } finally {
-        debugPrint("Stopping service...");
-        service.stopSelf();
-      }
-    } catch (e, s) {
-      debugPrint("Error scraping: $e, $s");
-    }
+    CancellableCompleter completer = CancellableCompleter(cancellationToken, onCancel: () {
+      debugPrint("Cancelling scrape request");
+      service.stopSelf();
+    });
+    completer.complete(scrapeGames(service, event));
+    debugPrint("Scraper is running...");
   });
 
   service.on('stop').listen((event) {
+    debugPrint("Force stopping the service");
+    service.invoke(
+      'update',
+      {
+        "total": 0,
+        "success": 0,
+        "error": 0,
+        "pending": 0,
+        "system": "",
+        "rom": "",
+        "msg": "Cancelled",
+      },
+    );
+    cancellationToken.cancel();
     service.stopSelf();
   });
 }

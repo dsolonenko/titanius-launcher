@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:titanius/pages/filter.dart';
@@ -14,6 +15,7 @@ import 'package:titanius/pages/settings.dart';
 import 'package:titanius/pages/scraper.dart';
 import 'package:titanius/pages/system_proxy.dart';
 import 'package:titanius/pages/systems.dart';
+import 'package:titanius/widgets/scraper_progress.dart';
 
 void main() {
   runApp(
@@ -120,12 +122,27 @@ final _router = GoRouter(
   ],
 );
 
-class MyApp extends StatelessWidget {
+class MyApp extends HookConsumerWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scraperService = ref.watch(scraperServiceProvider);
+    useEffect(() {
+      final sub = scraperService.on("update").listen((event) {
+        ref.read(scraperProgressStateProvider.notifier).set(ScraperProgress(
+              total: event!["total"] as int,
+              pending: event!["pending"] as int,
+              success: event["success"] as int,
+              error: event["error"] as int,
+              system: event["system"] as String,
+              rom: event["rom"] as String,
+              message: event["msg"] as String,
+            ));
+      });
+      return () => sub.cancel();
+    }, []);
     return FutureBuilder(
         builder: ((context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -97,21 +96,6 @@ class ScraperProgressWidget extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final progressState = ref.watch(scraperProgressStateProvider);
-    final scraperService = ref.watch(scraperServiceProvider);
-    useEffect(() {
-      final sub = scraperService.on("update").listen((event) {
-        ref.read(scraperProgressStateProvider.notifier).set(ScraperProgress(
-              total: event!["total"] as int,
-              pending: event!["pending"] as int,
-              success: event["success"] as int,
-              error: event["error"] as int,
-              system: event["system"] as String,
-              rom: event["rom"] as String,
-              message: event["msg"] as String,
-            ));
-      });
-      return () => sub.cancel();
-    }, []);
 
     if (progressState.message == "" || progressState.pending == 0) {
       return const SizedBox.shrink();

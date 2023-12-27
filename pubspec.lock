@@ -169,6 +169,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  cancellation_token:
+    dependency: "direct main"
+    description:
+      name: cancellation_token
+      sha256: ad95acf9d4b2f3563e25dc937f63587e46a70ce534e910b65d10e115490f1027
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   characters:
     dependency: transitive
     description:
@@ -1060,10 +1068,10 @@ packages:
     dependency: "direct main"
     description:
       name: screenscraper
-      sha256: "966f2beaf42ed288d6f930e0d215778ed78585049c1d7595eb22e33bc040c04f"
+      sha256: b61f3aa1e6eb4c3c70e98a230cae6d7a3c2b6271588034b280cd4ed246c86227
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.14"
+    version: "0.1.15"
   scrollable_positioned_list:
     dependency: "direct main"
     description:
