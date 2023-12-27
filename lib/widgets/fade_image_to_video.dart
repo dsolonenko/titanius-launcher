@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:math';
-import 'package:fade_indexed_stack/fade_indexed_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:video_player/video_player.dart';
@@ -21,7 +19,6 @@ class FadeImageToVideo extends StatefulWidget {
 class FadeImageToVideoState extends State<FadeImageToVideo> {
   late VideoPlayerController _controller;
   bool _showImage = true;
-  bool _lostFocus = false;
 
   @override
   void initState() {
@@ -33,17 +30,25 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
     }
 
     if (widget.settings.fadeToVideo) {
+      _controller.initialize();
       Future.delayed(const Duration(seconds: 2), () async {
-        if (mounted) {
-          await _fadeImageOut();
+        if (mounted && _controller.value.isInitialized) {
+          setState(() {
+            _showImage = false;
+          });
+          _controller.play();
         }
       });
     } else {
       _showImage = false;
+
       _controller.initialize().then((value) {
-        if (mounted && !_lostFocus) {
+        if (mounted) {
           _controller.play();
-          setState(() {});
+          // force aspect ratio
+          setState(() {
+            _showImage = false;
+          });
         }
       });
     }
@@ -55,52 +60,15 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
     super.dispose();
   }
 
-  Future<void> _fadeImageOut() async {
-    // Start measuring the time.
-    final startTime = DateTime.now();
-
-    // Initialize the controller if it's not already initialized.
-    await _controller.initialize().catchError((err) {
-      debugPrint(err.toString());
-    });
-
-    // Calculate the remaining time for the fade-out animation.
-    final elapsedTime = DateTime.now().difference(startTime);
-    final remainingTime = max(0, 500 - elapsedTime.inMilliseconds);
-
-    // Update the state and start the fade-out animation.
-    setState(() {
-      _showImage = false;
-    });
-
-    // Start playing the video after the remaining fade-out time.
-    Future.delayed(Duration(milliseconds: remainingTime), () {
-      if (mounted && !_lostFocus) {
-        _controller.play();
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return FocusDetector(
       onFocusLost: () {
         debugPrint('Focus lost');
         if (mounted) {
-          _controller.pause();
+          _controller.dispose();
           setState(() {
-            _lostFocus = true;
-          });
-        }
-      },
-      onFocusGained: () {
-        debugPrint('Focus gained');
-        if (mounted) {
-          if (_controller.value.isInitialized) {
-            _controller.play();
-          }
-          setState(() {
-            _lostFocus = false;
+            _showImage = true;
           });
         }
       },
@@ -109,21 +77,17 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
   }
 
   Widget _buildVideoPlayer() {
-    return FadeIndexedStack(
-      duration: const Duration(milliseconds: 100),
-      index: _lostFocus || _showImage ? 0 : 1,
-      sizing: StackFit.expand,
-      children: [
-        Image.file(
-          File(widget.game.imageUrl!),
-          fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
-        ),
-        AspectRatio(
-          aspectRatio: _controller.value.aspectRatio,
-          child: VideoPlayer(_controller),
-        ),
-      ],
-    );
+    if (_showImage) {
+      return Image.file(
+        File(widget.game.imageUrl!),
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+      );
+    } else {
+      return AspectRatio(
+        aspectRatio: _controller.value.aspectRatio,
+        child: VideoPlayer(_controller),
+      );
+    }
   }
 }
