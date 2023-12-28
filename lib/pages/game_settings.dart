@@ -117,8 +117,9 @@ class GameSettingsPage extends HookConsumerWidget {
             setFavouriteInGamelistXml(game, !game.favorite).then(
               (value) {
                 if (value) {
+                  game.favorite = !game.favorite;
                   // ignore: unused_result
-                  ref.refresh(allGamesProvider);
+                  ref.refresh(FilteredGamesInFolderProvider(system));
                 }
                 GoRouter.of(context).pop();
               },
@@ -151,13 +152,14 @@ class GameSettingsPage extends HookConsumerWidget {
             );
             final scraper = await ref.read(scraperProvider.future);
             scraper.scrape(game, (msg) => pd.update(msg: msg)).then(
-              (value) {
+              (scrapedGame) {
                 pd.update(msg: "Writing gamelist.xml...");
-                updateGameInGamelistXml(value).then(
+                updateGameInGamelistXml(scrapedGame).then(
                   (value) {
                     if (value) {
+                      game.update(scrapedGame);
                       // ignore: unused_result
-                      ref.refresh(allGamesProvider);
+                      ref.refresh(FilteredGamesInFolderProvider(system));
                     }
                     GoRouter.of(context).pop();
                   },
@@ -193,8 +195,9 @@ class GameSettingsPage extends HookConsumerWidget {
             setHiddenGameInGamelistXml(game, !game.hidden).then(
               (value) {
                 if (value) {
+                  game.hidden = !game.hidden;
                   // ignore: unused_result
-                  ref.refresh(allGamesProvider);
+                  ref.refresh(FilteredGamesInFolderProvider(system));
                 }
                 GoRouter.of(context).pop();
               },

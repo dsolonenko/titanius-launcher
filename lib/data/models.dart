@@ -118,23 +118,23 @@ class Emulator {
 @JsonSerializable()
 class Game {
   final System system;
-  final String name;
   final String volumePath;
   final String systemFolder;
   final String folder;
   final String rom;
-  final String? id;
-  final String? description;
-  final String? genre;
-  final GameGenre? genreId;
-  final String? developer;
-  final String? publisher;
-  final String? players;
-  final int? year;
-  final String? imageUrl;
-  final String? videoUrl;
-  final String? thumbnailUrl;
-  final double? rating;
+  String? id;
+  String name;
+  String? description;
+  String? genre;
+  GameGenre? genreId;
+  String? developer;
+  String? publisher;
+  String? players;
+  int? year;
+  String? imageUrl;
+  String? videoUrl;
+  String? thumbnailUrl;
+  double? rating;
   bool favorite;
   bool isFolder;
   bool hidden;
@@ -280,6 +280,26 @@ class Game {
   factory Game.fromJson(Map<String, dynamic> json) => _$GameFromJson(json);
 
   Map<String, dynamic> toJson() => _$GameToJson(this);
+
+  void update(Game scrapedGame) {
+    id = scrapedGame.id;
+    name = scrapedGame.name;
+    description = scrapedGame.description;
+    genre = scrapedGame.genre;
+    genreId = scrapedGame.genreId;
+    rating = scrapedGame.rating;
+    developer = scrapedGame.developer;
+    publisher = scrapedGame.publisher;
+    players = scrapedGame.players;
+    year = scrapedGame.year;
+    favorite = scrapedGame.favorite;
+    hidden = scrapedGame.hidden;
+    final romsPath = "$volumePath/$systemFolder";
+    imageUrl = scrapedGame.imageUrl != null ? "$romsPath/${scrapedGame.imageUrl!.replaceFirst("./", "")}" : null;
+    videoUrl = scrapedGame.videoUrl != null ? "$romsPath/${scrapedGame.videoUrl!.replaceFirst("./", "")}" : null;
+    thumbnailUrl =
+        scrapedGame.thumbnailUrl != null ? "$romsPath/${scrapedGame.thumbnailUrl!.replaceFirst("./", "")}" : null;
+  }
 }
 
 /// FNV-1a 64bit hash algorithm optimized for Dart Strings

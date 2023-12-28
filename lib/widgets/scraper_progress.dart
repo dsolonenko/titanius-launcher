@@ -62,6 +62,10 @@ class FakeServiceInstance extends ServiceInstance {
     scrapeController.close();
     updateController.close();
   }
+
+  Future<bool> isRunning() async {
+    return false;
+  }
 }
 
 @Riverpod(keepAlive: true)
