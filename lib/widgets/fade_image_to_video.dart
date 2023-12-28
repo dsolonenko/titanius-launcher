@@ -43,11 +43,11 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
       _playVideo = true;
       _controller.initialize().then((value) {
         if (mounted) {
-          _controller.play();
           // force aspect ratio
           setState(() {
             _playVideo = true;
           });
+          _controller.play();
         }
       });
     }

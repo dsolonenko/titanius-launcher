@@ -170,7 +170,7 @@ class Game {
   String get romPath => "$systemFolder/${rom.replaceFirst("./", "")}";
   String get uniqueKey => id != null ? "id/$id" : "${system.id}/$name";
   String get genreToShow => genreId?.longName ?? "-";
-  int get hash => fastHash(rom);
+  int get hash => fastHash(romPath);
 
   factory Game.fromXmlNode(XmlNode node, System system, String volumePath, String systemFolder) {
     final id = node.attributes.firstWhereOrNull((element) => element.name.local == "id")?.value;

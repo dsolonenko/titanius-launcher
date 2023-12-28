@@ -213,7 +213,7 @@ class GameSorter {
       if (a.favorite && b.favorite) {
         final c = a.name.compareTo(b.name);
         if (c == 0) {
-          return a.rom.compareTo(b.rom);
+          return a.romPath.compareTo(b.romPath);
         } else {
           return c;
         }
@@ -227,7 +227,7 @@ class GameSorter {
     }
     final c = a.name.compareTo(b.name);
     if (c == 0) {
-      return a.rom.compareTo(b.rom);
+      return a.romPath.compareTo(b.romPath);
     } else {
       return c;
     }

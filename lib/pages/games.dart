@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:collection/collection.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -165,7 +166,7 @@ class GamesPage extends HookConsumerWidget {
                             onFocusChange: (value) {
                               if (value) {
                                 debugPrint(
-                                    "Focus on $index: ${game.rom}, list=${itemPositionsListener.itemPositions.value.sorted((a, b) => a.index.compareTo(b.index)).map((e) => e.index.toString()).join(",")}");
+                                    "Focus on $index: ${game.system.id}/${game.rom}, list=${itemPositionsListener.itemPositions.value.sorted((a, b) => a.index.compareTo(b.index)).map((e) => e.index.toString()).join(",")}");
                                 ref.read(selectedGameProvider(system).notifier).set(game);
                               }
                             },
@@ -178,6 +179,7 @@ class GamesPage extends HookConsumerWidget {
                                 ? Text(
                                     game.system.name,
                                     maxLines: 1,
+                                    style: TextStyle(color: Colors.grey.darken(30)),
                                   )
                                 : null,
                             onTap: () async {
