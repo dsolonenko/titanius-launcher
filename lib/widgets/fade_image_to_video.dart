@@ -85,7 +85,7 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
       return Image.file(
         File(widget.game.imageUrl!),
         fit: BoxFit.contain,
-        filterQuality: FilterQuality.high,
+        filterQuality: FilterQuality.none,
       );
     }
   }

@@ -146,11 +146,8 @@ class GamesPage extends HookConsumerWidget {
                             horizontalTitleGap: 0,
                             minLeadingWidth: 22,
                             minVerticalPadding: 0,
-                            focusColor: Colors.white,
                             selectedColor: Colors.black,
                             selectedTileColor: Colors.white,
-                            textColor: Colors.grey,
-                            iconColor: Colors.grey,
                             leading: game.isFolder
                                 ? const Icon(Icons.folder, size: 14)
                                 : game.hidden
@@ -179,7 +176,6 @@ class GamesPage extends HookConsumerWidget {
                                 ? Text(
                                     game.system.name,
                                     maxLines: 1,
-                                    style: TextStyle(color: Colors.grey.darken(30)),
                                   )
                                 : null,
                             onTap: () async {
@@ -262,7 +258,7 @@ class GamesPage extends HookConsumerWidget {
                 child: Image.file(
                   File(game.imageUrl!),
                   fit: BoxFit.contain,
-                  filterQuality: FilterQuality.high,
+                  filterQuality: FilterQuality.none,
                 ),
               ),
               Text(game.name, softWrap: false),
@@ -327,7 +323,7 @@ class GamesPage extends HookConsumerWidget {
     return gameToShow.imageUrl != null
         ? Image.file(
             File(gameToShow.imageUrl!),
-            filterQuality: FilterQuality.high,
+            filterQuality: FilterQuality.none,
             fit: BoxFit.contain,
           )
         : const Text("No image");
@@ -346,7 +342,7 @@ class GamesPage extends HookConsumerWidget {
                 child: Image.file(
                   File(gameToShow.thumbnailUrl!),
                   fit: BoxFit.fitHeight,
-                  filterQuality: FilterQuality.high,
+                  filterQuality: FilterQuality.none,
                 ),
               )
             : Text(gameToShow.name, textScaler: const TextScaler.linear(2)),
@@ -397,7 +393,7 @@ class GamesPage extends HookConsumerWidget {
         return Image.asset(
           "assets/images/white/${system.logo}",
           fit: BoxFit.fitHeight,
-          filterQuality: FilterQuality.high,
+          filterQuality: FilterQuality.none,
           errorBuilder: (context, url, error) => const Icon(Icons.error),
         );
     }

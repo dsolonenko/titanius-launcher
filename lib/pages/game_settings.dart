@@ -90,7 +90,7 @@ class GameSettingsPage extends HookConsumerWidget {
                   child: Image.file(
                     File(game.thumbnailUrl!),
                     fit: BoxFit.contain,
-                    filterQuality: FilterQuality.high,
+                    filterQuality: FilterQuality.none,
                   ),
                 )
               : null,

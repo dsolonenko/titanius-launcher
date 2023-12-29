@@ -158,7 +158,7 @@ class SystemsPage extends HookConsumerWidget {
                 child: Image.asset(
                   "assets/images/color/${system.logo}",
                   fit: BoxFit.contain,
-                  filterQuality: FilterQuality.high,
+                  filterQuality: FilterQuality.medium,
                   isAntiAlias: true,
                   errorBuilder: (context, url, error) => const Icon(Icons.error),
                 ),
@@ -174,7 +174,7 @@ class SystemsPage extends HookConsumerWidget {
     return CachedNetworkImage(
       key: ValueKey(imageUrl),
       imageUrl: imageUrl,
-      filterQuality: FilterQuality.high,
+      filterQuality: FilterQuality.medium,
       fit: BoxFit.fill,
     );
   }
