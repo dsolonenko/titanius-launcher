@@ -120,7 +120,7 @@ class GamesPage extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                flex: 3,
+                flex: 5,
                 child: Column(
                   children: [
                     Container(
@@ -193,7 +193,7 @@ class GamesPage extends HookConsumerWidget {
                 ),
               ),
               Expanded(
-                flex: 5,
+                flex: 8,
                 child: Container(
                   //color: Colors.black.brighten(10),
                   padding: const EdgeInsets.all(8.0),

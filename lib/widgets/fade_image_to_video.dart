@@ -19,6 +19,7 @@ class FadeImageToVideo extends StatefulWidget {
 class FadeImageToVideoState extends State<FadeImageToVideo> {
   late VideoPlayerController _controller;
   bool _playVideo = false;
+  bool _inFocus = true;
 
   @override
   void initState() {
@@ -32,7 +33,7 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
     if (widget.settings.fadeToVideo) {
       _controller.initialize();
       Future.delayed(const Duration(seconds: 2), () async {
-        if (mounted && _controller.value.isInitialized) {
+        if (_inFocus && mounted && _controller.value.isInitialized) {
           setState(() {
             _playVideo = true;
           });
@@ -44,10 +45,12 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
       _controller.initialize().then((value) {
         if (mounted) {
           // force aspect ratio
-          setState(() {
-            _playVideo = true;
-          });
-          _controller.play();
+          if (_inFocus) {
+            setState(() {
+              _playVideo = true;
+            });
+            _controller.play();
+          }
         }
       });
     }
@@ -67,6 +70,7 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
         if (mounted) {
           _controller.dispose();
           setState(() {
+            _inFocus = false;
             _playVideo = false;
           });
         }
@@ -76,7 +80,7 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
   }
 
   Widget _buildVideoPlayer() {
-    if (_playVideo) {
+    if (_playVideo && _inFocus) {
       return AspectRatio(
         aspectRatio: _controller.value.aspectRatio,
         child: VideoPlayer(_controller),

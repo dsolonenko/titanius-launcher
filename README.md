@@ -27,11 +27,11 @@ While Titanius Launcher does have built-in scraper, it was designed with the int
 ## Scraper
 
 Titanius Launcher has a built-in scraper that uses [Screenscraper](https://www.screenscraper.fr) APIs for scraping ROMs metadata and media.
-To use it, navigate to Settings -> Scraper and select the systems you want to scrape.
+To use it, navigate to Settings -> Scraper, enter your account username & password, then select the systems you want to scrape.
 You can also scrape individual games by going into game settings and selecting "Scrape Game".
 
 Mind that scraper requires to calculate checksums for each ROM file, which can take a while for large files.
-While it works just fine for most systems, it can take minutes per rom for CD-based systems like PS2 and GameCube, so it's recommended to scrape them on a PC and transfer the metadata to your Android device. 
+While it works fine for most systems, it can take minutes per rom for CD-based systems like PS2 and GameCube, so it's recommended to scrape them on a PC and transfer the metadata to your Android device. 
 
 The scraper is still work in progress, some things dont work yet like folders support.
 
@@ -70,9 +70,6 @@ Games page:
 
 Game details:
 ![Screenshot](assets/screenshots/03.png)
-
-Folders support:
-![Screenshot](assets/screenshots/04.png)
 
 Collections:
 ![Screenshot](assets/screenshots/07.png)
