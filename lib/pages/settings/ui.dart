@@ -38,8 +38,9 @@ class UISettingsPage extends HookConsumerWidget {
                   true, (p0, p1) => p0.setUniqueGamesInCollections(p1)),
               _setting(ref, selectedSetting, 'Show Hidden Games', settings.showHiddenGames, true,
                   (p0, p1) => p0.setShowHiddenGames(p1)),
-              _setting(ref, selectedSetting, 'Check Missing games', settings.checkMissingGames, true,
-                  (p0, p1) => p0.setCheckMissingGames(p1)),
+              _setting(ref, selectedSetting, 'Only Show Roms From gamelist.xml Files', settings.showOnlyGamelistRoms,
+                  true, (p0, p1) => p0.setShowOnlyGamelistRoms(p1),
+                  subtitle: 'Please refresh gamelists'),
               _setting(ref, selectedSetting, 'Show Game Videos', settings.showGameVideos, true,
                   (p0, p1) => p0.setShowGameVideos(p1)),
               _setting(ref, selectedSetting, 'Fade Screenshot To Video', settings.fadeToVideo, settings.showGameVideos,
@@ -60,7 +61,8 @@ class UISettingsPage extends HookConsumerWidget {
   }
 
   Widget _setting(WidgetRef ref, ValueNotifier<String> selectedSetting, String title, bool value, bool enabled,
-      Future<void> Function(SettingsRepo, bool) onChanged) {
+      Future<void> Function(SettingsRepo, bool) onChanged,
+      {String? subtitle}) {
     return ListTile(
       enabled: enabled,
       autofocus: title == selectedSetting.value,
@@ -74,6 +76,7 @@ class UISettingsPage extends HookConsumerWidget {
         onChanged(repo, !value).then((value) => ref.refresh(settingsProvider));
       },
       title: Text(title),
+      subtitle: subtitle != null ? Text(subtitle) : null,
       trailing: value ? toggleOnIcon : toggleOffIcon,
     );
   }

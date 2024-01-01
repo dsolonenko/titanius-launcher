@@ -43,6 +43,9 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
   final detectedSystems = await ref.watch(detectedSystemsProvider.future);
   final romFolders = await ref.watch(romFoldersProvider.future);
 
+  final settings = await ref.read(settingsProvider.future);
+  final onlyGamelistRoms = settings.showOnlyGamelistRoms;
+
   final allGames = <Game>[];
 
   if (detectedSystems.isEmpty) {
@@ -56,7 +59,8 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
     for (var system in detectedSystems) {
       for (var romsFolder in romFolders) {
         for (var folder in system.folders) {
-          final task = IsolatedWorker().run(_processFolder, GamelistTaskParams(romsFolder, folder, system));
+          final task =
+              IsolatedWorker().run(_processFolder, GamelistTaskParams(romsFolder, folder, system, onlyGamelistRoms));
           tasks.add(task);
         }
       }
@@ -68,7 +72,7 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
     }
   } finally {
     stopwatch.stop();
-    debugPrint("Games fetching took ${stopwatch.elapsedMilliseconds}ms");
+    debugPrint("Games fetching took ${stopwatch.elapsedMilliseconds}ms. onlyGamelistRoms=$onlyGamelistRoms");
   }
 
   return allGames;
@@ -78,8 +82,9 @@ class GamelistTaskParams {
   final String romsFolder;
   final String folder;
   final System system;
+  final bool onlyGamelistRoms;
 
-  GamelistTaskParams(this.romsFolder, this.folder, this.system);
+  GamelistTaskParams(this.romsFolder, this.folder, this.system, this.onlyGamelistRoms);
 }
 
 Future<List<Game>> _processFolder(GamelistTaskParams params) async {
@@ -89,11 +94,13 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
     if (!pathExists) {
       return [];
     }
-    final gamesFromFiles = await listGamesFromFiles(
-      romsFolder: params.romsFolder,
-      folder: params.folder,
-      system: params.system,
-    );
+    final List<Game> gamesFromFiles = params.onlyGamelistRoms
+        ? []
+        : await listGamesFromFiles(
+            romsFolder: params.romsFolder,
+            folder: params.folder,
+            system: params.system,
+          );
     final file = File("$romsPath/gamelist.xml");
     final exists = await file.exists();
     if (exists) {
@@ -107,6 +114,9 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
           .expand((nodes) => nodes)
           .map((node) => Game.fromXmlNode(node, params.system, params.romsFolder, params.folder))
           .toList();
+      if (params.onlyGamelistRoms) {
+        return gamesFromGamelistXml;
+      }
       final romsMap = {for (var rom in gamesFromGamelistXml) rom.absoluteRomPath: rom};
       final List<Game> games = [];
       for (var g in gamesFromFiles) {
@@ -139,14 +149,6 @@ Future<GameList> games(GamesRef ref, String systemId) async {
   final allGames = [...allGamelistGames];
   if (!settings.showHiddenGames) {
     allGames.removeWhere((game) => game.hidden);
-  }
-
-  if (settings.checkMissingGames) {
-    Stopwatch stopwatch = Stopwatch()..start();
-    allGames.retainWhere((game) =>
-        game.isFolder ? Directory(game.absoluteRomPath).existsSync() : File(game.absoluteRomPath).existsSync());
-    stopwatch.stop();
-    debugPrint("checkMissingGames took ${stopwatch.elapsedMilliseconds}ms");
   }
 
   switch (system.id) {

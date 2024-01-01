@@ -18,7 +18,7 @@ class Settings {
 
   bool get favouritesOnTop => _getBoolean('favouritesOnTop', false);
   bool get showHiddenGames => _getBoolean('showHiddenGames', false);
-  bool get checkMissingGames => _getBoolean('checkMissingGames', false);
+  bool get showOnlyGamelistRoms => _getBoolean('showOnlyGamelistRoms', false);
   bool get uniqueGamesInCollections => _getBoolean('uniqueGamesInCollections', false);
   bool get compactGameList => _getBoolean('compactGameList', false);
   bool get showGameVideos => _getBoolean('showGameVideos', false);
@@ -136,6 +136,10 @@ class SettingsRepo {
 
   Future<void> setCheckMissingGames(bool value) async {
     return _setBoolean('checkMissingGames', value);
+  }
+
+  Future<void> setShowOnlyGamelistRoms(bool value) async {
+    return _setBoolean('showOnlyGamelistRoms', value);
   }
 
   Future<void> setUniqueGamesInCollections(bool value) async {
