@@ -1084,10 +1084,10 @@ packages:
     dependency: "direct main"
     description:
       name: screenscraper
-      sha256: "6558963266444eb6351059d459c5f3cdbf6eb7a04decdbf07ac92bc8a9fd5712"
+      sha256: de896f7e61d543ba9ffe13b12456a7190e9957e3518e464a480e8c3b88c533ca
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.17"
+    version: "0.1.19"
   scrollable_positioned_list:
     dependency: "direct main"
     description:

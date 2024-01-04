@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prompt_dialog/prompt_dialog.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 
 import 'package:titanius/data/gamelist_xml.dart';
@@ -157,6 +158,8 @@ class GameSettingsPage extends HookConsumerWidget {
                 updateGameInGamelistXml(scrapedGame).then(
                   (value) {
                     if (value) {
+                      imageCache.clear();
+                      imageCache.clearLiveImages();
                       game.update(scrapedGame);
                       // ignore: unused_result
                       ref.refresh(FilteredGamesInFolderProvider(system));
@@ -182,6 +185,86 @@ class GameSettingsPage extends HookConsumerWidget {
           onFocusChange: (value) {
             if (value) {
               selected.value = "scrape_game";
+            }
+          },
+        ),
+      ),
+      SettingElement(
+        group: "Game",
+        widget: ListTile(
+          title: const Text("Scrape Game By Id"),
+          onTap: () async {
+            final scraperService = await ref.read(scraperServiceProvider);
+            if (await scraperService.isRunning()) {
+              if (context.mounted) {
+                _showError(context, "Scraper already running...");
+              }
+              return;
+            }
+            // ignore: use_build_context_synchronously
+            final gameId = await prompt(
+              context,
+              title: const Text("Game ID"),
+              decoration: const InputDecoration(
+                helperText: "Screenscraper game id",
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (s) {
+                if (s == null || s.isEmpty) {
+                  return "Id cannot be empty";
+                }
+                final id = int.tryParse(s);
+                if (id == null) {
+                  return "Id must be a number";
+                }
+                return null;
+              },
+            );
+            if (gameId == null) {
+              return;
+            }
+            workingOnIt.value = true;
+            // ignore: use_build_context_synchronously
+            ProgressDialog pd = ProgressDialog(context: context);
+            pd.show(
+              backgroundColor: Colors.black,
+              msgColor: Colors.white,
+            );
+            final scraper = await ref.read(scraperProvider.future);
+            scraper.scrape(game, (msg) => pd.update(msg: msg), gameId: int.parse(gameId)).then(
+              (scrapedGame) {
+                pd.update(msg: "Writing gamelist.xml...");
+                updateGameInGamelistXml(scrapedGame).then(
+                  (value) {
+                    if (value) {
+                      imageCache.clear();
+                      imageCache.clearLiveImages();
+                      game.update(scrapedGame);
+                      // ignore: unused_result
+                      ref.refresh(FilteredGamesInFolderProvider(system));
+                    }
+                    GoRouter.of(context).pop();
+                  },
+                  onError: (error, stack) {
+                    pd.close();
+                    workingOnIt.value = false;
+                    _showError(context, error);
+                  },
+                );
+                pd.close();
+                workingOnIt.value = false;
+              },
+              onError: (error, stack) {
+                pd.close();
+                workingOnIt.value = false;
+                _showError(context, error);
+              },
+            );
+          },
+          onFocusChange: (value) {
+            if (value) {
+              selected.value = "scrape_game_by_id";
             }
           },
         ),

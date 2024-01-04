@@ -30,11 +30,13 @@ class Scraper {
           httpLogging: true,
         );
 
-  Future<Game> scrape(Game rom, void Function(String msg) progress) async {
+  Future<Game> scrape(Game rom, void Function(String msg) progress, {int? gameId}) async {
     progress("Scraping...");
     const r = RetryOptions(maxAttempts: 5, delayFactor: Duration(seconds: 1));
     final game = await r.retry(
-      () => _scraper.scrapeRom(systemId: rom.system.screenScraperId, romPath: rom.absoluteRomPath),
+      () => gameId != null
+          ? _scraper.scrapeGame(systemId: rom.system.screenScraperId, gameId: gameId)
+          : _scraper.scrapeRom(systemId: rom.system.screenScraperId, romPath: rom.absoluteRomPath),
       retryIf: (e) => _canRetryScraper(e),
     );
     debugPrint("ScreenScraper ID for ${rom.absoluteRomPath} is ${game.gameId}");
