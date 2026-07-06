@@ -17,7 +17,10 @@ import 'package:titanius/pages/system_proxy.dart';
 import 'package:titanius/pages/systems.dart';
 import 'package:titanius/widgets/scraper_progress.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  await _ensureStoragePermission();
   runApp(
     const ProviderScope(
       child: SDTFScope(
@@ -28,7 +31,6 @@ void main() {
 }
 
 Future<void> _ensureStoragePermission() async {
-  WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isAndroid) {
     if (await Permission.manageExternalStorage.isGranted) {
       debugPrint("Storage permission already granted");
@@ -143,32 +145,16 @@ class MyApp extends HookConsumerWidget {
       });
       return () => sub.cancel();
     }, []);
-    return FutureBuilder(
-        builder: ((context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return FutureBuilder(
-                builder: ((context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    return MaterialApp.router(
-                      debugShowCheckedModeBanner: false,
-                      title: 'Titanius Launcher',
-                      theme: _buildTheme(Brightness.dark),
-                      themeMode: ThemeMode.dark,
-                      routerConfig: _router,
-                    );
-                  } else {
-                    return _waitPage();
-                  }
-                }),
-                future: SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive));
-          } else {
-            return _waitPage();
-          }
-        }),
-        future: _ensureStoragePermission());
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: 'Titanius Launcher',
+      theme: _buildTheme(Brightness.dark),
+      themeMode: ThemeMode.dark,
+      routerConfig: _router,
+    );
   }
 
-  ThemeData _buildTheme(brightness) {
+  ThemeData _buildTheme(Brightness brightness) {
     final baseTheme = FlexThemeData.dark(
       scheme: FlexScheme.hippieBlue,
       darkIsTrueBlack: true,
@@ -177,20 +163,6 @@ class MyApp extends HookConsumerWidget {
     return baseTheme.copyWith(
       textTheme: baseTheme.textTheme.apply(
         fontFamily: 'KarenFat',
-      ),
-    );
-  }
-
-  Widget _waitPage() {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Titanius Launcher',
-      theme: _buildTheme(Brightness.dark),
-      themeMode: ThemeMode.dark,
-      home: const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
       ),
     );
   }

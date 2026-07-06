@@ -36,8 +36,10 @@ final grantedUrisProvider = FutureProvider<List<GrantedUri>>((ref) {
     return _allGrantedReads();
   }
   if (Platform.isMacOS) {
+    final home = Platform.environment['HOME'] ?? '';
+    final macRomsPath = "$home/Roms";
     return Future.value([
-      GrantedUri(Uri.parse("file:///Users/ds/Roms"), "/Users/ds/Roms"),
+      GrantedUri(Uri.parse("file://$macRomsPath"), macRomsPath),
     ]);
   }
   if (Platform.isWindows) {

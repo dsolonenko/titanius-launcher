@@ -68,9 +68,9 @@ class GameFilter {
 
   GameFilter(this.system, {this.search = "", this.genres = const {}, this.favourite});
 
-  get isEmpty => search.isEmpty && genres.isEmpty && favourite == null;
+  bool get isEmpty => search.isEmpty && genres.isEmpty && favourite == null;
 
-  get description => isEmpty
+  String get description => isEmpty
       ? "All"
       : [
           favourite == null

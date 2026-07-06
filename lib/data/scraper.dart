@@ -107,7 +107,7 @@ class Scraper {
     }
   }
 
-  close() {
+  void close() {
     _scraper.close();
   }
 }
@@ -125,7 +125,7 @@ final scraperProvider = FutureProvider<Scraper>((ref) async {
   return scraper;
 });
 
-scrapeGames(ServiceInstance service, Map<String, dynamic>? event) async {
+Future<void> scrapeGames(ServiceInstance service, Map<String, dynamic>? event) async {
   try {
     final username = event!["username"] as String?;
     final password = event["password"] as String?;

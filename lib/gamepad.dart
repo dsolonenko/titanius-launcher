@@ -64,76 +64,107 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
   }
 
   bool listener(KeyEvent e) {
+    if (FocusManager.instance.primaryFocus?.context?.widget is EditableText) {
+      return false;
+    }
     String currentLocation = GoRouter.of(context).location;
+    bool handled = false;
     if (e is KeyDownEvent) {
       debugPrint("Gamepad down $currentLocation: ${e.logicalKey}");
       if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
         hook.listener(currentLocation, GamepadButton.up);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
         hook.listener(currentLocation, GamepadButton.down);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
         hook.listener(currentLocation, GamepadButton.left);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
         hook.listener(currentLocation, GamepadButton.right);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonA || e.logicalKey == LogicalKeyboardKey.numpad2) {
         hook.listener(currentLocation, GamepadButton.a);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonB ||
           e.logicalKey == LogicalKeyboardKey.backspace ||
           e.logicalKey == LogicalKeyboardKey.numpad6) {
         hook.listener(currentLocation, GamepadButton.b);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonX ||
           e.logicalKey == LogicalKeyboardKey.numpad4 ||
           e.logicalKey == LogicalKeyboardKey.keyX) {
         hook.listener(currentLocation, GamepadButton.x);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonY ||
           e.logicalKey == LogicalKeyboardKey.numpad8 ||
           e.logicalKey == LogicalKeyboardKey.keyY) {
         hook.listener(currentLocation, GamepadButton.y);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonC) {
         hook.listener(currentLocation, GamepadButton.c);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonZ) {
         hook.listener(currentLocation, GamepadButton.z);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonLeft1) {
         hook.listener(currentLocation, GamepadButton.l1);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight1) {
         hook.listener(currentLocation, GamepadButton.r1);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonLeft2) {
         hook.listener(currentLocation, GamepadButton.l2);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight2) {
         hook.listener(currentLocation, GamepadButton.r2);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonStart || e.logicalKey == LogicalKeyboardKey.enter) {
         hook.listener(currentLocation, GamepadButton.start);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonSelect ||
           e.logicalKey == LogicalKeyboardKey.insert ||
           e.logicalKey == LogicalKeyboardKey.tab) {
         hook.listener(currentLocation, GamepadButton.select);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeUp) {
         FlutterVolumeController.raiseVolume(null).then((value) => debugPrint("Volume raised"));
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeDown) {
         FlutterVolumeController.lowerVolume(null).then((value) => debugPrint("Volume lowered"));
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeMute) {
         FlutterVolumeController.toggleMute().then((value) => debugPrint("Volume muted"));
+        handled = true;
       }
     } else if (e is KeyRepeatEvent) {
       debugPrint("Gamepad repeat ${e.logicalKey}");
       if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
         hook.listener(currentLocation, GamepadButton.left);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
         hook.listener(currentLocation, GamepadButton.right);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonLeft1) {
         hook.listener(currentLocation, GamepadButton.l1);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight1) {
         hook.listener(currentLocation, GamepadButton.r1);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonLeft2) {
         hook.listener(currentLocation, GamepadButton.l2);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.gameButtonRight2) {
         hook.listener(currentLocation, GamepadButton.r2);
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeUp) {
         FlutterVolumeController.raiseVolume(null).then((value) => debugPrint("Volume raised"));
+        handled = true;
       } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeDown) {
         FlutterVolumeController.lowerVolume(null).then((value) => debugPrint("Volume lowered"));
+        handled = true;
       }
     }
-    return true;
+    return handled;
   }
 }

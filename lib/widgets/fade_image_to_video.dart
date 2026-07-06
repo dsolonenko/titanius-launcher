@@ -65,10 +65,24 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
   @override
   Widget build(BuildContext context) {
     return FocusDetector(
+      onFocusGained: () {
+        debugPrint('Focus gained');
+        if (mounted) {
+          setState(() {
+            _inFocus = true;
+            if (_controller.value.isInitialized) {
+              _playVideo = true;
+              _controller.play();
+            }
+          });
+        }
+      },
       onFocusLost: () {
         debugPrint('Focus lost');
         if (mounted) {
-          _controller.dispose();
+          if (_controller.value.isInitialized) {
+            _controller.pause();
+          }
           setState(() {
             _inFocus = false;
             _playVideo = false;

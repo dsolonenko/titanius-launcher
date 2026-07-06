@@ -30,7 +30,7 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       height: preferredSize.height,
-      color: Theme.of(context).appBarTheme.backgroundColor?.withOpacity(0),
+      color: (Theme.of(context).appBarTheme.backgroundColor ?? Colors.transparent).withValues(alpha: 0),
       alignment: Alignment.centerRight,
       child: const Row(mainAxisSize: MainAxisSize.max, children: [
         TimeWidget(),

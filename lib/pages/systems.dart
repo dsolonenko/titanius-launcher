@@ -77,7 +77,7 @@ class SystemsPage extends HookConsumerWidget {
                   onPageChanged: (value) {
                     ref.read(selectedSystemProvider.notifier).state = value;
                   },
-                  preloadPagesCount: systems.length,
+                  preloadPagesCount: 1,
                   controller: pageController,
                   itemCount: systems.length,
                   itemBuilder: (context, index) {
@@ -106,7 +106,7 @@ class SystemsPage extends HookConsumerWidget {
                               unselectedSize: const Size(8, 8),
                               currentItem: selectedSystem < systems.length ? selectedSystem : 0,
                               count: systems.length,
-                              unselectedColor: Theme.of(context).colorScheme.background.lighten(10),
+                              unselectedColor: Theme.of(context).colorScheme.surface.lighten(10),
                               selectedColor: Theme.of(context).colorScheme.primary,
                             ),
                             const SizedBox(height: 8),
@@ -176,6 +176,8 @@ class SystemsPage extends HookConsumerWidget {
       imageUrl: imageUrl,
       filterQuality: FilterQuality.medium,
       fit: BoxFit.fill,
+      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+      errorWidget: (context, url, error) => const Icon(Icons.broken_image_rounded, size: 48),
     );
   }
 

@@ -219,25 +219,25 @@ class Game {
   }
 
   XmlNode toXmlNode() {
-    return XmlElement(XmlName("game"), [
-      XmlAttribute(XmlName("id"), id ?? ""),
-      XmlAttribute(XmlName("source"), "ScreenScraper.fr"),
+    return XmlElement(XmlName.fromString("game"), [
+      XmlAttribute(XmlName.fromString("id"), id ?? ""),
+      XmlAttribute(XmlName.fromString("source"), "ScreenScraper.fr"),
     ], [
-      XmlElement(XmlName("path"), [], [XmlText(rom)]),
-      XmlElement(XmlName("name"), [], [XmlText(name)]),
-      XmlElement(XmlName("desc"), [], [XmlText(description ?? "")]),
-      XmlElement(XmlName("rating"), [], [XmlText(((rating ?? 0) / 10).toString())]),
-      XmlElement(XmlName("releasedate"), [], [XmlText(year?.toString() ?? "")]),
-      XmlElement(XmlName("developer"), [], [XmlText(developer ?? "")]),
-      XmlElement(XmlName("publisher"), [], [XmlText(publisher ?? "")]),
-      XmlElement(XmlName("genre"), [], [XmlText(genre ?? "")]),
-      XmlElement(XmlName("genreid"), [], [XmlText(genreId?.id.toString() ?? "")]),
-      XmlElement(XmlName("players"), [], [XmlText(players ?? "")]),
-      if (imageUrl != null) XmlElement(XmlName("image"), [], [XmlText(imageUrl ?? "")]),
-      if (thumbnailUrl != null) XmlElement(XmlName("thumbnail"), [], [XmlText(thumbnailUrl ?? "")]),
-      if (videoUrl != null) XmlElement(XmlName("video"), [], [XmlText(videoUrl ?? "")]),
-      XmlElement(XmlName("favorite"), [], [XmlText(favorite ? "true" : "false")]),
-      XmlElement(XmlName("hidden"), [], [XmlText(hidden ? "true" : "false")]),
+      XmlElement(XmlName.fromString("path"), [], [XmlText(rom)]),
+      XmlElement(XmlName.fromString("name"), [], [XmlText(name)]),
+      XmlElement(XmlName.fromString("desc"), [], [XmlText(description ?? "")]),
+      XmlElement(XmlName.fromString("rating"), [], [XmlText(((rating ?? 0) / 10).toString())]),
+      XmlElement(XmlName.fromString("releasedate"), [], [XmlText(year?.toString() ?? "")]),
+      XmlElement(XmlName.fromString("developer"), [], [XmlText(developer ?? "")]),
+      XmlElement(XmlName.fromString("publisher"), [], [XmlText(publisher ?? "")]),
+      XmlElement(XmlName.fromString("genre"), [], [XmlText(genre ?? "")]),
+      XmlElement(XmlName.fromString("genreid"), [], [XmlText(genreId?.id.toString() ?? "")]),
+      XmlElement(XmlName.fromString("players"), [], [XmlText(players ?? "")]),
+      if (imageUrl != null) XmlElement(XmlName.fromString("image"), [], [XmlText(imageUrl ?? "")]),
+      if (thumbnailUrl != null) XmlElement(XmlName.fromString("thumbnail"), [], [XmlText(thumbnailUrl ?? "")]),
+      if (videoUrl != null) XmlElement(XmlName.fromString("video"), [], [XmlText(videoUrl ?? "")]),
+      XmlElement(XmlName.fromString("favorite"), [], [XmlText(favorite ? "true" : "false")]),
+      XmlElement(XmlName.fromString("hidden"), [], [XmlText(hidden ? "true" : "false")]),
     ]);
   }
 

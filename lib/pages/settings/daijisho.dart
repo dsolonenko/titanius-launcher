@@ -74,6 +74,16 @@ class DaijishoWallpaperPacksPage extends HookConsumerWidget {
                   width: 48,
                   height: 48,
                   fit: BoxFit.contain,
+                  placeholder: (context, url) => const SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  ),
+                  errorWidget: (context, url, error) => const SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Icon(Icons.broken_image_rounded, color: Colors.grey),
+                  ),
                 ),
               );
             },

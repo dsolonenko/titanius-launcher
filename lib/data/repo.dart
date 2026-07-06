@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:drift/drift.dart';
 import 'package:titanius/data/database.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/storage.dart';
 
+export 'package:drift/drift.dart' hide Column;
 export 'package:titanius/data/database.dart';
 
 class Settings {
@@ -132,8 +134,9 @@ class SettingsRepo {
   }
 
   Future<void> _setSetting(String key, String value) async {
-    await db.into(db.settingEntries).insertOnConflictUpdate(
+    await db.into(db.settingEntries).insert(
           SettingEntriesCompanion.insert(key: key, value: value),
+          mode: InsertMode.insertOrReplace,
         );
   }
 
@@ -155,8 +158,9 @@ class RomFoldersRepo {
 
   Future<void> saveRomsFolders(List<String> romsFolders) async {
     debugPrint("Folders $romsFolders");
-    await db.into(db.settingEntries).insertOnConflictUpdate(
+    await db.into(db.settingEntries).insert(
           SettingEntriesCompanion.insert(key: 'romsFolders', value: romsFolders.join(",")),
+          mode: InsertMode.insertOrReplace,
         );
   }
 }
@@ -172,11 +176,12 @@ class RecentGamesRepo {
 
   Future<void> saveRecentGame(Game game) async {
     debugPrint("Recent ${game.romPath}");
-    await db.into(db.recentGameEntries).insertOnConflictUpdate(
+    await db.into(db.recentGameEntries).insert(
           RecentGameEntriesCompanion.insert(
             romPath: game.romPath,
             timestamp: DateTime.now().millisecondsSinceEpoch,
           ),
+          mode: InsertMode.insertOrReplace,
         );
   }
 }
@@ -191,8 +196,9 @@ class PerSystemConfigurationRepo {
   }
 
   Future<void> saveAlternativeEmulator(String system, String emulator) async {
-    await db.into(db.alternativeEmulatorEntries).insertOnConflictUpdate(
+    await db.into(db.alternativeEmulatorEntries).insert(
           AlternativeEmulatorEntriesCompanion.insert(system: system, emulator: emulator),
+          mode: InsertMode.insertOrReplace,
         );
   }
 
@@ -210,8 +216,9 @@ class CustomEmulatorsRepo {
   }
 
   Future<void> saveCustomEmulator(CustomEmulator emulator) async {
-    await db.into(db.customEmulatorEntries).insertOnConflictUpdate(
+    await db.into(db.customEmulatorEntries).insert(
           CustomEmulatorEntriesCompanion.insert(name: emulator.name, amStartCommand: emulator.amStartCommand),
+          mode: InsertMode.insertOrReplace,
         );
   }
 
@@ -230,8 +237,9 @@ class PerGameConfigurationRepo {
   }
 
   Future<void> saveGameEmulator(Game game, String emulator) async {
-    await db.into(db.gameEmulatorEntries).insertOnConflictUpdate(
+    await db.into(db.gameEmulatorEntries).insert(
           GameEmulatorEntriesCompanion.insert(romPath: game.romPath, emulator: emulator),
+          mode: InsertMode.insertOrReplace,
         );
   }
 
@@ -269,8 +277,9 @@ class EnabledSystemsRepo {
   }
 
   Future<void> _setBoolean(String key, bool value) async {
-    await db.into(db.settingEntries).insertOnConflictUpdate(
+    await db.into(db.settingEntries).insert(
           SettingEntriesCompanion.insert(key: key, value: value.toString()),
+          mode: InsertMode.insertOrReplace,
         );
   }
 }
@@ -296,8 +305,9 @@ class AndroidAppsRepo {
 
   Future<void> selectApp(String package, bool selected) async {
     if (selected) {
-      await db.into(db.androidAppEntries).insertOnConflictUpdate(
+      await db.into(db.androidAppEntries).insert(
             AndroidAppEntriesCompanion.insert(package: package),
+            mode: InsertMode.insertOrReplace,
           );
     } else {
       await (db.delete(db.androidAppEntries)..where((t) => t.package.equals(package))).go();
@@ -403,7 +413,8 @@ final externalRomsPathsProvider = FutureProvider<List<String>>((ref) async {
 Future<List<String>> _getDefaultRomFolders() async {
   List<String> romsFolders = [];
   if (Platform.isMacOS) {
-    romsFolders = ["/Users/ds/Roms"];
+    final home = Platform.environment['HOME'] ?? '';
+    romsFolders = ["$home/Roms"];
   }
   if (Platform.isWindows) {
     romsFolders = ["D:\\Roms"];

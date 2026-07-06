@@ -23,7 +23,7 @@ Future<List<Game>> listGamesFromFiles({
     return [];
   }
   final dir = Directory(romsPath);
-  final allFiles = dir.listSync(recursive: true, followLinks: false);
+  final allFiles = await dir.list(recursive: true, followLinks: false).toList();
   allFiles.removeWhere((element) => _nonRom(element));
   final gamesFromFiles = allFiles.map((file) => Game.fromFile(file, system, romsFolder, folder)).toList();
   return gamesFromFiles;
