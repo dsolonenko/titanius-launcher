@@ -104,13 +104,9 @@ class ScraperPage extends HookConsumerWidget {
             try {
               final v = await prompt(
                 context,
-                title: const Text("Name"),
+                title: const Text("Screenscraper username"),
                 initialValue: settings.value!.screenScraperUser ?? "",
                 isSelectedInitialValue: true,
-                decoration: const InputDecoration(
-                  helperText: "Screenscraper username",
-                  border: OutlineInputBorder(),
-                ),
                 validator: (s) {
                   if (s == null || s.isEmpty) {
                     return "Name cannot be empty";
@@ -141,13 +137,9 @@ class ScraperPage extends HookConsumerWidget {
             try {
               final v = await prompt(
                 context,
-                title: const Text("Password"),
+                title: const Text("Screenscraper password"),
                 initialValue: settings.value!.screenScraperPwd ?? "",
                 isSelectedInitialValue: true,
-                decoration: const InputDecoration(
-                  helperText: "Screenscraper password",
-                  border: OutlineInputBorder(),
-                ),
                 validator: (s) {
                   if (s == null || s.isEmpty) {
                     return "Password cannot be empty";

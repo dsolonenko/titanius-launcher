@@ -145,8 +145,6 @@ class GamesPage extends HookConsumerWidget {
                             horizontalTitleGap: 0,
                             minLeadingWidth: 22,
                             minVerticalPadding: 0,
-                            selectedColor: Colors.black,
-                            selectedTileColor: Colors.white,
                             leading: game.isFolder
                                 ? const Icon(Icons.folder, size: 14)
                                 : game.hidden

@@ -175,7 +175,7 @@ class MyApp extends HookConsumerWidget {
     );
     return baseTheme.copyWith(
       textTheme: baseTheme.textTheme.apply(
-        fontFamily: 'Staatliches',
+        fontFamily: 'RobotoCondensed',
       ),
     );
   }

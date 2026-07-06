@@ -43,8 +43,12 @@ class GameSettingsPage extends HookConsumerWidget {
     final workingOnIt = useState(false);
     final confirmDelete = useState(false);
     final selected = useState("");
+    final inPrompt = useState(false);
 
     useGamepad(ref, (location, key) {
+      if (inPrompt.value) {
+        return;
+      }
       if (location != "/games/$system/game/$hash") return;
       if (key == GamepadButton.b) {
         GoRouter.of(context).go("/games/$system");
@@ -149,7 +153,6 @@ class GameSettingsPage extends HookConsumerWidget {
             ProgressDialog pd = ProgressDialog(context: context);
             pd.show(
               backgroundColor: Colors.black,
-              msgColor: Colors.white,
             );
             final scraper = await ref.read(scraperProvider.future);
             scraper.scrape(game, (msg) => pd.update(msg: msg)).then(
@@ -194,73 +197,73 @@ class GameSettingsPage extends HookConsumerWidget {
         widget: ListTile(
           title: const Text("Scrape Game By Id"),
           onTap: () async {
-            final scraperService = await ref.read(scraperServiceProvider);
-            if (await scraperService.isRunning()) {
-              if (context.mounted) {
-                _showError(context, "Scraper already running...");
+            inPrompt.value = true;
+            try {
+              final scraperService = await ref.read(scraperServiceProvider);
+              if (await scraperService.isRunning()) {
+                if (context.mounted) {
+                  _showError(context, "Scraper already running...");
+                }
+                return;
               }
-              return;
+              // ignore: use_build_context_synchronously
+              final gameId = await prompt(
+                context,
+                title: const Text("Game ID"),
+                //keyboardType: TextInputType.number,
+                validator: (s) {
+                  if (s == null || s.isEmpty) {
+                    return "Id cannot be empty";
+                  }
+                  final id = int.tryParse(s);
+                  if (id == null) {
+                    return "Id must be a number";
+                  }
+                  return null;
+                },
+              );
+              if (gameId == null) {
+                return;
+              }
+              workingOnIt.value = true;
+              // ignore: use_build_context_synchronously
+              ProgressDialog pd = ProgressDialog(context: context);
+              pd.show(
+                backgroundColor: Colors.black,
+              );
+              final scraper = await ref.read(scraperProvider.future);
+              scraper.scrape(game, (msg) => pd.update(msg: msg), gameId: int.parse(gameId)).then(
+                (scrapedGame) {
+                  pd.update(msg: "Writing gamelist.xml...");
+                  updateGameInGamelistXml(scrapedGame).then(
+                    (value) {
+                      if (value) {
+                        imageCache.clear();
+                        imageCache.clearLiveImages();
+                        game.update(scrapedGame);
+                        // ignore: unused_result
+                        ref.refresh(FilteredGamesInFolderProvider(system));
+                      }
+                      GoRouter.of(context).pop();
+                    },
+                    onError: (error, stack) {
+                      pd.close();
+                      workingOnIt.value = false;
+                      _showError(context, error);
+                    },
+                  );
+                  pd.close();
+                  workingOnIt.value = false;
+                },
+                onError: (error, stack) {
+                  pd.close();
+                  workingOnIt.value = false;
+                  _showError(context, error);
+                },
+              );
+            } finally {
+              inPrompt.value = false;
             }
-            // ignore: use_build_context_synchronously
-            final gameId = await prompt(
-              context,
-              title: const Text("Game ID"),
-              decoration: const InputDecoration(
-                helperText: "Screenscraper game id",
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (s) {
-                if (s == null || s.isEmpty) {
-                  return "Id cannot be empty";
-                }
-                final id = int.tryParse(s);
-                if (id == null) {
-                  return "Id must be a number";
-                }
-                return null;
-              },
-            );
-            if (gameId == null) {
-              return;
-            }
-            workingOnIt.value = true;
-            // ignore: use_build_context_synchronously
-            ProgressDialog pd = ProgressDialog(context: context);
-            pd.show(
-              backgroundColor: Colors.black,
-              msgColor: Colors.white,
-            );
-            final scraper = await ref.read(scraperProvider.future);
-            scraper.scrape(game, (msg) => pd.update(msg: msg), gameId: int.parse(gameId)).then(
-              (scrapedGame) {
-                pd.update(msg: "Writing gamelist.xml...");
-                updateGameInGamelistXml(scrapedGame).then(
-                  (value) {
-                    if (value) {
-                      imageCache.clear();
-                      imageCache.clearLiveImages();
-                      game.update(scrapedGame);
-                      // ignore: unused_result
-                      ref.refresh(FilteredGamesInFolderProvider(system));
-                    }
-                    GoRouter.of(context).pop();
-                  },
-                  onError: (error, stack) {
-                    pd.close();
-                    workingOnIt.value = false;
-                    _showError(context, error);
-                  },
-                );
-                pd.close();
-                workingOnIt.value = false;
-              },
-              onError: (error, stack) {
-                pd.close();
-                workingOnIt.value = false;
-                _showError(context, error);
-              },
-            );
           },
           onFocusChange: (value) {
             if (value) {
