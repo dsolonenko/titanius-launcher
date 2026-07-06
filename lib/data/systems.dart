@@ -2,15 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/models.dart';
 
-part 'systems.g.dart';
-
-@Riverpod(keepAlive: true)
-Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
+final allSupportedSystemsProvider = FutureProvider<List<System>>((ref) async {
   final content = json.decode(
     await rootBundle.loadString('assets/metadata.json'),
   );
@@ -20,10 +17,9 @@ Future<List<System>> allSupportedSystems(AllSupportedSystemsRef ref) async {
   }
   systems.sort((a, b) => a.name.compareTo(b.name));
   return [...collections, ...systems];
-}
+});
 
-@Riverpod(keepAlive: true)
-Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
+final detectedSystemsProvider = FutureProvider<List<System>>((ref) async {
   final allSystems = await ref.watch(allSupportedSystemsProvider.future);
   final enabledSystems = await ref.watch(enabledSystemsProvider.future);
   final detectedSystems = [
@@ -31,4 +27,4 @@ Future<List<System>> detectedSystems(DetectedSystemsRef ref) async {
       if (enabledSystems.showSystem(system.id)) system
   ];
   return detectedSystems;
-}
+});

@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-
-part 'scraper_progress.g.dart';
 
 class ScraperProgress {
   final int total;
@@ -68,29 +65,26 @@ class FakeServiceInstance extends ServiceInstance {
   }
 }
 
-@Riverpod(keepAlive: true)
-class ScraperService extends _$ScraperService {
-  @override
-  dynamic build() {
-    if (Platform.isAndroid) {
-      return FlutterBackgroundService();
-    } else {
-      return FakeServiceInstance();
-    }
+final scraperServiceProvider = Provider<dynamic>((ref) {
+  if (Platform.isAndroid) {
+    return FlutterBackgroundService();
+  } else {
+    return FakeServiceInstance();
   }
-}
+});
 
-@Riverpod(keepAlive: true)
-class ScraperProgressState extends _$ScraperProgressState {
-  @override
-  ScraperProgress build() {
-    return ScraperProgress(total: 0, pending: 0, success: 0, error: 0, system: "", rom: "", message: "");
-  }
+class ScraperProgressStateNotifier extends StateNotifier<ScraperProgress> {
+  ScraperProgressStateNotifier()
+      : super(ScraperProgress(total: 0, pending: 0, success: 0, error: 0, system: "", rom: "", message: ""));
 
   void set(ScraperProgress progress) {
     state = progress;
   }
 }
+
+final scraperProgressStateProvider = StateNotifierProvider<ScraperProgressStateNotifier, ScraperProgress>(
+  (ref) => ScraperProgressStateNotifier(),
+);
 
 final f = NumberFormat("0.0%");
 

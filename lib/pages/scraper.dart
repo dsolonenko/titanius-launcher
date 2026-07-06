@@ -78,9 +78,7 @@ class ScraperPage extends HookConsumerWidget {
             index = 0;
           }
           final selected = scrapeTheseGamesOptions[index];
-          ref
-              .read(settingsRepoProvider)
-              .value!
+          ref.read(settingsRepoProvider)
               .setScrapeTheseGames(selected)
               .then((value) => ref.refresh(settingsProvider));
         }
@@ -115,9 +113,7 @@ class ScraperPage extends HookConsumerWidget {
                 },
               );
               if (v != null) {
-                ref
-                    .read(settingsRepoProvider)
-                    .value!
+                ref.read(settingsRepoProvider)
                     .setScreenScraperUser(v)
                     .then((value) => ref.refresh(settingsProvider));
               }
@@ -148,9 +144,7 @@ class ScraperPage extends HookConsumerWidget {
                 },
               );
               if (v != null) {
-                ref
-                    .read(settingsRepoProvider)
-                    .value!
+                ref.read(settingsRepoProvider)
                     .setScreenScraperPwd(v)
                     .then((value) => ref.refresh(settingsProvider));
               }

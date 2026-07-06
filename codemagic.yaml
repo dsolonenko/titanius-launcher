@@ -10,6 +10,7 @@ workflows:
           include: true
           source: true
     environment:
+      java: 17
       android_signing:
         - titanius
       vars:
@@ -29,10 +30,10 @@ workflows:
           echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
       - name: Get Flutter packages
         script: | 
-          flutter packages pub get
+          flutter pub get
       - name: Run build_runner
         script: | 
-          flutter packages pub run build_runner build - d
+          dart run build_runner build --delete-conflicting-outputs
       - name: Flutter analyze
         script: | 
           flutter analyze

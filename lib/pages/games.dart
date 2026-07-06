@@ -44,7 +44,7 @@ class GamesPage extends HookConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           // ignore: unused_result
           ref.refresh(recentGamesProvider);
-          ref.read(selectedGameProvider(system).notifier).reset();
+          ref.read(selectedGameProvider(system).notifier).state = null;
         });
       }
       return null;
@@ -69,7 +69,7 @@ class GamesPage extends HookConsumerWidget {
           GoRouter.of(context).go("/");
         } else {
           Game game = ref.read(currentGameNavigationProvider(system).notifier).goBack();
-          ref.read(selectedGameProvider(system).notifier).set(game);
+          ref.read(selectedGameProvider(system).notifier).state = game;
         }
       }
       if (key == GamepadButton.x) {
@@ -161,7 +161,7 @@ class GamesPage extends HookConsumerWidget {
                               if (value) {
                                 debugPrint(
                                     "Focus on $index: ${game.system.id}/${game.rom}, list=${itemPositionsListener.itemPositions.value.sorted((a, b) => a.index.compareTo(b.index)).map((e) => e.index.toString()).join(",")}");
-                                ref.read(selectedGameProvider(system).notifier).set(game);
+                                ref.read(selectedGameProvider(system).notifier).state = game;
                               }
                             },
                             title: Text(
@@ -175,10 +175,10 @@ class GamesPage extends HookConsumerWidget {
                                     maxLines: 1,
                                   )
                                 : null,
-                            onTap: () async {
+                            onTap: () {
                               if (game.isFolder) {
                                 ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
-                                ref.read(selectedGameProvider(system).notifier).reset();
+                                ref.read(selectedGameProvider(system).notifier).state = null;
                               } else {
                                 _launchGame(ref, game);
                               }
@@ -210,7 +210,7 @@ class GamesPage extends HookConsumerWidget {
   }
 
   void _launchGame(WidgetRef ref, Game game) async {
-    await ref.read(recentGamesRepoProvider).value!.saveRecentGame(game);
+    await ref.read(recentGamesRepoProvider).saveRecentGame(game);
     final gameEmulator = await ref.read(perGameConfigurationProvider(game).future);
     final customEmulators = await ref.read(customEmulatorsProvider.future);
     if (gameEmulator != null && gameEmulator.emulator != "default") {
@@ -273,7 +273,7 @@ class GamesPage extends HookConsumerWidget {
       index: index,
       alignment: 0,
     );
-    ref.read(selectedGameProvider(system).notifier).set(games.value!.games[index]);
+    ref.read(selectedGameProvider(system).notifier).state = games.value!.games[index];
   }
 
   Widget _gameDetails(AsyncValue<Settings> settings, Game gameToShow, ValueNotifier<bool> showDetails) {

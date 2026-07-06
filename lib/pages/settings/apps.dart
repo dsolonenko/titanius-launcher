@@ -36,10 +36,10 @@ class AppsSettingsPage extends HookConsumerWidget {
         data: (installedApps) {
           return selectedApps.when(
             data: (selectedApps) {
-              return GroupedListView<ApplicationWithIcon, String>(
+              return GroupedListView<AppInfo, String>(
                 key: const PageStorageKey("settings/apps"),
                 elements: installedApps,
-                groupBy: (element) => element.systemApp ? "System" : "Apps",
+                groupBy: (element) => "Apps",
                 groupSeparatorBuilder: (String value) => Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
@@ -60,17 +60,18 @@ class AppsSettingsPage extends HookConsumerWidget {
                     onTap: () {
                       ref
                           .read(androidAppsRepoProvider)
-                          .value!
                           .selectApp(app.packageName, !isSelected)
                           .then((value) => ref.refresh(androidAppsProvider));
                     },
-                    title: Text(app.appName),
+                    title: Text(app.name),
                     subtitle: Text(app.packageName),
-                    leading: CachedMemoryImage(
-                      uniqueKey: app.packageName,
-                      bytes: app.icon,
-                      fit: BoxFit.contain,
-                    ),
+                    leading: app.icon != null
+                        ? CachedMemoryImage(
+                            uniqueKey: app.packageName,
+                            bytes: app.icon!,
+                            fit: BoxFit.contain,
+                          )
+                        : const Icon(Icons.android),
                     trailing: isSelected ? toggleOnIcon : toggleOffIcon,
                   );
                 },

@@ -16,13 +16,13 @@ class ScraperSystemsPage extends HookConsumerWidget {
         GoRouter.of(context).pop();
       }
       if (key == GamepadButton.x) {
-        ref.read(settingsRepoProvider).value!.setScrapeTheseSystems([]).then((value) {
+        ref.read(settingsRepoProvider).setScrapeTheseSystems([]).then((value) {
           final _ = ref.refresh(settingsProvider);
         });
       }
       if (key == GamepadButton.y) {
         final all = systems.value!.where((element) => !element.isCollection).map((e) => e.id).toList();
-        ref.read(settingsRepoProvider).value!.setScrapeTheseSystems(all).then((value) {
+        ref.read(settingsRepoProvider).setScrapeTheseSystems(all).then((value) {
           final _ = ref.refresh(settingsProvider);
         });
       }
@@ -71,7 +71,6 @@ class ScraperSystemsPage extends HookConsumerWidget {
                     onTap: () {
                       ref
                           .read(settingsRepoProvider)
-                          .value!
                           .setScrapeTheseSystem(system.id, showSystem ? false : true)
                           .then((value) {
                         final _ = ref.refresh(settingsProvider);

@@ -75,7 +75,7 @@ class SystemsPage extends HookConsumerWidget {
               children: [
                 PreloadPageView.builder(
                   onPageChanged: (value) {
-                    ref.read(selectedSystemProvider.notifier).set(value);
+                    ref.read(selectedSystemProvider.notifier).state = value;
                   },
                   preloadPagesCount: systems.length,
                   controller: pageController,

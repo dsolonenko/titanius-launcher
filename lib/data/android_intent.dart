@@ -82,7 +82,7 @@ class LaunchIntent {
       path: path,
       uri: uri?.toString(),
       documentUri: document?.uri.toString(),
-      documentMime: document?.type,
+      documentMime: document != null ? (document.isDir ? 'resource/folder' : 'application/octet-stream') : null,
     );
   }
 

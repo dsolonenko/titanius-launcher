@@ -1,8 +1,6 @@
 import 'dart:io';
-
-import 'package:device_apps/device_apps.dart';
 import 'package:flutter/foundation.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:screenscraper/screenscraper.dart' show GameGenre;
 import 'package:video_player/video_player.dart';
 
@@ -11,47 +9,13 @@ import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/stack.dart';
 
-part 'state.g.dart';
+import 'package:installed_apps/app_info.dart';
 
-@Riverpod(keepAlive: true)
-class SelectedSystem extends _$SelectedSystem {
-  @override
-  int build() {
-    return 0;
-  }
+final selectedSystemProvider = StateProvider<int>((ref) => 0);
 
-  void set(int index) {
-    state = index;
-  }
-}
+final selectedGameProvider = StateProvider.family<Game?, String>((ref, system) => null);
 
-@Riverpod(keepAlive: true)
-class SelectedGame extends _$SelectedGame {
-  @override
-  Game? build(String system) {
-    return null;
-  }
-
-  void set(Game game) {
-    state = game;
-  }
-
-  void reset() {
-    state = null;
-  }
-}
-
-@Riverpod(keepAlive: true)
-class SelectedApp extends _$SelectedApp {
-  @override
-  ApplicationWithIcon? build() {
-    return null;
-  }
-
-  void set(ApplicationWithIcon app) {
-    state = app;
-  }
-}
+final selectedAppProvider = StateProvider<AppInfo?>((ref) => null);
 
 class GameNavigation {
   final MyStack<Game> folders;
@@ -68,12 +32,8 @@ class GameNavigation {
   }
 }
 
-@Riverpod(keepAlive: true)
-class CurrentGameNavigation extends _$CurrentGameNavigation {
-  @override
-  GameNavigation build(String system) {
-    return GameNavigation(MyStack());
-  }
+class CurrentGameNavigationNotifier extends StateNotifier<GameNavigation> {
+  CurrentGameNavigationNotifier() : super(GameNavigation(MyStack()));
 
   void selectGame(Game game) {
     state = GameNavigation(state.folders);
@@ -92,6 +52,11 @@ class CurrentGameNavigation extends _$CurrentGameNavigation {
     return game;
   }
 }
+
+final currentGameNavigationProvider =
+    StateNotifierProvider.family<CurrentGameNavigationNotifier, GameNavigation, String>(
+  (ref, system) => CurrentGameNavigationNotifier(),
+);
 
 class GameFilter {
   final String system;
@@ -136,12 +101,9 @@ class GameFilter {
   }
 }
 
-@Riverpod(keepAlive: true)
-class CurrentGameFilter extends _$CurrentGameFilter {
-  @override
-  GameFilter build(String system) {
-    return GameFilter.empty(system);
-  }
+class CurrentGameFilterNotifier extends StateNotifier<GameFilter> {
+  final String system;
+  CurrentGameFilterNotifier(this.system) : super(GameFilter.empty(system));
 
   void set(GameFilter filter) {
     debugPrint("set filter ${filter.description}");
@@ -149,15 +111,17 @@ class CurrentGameFilter extends _$CurrentGameFilter {
   }
 }
 
-@Riverpod(keepAlive: true)
-class TemporaryGameFilter extends _$TemporaryGameFilter {
-  @override
-  GameFilter build(String system) {
-    return GameFilter.empty(system);
-  }
+final currentGameFilterProvider =
+    StateNotifierProvider.family<CurrentGameFilterNotifier, GameFilter, String>(
+  (ref, system) => CurrentGameFilterNotifier(system),
+);
+
+class TemporaryGameFilterNotifier extends StateNotifier<GameFilter> {
+  final String system;
+  TemporaryGameFilterNotifier(this.system) : super(GameFilter.empty(system));
 
   void toggleGenre(GameGenre genre) {
-    final genres = state.genres;
+    final genres = {...state.genres};
     if (genres.contains(genre)) {
       genres.remove(genre);
     } else {
@@ -183,55 +147,46 @@ class TemporaryGameFilter extends _$TemporaryGameFilter {
   }
 }
 
-@Riverpod(keepAlive: true)
-class TemporaryEmulator extends _$TemporaryEmulator {
-  @override
-  CustomEmulator build() {
-    return CustomEmulator.empty();
-  }
+final temporaryGameFilterProvider =
+    StateNotifierProvider.family<TemporaryGameFilterNotifier, GameFilter, String>(
+  (ref, system) => TemporaryGameFilterNotifier(system),
+);
+
+class TemporaryEmulatorNotifier extends StateNotifier<CustomEmulator> {
+  TemporaryEmulatorNotifier() : super(CustomEmulatorUtils.empty());
 
   void set(CustomEmulator emulator) {
-    state = CustomEmulator(
-      name: emulator.name,
-      amStartCommand: emulator.amStartCommand,
-    );
+    state = emulator;
   }
 
   void reset() {
-    state = CustomEmulator.empty();
+    state = CustomEmulatorUtils.empty();
   }
 }
 
-@riverpod
-Future<VideoPlayerController?> currentVideo(CurrentVideoRef ref, String system) {
+final temporaryEmulatorProvider = StateNotifierProvider<TemporaryEmulatorNotifier, CustomEmulator>(
+  (ref) => TemporaryEmulatorNotifier(),
+);
+
+final currentVideoProvider = FutureProvider.family<VideoPlayerController?, String>((ref, system) async {
   final game = ref.watch(selectedGameProvider(system));
-  final settings = ref.watch(settingsProvider.future);
+  final settings = await ref.watch(settingsProvider.future);
   if (game != null && game.videoUrl != null) {
-    return settings.then(
-      (value) {
-        if (value.showGameVideos) {
-          final controller = VideoPlayerController.file(File(game.videoUrl!));
-          controller.setLooping(true);
-          controller.setVolume(0);
-          ref.onDispose(() => controller.dispose());
-          return controller.initialize().then((value) {
-            controller.play();
-            return controller;
-          });
-        }
-        return null;
-      },
-    );
+    if (settings.showGameVideos) {
+      final controller = VideoPlayerController.file(File(game.videoUrl!));
+      controller.setLooping(true);
+      controller.setVolume(0);
+      ref.onDispose(() => controller.dispose());
+      await controller.initialize();
+      controller.play();
+      return controller;
+    }
   }
-  return Future.value(null);
-}
+  return null;
+});
 
-@Riverpod(keepAlive: true)
-class DeletedGames extends _$DeletedGames {
-  @override
-  Set<String> build(String system) {
-    return {};
-  }
+class DeletedGamesNotifier extends StateNotifier<Set<String>> {
+  DeletedGamesNotifier() : super({});
 
   void deleteGame(Game game) {
     debugPrint("Delete game ${game.romPath}");
@@ -239,8 +194,11 @@ class DeletedGames extends _$DeletedGames {
   }
 }
 
-@riverpod
-Future<GameList> gamesForCurrentSystem(GamesForCurrentSystemRef ref) async {
+final deletedGamesProvider = StateNotifierProvider.family<DeletedGamesNotifier, Set<String>, String>(
+  (ref, system) => DeletedGamesNotifier(),
+);
+
+final gamesForCurrentSystemProvider = FutureProvider<GameList>((ref) async {
   final allSystems = await ref.watch(loadedSystemsProvider.future);
   if (allSystems.isEmpty) {
     return const GameList(
@@ -254,10 +212,9 @@ Future<GameList> gamesForCurrentSystem(GamesForCurrentSystemRef ref) async {
   final system = allSystems[selectedSystem.clamp(0, allSystems.length - 1)];
   final gamelist = await ref.watch(gamesProvider(system.id).future);
   return gamelist;
-}
+});
 
-@riverpod
-Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
+final gamesInFolderProvider = FutureProvider.family<GameList, String>((ref, system) async {
   final gamelist = await ref.watch(gamesProvider(system).future);
   final navigation = ref.watch(currentGameNavigationProvider(system));
   if (gamelist.system.isCollection) {
@@ -266,12 +223,11 @@ Future<GameList> gamesInFolder(GamesInFolderRef ref, String system) async {
     final gamesInFolder = gamelist.games.where((game) => game.folder == navigation.folder).toList();
     return GameList(gamelist.system, navigation.folder, gamesInFolder, gamelist.compare);
   }
-}
+});
 
-@riverpod
-Future<GameList> filteredGamesInFolder(FilteredGamesInFolderRef ref, String system) async {
+final filteredGamesInFolderProvider = FutureProvider.family<GameList, String>((ref, system) async {
   final gamelist = await ref.watch(gamesInFolderProvider(system).future);
   final filter = ref.watch(currentGameFilterProvider(system));
   final games = filter.apply(gamelist.games);
   return GameList(gamelist.system, gamelist.currentFolder, games, gamelist.compare);
-}
+});

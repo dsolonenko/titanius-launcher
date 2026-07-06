@@ -55,10 +55,9 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                     onTap: () {
                       ref
                           .read(enabledSystemsRepoProvider)
-                          .value!
                           .setShowSystem(system.id, showSystem ? false : true)
                           .then((value) {
-                        ref.read(selectedSystemProvider.notifier).set(0);
+                        ref.read(selectedSystemProvider.notifier).state = 0;
                         final _ = ref.refresh(enabledSystemsProvider);
                       });
                     },

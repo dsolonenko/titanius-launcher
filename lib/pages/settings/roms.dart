@@ -18,7 +18,11 @@ class RomsSettingsPage extends HookConsumerWidget {
         GoRouter.of(context).pop();
       }
       if (key == GamepadButton.y) {
-        saf.openDocumentTree().then((value) => ref.refresh(grantedUrisProvider));
+        SafUtil().pickDirectory().then((docFile) {
+          if (docFile != null) {
+            final _ = ref.refresh(grantedUrisProvider);
+          }
+        });
       }
     });
 
@@ -65,8 +69,8 @@ class RomsSettingsPage extends HookConsumerWidget {
                           onTap: () {
                             if (removing.value) {
                               removing.value = false;
-                              saf
-                                  .releasePersistableUriPermission(e.uri)
+                              SafUtil()
+                                  .releasePersistedPermission(e.uri.toString())
                                   .then((value) => ref.refresh(grantedUrisProvider));
                             } else {
                               removing.value = true;
@@ -96,7 +100,6 @@ class RomsSettingsPage extends HookConsumerWidget {
                             }
                             ref
                                 .read(romFoldersRepoProvider)
-                                .value!
                                 .saveRomsFolders(newPaths)
                                 .then((value) => ref.refresh(romFoldersProvider));
                           },

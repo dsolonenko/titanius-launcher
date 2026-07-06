@@ -17,7 +17,7 @@ class CustomEmulatorsPage extends HookConsumerWidget {
           confirm.value = false;
         }
         if (key == GamepadButton.x) {
-          ref.read(customEmulatorsRepoProvider).value!.deleteCustomEmulator(selected.value).then((value) {
+          ref.read(customEmulatorsRepoProvider).deleteCustomEmulator(selected.value).then((value) {
             final _ = ref.refresh(customEmulatorsProvider);
           });
           confirm.value = false;
@@ -110,7 +110,7 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
       }
       if (location != "/settings/cemulators/edit") return;
       if (key == GamepadButton.y) {
-        ref.read(customEmulatorsRepoProvider).value!.saveCustomEmulator(emulator).then((value) {
+        ref.read(customEmulatorsRepoProvider).saveCustomEmulator(emulator).then((value) {
           final _ = ref.refresh(customEmulatorsProvider);
           GoRouter.of(context).pop();
         });
@@ -162,8 +162,8 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
                   },
                 );
                 if (v != null) {
-                  emulator.name = v;
-                  ref.read(temporaryEmulatorProvider.notifier).set(emulator);
+                  final updated = emulator.copyWith(name: v);
+                  ref.read(temporaryEmulatorProvider.notifier).set(updated);
                 }
               } finally {
                 inPrompt.value = false;
@@ -199,8 +199,8 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
                   },
                 );
                 if (v != null) {
-                  emulator.amStartCommand = v.replaceAll("\n", ' ');
-                  ref.read(temporaryEmulatorProvider.notifier).set(emulator);
+                  final updated = emulator.copyWith(amStartCommand: v.replaceAll("\n", ' '));
+                  ref.read(temporaryEmulatorProvider.notifier).set(updated);
                 }
               } finally {
                 inPrompt.value = false;

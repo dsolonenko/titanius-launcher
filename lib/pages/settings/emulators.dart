@@ -14,7 +14,6 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
       if (key == GamepadButton.x) {
         ref
             .read(perSystemConfigurationRepoProvider)
-            .value!
             .deleteAlternativeEmulator(selected.value)
             .then((value) => ref.refresh(perSystemConfigurationsProvider));
       }
@@ -114,7 +113,6 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
                 onTap: () {
                   ref
                       .read(perSystemConfigurationRepoProvider)
-                      .value!
                       .saveAlternativeEmulator(system, emulator.id)
                       .then((value) => ref.refresh(perSystemConfigurationsProvider));
                   context.pop();

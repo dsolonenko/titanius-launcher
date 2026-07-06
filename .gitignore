@@ -5,21 +5,17 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
-migrate_working_dir/
+.swiftpm/
 
 # IntelliJ related
 *.iml
 *.ipr
 *.iws
 .idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -31,8 +27,6 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-**/*.g.dart
-**/.env*
 
 # Symbolication related
 app.*.symbols
@@ -40,8 +34,14 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/local.properties
+/android/.gradle/
 *.keystore
+
+# macOS & iOS ephemeral files
+/macos/Flutter/ephemeral/
+/ios/Flutter/ephemeral/

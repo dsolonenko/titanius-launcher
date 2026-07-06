@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isolated_worker/isolated_worker.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:xml/xml_events.dart';
 import 'package:collection/collection.dart';
 
@@ -11,8 +11,6 @@ import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/systems.dart';
 import 'package:titanius/data/files.dart';
-
-part 'games.g.dart';
 
 class GameList {
   final System system;
@@ -23,8 +21,7 @@ class GameList {
   const GameList(this.system, this.currentFolder, this.games, this.compare);
 }
 
-@Riverpod(keepAlive: true)
-Future<List<System>> loadedSystems(LoadedSystemsRef ref) async {
+final loadedSystemsProvider = FutureProvider<List<System>>((ref) async {
   final allSystems = await ref.watch(detectedSystemsProvider.future);
   final allGames = await ref.watch(allGamesProvider.future);
   final Set<String> systems = {};
@@ -36,10 +33,9 @@ Future<List<System>> loadedSystems(LoadedSystemsRef ref) async {
       if (system.id == "android" || system.isCollection || systems.contains(system.id)) system
   ];
   return loadedSystems;
-}
+});
 
-@Riverpod(keepAlive: true)
-Future<List<Game>> allGames(AllGamesRef ref) async {
+final allGamesProvider = FutureProvider<List<Game>>((ref) async {
   final detectedSystems = await ref.watch(detectedSystemsProvider.future);
   final romFolders = await ref.watch(romFoldersProvider.future);
 
@@ -76,7 +72,7 @@ Future<List<Game>> allGames(AllGamesRef ref) async {
   }
 
   return allGames;
-}
+});
 
 class GamelistTaskParams {
   final String romsFolder;
@@ -137,8 +133,7 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
   }
 }
 
-@Riverpod(keepAlive: true)
-Future<GameList> games(GamesRef ref, String systemId) async {
+final gamesProvider = FutureProvider.family<GameList, String>((ref, systemId) async {
   final allGamelistGames = await ref.watch(allGamesProvider.future);
   final systems = await ref.watch(allSupportedSystemsProvider.future);
   final settings = await ref.watch(settingsProvider.future);
@@ -181,7 +176,7 @@ Future<GameList> games(GamesRef ref, String systemId) async {
       final games = _sortGames(settings, allGames.where((game) => game.system.id == system.id).toList());
       return GameList(system, ".", games, sorter.compare);
   }
-}
+});
 
 List<Game> _uniqueGames(List<Game> allGames) {
   final roms = <String>{};

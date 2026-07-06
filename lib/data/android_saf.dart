@@ -3,11 +3,10 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_storage/shared_storage.dart' as saf;
-
-part 'android_saf.g.dart';
+import 'package:saf_util/saf_util.dart';
+import 'package:saf_util/saf_util_platform_interface.dart';
 
 class GrantedUri {
   final Uri uri;
@@ -15,6 +14,8 @@ class GrantedUri {
 
   GrantedUri(this.uri, this.grantedFullPath);
 }
+
+final _safUtil = SafUtil();
 
 String _uriToFullPath(Uri uri) {
   final String decodedPath = Uri.decodeComponent(uri.path);
@@ -30,8 +31,7 @@ String _uriToFullPath(Uri uri) {
   }
 }
 
-@Riverpod(keepAlive: true)
-Future<List<GrantedUri>> grantedUris(GrantedUrisRef ref) {
+final grantedUrisProvider = FutureProvider<List<GrantedUri>>((ref) {
   if (Platform.isAndroid) {
     return _allGrantedReads();
   }
@@ -46,18 +46,10 @@ Future<List<GrantedUri>> grantedUris(GrantedUrisRef ref) {
     ]);
   }
   return Future.value([]);
-}
+});
 
 Future<List<GrantedUri>> _allGrantedReads() async {
-  final persistedUris = await saf.persistedUriPermissions();
-  debugPrint("persistedUris: ${persistedUris.toString()}");
-  return persistedUris?.where((element) => element.isTreeDocumentFile && element.isReadPermission).map((e) {
-        final uri = e.uri;
-        final grantedFullPath = _uriToFullPath(uri);
-        debugPrint("grantedFullPath: $grantedFullPath");
-        return GrantedUri(uri, grantedFullPath);
-      }).toList() ??
-      [];
+  return [];
 }
 
 Future<GrantedUri?> getMatchingPersistedUri(String filePath) async {
@@ -68,31 +60,14 @@ Future<GrantedUri?> getMatchingPersistedUri(String filePath) async {
   }).firstOrNull;
 }
 
-Future<saf.DocumentFile?> getDocumentFile(String filePath) async {
-  // ignore: unused_element
-  Future<saf.DocumentFile?> findFileInSubdirectory(Uri parentUri, String relativeFilePath) async {
-    List<String> pathSegments = relativeFilePath.split('/');
-
-    saf.DocumentFile? currentDoc;
-    for (int i = 0; i < pathSegments.length; i++) {
-      final currentSegment = pathSegments[i];
-      final documentFile = await saf.findFile(currentDoc?.uri ?? parentUri, currentSegment);
-      if (documentFile == null) {
-        return null;
-      }
-      currentDoc = documentFile;
-    }
-
-    return currentDoc;
-  }
-
+Future<SafDocumentFile?> getDocumentFile(String filePath) async {
   final matchingUri = await getMatchingPersistedUri(filePath);
   if (matchingUri != null) {
     final relativeFilePath = filePath.substring(matchingUri.grantedFullPath.length + 1);
-    final matchingDoc = await saf.findFile(matchingUri.uri, relativeFilePath);
+    final segments = relativeFilePath.split('/');
+    final matchingDoc = await _safUtil.child(matchingUri.uri.toString(), segments);
     if (matchingDoc != null) {
-      final exists = await matchingDoc.exists();
-      debugPrint("file:$filePath uri:${Uri.decodeFull(matchingDoc.uri.toString())} exists:$exists");
+      debugPrint("file:$filePath uri:${Uri.decodeFull(matchingDoc.uri)} name:${matchingDoc.name}");
       return matchingDoc;
     }
   }

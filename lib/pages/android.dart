@@ -1,10 +1,11 @@
 import 'package:cached_memory_image/cached_memory_image.dart';
-import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:installed_apps/app_info.dart';
+import 'package:installed_apps/installed_apps.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:titanius/data/android_apps.dart';
@@ -90,10 +91,9 @@ class AndroidPage extends HookConsumerWidget {
                       flex: 2,
                       child: InfoTiles(
                         children: [
-                          InfoTile(title: "Name", subtitle: appToShow.appName),
+                          InfoTile(title: "Name", subtitle: appToShow.name),
                           InfoTile(title: "Package", subtitle: appToShow.packageName),
-                          InfoTile(title: "Version", subtitle: appToShow.versionName ?? "-"),
-                          InfoTile(title: "Category", subtitle: appToShow.category.toString()),
+                          InfoTile(title: "Version", subtitle: appToShow.versionName),
                         ],
                       ),
                     ),
@@ -116,50 +116,54 @@ class AndroidPage extends HookConsumerWidget {
     );
   }
 
-  ListTile _appTileGrid(BuildContext context, WidgetRef ref, ApplicationWithIcon app, bool selected) {
+  ListTile _appTileGrid(BuildContext context, WidgetRef ref, AppInfo app, bool selected) {
     return ListTile(
       key: ValueKey("android/grid/${app.packageName}"),
       autofocus: selected,
       selected: selected,
       onFocusChange: (value) {
         if (value) {
-          ref.read(selectedAppProvider.notifier).set(app);
+          ref.read(selectedAppProvider.notifier).state = app;
         }
       },
-      title: CachedMemoryImage(
-        uniqueKey: app.packageName,
-        bytes: app.icon,
-        fit: BoxFit.contain,
-      ),
+      title: app.icon != null
+          ? CachedMemoryImage(
+              uniqueKey: app.packageName,
+              bytes: app.icon!,
+              fit: BoxFit.contain,
+            )
+          : const Icon(Icons.android),
       subtitle: Text(
         textAlign: TextAlign.center,
-        app.appName,
+        app.name,
         softWrap: false,
       ),
       onTap: () async {
-        app.openApp().catchError(handleIntentError(context, app.appName));
+        InstalledApps.startApp(app.packageName).catchError(handleIntentError(context, app.name));
       },
     );
   }
 
-  ListTile _appTileList(BuildContext context, WidgetRef ref, ApplicationWithIcon app, bool selected) {
+  ListTile _appTileList(BuildContext context, WidgetRef ref, AppInfo app, bool selected) {
     return ListTile(
       key: ValueKey("android/list/${app.packageName}"),
       autofocus: selected,
       selected: selected,
       onFocusChange: (value) {
         if (value) {
-          ref.read(selectedAppProvider.notifier).set(app);
+          ref.read(selectedAppProvider.notifier).state = app;
         }
       },
-      leading: CachedMemoryImage(
-        uniqueKey: app.packageName,
-        bytes: app.icon,
-        fit: BoxFit.contain,
-      ),
-      title: Text(app.appName),
+      leading: app.icon != null
+          ? CachedMemoryImage(
+              uniqueKey: app.packageName,
+              bytes: app.icon!,
+              fit: BoxFit.contain,
+            )
+          : const Icon(Icons.android),
+      title: Text(app.name),
       onTap: () async {
-        app.openApp().catchError(handleIntentError(context, app.appName));
+        InstalledApps.startApp(app.packageName).catchError(handleIntentError(context, app.name));
       },
     );
   }
@@ -169,7 +173,7 @@ Function handleIntentError(BuildContext context, String appName) {
   return (err) {
     debugPrint(err.toString());
     Fluttertoast.showToast(
-        msg: "Unable to run $appName}: $err",
+        msg: "Unable to run $appName: $err",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,

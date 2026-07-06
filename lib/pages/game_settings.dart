@@ -75,7 +75,6 @@ class GameSettingsPage extends HookConsumerWidget {
           final emulator = emulators[index];
           ref
               .read(perGameConfigurationRepoProvider)
-              .value!
               .saveGameEmulator(game, emulator)
               .then((value) => ref.refresh(perGameConfigurationProvider(game)));
           debugPrint("Selected emulator: $emulator");
@@ -124,7 +123,7 @@ class GameSettingsPage extends HookConsumerWidget {
                 if (value) {
                   game.favorite = !game.favorite;
                   // ignore: unused_result
-                  ref.refresh(FilteredGamesInFolderProvider(system));
+                  ref.refresh(filteredGamesInFolderProvider(system));
                 }
                 GoRouter.of(context).pop();
               },
@@ -165,7 +164,7 @@ class GameSettingsPage extends HookConsumerWidget {
                       imageCache.clearLiveImages();
                       game.update(scrapedGame);
                       // ignore: unused_result
-                      ref.refresh(FilteredGamesInFolderProvider(system));
+                      ref.refresh(filteredGamesInFolderProvider(system));
                     }
                     GoRouter.of(context).pop();
                   },
@@ -242,7 +241,7 @@ class GameSettingsPage extends HookConsumerWidget {
                         imageCache.clearLiveImages();
                         game.update(scrapedGame);
                         // ignore: unused_result
-                        ref.refresh(FilteredGamesInFolderProvider(system));
+                        ref.refresh(filteredGamesInFolderProvider(system));
                       }
                       GoRouter.of(context).pop();
                     },
@@ -283,7 +282,7 @@ class GameSettingsPage extends HookConsumerWidget {
                 if (value) {
                   game.hidden = !game.hidden;
                   // ignore: unused_result
-                  ref.refresh(FilteredGamesInFolderProvider(system));
+                  ref.refresh(filteredGamesInFolderProvider(system));
                 }
                 GoRouter.of(context).pop();
               },

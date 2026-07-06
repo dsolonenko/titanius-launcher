@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:titanius/data/repo.dart';
-
-part 'daijisho.g.dart';
 
 class PlatformWallpapersPack {
   List<String> authors;
@@ -38,8 +36,7 @@ class PlatformWallpapersPack {
       "https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/$previewThumbnailPath";
 }
 
-@riverpod
-Future<List<PlatformWallpapersPack>> daijishoPlatformWallpapersPacks(DaijishoPlatformWallpapersPacksRef ref) async {
+final daijishoPlatformWallpapersPacksProvider = FutureProvider<List<PlatformWallpapersPack>>((ref) async {
   final response = await http.get(Uri.parse(
       'https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/index.json'));
 
@@ -52,7 +49,7 @@ Future<List<PlatformWallpapersPack>> daijishoPlatformWallpapersPacks(DaijishoPla
   } else {
     throw Exception('Failed to load platform wallpapers packs');
   }
-}
+});
 
 class WallpaperPack {
   final String rootPath;
@@ -131,12 +128,11 @@ Future<WallpaperPack?> daijishoWallpaperPack(String rootPath) async {
   }
 }
 
-@Riverpod(keepAlive: true)
-Future<WallpaperPack?> daijishoCurrentThemeData(DaijishoCurrentThemeDataRef ref) async {
+final daijishoCurrentThemeDataProvider = FutureProvider<WallpaperPack?>((ref) async {
   final settings = await ref.watch(settingsProvider.future);
   final wallpaperPack = settings.daijishoWallpaperPack;
   if (wallpaperPack == null) {
     return null;
   }
   return daijishoWallpaperPack(wallpaperPack);
-}
+});

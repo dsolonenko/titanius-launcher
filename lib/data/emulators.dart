@@ -1,11 +1,9 @@
 import 'package:collection/collection.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:titanius/data/games.dart';
 
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/models.dart';
-
-part 'emulators.g.dart';
 
 class EmulatorList {
   final System system;
@@ -15,8 +13,7 @@ class EmulatorList {
   EmulatorList(this.system, this.emulators, this.defaultEmulator);
 }
 
-@Riverpod(keepAlive: true)
-Future<List<EmulatorList>> alternativeEmulators(AlternativeEmulatorsRef ref) async {
+final alternativeEmulatorsProvider = FutureProvider<List<EmulatorList>>((ref) async {
   final perSystemConfigurations = await ref.watch(perSystemConfigurationsProvider.future);
   final systems = await ref.watch(loadedSystemsProvider.future);
   final customEmulators = await ref.watch(customEmulatorsProvider.future);
@@ -31,7 +28,7 @@ Future<List<EmulatorList>> alternativeEmulators(AlternativeEmulatorsRef ref) asy
                 perSystemConfigurations.firstWhereOrNull((e) => e.system == v.id)),
           ))
       .toList();
-}
+});
 
 Emulator? defaultEmulator(List<Emulator> emulators, AlternativeEmulator? alternativeEmulator) {
   if (alternativeEmulator != null) {

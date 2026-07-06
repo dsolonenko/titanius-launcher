@@ -1,15 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:isar/isar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:titanius/data/android_intent.dart';
-
+import 'package:titanius/data/database.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/storage.dart';
 
-part 'repo.g.dart';
+export 'package:titanius/data/database.dart';
 
 class Settings {
   final Map<String, Setting> settings;
@@ -43,86 +41,14 @@ class Settings {
   }
 }
 
-@collection
-class CustomEmulator {
-  Id id = Isar.autoIncrement;
-  @Index(unique: true, replace: true)
-  String name;
-  String amStartCommand;
-  CustomEmulator({
-    required this.name,
-    required this.amStartCommand,
-  });
-
-  CustomEmulator.empty()
-      : this(
-          name: "Custom PPSSPP",
-          amStartCommand: 'am start -n org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity '
-              '-a android.intent.action.VIEW -d "{file.documenturi}" '
-              '--activity-clear-task --activity-clear-top --activity-no-history',
-        );
-
-  Emulator toEmulator() {
-    return Emulator(
-      id: "custom:$name",
-      name: name,
-      intent: LaunchIntent.parseAmStartCommand(amStartCommand),
-    );
-  }
-}
-
-@collection
-class AlternativeEmulator {
-  Id id = Isar.autoIncrement;
-  @Index(unique: true, replace: true)
-  String system;
-  String emulator;
-  AlternativeEmulator({required this.system, this.emulator = ""});
-}
-
-@collection
-class GameEmulator {
-  Id id = Isar.autoIncrement;
-  @Index(unique: true, replace: true)
-  String romPath;
-  String emulator;
-  GameEmulator({required this.romPath, this.emulator = ""});
-}
-
-@collection
-class Setting {
-  Id id = Isar.autoIncrement;
-  @Index(unique: true, replace: true)
-  String key;
-  String value;
-  Setting({required this.key, this.value = ""});
-}
-
-@collection
-class RecentGame {
-  Id id = Isar.autoIncrement;
-  @Index(unique: true, replace: true)
-  String romPath;
-  int timestamp;
-  RecentGame({required this.romPath, this.timestamp = 0});
-}
-
-@collection
-class AndroidApp {
-  Id id = Isar.autoIncrement;
-  @Index(unique: true, replace: true)
-  String package;
-  AndroidApp({required this.package});
-}
-
 class SettingsRepo {
-  final Isar isar;
+  final AppDatabase db;
 
-  SettingsRepo(this.isar);
+  SettingsRepo(this.db);
 
-  Future<Settings> _getSettings() async {
-    final settings = await isar.settings.where().findAll();
-    final settingsMap = {for (final s in settings) s.key: s};
+  Future<Settings> getSettings() async {
+    final settingsList = await db.select(db.settingEntries).get();
+    final settingsMap = {for (final s in settingsList) s.key: s};
     return Settings(settingsMap);
   }
 
@@ -183,7 +109,7 @@ class SettingsRepo {
   }
 
   Future<void> setScrapeTheseSystem(String id, bool scrape) async {
-    final settings = await _getSettings();
+    final settings = await getSettings();
     final systems = settings.scrapeTheseSystems.toSet();
     if (scrape) {
       systems.add(id);
@@ -202,15 +128,13 @@ class SettingsRepo {
   }
 
   Future<void> _resetSetting(String key) async {
-    await isar.writeTxn(() async {
-      await isar.settings.deleteByKey(key);
-    });
+    await (db.delete(db.settingEntries)..where((t) => t.key.equals(key))).go();
   }
 
   Future<void> _setSetting(String key, String value) async {
-    await isar.writeTxn(() async {
-      await isar.settings.put(Setting(key: key, value: value));
-    });
+    await db.into(db.settingEntries).insertOnConflictUpdate(
+          SettingEntriesCompanion.insert(key: key, value: value),
+        );
   }
 
   Future<void> _setBoolean(String key, bool value) async {
@@ -219,109 +143,100 @@ class SettingsRepo {
 }
 
 class RomFoldersRepo {
-  final Isar isar;
+  final AppDatabase db;
 
-  RomFoldersRepo(this.isar);
+  RomFoldersRepo(this.db);
 
-  Future<List<String>> _getRomFolders() async {
+  Future<List<String>> getRomFolders() async {
     final defaultRomFolders = await _getDefaultRomFolders();
-    final settings = await isar.settings.where().keyEqualTo("romsFolders").findFirst();
-    return settings != null ? settings.value.split(",") : defaultRomFolders;
+    final setting = await (db.select(db.settingEntries)..where((t) => t.key.equals("romsFolders"))).getSingleOrNull();
+    return setting != null ? setting.value.split(",") : defaultRomFolders;
   }
 
   Future<void> saveRomsFolders(List<String> romsFolders) async {
     debugPrint("Folders $romsFolders");
-    await isar.writeTxn(() async {
-      await isar.settings.put(Setting(key: 'romsFolders', value: romsFolders.join(","))).catchError((e) {
-        debugPrint(e);
-        return 0;
-      });
-    });
+    await db.into(db.settingEntries).insertOnConflictUpdate(
+          SettingEntriesCompanion.insert(key: 'romsFolders', value: romsFolders.join(",")),
+        );
   }
 }
 
 class RecentGamesRepo {
-  final Isar isar;
+  final AppDatabase db;
 
-  RecentGamesRepo(this.isar);
+  RecentGamesRepo(this.db);
 
-  Future<List<RecentGame>> _getRecentGames() {
-    return isar.recentGames.where().findAll();
+  Future<List<RecentGame>> getRecentGames() {
+    return db.select(db.recentGameEntries).get();
   }
 
   Future<void> saveRecentGame(Game game) async {
     debugPrint("Recent ${game.romPath}");
-    await isar.writeTxn(() async {
-      await isar.recentGames
-          .put(RecentGame(romPath: game.romPath, timestamp: DateTime.now().millisecondsSinceEpoch))
-          .catchError((e) {
-        debugPrint(e);
-        return 0;
-      });
-    });
+    await db.into(db.recentGameEntries).insertOnConflictUpdate(
+          RecentGameEntriesCompanion.insert(
+            romPath: game.romPath,
+            timestamp: DateTime.now().millisecondsSinceEpoch,
+          ),
+        );
   }
 }
 
 class PerSystemConfigurationRepo {
-  final Isar isar;
+  final AppDatabase db;
 
-  PerSystemConfigurationRepo(this.isar);
+  PerSystemConfigurationRepo(this.db);
 
-  Future<List<AlternativeEmulator>> _getAlternativeEmulators() {
-    return isar.alternativeEmulators.where().findAll();
+  Future<List<AlternativeEmulator>> getAlternativeEmulators() {
+    return db.select(db.alternativeEmulatorEntries).get();
   }
 
   Future<void> saveAlternativeEmulator(String system, String emulator) async {
-    await isar.writeTxn(() async {
-      await isar.alternativeEmulators.put(AlternativeEmulator(system: system, emulator: emulator));
-    });
+    await db.into(db.alternativeEmulatorEntries).insertOnConflictUpdate(
+          AlternativeEmulatorEntriesCompanion.insert(system: system, emulator: emulator),
+        );
   }
 
   Future<void> deleteAlternativeEmulator(String system) async {
-    await isar.writeTxn(() async {
-      await isar.alternativeEmulators.deleteBySystem(system);
-    });
+    await (db.delete(db.alternativeEmulatorEntries)..where((t) => t.system.equals(system))).go();
   }
 }
 
 class CustomEmulatorsRepo {
-  final Isar isar;
-  CustomEmulatorsRepo(this.isar);
+  final AppDatabase db;
+  CustomEmulatorsRepo(this.db);
 
-  Future<List<CustomEmulator>> _getCustomEmulators() {
-    return isar.customEmulators.where().findAll();
+  Future<List<CustomEmulator>> getCustomEmulators() {
+    return db.select(db.customEmulatorEntries).get();
   }
 
   Future<void> saveCustomEmulator(CustomEmulator emulator) async {
-    await isar.writeTxn(() async {
-      await isar.customEmulators.put(emulator);
-    });
+    await db.into(db.customEmulatorEntries).insertOnConflictUpdate(
+          CustomEmulatorEntriesCompanion.insert(name: emulator.name, amStartCommand: emulator.amStartCommand),
+        );
   }
 
   Future<void> deleteCustomEmulator(String name) async {
-    await isar.writeTxn(() async {
-      await isar.customEmulators.deleteByName(name);
-    });
+    await (db.delete(db.customEmulatorEntries)..where((t) => t.name.equals(name))).go();
   }
 }
 
 class PerGameConfigurationRepo {
-  final Isar isar;
+  final AppDatabase db;
 
-  PerGameConfigurationRepo(this.isar);
+  PerGameConfigurationRepo(this.db);
 
-  Future<List<GameEmulator>> _getGameEmulators() {
-    return isar.gameEmulators.where().findAll();
+  Future<List<GameEmulator>> getGameEmulators() {
+    return db.select(db.gameEmulatorEntries).get();
   }
 
   Future<void> saveGameEmulator(Game game, String emulator) async {
-    await isar.writeTxn(() async {
-      await isar.gameEmulators.put(GameEmulator(romPath: game.romPath, emulator: emulator));
-    });
+    await db.into(db.gameEmulatorEntries).insertOnConflictUpdate(
+          GameEmulatorEntriesCompanion.insert(romPath: game.romPath, emulator: emulator),
+        );
   }
 
-  Future<GameEmulator?> _getGameEmulator(Game game) {
-    return isar.gameEmulators.where().romPathEqualTo(game.romPath).findFirst();
+  Future<GameEmulator?> getGameEmulator(Game game) {
+    return (db.select(db.gameEmulatorEntries)..where((t) => t.romPath.equals(game.romPath))).getSingleOrNull();
   }
 }
 
@@ -339,13 +254,13 @@ class EnabledSystems {
 }
 
 class EnabledSystemsRepo {
-  final Isar isar;
+  final AppDatabase db;
 
-  EnabledSystemsRepo(this.isar);
+  EnabledSystemsRepo(this.db);
 
-  Future<EnabledSystems> _getEnabledSystems() async {
-    final settings = await isar.settings.where().findAll();
-    final settingsMap = {for (final s in settings) s.key: s};
+  Future<EnabledSystems> getEnabledSystems() async {
+    final settingsList = await db.select(db.settingEntries).get();
+    final settingsMap = {for (final s in settingsList) s.key: s};
     return EnabledSystems(settingsMap);
   }
 
@@ -354,9 +269,9 @@ class EnabledSystemsRepo {
   }
 
   Future<void> _setBoolean(String key, bool value) async {
-    await isar.writeTxn(() async {
-      await isar.settings.put(Setting(key: key, value: value.toString()));
-    });
+    await db.into(db.settingEntries).insertOnConflictUpdate(
+          SettingEntriesCompanion.insert(key: key, value: value.toString()),
+        );
   }
 }
 
@@ -369,131 +284,121 @@ class SelectedApps {
 }
 
 class AndroidAppsRepo {
-  final Isar isar;
+  final AppDatabase db;
 
-  AndroidAppsRepo(this.isar);
+  AndroidAppsRepo(this.db);
 
-  Future<SelectedApps> _getSelectedApps() async {
-    final settings = await isar.androidApps.where().findAll();
-    final settingsSet = {for (final s in settings) s.package};
+  Future<SelectedApps> getSelectedApps() async {
+    final settingsList = await db.select(db.androidAppEntries).get();
+    final settingsSet = {for (final s in settingsList) s.package};
     return SelectedApps(settingsSet);
   }
 
   Future<void> selectApp(String package, bool selected) async {
-    await isar.writeTxn(() async {
-      if (selected) {
-        await isar.androidApps.put(AndroidApp(package: package));
-      } else {
-        await isar.androidApps.deleteByPackage(package);
-      }
-    });
+    if (selected) {
+      await db.into(db.androidAppEntries).insertOnConflictUpdate(
+            AndroidAppEntriesCompanion.insert(package: package),
+          );
+    } else {
+      await (db.delete(db.androidAppEntries)..where((t) => t.package.equals(package))).go();
+    }
   }
 }
 
-@Riverpod(keepAlive: true)
-Future<SettingsRepo> settingsRepo(SettingsRepoRef ref) async {
-  final isar = await ref.watch(isarProvider.future);
-  return SettingsRepo(isar);
-}
+final settingsRepoProvider = Provider<SettingsRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return SettingsRepo(db);
+});
 
-@Riverpod(keepAlive: true)
-Future<Settings> settings(SettingsRef ref) async {
-  final repo = await ref.watch(settingsRepoProvider.future);
-  return repo._getSettings();
-}
+final settingsProvider = FutureProvider<Settings>((ref) async {
+  final repo = ref.watch(settingsRepoProvider);
+  return repo.getSettings();
+});
 
-@Riverpod(keepAlive: true)
-Future<RecentGamesRepo> recentGamesRepo(RecentGamesRepoRef ref) async {
-  final isar = await ref.watch(isarProvider.future);
-  return RecentGamesRepo(isar);
-}
+final recentGamesRepoProvider = Provider<RecentGamesRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return RecentGamesRepo(db);
+});
 
-@Riverpod(keepAlive: true)
-Future<List<RecentGame>> recentGames(RecentGamesRef ref) async {
-  final repo = await ref.watch(recentGamesRepoProvider.future);
-  return repo._getRecentGames();
-}
+final recentGamesProvider = FutureProvider<List<RecentGame>>((ref) async {
+  final repo = ref.watch(recentGamesRepoProvider);
+  return repo.getRecentGames();
+});
 
-@Riverpod(keepAlive: true)
-Future<RomFoldersRepo> romFoldersRepo(RomFoldersRepoRef ref) async {
-  final isar = await ref.watch(isarProvider.future);
-  return RomFoldersRepo(isar);
-}
+final romFoldersRepoProvider = Provider<RomFoldersRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return RomFoldersRepo(db);
+});
 
-@Riverpod(keepAlive: true)
-Future<List<String>> romFolders(RomFoldersRef ref) async {
-  final repo = await ref.watch(romFoldersRepoProvider.future);
-  return repo._getRomFolders();
-}
+final romFoldersProvider = FutureProvider<List<String>>((ref) async {
+  final repo = ref.watch(romFoldersRepoProvider);
+  return repo.getRomFolders();
+});
 
-@Riverpod(keepAlive: true)
-Future<PerSystemConfigurationRepo> perSystemConfigurationRepo(PerSystemConfigurationRepoRef ref) async {
-  final isar = await ref.watch(isarProvider.future);
-  return PerSystemConfigurationRepo(isar);
-}
+final perSystemConfigurationRepoProvider = Provider<PerSystemConfigurationRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return PerSystemConfigurationRepo(db);
+});
 
-@Riverpod(keepAlive: true)
-Future<List<AlternativeEmulator>> perSystemConfigurations(PerSystemConfigurationsRef ref) async {
-  final repo = await ref.watch(perSystemConfigurationRepoProvider.future);
-  return repo._getAlternativeEmulators();
-}
+final perSystemConfigurationsProvider = FutureProvider<List<AlternativeEmulator>>((ref) async {
+  final repo = ref.watch(perSystemConfigurationRepoProvider);
+  return repo.getAlternativeEmulators();
+});
 
-@Riverpod(keepAlive: true)
-Future<CustomEmulatorsRepo> customEmulatorsRepo(CustomEmulatorsRepoRef ref) async {
-  final isar = await ref.watch(isarProvider.future);
-  return CustomEmulatorsRepo(isar);
-}
+final customEmulatorsRepoProvider = Provider<CustomEmulatorsRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return CustomEmulatorsRepo(db);
+});
 
-@Riverpod(keepAlive: true)
-Future<List<CustomEmulator>> customEmulators(CustomEmulatorsRef ref) async {
-  final repo = await ref.watch(customEmulatorsRepoProvider.future);
-  return repo._getCustomEmulators();
-}
+final customEmulatorsProvider = FutureProvider<List<CustomEmulator>>((ref) async {
+  final repo = ref.watch(customEmulatorsRepoProvider);
+  return repo.getCustomEmulators();
+});
 
-@Riverpod(keepAlive: true)
-Future<PerGameConfigurationRepo> perGameConfigurationRepo(PerGameConfigurationRepoRef ref) async {
-  final isar = await ref.watch(isarProvider.future);
-  return PerGameConfigurationRepo(isar);
-}
+final perGameConfigurationRepoProvider = Provider<PerGameConfigurationRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return PerGameConfigurationRepo(db);
+});
 
-@Riverpod(keepAlive: true)
-Future<List<GameEmulator>> perGameConfigurations(PerGameConfigurationsRef ref) async {
-  final repo = await ref.watch(perGameConfigurationRepoProvider.future);
-  return repo._getGameEmulators();
-}
+final perGameConfigurationsProvider = FutureProvider<List<GameEmulator>>((ref) async {
+  final repo = ref.watch(perGameConfigurationRepoProvider);
+  return repo.getGameEmulators();
+});
 
-@riverpod
-Future<GameEmulator?> perGameConfiguration(PerGameConfigurationRef ref, Game? game) async {
+final perGameConfigurationProvider = FutureProvider.family<GameEmulator?, Game?>((ref, game) async {
   if (game == null) {
     return null;
   }
-  final repo = await ref.watch(perGameConfigurationRepoProvider.future);
-  return repo._getGameEmulator(game);
-}
+  final repo = ref.watch(perGameConfigurationRepoProvider);
+  return repo.getGameEmulator(game);
+});
 
-@Riverpod(keepAlive: true)
-Future<EnabledSystemsRepo> enabledSystemsRepo(EnabledSystemsRepoRef ref) async {
-  final isar = await ref.watch(isarProvider.future);
-  return EnabledSystemsRepo(isar);
-}
+final enabledSystemsRepoProvider = Provider<EnabledSystemsRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return EnabledSystemsRepo(db);
+});
 
-@Riverpod(keepAlive: true)
-Future<EnabledSystems> enabledSystems(EnabledSystemsRef ref) async {
-  final repo = await ref.watch(enabledSystemsRepoProvider.future);
-  return repo._getEnabledSystems();
-}
+final enabledSystemsProvider = FutureProvider<EnabledSystems>((ref) async {
+  final repo = ref.watch(enabledSystemsRepoProvider);
+  return repo.getEnabledSystems();
+});
 
-@Riverpod(keepAlive: true)
-Future<AndroidAppsRepo> androidAppsRepo(AndroidAppsRepoRef ref) async {
-  final isar = await ref.watch(isarProvider.future);
-  return AndroidAppsRepo(isar);
-}
+final androidAppsRepoProvider = Provider<AndroidAppsRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return AndroidAppsRepo(db);
+});
 
-@Riverpod(keepAlive: true)
-Future<SelectedApps> androidApps(AndroidAppsRef ref) async {
-  final repo = await ref.watch(androidAppsRepoProvider.future);
-  return repo._getSelectedApps();
-}
+final androidAppsProvider = FutureProvider<SelectedApps>((ref) async {
+  final repo = ref.watch(androidAppsRepoProvider);
+  return repo.getSelectedApps();
+});
+
+final externalRomsPathsProvider = FutureProvider<List<String>>((ref) async {
+  if (Platform.isAndroid) {
+    return _getExternalRomsPaths();
+  }
+  return _getDefaultRomFolders();
+});
 
 Future<List<String>> _getDefaultRomFolders() async {
   List<String> romsFolders = [];
@@ -508,14 +413,6 @@ Future<List<String>> _getDefaultRomFolders() async {
     romsFolders = [paths[paths.length - 1]];
   }
   return romsFolders;
-}
-
-@riverpod
-Future<List<String>> externalRomsPaths(ExternalRomsPathsRef ref) async {
-  if (Platform.isAndroid) {
-    return _getExternalRomsPaths();
-  }
-  return _getDefaultRomFolders();
 }
 
 Future<List<String>> _getExternalRomsPaths() async {

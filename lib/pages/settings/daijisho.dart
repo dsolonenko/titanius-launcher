@@ -17,7 +17,6 @@ class DaijishoWallpaperPacksPage extends HookConsumerWidget {
       if (key == GamepadButton.x) {
         ref
             .read(settingsRepoProvider)
-            .value!
             .resetDaijishoWallpaperPack()
             .then((value) => ref.refresh(settingsProvider));
         GoRouter.of(context).go("/");
@@ -54,7 +53,6 @@ class DaijishoWallpaperPacksPage extends HookConsumerWidget {
                 onTap: () {
                   ref
                       .read(settingsRepoProvider)
-                      .value!
                       .setDaijishoWallpaperPack(pack.rootPath)
                       .then((value) => ref.refresh(settingsProvider));
                   GoRouter.of(context).go("/");

@@ -1,13 +1,13 @@
 import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:device_apps/device_apps.dart';
+import 'package:installed_apps/app_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
-import 'package:shared_storage/shared_storage.dart' as saf;
+import 'package:saf_util/saf_util.dart';
 
 import 'package:titanius/data/android_apps.dart';
 import 'package:titanius/data/android_saf.dart';

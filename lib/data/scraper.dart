@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:screenscraper/screenscraper.dart'
     show DoNotRetryException, DoneForTheDayException, MediaLink, RomScraper, ScreenScraperException;
 import 'package:titanius/data/env.dart';
@@ -13,8 +13,6 @@ import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
 import 'package:retry/retry.dart';
-
-part 'scraper.g.dart';
 
 class Scraper {
   final RomScraper _scraper;
@@ -118,15 +116,14 @@ bool _canRetryScraper(Exception e) {
   return !(e is DoNotRetryException || e is DoneForTheDayException);
 }
 
-@Riverpod(keepAlive: true)
-Future<Scraper> scraper(ScraperRef ref) async {
+final scraperProvider = FutureProvider<Scraper>((ref) async {
   final settings = await ref.watch(settingsProvider.future);
   final scraper = Scraper(
     userName: settings.screenScraperUser ?? "",
     userPassword: settings.screenScraperPwd ?? "",
   );
   return scraper;
-}
+});
 
 scrapeGames(ServiceInstance service, Map<String, dynamic>? event) async {
   try {

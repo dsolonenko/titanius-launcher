@@ -172,10 +172,11 @@ class MyApp extends HookConsumerWidget {
     final baseTheme = FlexThemeData.dark(
       scheme: FlexScheme.hippieBlue,
       darkIsTrueBlack: true,
+      fontFamily: 'KarenFat',
     );
     return baseTheme.copyWith(
       textTheme: baseTheme.textTheme.apply(
-        fontFamily: 'RobotoCondensed',
+        fontFamily: 'KarenFat',
       ),
     );
   }
