@@ -37,9 +37,9 @@ dependencies:
   intl: ^0.20.3 
   drift: ^2.24.0
   drift_flutter: ^0.3.0
-  go_router: ^17.3.0 
-  flutter_riverpod: ^2.6.1
-  hooks_riverpod: ^2.6.1
+  go_router: ^18.0.0 
+  flutter_riverpod: ^3.4.2
+  hooks_riverpod: ^3.4.2
   flutter_hooks: ^0.21.3+1
   page_view_dot_indicator: ^2.1.0 
   cached_network_image: ^3.3.0
@@ -51,23 +51,24 @@ dependencies:
   connectivity_plus: ^7.2.0 
   android_intent_plus: ^6.0.0 
   package_info_plus: ^10.2.0
-  installed_apps: ^1.5.0
+  installed_apps: ^2.1.1
   flex_color_scheme: ^8.4.0
   cupertino_icons: ^1.0.5 
-  fluttertoast: ^9.1.0
+  fluttertoast: ^10.0.0
   permission_handler: ^12.0.3
   video_player: ^2.6.1
   scrollable_positioned_list: ^0.3.8
   system_date_time_format: ^1.5.0
   grouped_list: ^6.0.0
   saf_util: ^3.1.0
-  saf_stream: ^3.0.0
+  saf_stream: ^4.0.1
   preload_page_view: ^0.2.0
   toggle_switch: ^2.1.0
   isolated_worker: ^0.1.1
   flutter_volume_controller: ^2.0.1
   focus_detector_v2: ^3.1.0+1
-  screenscraper: ^0.1.19
+  screenscraper:
+    path: ../screenscraper-api-dart
   envied: ^1.3.8
   sn_progress_dialog: ^2.0.0
   flutter_background_service: ^5.0.5
@@ -78,6 +79,7 @@ dependencies:
   json_annotation: ^4.12.0
   percent_indicator: ^4.0.1
   cancellation_token: ^2.0.1
+  gamepads: ^0.1.11
   
 dev_dependencies:
   flutter_test:

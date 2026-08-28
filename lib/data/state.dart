@@ -11,11 +11,44 @@ import 'package:titanius/data/stack.dart';
 
 import 'package:installed_apps/app_info.dart';
 
-final selectedSystemProvider = StateProvider<int>((ref) => 0);
+class SelectedSystemNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
 
-final selectedGameProvider = StateProvider.family<Game?, String>((ref, system) => null);
+  @override
+  set state(int value) => super.state = value;
+}
 
-final selectedAppProvider = StateProvider<AppInfo?>((ref) => null);
+final selectedSystemProvider = NotifierProvider<SelectedSystemNotifier, int>(
+  SelectedSystemNotifier.new,
+);
+
+class SelectedGameNotifier extends Notifier<Game?> {
+  final String system;
+  SelectedGameNotifier(this.system);
+
+  @override
+  Game? build() => null;
+
+  @override
+  set state(Game? value) => super.state = value;
+}
+
+final selectedGameProvider = NotifierProvider.family<SelectedGameNotifier, Game?, String>(
+  SelectedGameNotifier.new,
+);
+
+class SelectedAppNotifier extends Notifier<AppInfo?> {
+  @override
+  AppInfo? build() => null;
+
+  @override
+  set state(AppInfo? value) => super.state = value;
+}
+
+final selectedAppProvider = NotifierProvider<SelectedAppNotifier, AppInfo?>(
+  SelectedAppNotifier.new,
+);
 
 class GameNavigation {
   final MyStack<Game> folders;
@@ -32,8 +65,12 @@ class GameNavigation {
   }
 }
 
-class CurrentGameNavigationNotifier extends StateNotifier<GameNavigation> {
-  CurrentGameNavigationNotifier() : super(GameNavigation(MyStack()));
+class CurrentGameNavigationNotifier extends Notifier<GameNavigation> {
+  final String system;
+  CurrentGameNavigationNotifier(this.system);
+
+  @override
+  GameNavigation build() => GameNavigation(MyStack());
 
   void selectGame(Game game) {
     state = GameNavigation(state.folders);
@@ -54,8 +91,8 @@ class CurrentGameNavigationNotifier extends StateNotifier<GameNavigation> {
 }
 
 final currentGameNavigationProvider =
-    StateNotifierProvider.family<CurrentGameNavigationNotifier, GameNavigation, String>(
-  (ref, system) => CurrentGameNavigationNotifier(),
+    NotifierProvider.family<CurrentGameNavigationNotifier, GameNavigation, String>(
+  CurrentGameNavigationNotifier.new,
 );
 
 class GameFilter {
@@ -101,9 +138,14 @@ class GameFilter {
   }
 }
 
-class CurrentGameFilterNotifier extends StateNotifier<GameFilter> {
+class CurrentGameFilterNotifier extends Notifier<GameFilter> {
   final String system;
-  CurrentGameFilterNotifier(this.system) : super(GameFilter.empty(system));
+  CurrentGameFilterNotifier(this.system);
+
+  @override
+  GameFilter build() {
+    return GameFilter.empty(system);
+  }
 
   void set(GameFilter filter) {
     debugPrint("set filter ${filter.description}");
@@ -112,13 +154,18 @@ class CurrentGameFilterNotifier extends StateNotifier<GameFilter> {
 }
 
 final currentGameFilterProvider =
-    StateNotifierProvider.family<CurrentGameFilterNotifier, GameFilter, String>(
-  (ref, system) => CurrentGameFilterNotifier(system),
+    NotifierProvider.family<CurrentGameFilterNotifier, GameFilter, String>(
+  CurrentGameFilterNotifier.new,
 );
 
-class TemporaryGameFilterNotifier extends StateNotifier<GameFilter> {
+class TemporaryGameFilterNotifier extends Notifier<GameFilter> {
   final String system;
-  TemporaryGameFilterNotifier(this.system) : super(GameFilter.empty(system));
+  TemporaryGameFilterNotifier(this.system);
+
+  @override
+  GameFilter build() {
+    return GameFilter.empty(system);
+  }
 
   void toggleGenre(GameGenre genre) {
     final genres = {...state.genres};
@@ -148,12 +195,15 @@ class TemporaryGameFilterNotifier extends StateNotifier<GameFilter> {
 }
 
 final temporaryGameFilterProvider =
-    StateNotifierProvider.family<TemporaryGameFilterNotifier, GameFilter, String>(
-  (ref, system) => TemporaryGameFilterNotifier(system),
+    NotifierProvider.family<TemporaryGameFilterNotifier, GameFilter, String>(
+  TemporaryGameFilterNotifier.new,
 );
 
-class TemporaryEmulatorNotifier extends StateNotifier<CustomEmulator> {
-  TemporaryEmulatorNotifier() : super(CustomEmulatorUtils.empty());
+class TemporaryEmulatorNotifier extends Notifier<CustomEmulator> {
+  @override
+  CustomEmulator build() {
+    return CustomEmulatorUtils.empty();
+  }
 
   void set(CustomEmulator emulator) {
     state = emulator;
@@ -164,8 +214,8 @@ class TemporaryEmulatorNotifier extends StateNotifier<CustomEmulator> {
   }
 }
 
-final temporaryEmulatorProvider = StateNotifierProvider<TemporaryEmulatorNotifier, CustomEmulator>(
-  (ref) => TemporaryEmulatorNotifier(),
+final temporaryEmulatorProvider = NotifierProvider<TemporaryEmulatorNotifier, CustomEmulator>(
+  TemporaryEmulatorNotifier.new,
 );
 
 final currentVideoProvider = FutureProvider.family<VideoPlayerController?, String>((ref, system) async {
@@ -185,8 +235,14 @@ final currentVideoProvider = FutureProvider.family<VideoPlayerController?, Strin
   return null;
 });
 
-class DeletedGamesNotifier extends StateNotifier<Set<String>> {
-  DeletedGamesNotifier() : super({});
+class DeletedGamesNotifier extends Notifier<Set<String>> {
+  final String system;
+  DeletedGamesNotifier(this.system);
+
+  @override
+  Set<String> build() {
+    return {};
+  }
 
   void deleteGame(Game game) {
     debugPrint("Delete game ${game.romPath}");
@@ -194,8 +250,8 @@ class DeletedGamesNotifier extends StateNotifier<Set<String>> {
   }
 }
 
-final deletedGamesProvider = StateNotifierProvider.family<DeletedGamesNotifier, Set<String>, String>(
-  (ref, system) => DeletedGamesNotifier(),
+final deletedGamesProvider = NotifierProvider.family<DeletedGamesNotifier, Set<String>, String>(
+  DeletedGamesNotifier.new,
 );
 
 final gamesForCurrentSystemProvider = FutureProvider<GameList>((ref) async {

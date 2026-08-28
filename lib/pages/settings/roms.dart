@@ -10,12 +10,51 @@ class RomsSettingsPage extends HookConsumerWidget {
     final grantedUris = ref.watch(grantedUrisProvider);
 
     final removing = useState(false);
-    final selected = useState<Object?>(null);
+    final selectedIndex = useState(0);
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/roms") return;
+      final allPaths = [...(paths.value ?? []), ...(grantedUris.value ?? [])];
+      if (allPaths.isEmpty) return;
+
+      if (key == GamepadButton.up) {
+        selectedIndex.value = (selectedIndex.value - 1).clamp(0, allPaths.length - 1);
+      }
+      if (key == GamepadButton.down) {
+        selectedIndex.value = (selectedIndex.value + 1).clamp(0, allPaths.length - 1);
+      }
+      if (key == GamepadButton.a) {
+        final e = allPaths[selectedIndex.value.clamp(0, allPaths.length - 1)];
+        if (e is GrantedUri) {
+          if (removing.value) {
+            removing.value = false;
+            SafUtil()
+                .releasePersistedPermission(e.uri.toString())
+                .then((value) => ref.refresh(grantedUrisProvider));
+          } else {
+            removing.value = true;
+          }
+        } else {
+          final pList = romFolders.value ?? [];
+          final included = pList.contains(e as String);
+          final newPaths = List<String>.from(pList);
+          if (included) {
+            newPaths.remove(e);
+          } else {
+            newPaths.add(e);
+          }
+          ref
+              .read(romFoldersRepoProvider)
+              .saveRomsFolders(newPaths)
+              .then((value) => ref.refresh(romFoldersProvider));
+        }
+      }
       if (key == GamepadButton.b) {
-        GoRouter.of(context).pop();
+        if (removing.value) {
+          removing.value = false;
+        } else {
+          GoRouter.of(context).pop();
+        }
       }
       if (key == GamepadButton.y) {
         SafUtil().pickDirectory().then((docFile) {
@@ -57,56 +96,91 @@ class RomsSettingsPage extends HookConsumerWidget {
                       ),
                     ),
                     indexedItemBuilder: (context, e, index) {
+                      final isSelected = index == selectedIndex.value;
                       if (e is GrantedUri) {
-                        final isSelected = (index == 0 && selected.value == null) || selected.value == e;
-                        return ListTile(
-                          autofocus: isSelected,
-                          onFocusChange: (value) {
-                            if (value) {
-                              selected.value = e;
-                            }
-                          },
-                          onTap: () {
-                            if (removing.value) {
-                              removing.value = false;
-                              SafUtil()
-                                  .releasePersistedPermission(e.uri.toString())
-                                  .then((value) => ref.refresh(grantedUrisProvider));
-                            } else {
-                              removing.value = true;
-                            }
-                          },
-                          title: Text(e.grantedFullPath),
-                          subtitle: Text(Uri.decodeComponent(e.uri.path)),
-                          trailing: isSelected && removing.value
-                              ? const GamepadPromptWidget(buttons: [GamepadButton.a], prompt: "Confirm?")
-                              : const Icon(Icons.delete_rounded),
+                        return SelectedScrollTile(
+                          isSelected: isSelected,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            child: Material(
+                              color: isSelected ? Colors.white : Colors.transparent,
+                              borderRadius: BorderRadius.circular(4),
+                              child: ListTile(
+                                selected: isSelected,
+                                selectedColor: Colors.black,
+                                selectedTileColor: Colors.transparent,
+                                dense: true,
+                                onTap: () {
+                                  selectedIndex.value = index;
+                                  if (removing.value) {
+                                    removing.value = false;
+                                    SafUtil()
+                                        .releasePersistedPermission(e.uri.toString())
+                                        .then((value) => ref.refresh(grantedUrisProvider));
+                                  } else {
+                                    removing.value = true;
+                                  }
+                                },
+                                title: Text(
+                                  e.grantedFullPath,
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.black : Colors.white,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  Uri.decodeComponent(e.uri.path),
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.black87 : Colors.grey,
+                                  ),
+                                ),
+                                trailing: isSelected && removing.value
+                                    ? const GamepadPromptWidget(buttons: [GamepadButton.a], prompt: "Confirm?")
+                                    : Icon(Icons.delete_rounded, color: isSelected ? Colors.black : Colors.white),
+                              ),
+                            ),
+                          ),
                         );
                       } else {
-                        final included = romFolders.contains(paths[index]);
-                        return ListTile(
-                          autofocus: (index == 0 && selected.value == null) || selected.value == e,
-                          onFocusChange: (value) {
-                            if (value) {
-                              selected.value = e;
-                            }
-                          },
-                          onTap: () {
-                            final newPaths = romFolders;
-                            if (included) {
-                              newPaths.remove(allPaths[index]);
-                            } else {
-                              newPaths.add(allPaths[index] as String);
-                            }
-                            ref
-                                .read(romFoldersRepoProvider)
-                                .saveRomsFolders(newPaths)
-                                .then((value) => ref.refresh(romFoldersProvider));
-                          },
-                          title: Text(allPaths[index] as String),
-                          trailing: included ? toggleOnIcon : toggleOffIcon,
-                        );
-                      }
+                        final included = romFolders.contains(e as String);
+                        return SelectedScrollTile(
+                          isSelected: isSelected,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            child: Material(
+                              color: isSelected ? Colors.white : Colors.transparent,
+                              borderRadius: BorderRadius.circular(4),
+                              child: ListTile(
+                                selected: isSelected,
+                                selectedColor: Colors.black,
+                                selectedTileColor: Colors.transparent,
+                                dense: true,
+                                onTap: () {
+                                  selectedIndex.value = index;
+                                  final newPaths = List<String>.from(romFolders);
+                                  if (included) {
+                                    newPaths.remove(e);
+                                  } else {
+                                    newPaths.add(e);
+                                  }
+                                  ref
+                                      .read(romFoldersRepoProvider)
+                                      .saveRomsFolders(newPaths)
+                                      .then((value) => ref.refresh(romFoldersProvider));
+                                },
+                                title: Text(
+                                e,
+                                style: TextStyle(
+                                  color: isSelected ? Colors.black : Colors.white,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                              trailing: included ? toggleOnIcon : toggleOffIcon,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
                     },
                   );
                 },

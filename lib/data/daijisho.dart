@@ -32,7 +32,7 @@ class PlatformWallpapersPack {
     );
   }
 
-  get thumbnailUrl =>
+  String get thumbnailUrl =>
       "https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/$previewThumbnailPath";
 }
 

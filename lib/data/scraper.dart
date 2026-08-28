@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -125,14 +126,18 @@ final scraperProvider = FutureProvider<Scraper>((ref) async {
   return scraper;
 });
 
-Future<void> scrapeGames(ServiceInstance service, Map<String, dynamic>? event) async {
+Future<void> scrapeGames(ServiceInstance service, Map<String, dynamic>? event, {CancellationToken? cancellationToken}) async {
   try {
     final username = event!["username"] as String?;
     final password = event["password"] as String?;
     final romFolders = (event["romFolders"] as List).map((e) => e.toString()).toList();
-    final roms = (event["roms"] as List).map((e) => Game.fromJson(e)).toList();
+    final roms = (event["roms"] as List)
+        .map((e) => e is Game ? e : Game.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
     final romsMap = {for (var rom in roms) rom.absoluteRomPath: rom};
-    final systems = (event["systems"] as List).map((e) => System.fromJson(e)).toList();
+    final systems = (event["systems"] as List)
+        .map((e) => e is System ? e : System.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
     final scrapeTheseGames = event["scrapeTheseGames"] as String;
     debugPrint("Scraping $scrapeTheseGames for ${systems.length} systems with ${roms.length} existing roms...");
     service.invoke(
@@ -151,8 +156,11 @@ Future<void> scrapeGames(ServiceInstance service, Map<String, dynamic>? event) a
     try {
       final gamesToScrape = <Game>[];
       for (var system in systems) {
+        if (cancellationToken?.isCancelled ?? false) break;
         for (var romsFolder in romFolders) {
+          if (cancellationToken?.isCancelled ?? false) break;
           for (var folder in system.folders) {
+            if (cancellationToken?.isCancelled ?? false) break;
             service.invoke(
               'update',
               {
@@ -195,10 +203,28 @@ Future<void> scrapeGames(ServiceInstance service, Map<String, dynamic>? event) a
           }
         }
       }
+
+      if (cancellationToken?.isCancelled ?? false) {
+        debugPrint("Scraping cancelled during discovery");
+        service.invoke(
+          'update',
+          {
+            "total": 0,
+            "success": 0,
+            "error": 0,
+            "pending": 0,
+            "system": "",
+            "rom": "",
+            "msg": "Cancelled",
+          },
+        );
+        return;
+      }
+
       service.invoke(
         'update',
         {
-          "total": 0,
+          "total": gamesToScrape.length,
           "success": 0,
           "error": 0,
           "pending": gamesToScrape.length,
@@ -213,6 +239,10 @@ Future<void> scrapeGames(ServiceInstance service, Map<String, dynamic>? event) a
       var pending = gamesToScrape.length;
       final scraper = Scraper(userName: username ?? "", userPassword: password ?? "");
       for (var game in gamesToScrape) {
+        if (cancellationToken?.isCancelled ?? false) {
+          debugPrint("Scraping cancelled by user");
+          break;
+        }
         try {
           final scrapedGame = await scraper.scrape(game, (msg) {
             service.invoke(
@@ -258,8 +288,8 @@ Future<void> scrapeGames(ServiceInstance service, Map<String, dynamic>? event) a
             },
           );
           return;
-        } catch (e) {
-          debugPrint("Error scraping ${game.rom}: $e");
+        } catch (e, st) {
+          debugPrint("Error scraping ${game.rom}: $e\n$st");
           error++;
           service.invoke(
             'update',
@@ -276,18 +306,34 @@ Future<void> scrapeGames(ServiceInstance service, Map<String, dynamic>? event) a
         }
         pending--;
       }
-      service.invoke(
-        'update',
-        {
-          "total": gamesToScrape.length,
-          "success": success,
-          "error": error,
-          "pending": pending,
-          "system": "",
-          "rom": "",
-          "msg": "Done",
-        },
-      );
+
+      if (cancellationToken?.isCancelled ?? false) {
+        service.invoke(
+          'update',
+          {
+            "total": gamesToScrape.length,
+            "success": success,
+            "error": error,
+            "pending": 0,
+            "system": "",
+            "rom": "",
+            "msg": "Cancelled",
+          },
+        );
+      } else {
+        service.invoke(
+          'update',
+          {
+            "total": gamesToScrape.length,
+            "success": success,
+            "error": error,
+            "pending": pending,
+            "system": "",
+            "rom": "",
+            "msg": "Done",
+          },
+        );
+      }
     } finally {
       debugPrint("Stopping service...");
       service.stopSelf();

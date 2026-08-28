@@ -22,6 +22,8 @@ import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/gamepad_prompt.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
 import 'package:titanius/widgets/icons.dart';
+import 'package:titanius/widgets/selected_scroll_tile.dart';
+import 'package:titanius/widgets/selector.dart';
 
 part 'package:titanius/pages/settings/systems.dart';
 part 'package:titanius/pages/settings/emulators.dart';
@@ -38,9 +40,79 @@ class SettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final packageInfo = ref.watch(packageInfoProvider);
+    final selectedIndex = useState(0);
+
+    final items = [
+      (
+        title: 'Refresh GameLists',
+        trailing: null as Widget?,
+        onTap: () {
+          // ignore: unused_result
+          ref.refresh(detectedSystemsProvider).whenData((value) => ref.read(allGamesProvider));
+        },
+      ),
+      (
+        title: 'Scraper',
+        trailing: arrowRight,
+        onTap: () {
+          context.push("/settings/scraper");
+        },
+      ),
+      (
+        title: 'ROMs Folders',
+        trailing: arrowRight,
+        onTap: () {
+          context.push("/settings/roms");
+        },
+      ),
+      (
+        title: 'Systems/Collections',
+        trailing: arrowRight,
+        onTap: () {
+          context.push("/settings/systems");
+        },
+      ),
+      (
+        title: 'Emulators',
+        trailing: arrowRight,
+        onTap: () {
+          context.push("/settings/emulators");
+        },
+      ),
+      (
+        title: 'Custom Emulators',
+        trailing: arrowRight,
+        onTap: () {
+          context.push("/settings/cemulators");
+        },
+      ),
+      (
+        title: 'UI Settings',
+        trailing: arrowRight,
+        onTap: () {
+          context.push("/settings/ui");
+        },
+      ),
+      (
+        title: 'Daijishō Wallpaper Pack',
+        trailing: arrowRight,
+        onTap: () {
+          context.push("/settings/daijisho");
+        },
+      ),
+    ];
 
     useGamepad(ref, (location, key) {
       if (location != "/settings?source=$source") return;
+      if (key == GamepadButton.up) {
+        selectedIndex.value = (selectedIndex.value - 1).clamp(0, items.length - 1);
+      }
+      if (key == GamepadButton.down) {
+        selectedIndex.value = (selectedIndex.value + 1).clamp(0, items.length - 1);
+      }
+      if (key == GamepadButton.a) {
+        items[selectedIndex.value].onTap();
+      }
       if (key == GamepadButton.b) {
         if (source == "root") {
           GoRouter.of(context).go("/");
@@ -60,77 +132,44 @@ class SettingsPage extends HookConsumerWidget {
             loading: () => "",
             error: (error, stackTrace) => error.toString()),
         actions: const [
+          GamepadPrompt([GamepadButton.a], "Select"),
           GamepadPrompt([GamepadButton.b], "Back"),
         ],
       ),
-      body: ListView(
-        children: [
-          ListTile(
-            autofocus: true,
-            onFocusChange: (value) {},
-            onTap: () {
-              // ignore: unused_result
-              ref.refresh(detectedSystemsProvider).whenData((value) => ref.read(allGamesProvider));
-            },
-            title: const Text('Refresh GameLists'),
-          ),
-          ListTile(
-            onFocusChange: (value) {},
-            onTap: () {
-              context.push("/settings/scraper");
-            },
-            title: const Text('Scraper'),
-            trailing: arrowRight,
-          ),
-          ListTile(
-            onFocusChange: (value) {},
-            onTap: () {
-              context.push("/settings/roms");
-            },
-            title: const Text('ROMs Folders'),
-            trailing: arrowRight,
-          ),
-          ListTile(
-            onFocusChange: (value) {},
-            onTap: () {
-              context.push("/settings/systems");
-            },
-            title: const Text('Systems/Collections'),
-            trailing: arrowRight,
-          ),
-          ListTile(
-            onFocusChange: (value) {},
-            onTap: () {
-              context.push("/settings/emulators");
-            },
-            title: const Text('Emulators'),
-            trailing: arrowRight,
-          ),
-          ListTile(
-            onFocusChange: (value) {},
-            onTap: () {
-              context.push("/settings/cemulators");
-            },
-            title: const Text('Custom Emulators'),
-            trailing: arrowRight,
-          ),
-          ListTile(
-            onFocusChange: (value) {},
-            onTap: () {
-              context.push("/settings/ui");
-            },
-            title: const Text('UI Settings'),
-            trailing: arrowRight,
-          ),
-          ListTile(
-            onFocusChange: (value) {},
-            onTap: () {
-              context.push("/settings/daijisho");
-            },
-            title: const Text('Daijishō Wallpaper Pack'),
-            trailing: arrowRight,
-          ),
-        ],
+      body: ListView.builder(
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index];
+          final isSelected = index == selectedIndex.value;
+          return SelectedScrollTile(
+            isSelected: isSelected,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              child: Material(
+                color: isSelected ? Colors.white : Colors.transparent,
+                borderRadius: BorderRadius.circular(4),
+                child: ListTile(
+                  selected: isSelected,
+                  selectedColor: Colors.black,
+                  selectedTileColor: Colors.transparent,
+                  dense: true,
+                  title: Text(
+                    item.title,
+                    style: TextStyle(
+                      color: isSelected ? Colors.black : Colors.white,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  trailing: item.trailing,
+                  onTap: () {
+                    selectedIndex.value = index;
+                    item.onTap();
+                  },
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

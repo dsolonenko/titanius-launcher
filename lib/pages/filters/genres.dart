@@ -8,11 +8,27 @@ class GenresFilterPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final games = ref.watch(gamesInFolderProvider(system));
     final filter = ref.watch(temporaryGameFilterProvider(system));
-
-    final selected = useState<GameGenre?>(null);
+    final selectedIndex = useState(0);
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system/filter/genres") return;
+      final gamelist = games.value;
+      if (gamelist == null) return;
+      final gameGenres = gamelist.games.map((game) => game.genreId).toSet();
+      final genres = [...GameGenre.values];
+      genres.retainWhere((element) => gameGenres.contains(element));
+      if (genres.isEmpty) return;
+
+      if (key == GamepadButton.up) {
+        selectedIndex.value = (selectedIndex.value - 1).clamp(0, genres.length - 1);
+      }
+      if (key == GamepadButton.down) {
+        selectedIndex.value = (selectedIndex.value + 1).clamp(0, genres.length - 1);
+      }
+      if (key == GamepadButton.a) {
+        final genre = genres[selectedIndex.value.clamp(0, genres.length - 1)];
+        ref.read(temporaryGameFilterProvider(system).notifier).toggleGenre(genre);
+      }
       if (key == GamepadButton.b) {
         GoRouter.of(context).go("/games/$system/filter");
       }
@@ -46,19 +62,35 @@ class GenresFilterPage extends HookConsumerWidget {
               ),
             ),
             indexedItemBuilder: (context, genre, index) {
-              final isSelected = filter.genres.contains(genre);
-              return ListTile(
-                autofocus: selected.value == genre || (selected.value == null && index == 0),
-                onFocusChange: (value) {
-                  if (value) {
-                    selected.value = genre;
-                  }
-                },
-                onTap: () {
-                  ref.read(temporaryGameFilterProvider(system).notifier).toggleGenre(genre);
-                },
-                title: Text(genre.longName),
-                trailing: isSelected ? checkBoxOnIcon : checkBoxOffIcon,
+              final isChecked = filter.genres.contains(genre);
+              final isSelected = index == selectedIndex.value;
+              return SelectedScrollTile(
+                isSelected: isSelected,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  child: Material(
+                    color: isSelected ? Colors.white : Colors.transparent,
+                    borderRadius: BorderRadius.circular(4),
+                    child: ListTile(
+                      selected: isSelected,
+                      selectedColor: Colors.black,
+                      selectedTileColor: Colors.transparent,
+                      dense: true,
+                      onTap: () {
+                        selectedIndex.value = index;
+                        ref.read(temporaryGameFilterProvider(system).notifier).toggleGenre(genre);
+                      },
+                      title: Text(
+                        genre.longName,
+                        style: TextStyle(
+                          color: isSelected ? Colors.black : Colors.white,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      trailing: isChecked ? checkBoxOnIcon : checkBoxOffIcon,
+                    ),
+                  ),
+                ),
               );
             },
           );

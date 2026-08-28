@@ -6,7 +6,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:titanius/data/repo.dart';
 
 final installedAppsProvider = FutureProvider<List<AppInfo>>((ref) async {
-  final apps = await InstalledApps.getInstalledApps(true, true);
+  final apps = await InstalledApps.getInstalledApps(
+    excludeSystemApps: true,
+    withIcon: true,
+  );
   return apps.sortedBy((element) => element.name);
 });
 

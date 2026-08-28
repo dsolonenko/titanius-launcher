@@ -32,9 +32,25 @@ class GamepadPromptWidget extends StatelessWidget {
     String buttonText = buttons.map((button) => gamepadFontMappings[button]).join("");
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(buttonText, style: const TextStyle(fontFamily: "Prompt", fontSize: 18)),
-        Text(prompt),
+        Text(
+          buttonText,
+          style: const TextStyle(
+            fontFamily: "Prompt",
+            fontSize: 16,
+            height: 1.0,
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          prompt.trim(),
+          style: const TextStyle(
+            height: 1.0,
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+        ),
         const SizedBox(width: 8),
       ],
     );

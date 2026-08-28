@@ -16,6 +16,12 @@ class ScraperProgress {
   final String rom;
   final String message;
 
+  bool get isRunning =>
+      message.isNotEmpty &&
+      message != "Done" &&
+      message != "Cancelled" &&
+      message != "Quota exceeded";
+
   ScraperProgress({
     required this.total,
     required this.pending,
@@ -28,16 +34,26 @@ class ScraperProgress {
 }
 
 class FakeServiceInstance extends ServiceInstance {
-  final scrapeController = StreamController<Map<String, dynamic>?>();
+  final scrapeController = StreamController<Map<String, dynamic>?>.broadcast();
   final updateController = StreamController<Map<String, dynamic>?>.broadcast();
+  final stopController = StreamController<Map<String, dynamic>?>.broadcast();
+  bool _running = false;
+
   @override
   void invoke(String method, [Map<String, dynamic>? args]) {
     debugPrint("Invoking $method with $args");
     if (method == "scrape") {
+      _running = true;
       scrapeController.add(args);
-    }
-    if (method == "update") {
+    } else if (method == "update") {
+      final msg = args?["msg"] as String?;
+      if (msg == "Done" || msg == "Cancelled" || msg == "Quota exceeded") {
+        _running = false;
+      }
       updateController.add(args);
+    } else if (method == "stop") {
+      _running = false;
+      stopController.add(args);
     }
   }
 
@@ -46,9 +62,10 @@ class FakeServiceInstance extends ServiceInstance {
     debugPrint("Listening to $method");
     if (method == "scrape") {
       return scrapeController.stream;
-    }
-    if (method == "update") {
+    } else if (method == "update") {
       return updateController.stream;
+    } else if (method == "stop") {
+      return stopController.stream;
     }
     return const Stream.empty();
   }
@@ -56,12 +73,11 @@ class FakeServiceInstance extends ServiceInstance {
   @override
   Future<void> stopSelf() async {
     debugPrint("Stopping service");
-    scrapeController.close();
-    updateController.close();
+    _running = false;
   }
 
   Future<bool> isRunning() async {
-    return false;
+    return _running;
   }
 }
 
@@ -73,17 +89,19 @@ final scraperServiceProvider = Provider<dynamic>((ref) {
   }
 });
 
-class ScraperProgressStateNotifier extends StateNotifier<ScraperProgress> {
-  ScraperProgressStateNotifier()
-      : super(ScraperProgress(total: 0, pending: 0, success: 0, error: 0, system: "", rom: "", message: ""));
+class ScraperProgressStateNotifier extends Notifier<ScraperProgress> {
+  @override
+  ScraperProgress build() {
+    return ScraperProgress(total: 0, pending: 0, success: 0, error: 0, system: "", rom: "", message: "");
+  }
 
   void set(ScraperProgress progress) {
     state = progress;
   }
 }
 
-final scraperProgressStateProvider = StateNotifierProvider<ScraperProgressStateNotifier, ScraperProgress>(
-  (ref) => ScraperProgressStateNotifier(),
+final scraperProgressStateProvider = NotifierProvider<ScraperProgressStateNotifier, ScraperProgress>(
+  ScraperProgressStateNotifier.new,
 );
 
 final f = NumberFormat("0.0%");
@@ -95,21 +113,32 @@ class ScraperProgressWidget extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final progressState = ref.watch(scraperProgressStateProvider);
 
-    if (progressState.message == "" || progressState.pending == 0) {
+    if (!progressState.isRunning) {
       return const SizedBox.shrink();
     }
 
     final double percent =
         progressState.total > 0 ? (progressState.total - progressState.pending) / progressState.total : 0;
 
+    final scale = MediaQuery.textScalerOf(context).scale(1.0);
+    final lineHeight = 16.0 * scale;
+    final width = 100.0 * scale;
+
     return LinearPercentIndicator(
-      width: 100,
-      lineHeight: 16,
+      width: width,
+      lineHeight: lineHeight,
       percent: percent,
       progressColor: Colors.green,
       backgroundColor: Colors.grey,
-      center: Text(f.format(percent)),
-      barRadius: const Radius.circular(8),
+      center: Text(
+        f.format(percent),
+        style: const TextStyle(
+          fontSize: 10,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      barRadius: Radius.circular(lineHeight / 2),
       leading: Text(progressState.system),
     );
   }

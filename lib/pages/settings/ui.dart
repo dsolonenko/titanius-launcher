@@ -6,11 +6,113 @@ class UISettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
+    final selectedIndex = useState(0);
 
-    final selectedSetting = useState('Show Favouries On Top');
+    final s = settings.value;
+
+    void adjustFontScale(double delta) {
+      if (s == null) return;
+      final currentScale = s.fontScale;
+      final newScale = double.parse((currentScale + delta).clamp(0.10, 3.00).toStringAsFixed(1));
+      final repo = ref.read(settingsRepoProvider);
+      repo.setFontScale(newScale).then((value) => ref.refresh(settingsProvider));
+    }
+
+    void resetFontScale() {
+      if (s == null) return;
+      final repo = ref.read(settingsRepoProvider);
+      repo.setFontScale(1.0).then((value) => ref.refresh(settingsProvider));
+    }
+
+    final currentScaleStr = s == null ? "1.0x" : "${s.fontScale.toStringAsFixed(1)}x";
+
+    final items = s == null
+        ? <_UiSettingItem>[]
+        : [
+            _UiSettingItem(
+              title: 'Font Scale',
+              trailing: SelectorWidget(text: currentScaleStr),
+              enabled: true,
+              onAction: (repo) async => resetFontScale(),
+              onLeft: (repo) async => adjustFontScale(-0.1),
+              onRight: (repo) async => adjustFontScale(0.1),
+            ),
+            _UiSettingItem(
+              title: 'Show Favouries On Top',
+              trailing: s.favouritesOnTop ? toggleOnIcon : toggleOffIcon,
+              enabled: true,
+              onAction: (repo) => repo.setFavoutesOnTop(!s.favouritesOnTop),
+            ),
+            _UiSettingItem(
+              title: 'Show Only Unique Games In Collections',
+              trailing: s.uniqueGamesInCollections ? toggleOnIcon : toggleOffIcon,
+              enabled: true,
+              onAction: (repo) => repo.setUniqueGamesInCollections(!s.uniqueGamesInCollections),
+            ),
+            _UiSettingItem(
+              title: 'Show Hidden Games',
+              trailing: s.showHiddenGames ? toggleOnIcon : toggleOffIcon,
+              enabled: true,
+              onAction: (repo) => repo.setShowHiddenGames(!s.showHiddenGames),
+            ),
+            _UiSettingItem(
+              title: 'Only Show Roms From gamelist.xml Files',
+              trailing: s.showOnlyGamelistRoms ? toggleOnIcon : toggleOffIcon,
+              enabled: true,
+              subtitle: 'Please refresh gamelists',
+              onAction: (repo) => repo.setShowOnlyGamelistRoms(!s.showOnlyGamelistRoms),
+            ),
+            _UiSettingItem(
+              title: 'Show Game Videos',
+              trailing: s.showGameVideos ? toggleOnIcon : toggleOffIcon,
+              enabled: true,
+              onAction: (repo) => repo.setShowGameVideos(!s.showGameVideos),
+            ),
+            _UiSettingItem(
+              title: 'Fade Screenshot To Video',
+              trailing: s.fadeToVideo ? toggleOnIcon : toggleOffIcon,
+              enabled: s.showGameVideos,
+              onAction: (repo) => repo.setFadeToVideo(!s.fadeToVideo),
+            ),
+            _UiSettingItem(
+              title: 'Mute Video',
+              trailing: s.muteVideo ? toggleOnIcon : toggleOffIcon,
+              enabled: s.showGameVideos,
+              onAction: (repo) => repo.setMuteVideo(!s.muteVideo),
+            ),
+          ];
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/ui") return;
+      if (items.isEmpty) return;
+
+      if (key == GamepadButton.up) {
+        selectedIndex.value = (selectedIndex.value - 1).clamp(0, items.length - 1);
+      }
+      if (key == GamepadButton.down) {
+        selectedIndex.value = (selectedIndex.value + 1).clamp(0, items.length - 1);
+      }
+      if (key == GamepadButton.left) {
+        final item = items[selectedIndex.value.clamp(0, items.length - 1)];
+        if (item.enabled && item.onLeft != null) {
+          final repo = ref.read(settingsRepoProvider);
+          item.onLeft!(repo).then((value) => ref.refresh(settingsProvider));
+        }
+      }
+      if (key == GamepadButton.right) {
+        final item = items[selectedIndex.value.clamp(0, items.length - 1)];
+        if (item.enabled && item.onRight != null) {
+          final repo = ref.read(settingsRepoProvider);
+          item.onRight!(repo).then((value) => ref.refresh(settingsProvider));
+        }
+      }
+      if (key == GamepadButton.a) {
+        final item = items[selectedIndex.value.clamp(0, items.length - 1)];
+        if (item.enabled && item.onAction != null) {
+          final repo = ref.read(settingsRepoProvider);
+          item.onAction!(repo).then((value) => ref.refresh(settingsProvider));
+        }
+      }
       if (key == GamepadButton.b) {
         GoRouter.of(context).pop();
       }
@@ -21,33 +123,67 @@ class UISettingsPage extends HookConsumerWidget {
         title: const Text('UI Settings'),
       ),
       bottomNavigationBar: const PromptBar(
-        navigations: [],
+        navigations: [
+          GamepadPrompt([GamepadButton.leftRight], "Select"),
+        ],
         actions: [
           GamepadPrompt([GamepadButton.a], "Change"),
           GamepadPrompt([GamepadButton.b], "Back"),
         ],
       ),
       body: settings.when(
-        data: (settings) {
-          return ListView(
+        data: (_) {
+          return ListView.builder(
             key: const PageStorageKey('settings/ui'),
-            children: [
-              _setting(ref, selectedSetting, 'Show Favouries On Top', settings.favouritesOnTop, true,
-                  (p0, p1) => p0.setFavoutesOnTop(p1)),
-              _setting(ref, selectedSetting, 'Show Only Unique Games In Collections', settings.uniqueGamesInCollections,
-                  true, (p0, p1) => p0.setUniqueGamesInCollections(p1)),
-              _setting(ref, selectedSetting, 'Show Hidden Games', settings.showHiddenGames, true,
-                  (p0, p1) => p0.setShowHiddenGames(p1)),
-              _setting(ref, selectedSetting, 'Only Show Roms From gamelist.xml Files', settings.showOnlyGamelistRoms,
-                  true, (p0, p1) => p0.setShowOnlyGamelistRoms(p1),
-                  subtitle: 'Please refresh gamelists'),
-              _setting(ref, selectedSetting, 'Show Game Videos', settings.showGameVideos, true,
-                  (p0, p1) => p0.setShowGameVideos(p1)),
-              _setting(ref, selectedSetting, 'Fade Screenshot To Video', settings.fadeToVideo, settings.showGameVideos,
-                  (p0, p1) => p0.setFadeToVideo(p1)),
-              _setting(ref, selectedSetting, 'Mute Video', settings.muteVideo, settings.showGameVideos,
-                  (p0, p1) => p0.setMuteVideo(p1)),
-            ],
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              final isSelected = index == selectedIndex.value;
+              return SelectedScrollTile(
+                isSelected: isSelected,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  child: Material(
+                    color: isSelected ? Colors.white : Colors.transparent,
+                    borderRadius: BorderRadius.circular(4),
+                    child: ListTile(
+                      enabled: item.enabled,
+                      selected: isSelected,
+                      selectedColor: Colors.black,
+                      selectedTileColor: Colors.transparent,
+                      dense: true,
+                      onTap: () {
+                        selectedIndex.value = index;
+                        if (item.enabled && item.onAction != null) {
+                          final repo = ref.read(settingsRepoProvider);
+                          item.onAction!(repo).then((value) => ref.refresh(settingsProvider));
+                        }
+                      },
+                      title: Text(
+                        item.title,
+                        style: TextStyle(
+                          color: !item.enabled
+                              ? Colors.grey
+                              : isSelected
+                                  ? Colors.black
+                                  : Colors.white,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      subtitle: item.subtitle != null
+                          ? Text(
+                              item.subtitle!,
+                              style: TextStyle(
+                                color: isSelected ? Colors.black87 : Colors.grey,
+                              ),
+                            )
+                          : null,
+                      trailing: item.trailing,
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         },
         loading: () => const Center(
@@ -59,25 +195,24 @@ class UISettingsPage extends HookConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _setting(WidgetRef ref, ValueNotifier<String> selectedSetting, String title, bool value, bool enabled,
-      Future<void> Function(SettingsRepo, bool) onChanged,
-      {String? subtitle}) {
-    return ListTile(
-      enabled: enabled,
-      autofocus: title == selectedSetting.value,
-      onFocusChange: (value) {
-        if (value) {
-          selectedSetting.value = title;
-        }
-      },
-      onTap: () {
-        final repo = ref.read(settingsRepoProvider);
-        onChanged(repo, !value).then((value) => ref.refresh(settingsProvider));
-      },
-      title: Text(title),
-      subtitle: subtitle != null ? Text(subtitle) : null,
-      trailing: value ? toggleOnIcon : toggleOffIcon,
-    );
-  }
+class _UiSettingItem {
+  final String title;
+  final String? subtitle;
+  final Widget trailing;
+  final bool enabled;
+  final Future<void> Function(SettingsRepo repo)? onAction;
+  final Future<void> Function(SettingsRepo repo)? onLeft;
+  final Future<void> Function(SettingsRepo repo)? onRight;
+
+  _UiSettingItem({
+    required this.title,
+    this.subtitle,
+    required this.trailing,
+    required this.enabled,
+    this.onAction,
+    this.onLeft,
+    this.onRight,
+  });
 }

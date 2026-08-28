@@ -19,6 +19,7 @@ import 'package:titanius/data/systems.dart';
 import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
 import 'package:titanius/widgets/scraper_progress.dart';
+import 'package:titanius/widgets/selected_scroll_tile.dart';
 import 'package:titanius/widgets/selector.dart';
 import 'package:titanius/widgets/icons.dart';
 
@@ -33,179 +34,191 @@ class ScraperPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-
-    final selected = useState("");
+    final scraperProgress = ref.watch(scraperProgressStateProvider);
+    final isRunning = scraperProgress.isRunning;
+    final selectedIndex = useState(0);
     final confirm = useState(false);
     final inPrompt = useState(false);
+
+    Future<void> editUsername() async {
+      inPrompt.value = true;
+      try {
+        final v = await prompt(
+          context,
+          title: const Text("Screenscraper username"),
+          initialValue: settings.value?.screenScraperUser ?? "",
+          isSelectedInitialValue: true,
+          validator: (s) {
+            if (s == null || s.isEmpty) {
+              return "Name cannot be empty";
+            }
+            return null;
+          },
+        );
+        if (v != null) {
+          ref.read(settingsRepoProvider)
+              .setScreenScraperUser(v)
+              .then((value) => ref.refresh(settingsProvider));
+        }
+      } finally {
+        inPrompt.value = false;
+      }
+    }
+
+    Future<void> editPassword() async {
+      inPrompt.value = true;
+      try {
+        final v = await prompt(
+          context,
+          title: const Text("Screenscraper password"),
+          initialValue: settings.value?.screenScraperPwd ?? "",
+          isSelectedInitialValue: true,
+          validator: (s) {
+            if (s == null || s.isEmpty) {
+              return "Password cannot be empty";
+            }
+            return null;
+          },
+        );
+        if (v != null) {
+          ref.read(settingsRepoProvider)
+              .setScreenScraperPwd(v)
+              .then((value) => ref.refresh(settingsProvider));
+        }
+      } finally {
+        inPrompt.value = false;
+      }
+    }
+
+    void cycleScrapeTheseGames(bool next) {
+      if (settings.value == null) return;
+      int index = scrapeTheseGamesOptions
+          .indexWhere((id) => id == (settings.value!.scrapeTheseGames ?? "missing_details"));
+      if (next) {
+        index++;
+      } else {
+        index--;
+      }
+      if (index < 0) {
+        index = scrapeTheseGamesOptions.length - 1;
+      }
+      if (index >= scrapeTheseGamesOptions.length) {
+        index = 0;
+      }
+      final selected = scrapeTheseGamesOptions[index];
+      ref.read(settingsRepoProvider)
+          .setScrapeTheseGames(selected)
+          .then((value) => ref.refresh(settingsProvider));
+    }
+
+    void stopScraper() {
+      debugPrint("Stopping scraper service");
+      final service = ref.read(scraperServiceProvider);
+      service.invoke("stop", {});
+    }
 
     useGamepad(ref, (location, key) {
       if (inPrompt.value) {
         return;
       }
       if (location != "/settings/scraper") return;
-      if (key == GamepadButton.b) {
-        if (confirm.value) {
-          confirm.value = false;
-        } else {
+
+      if (isRunning) {
+        if (key == GamepadButton.x || key == GamepadButton.a) {
+          stopScraper();
+        }
+        if (key == GamepadButton.b) {
           GoRouter.of(context).pop();
         }
+        return;
+      }
+
+      if (confirm.value) {
+        if (key == GamepadButton.b) {
+          confirm.value = false;
+        }
+        if (key == GamepadButton.y) {
+          confirm.value = false;
+          _startScraper(ref);
+        }
+        return;
+      }
+
+      if (key == GamepadButton.up) {
+        selectedIndex.value = (selectedIndex.value - 1).clamp(0, 3);
+      }
+      if (key == GamepadButton.down) {
+        selectedIndex.value = (selectedIndex.value + 1).clamp(0, 3);
+      }
+      if (key == GamepadButton.left) {
+        if (selectedIndex.value == 2) {
+          cycleScrapeTheseGames(false);
+        }
+      }
+      if (key == GamepadButton.right) {
+        if (selectedIndex.value == 2) {
+          cycleScrapeTheseGames(true);
+        }
+      }
+      if (key == GamepadButton.a) {
+        if (selectedIndex.value == 0) {
+          editUsername();
+        } else if (selectedIndex.value == 1) {
+          editPassword();
+        } else if (selectedIndex.value == 2) {
+          cycleScrapeTheseGames(true);
+        } else if (selectedIndex.value == 3) {
+          context.push("/settings/scraper/systems");
+        }
+      }
+      if (key == GamepadButton.b) {
+        GoRouter.of(context).pop();
       }
       if (key == GamepadButton.y) {
-        if (confirm.value) {
-          _startScraper(ref).then((value) => GoRouter.of(context).go("/"));
-        } else {
-          confirm.value = true;
-        }
-      }
-      if (key == GamepadButton.x) {
-        debugPrint("Try stopping service");
-        final service = ref.read(scraperServiceProvider);
-        service.invoke("stop", {});
-      }
-      if (key == GamepadButton.right || key == GamepadButton.left) {
-        if (selected.value == "scrape_these_games") {
-          int index =
-              scrapeTheseGamesOptions.indexWhere((id) => id == (settings.value!.scrapeTheseGames ?? "missing_details"));
-          if (key == GamepadButton.right) {
-            index++;
-          } else {
-            index--;
-          }
-          if (index < 0) {
-            index = scrapeTheseGamesOptions.length - 1;
-          }
-          if (index >= scrapeTheseGamesOptions.length) {
-            index = 0;
-          }
-          final selected = scrapeTheseGamesOptions[index];
-          ref.read(settingsRepoProvider)
-              .setScrapeTheseGames(selected)
-              .then((value) => ref.refresh(settingsProvider));
-        }
+        confirm.value = true;
       }
     });
 
+    final s = settings.value;
+    int currentScrapeOptionIdx = s == null
+        ? 0
+        : scrapeTheseGamesOptions.indexWhere((id) => id == (s.scrapeTheseGames ?? "missing_details"));
+    if (currentScrapeOptionIdx == -1) currentScrapeOptionIdx = 0;
+
     final elements = [
-      SettingElement(
+      (
         group: "Credentials",
-        widget: ListTile(
-          autofocus: true,
-          title: const Text("Username"),
-          trailing: arrowRight,
-          onFocusChange: (value) {
-            if (value) {
-              selected.value = "username";
-            }
-          },
-          onTap: () async {
-            inPrompt.value = true;
-            try {
-              final v = await prompt(
-                context,
-                title: const Text("Screenscraper username"),
-                initialValue: settings.value!.screenScraperUser ?? "",
-                isSelectedInitialValue: true,
-                validator: (s) {
-                  if (s == null || s.isEmpty) {
-                    return "Name cannot be empty";
-                  }
-                  return null;
-                },
-              );
-              if (v != null) {
-                ref.read(settingsRepoProvider)
-                    .setScreenScraperUser(v)
-                    .then((value) => ref.refresh(settingsProvider));
-              }
-            } finally {
-              inPrompt.value = false;
-            }
-          },
-        ),
+        title: "Username",
+        subtitle: s?.screenScraperUser?.isNotEmpty == true ? s!.screenScraperUser : "Not set",
+        trailing: arrowRight,
+        onTap: editUsername,
       ),
-      SettingElement(
+      (
         group: "Credentials",
-        widget: ListTile(
-          title: const Text("Password"),
-          trailing: arrowRight,
-          onTap: () async {
-            inPrompt.value = true;
-            try {
-              final v = await prompt(
-                context,
-                title: const Text("Screenscraper password"),
-                initialValue: settings.value!.screenScraperPwd ?? "",
-                isSelectedInitialValue: true,
-                validator: (s) {
-                  if (s == null || s.isEmpty) {
-                    return "Password cannot be empty";
-                  }
-                  return null;
-                },
-              );
-              if (v != null) {
-                ref.read(settingsRepoProvider)
-                    .setScreenScraperPwd(v)
-                    .then((value) => ref.refresh(settingsProvider));
-              }
-            } finally {
-              inPrompt.value = false;
-            }
-          },
-          onFocusChange: (value) {
-            if (value) {
-              selected.value = "password";
-            }
-          },
-        ),
+        title: "Password",
+        subtitle: s?.screenScraperPwd?.isNotEmpty == true ? "••••••••" : "Not set",
+        trailing: arrowRight,
+        onTap: editPassword,
       ),
-      SettingElement(
+      (
         group: "Settings",
-        widget: ListTile(
-          title: const Text("Scrape These Games"),
-          trailing: settings.when(
-            data: (data) {
-              int index = scrapeTheseGamesOptions
-                  .indexWhere((id) => id == (settings.value!.scrapeTheseGames ?? "missing_details"));
-              return SelectorWidget(text: scrapeTheseGamesOptionsNames[index]);
-            },
-            loading: () => const CircularProgressIndicator(),
-            error: (error, stack) => const Text("Error"),
-          ),
-          onTap: () {},
-          onFocusChange: (value) {
-            if (value) {
-              selected.value = "scrape_these_games";
-            }
-          },
-        ),
+        title: "Scrape These Games",
+        subtitle: null as String?,
+        trailing: SelectorWidget(text: scrapeTheseGamesOptionsNames[currentScrapeOptionIdx]),
+        onTap: () => cycleScrapeTheseGames(true),
       ),
-      SettingElement(
+      (
         group: "Settings",
-        widget: ListTile(
-          title: const Text("Scrape These Systems"),
-          trailing: settings.when(
-            data: (data) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text("${data.scrapeTheseSystems.length} selected"),
-                  arrowRight,
-                ],
-              );
-            },
-            loading: () => const CircularProgressIndicator(),
-            error: (error, stack) => const Text("Error"),
-          ),
-          onTap: () {
-            context.push("/settings/scraper/systems");
-          },
-          onFocusChange: (value) {
-            if (value) {
-              selected.value = "scrape_these_systems";
-            }
-          },
+        title: "Scrape These Systems",
+        subtitle: null as String?,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("${s?.scrapeTheseSystems.length ?? 0} selected"),
+            arrowRight,
+          ],
         ),
+        onTap: () => context.push("/settings/scraper/systems"),
       ),
     ];
 
@@ -213,42 +226,236 @@ class ScraperPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('Scraper'),
       ),
-      bottomNavigationBar: PromptBar(
-        navigations: const [],
-        actions: [
-          GamepadPrompt([GamepadButton.b], confirm.value ? "Cancel" : "Back"),
-          GamepadPrompt([GamepadButton.y], confirm.value ? "Confirm" : "Start"),
-        ],
-      ),
-      body: confirm.value
-          ? const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+      bottomNavigationBar: isRunning
+          ? PromptBar(
+              navigations: const [],
+              actions: const [
+                GamepadPrompt([GamepadButton.x, GamepadButton.a], "Stop"),
+                GamepadPrompt([GamepadButton.b], "Back"),
+              ],
+              text: "Scraping in background",
+            )
+          : PromptBar(
+              navigations: const [],
+              actions: [
+                GamepadPrompt([GamepadButton.a], "Select"),
+                GamepadPrompt([GamepadButton.b], confirm.value ? "Cancel" : "Back"),
+                GamepadPrompt([GamepadButton.y], confirm.value ? "Confirm" : "Start"),
+              ],
+            ),
+      body: isRunning
+          ? _buildActiveScrapingView(context, ref, scraperProgress, stopScraper)
+          : confirm.value
+              ? const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.bolt, size: 48),
+                      SizedBox(height: 8),
+                      Text("Start scraping?"),
+                      SizedBox(height: 8),
+                      Text("It may take a while... Scraping will run in background."),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  key: const PageStorageKey("/settings/scraper"),
+                  itemCount: elements.length,
+                  itemBuilder: (context, index) {
+                    final elem = elements[index];
+                    final isSelected = index == selectedIndex.value;
+                    return SelectedScrollTile(
+                      isSelected: isSelected,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        child: Material(
+                          color: isSelected ? Colors.white : Colors.transparent,
+                          borderRadius: BorderRadius.circular(4),
+                          child: ListTile(
+                            selected: isSelected,
+                            selectedColor: Colors.black,
+                            selectedTileColor: Colors.transparent,
+                            dense: true,
+                            title: Text(
+                              elem.title,
+                              style: TextStyle(
+                                color: isSelected ? Colors.black : Colors.white,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                            subtitle: elem.subtitle != null
+                                ? Text(
+                                    elem.subtitle!,
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.black87 : Colors.grey,
+                                    ),
+                                  )
+                                : null,
+                            trailing: elem.trailing,
+                            onTap: () {
+                              selectedIndex.value = index;
+                              elem.onTap();
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+    );
+  }
+
+  Widget _buildActiveScrapingView(
+    BuildContext context,
+    WidgetRef ref,
+    ScraperProgress progress,
+    VoidCallback onStop,
+  ) {
+    final double? percent = progress.total > 0
+        ? ((progress.total - progress.pending) / progress.total).clamp(0.0, 1.0)
+        : null;
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
                 children: [
-                  Icon(Icons.bolt, size: 48),
-                  SizedBox(height: 8),
-                  Text("Start scraping?"),
-                  SizedBox(height: 8),
-                  Text("It may take a while... Please refresh gamelists after scraping is done."),
+                  const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      progress.message.isNotEmpty ? progress.message : "Scraping...",
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
-            )
-          : GroupedListView<SettingElement, String>(
-              key: const PageStorageKey("/settings/scraper"),
-              elements: elements,
-              groupBy: (element) => element.group,
-              groupSeparatorBuilder: (String value) => Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  value,
-                  style: const TextStyle(color: Colors.grey),
+              const SizedBox(height: 16),
+              if (progress.system.isNotEmpty || progress.rom.isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (progress.system.isNotEmpty)
+                        Text(
+                          "System: ${progress.system.toUpperCase()}",
+                          style: const TextStyle(color: Colors.grey, fontSize: 13),
+                        ),
+                      if (progress.rom.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          progress.rom,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+              LinearProgressIndicator(
+                value: percent,
+                backgroundColor: Colors.white24,
+                color: Colors.green,
+                minHeight: 12,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    progress.total > 0
+                        ? "${progress.total - progress.pending} / ${progress.total}"
+                        : "Discovering ROMs...",
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                  if (percent != null)
+                    Text(
+                      "${(percent * 100).toStringAsFixed(1)}%",
+                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _statItem("Success", progress.success, Colors.green),
+                  _statItem("Errors", progress.error, Colors.redAccent),
+                  _statItem("Pending", progress.pending, Colors.white70),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Material(
+                color: Colors.red.shade900.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(8),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: onStop,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.stop, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text(
+                          "Stop Scraping",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              itemBuilder: (context, element) {
-                return element.widget;
-              },
-              sort: false,
-            ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _statItem(String title, int count, Color color) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 12, color: Colors.grey),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "$count",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -299,24 +506,28 @@ Future<void> _startScraper(WidgetRef ref) async {
   );
 }
 
+CancellationToken? _scraperCancellationToken;
+
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
 
-  final CancellationToken cancellationToken = CancellationToken();
-
   service.on('scrape').listen((event) async {
     debugPrint("Got scrape request: $event");
+    _scraperCancellationToken?.cancel();
+    final cancellationToken = CancellationToken();
+    _scraperCancellationToken = cancellationToken;
     CancellableCompleter completer = CancellableCompleter(cancellationToken, onCancel: () {
       debugPrint("Cancelling scrape request");
       service.stopSelf();
     });
-    completer.complete(scrapeGames(service, event));
+    completer.complete(scrapeGames(service, event, cancellationToken: cancellationToken));
     debugPrint("Scraper is running...");
   });
 
   service.on('stop').listen((event) {
     debugPrint("Force stopping the service");
+    _scraperCancellationToken?.cancel();
     service.invoke(
       'update',
       {
@@ -329,7 +540,6 @@ void onStart(ServiceInstance service) async {
         "msg": "Cancelled",
       },
     );
-    cancellationToken.cancel();
     service.stopSelf();
   });
 }

@@ -24,11 +24,16 @@ class Settings {
   bool get showGameVideos => _getBoolean('showGameVideos', false);
   bool get fadeToVideo => _getBoolean('fadeToVideo', false);
   bool get muteVideo => _getBoolean('muteVideo', true);
+  double get fontScale => _getDouble('fontScale', 1.0);
   String? get daijishoWallpaperPack => _getString('daijishoWallpaperPack');
   String? get screenScraperUser => _getString('screenScraperUser');
   String? get screenScraperPwd => _getString('screenScraperPwd');
   String? get scrapeTheseGames => _getString('scrapeTheseGames');
   List<String> get scrapeTheseSystems => _getStringList('scrapeTheseSystems');
+
+  double _getDouble(String key, double defaultValue) {
+    return settings.containsKey(key) ? double.tryParse(settings[key]!.value) ?? defaultValue : defaultValue;
+  }
 
   bool _getBoolean(String key, bool defaultValue) {
     return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
@@ -88,6 +93,10 @@ class SettingsRepo {
 
   Future<void> setMuteVideo(bool value) async {
     return _setBoolean('muteVideo', value);
+  }
+
+  Future<void> setFontScale(double value) async {
+    return _setSetting('fontScale', value.toStringAsFixed(1));
   }
 
   Future<void> setDaijishoWallpaperPack(String value) async {

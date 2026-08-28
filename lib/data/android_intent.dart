@@ -86,7 +86,7 @@ class LaunchIntent {
     );
   }
 
-  _tokenValue(String? v, RomLocation romLocation) {
+  String? _tokenValue(String? v, RomLocation romLocation) {
     if (v == null) return null;
     switch (v) {
       case "{file.path}":
@@ -196,6 +196,6 @@ class LaunchIntent {
   }
 }
 
-trim(String s) {
+String trim(String s) {
   return s.replaceAll("'", '').replaceAll('"', '').trim();
 }

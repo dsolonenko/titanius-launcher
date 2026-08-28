@@ -16,12 +16,20 @@ class PromptBar extends StatelessWidget {
   final String text;
   final GamepadPrompts navigations;
   final GamepadPrompts actions;
+  final Color? backgroundColor;
 
-  const PromptBar({super.key, this.text = "", this.navigations = const [], this.actions = const []});
+  const PromptBar({
+    super.key,
+    this.text = "",
+    this.navigations = const [],
+    this.actions = const [],
+    this.backgroundColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
+      color: backgroundColor ?? Colors.black.withValues(alpha: 0.5),
       padding: const EdgeInsets.all(8),
       child: Row(
         children: [

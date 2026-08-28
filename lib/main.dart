@@ -8,6 +8,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
+import 'package:titanius/data/games.dart';
+import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/state.dart';
 import 'package:titanius/pages/filter.dart';
 
 import 'package:titanius/pages/game_settings.dart';
@@ -130,18 +133,28 @@ class MyApp extends HookConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    final fontScale = settings.value?.fontScale ?? 1.0;
     final scraperService = ref.watch(scraperServiceProvider);
     useEffect(() {
       final sub = scraperService.on("update").listen((event) {
+        final total = event!["total"] as int;
+        final pending = event["pending"] as int;
+        final msg = event["msg"] as String;
         ref.read(scraperProgressStateProvider.notifier).set(ScraperProgress(
-              total: event!["total"] as int,
-              pending: event!["pending"] as int,
+              total: total,
+              pending: pending,
               success: event["success"] as int,
               error: event["error"] as int,
               system: event["system"] as String,
               rom: event["rom"] as String,
-              message: event["msg"] as String,
+              message: msg,
             ));
+        if (msg == "Done" || msg == "Cancelled" || msg == "Quota exceeded") {
+          ref.invalidate(allGamesProvider);
+          ref.invalidate(gamesProvider);
+          ref.invalidate(filteredGamesInFolderProvider);
+        }
       });
       return () => sub.cancel();
     }, []);
@@ -151,6 +164,14 @@ class MyApp extends HookConsumerWidget {
       theme: _buildTheme(Brightness.dark),
       themeMode: ThemeMode.dark,
       routerConfig: _router,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(fontScale),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 
@@ -163,6 +184,10 @@ class MyApp extends HookConsumerWidget {
     return baseTheme.copyWith(
       textTheme: baseTheme.textTheme.apply(
         fontFamily: 'KarenFat',
+      ),
+      listTileTheme: const ListTileThemeData(
+        selectedTileColor: Colors.white,
+        selectedColor: Colors.black,
       ),
     );
   }

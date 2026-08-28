@@ -7,11 +7,27 @@ class AppsSettingsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final installedApps = ref.watch(installedAppsProvider);
     final selectedApps = ref.watch(androidAppsProvider);
-
-    final selected = useState("");
+    final selectedIndex = useState(0);
 
     useGamepad(ref, (location, key) {
       if (location != "/select_apps") return;
+      final appsList = installedApps.value ?? [];
+      if (appsList.isEmpty) return;
+
+      if (key == GamepadButton.up) {
+        selectedIndex.value = (selectedIndex.value - 1).clamp(0, appsList.length - 1);
+      }
+      if (key == GamepadButton.down) {
+        selectedIndex.value = (selectedIndex.value + 1).clamp(0, appsList.length - 1);
+      }
+      if (key == GamepadButton.a) {
+        final app = appsList[selectedIndex.value.clamp(0, appsList.length - 1)];
+        final isSelected = selectedApps.value?.isSelected(app.packageName) ?? false;
+        ref
+            .read(androidAppsRepoProvider)
+            .selectApp(app.packageName, !isSelected)
+            .then((value) => ref.refresh(androidAppsProvider));
+      }
       if (key == GamepadButton.b) {
         GoRouter.of(context).go("/games/android");
       }
@@ -48,31 +64,51 @@ class AppsSettingsPage extends HookConsumerWidget {
                   ),
                 ),
                 indexedItemBuilder: (context, app, index) {
-                  final isSelected = selectedApps.isSelected(app.packageName);
-                  return ListTile(
-                    autofocus: selected.value == app.packageName || (selected.value.isEmpty && index == 0),
-                    onFocusChange: (value) {
-                      if (value) {
-                        selected.value = app.packageName;
-                        debugPrint("Focus on ${app.packageName}");
-                      }
-                    },
-                    onTap: () {
-                      ref
-                          .read(androidAppsRepoProvider)
-                          .selectApp(app.packageName, !isSelected)
-                          .then((value) => ref.refresh(androidAppsProvider));
-                    },
-                    title: Text(app.name),
-                    subtitle: Text(app.packageName),
-                    leading: app.icon != null
-                        ? CachedMemoryImage(
-                            uniqueKey: app.packageName,
-                            bytes: app.icon!,
-                            fit: BoxFit.contain,
-                          )
-                        : const Icon(Icons.android),
-                    trailing: isSelected ? toggleOnIcon : toggleOffIcon,
+                  final isAppSelected = selectedApps.isSelected(app.packageName);
+                  final isSelected = index == selectedIndex.value;
+                  return SelectedScrollTile(
+                    isSelected: isSelected,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      child: Material(
+                        color: isSelected ? Colors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                        child: ListTile(
+                          selected: isSelected,
+                          selectedColor: Colors.black,
+                          selectedTileColor: Colors.transparent,
+                          dense: true,
+                          onTap: () {
+                            selectedIndex.value = index;
+                            ref
+                                .read(androidAppsRepoProvider)
+                                .selectApp(app.packageName, !isAppSelected)
+                                .then((value) => ref.refresh(androidAppsProvider));
+                          },
+                          title: Text(
+                            app.name,
+                            style: TextStyle(
+                              color: isSelected ? Colors.black : Colors.white,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                          subtitle: Text(
+                            app.packageName,
+                            style: TextStyle(
+                              color: isSelected ? Colors.black87 : Colors.grey,
+                            ),
+                          ),
+                          leading: app.icon != null
+                              ? CachedMemoryImage(
+                                  uniqueKey: app.packageName,
+                                  bytes: app.icon!,
+                                  fit: BoxFit.contain,
+                                )
+                              : Icon(Icons.android, color: isSelected ? Colors.black : Colors.white),
+                          trailing: isAppSelected ? toggleOnIcon : toggleOffIcon,
+                        ),
+                      ),
+                    ),
                   );
                 },
               );

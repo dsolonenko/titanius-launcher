@@ -52,15 +52,65 @@ class GamesPage extends HookConsumerWidget {
 
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
-      if (key == GamepadButton.l1 || key == GamepadButton.r1) {
-        final pos = itemPositionsListener.itemPositions.value.sorted((a, b) => a.index.compareTo(b.index));
-        if (pos.isEmpty) {
-          return;
+      if (key == GamepadButton.up) {
+        final gamelist = games.value;
+        if (gamelist != null && gamelist.games.isNotEmpty) {
+          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          if (selectedIndex > 0) {
+            final newIndex = selectedIndex - 1;
+            ref.read(selectedGameProvider(system).notifier).state = gamelist.games[newIndex];
+            _ensureVisible(scrollController, itemPositionsListener, newIndex);
+          }
         }
-        final pageSize = pos.last.index - pos.first.index + 1;
-        final index = key == GamepadButton.l1 ? max(pos.first.index - pageSize, 0) : pos.last.index + 1;
-        debugPrint("Go to index=$index page=$pageSize list=${pos.map((e) => e.index.toString()).join(",")}");
+      }
+      if (key == GamepadButton.down) {
+        final gamelist = games.value;
+        if (gamelist != null && gamelist.games.isNotEmpty) {
+          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          if (selectedIndex < gamelist.games.length - 1) {
+            final newIndex = selectedIndex + 1;
+            ref.read(selectedGameProvider(system).notifier).state = gamelist.games[newIndex];
+            _ensureVisible(scrollController, itemPositionsListener, newIndex);
+          }
+        }
+      }
+      if (key == GamepadButton.a) {
+        final gamelist = games.value;
+        if (gamelist != null && gamelist.games.isNotEmpty) {
+          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          final game = gamelist.games[selectedIndex];
+          if (game.isFolder) {
+            ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
+            ref.read(selectedGameProvider(system).notifier).state = null;
+          } else {
+            _launchGame(ref, game);
+          }
+        }
+      }
+      if (key == GamepadButton.l1 || key == GamepadButton.r1) {
+        final gamelist = games.value;
+        if (gamelist == null || gamelist.games.isEmpty) return;
+        final pos = itemPositionsListener.itemPositions.value.sorted((a, b) => a.index.compareTo(b.index));
+        final pageSize = pos.isNotEmpty ? max(1, pos.last.index - pos.first.index) : 10;
+        final current = findGame(gamelist, ref.read(selectedGameProvider(system)));
+        final index = key == GamepadButton.l1
+            ? max(current - pageSize, 0)
+            : min(gamelist.games.length - 1, current + pageSize);
+        debugPrint("Go to index=$index page=$pageSize");
         _goTo(ref, scrollController, index);
+      }
+      if (key == GamepadButton.l2 || key == GamepadButton.r2) {
+        final allSystems = ref.read(loadedSystemsProvider).value ?? [];
+        if (allSystems.isNotEmpty) {
+          final currentIdx = allSystems.indexWhere((s) => s.id == system);
+          if (currentIdx != -1) {
+            final nextIdx = key == GamepadButton.r2
+                ? (currentIdx + 1) % allSystems.length
+                : (currentIdx - 1 + allSystems.length) % allSystems.length;
+            ref.read(selectedSystemProvider.notifier).state = nextIdx;
+            GoRouter.of(context).go("/games/${allSystems[nextIdx].id}");
+          }
+        }
       }
       if (key == GamepadButton.b) {
         final navigation = ref.read(currentGameNavigationProvider(system));
@@ -85,6 +135,9 @@ class GamesPage extends HookConsumerWidget {
         if (selectedGame != null && !selectedGame.isFolder) {
           GoRouter.of(context).push("/games/$system/game/${selectedGame.hash}");
         }
+      }
+      if (key == GamepadButton.start) {
+        GoRouter.of(context).push("/settings?source=$system");
       }
     });
 
@@ -139,50 +192,58 @@ class GamesPage extends HookConsumerWidget {
                         itemBuilder: (context, index) {
                           final game = gamelist.games[index];
                           final isSelected = index == selectedIndex;
-                          return ListTile(
-                            key: ValueKey(game.romPath),
-                            visualDensity: VisualDensity.compact,
-                            horizontalTitleGap: 0,
-                            minLeadingWidth: 22,
-                            minVerticalPadding: 0,
-                            leading: game.isFolder
-                                ? const Icon(Icons.folder, size: 14)
-                                : game.hidden
-                                    ? const Icon(Icons.visibility_off_rounded, size: 14)
-                                    : system != "favourites" && game.favorite
-                                        ? const Icon(
-                                            Icons.star_rounded,
-                                            size: 14,
-                                          )
-                                        : null,
-                            autofocus: isSelected,
-                            selected: isSelected,
-                            onFocusChange: (value) {
-                              if (value) {
-                                debugPrint(
-                                    "Focus on $index: ${game.system.id}/${game.rom}, list=${itemPositionsListener.itemPositions.value.sorted((a, b) => a.index.compareTo(b.index)).map((e) => e.index.toString()).join(",")}");
-                                ref.read(selectedGameProvider(system).notifier).state = game;
-                              }
-                            },
-                            title: Text(
-                              game.name,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            child: Material(
+                              color: isSelected ? Colors.white : Colors.transparent,
+                              borderRadius: BorderRadius.circular(4),
+                              child: ListTile(
+                                key: ValueKey(game.romPath),
+                                visualDensity: VisualDensity.compact,
+                                horizontalTitleGap: 4,
+                                minLeadingWidth: 18,
+                                minVerticalPadding: 0,
+                                dense: true,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                leading: game.isFolder
+                                    ? Icon(Icons.folder, size: 14, color: isSelected ? Colors.black : Colors.white)
+                                    : game.hidden
+                                        ? Icon(Icons.visibility_off_rounded, size: 14, color: isSelected ? Colors.black : Colors.grey)
+                                        : system != "favourites" && game.favorite
+                                            ? Icon(Icons.star_rounded, size: 14, color: isSelected ? Colors.black : Colors.orangeAccent)
+                                            : null,
+                                selected: isSelected,
+                                selectedColor: Colors.black,
+                                selectedTileColor: Colors.transparent,
+                                title: Text(
+                                  game.name,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.black : Colors.white,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                                subtitle: gamelist.system.isCollection
+                                    ? Text(
+                                        game.system.name,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          color: isSelected ? Colors.black87 : Colors.grey,
+                                        ),
+                                      )
+                                    : null,
+                                onTap: () {
+                                  ref.read(selectedGameProvider(system).notifier).state = game;
+                                  if (game.isFolder) {
+                                    ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
+                                    ref.read(selectedGameProvider(system).notifier).state = null;
+                                  } else {
+                                    _launchGame(ref, game);
+                                  }
+                                },
+                              ),
                             ),
-                            subtitle: gamelist.system.isCollection
-                                ? Text(
-                                    game.system.name,
-                                    maxLines: 1,
-                                  )
-                                : null,
-                            onTap: () {
-                              if (game.isFolder) {
-                                ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
-                                ref.read(selectedGameProvider(system).notifier).state = null;
-                              } else {
-                                _launchGame(ref, game);
-                              }
-                            },
                           );
                         },
                       ),
@@ -268,12 +329,34 @@ class GamesPage extends HookConsumerWidget {
 
   void _goTo(WidgetRef ref, ItemScrollController scrollController, int index) {
     final games = ref.read(filteredGamesInFolderProvider(system));
+    if (games.value == null || games.value!.games.isEmpty) return;
     index = index.clamp(0, games.value!.games.length - 1).toInt();
-    scrollController.jumpTo(
-      index: index,
-      alignment: 0,
-    );
+    if (scrollController.isAttached) {
+      scrollController.jumpTo(
+        index: index,
+        alignment: 0,
+      );
+    }
     ref.read(selectedGameProvider(system).notifier).state = games.value!.games[index];
+  }
+
+  void _ensureVisible(
+      ItemScrollController scrollController, ItemPositionsListener itemPositionsListener, int targetIndex) {
+    if (!scrollController.isAttached) return;
+    final positions = itemPositionsListener.itemPositions.value.toList();
+    if (positions.isEmpty) {
+      scrollController.jumpTo(index: targetIndex, alignment: 0.0);
+      return;
+    }
+    positions.sort((a, b) => a.index.compareTo(b.index));
+    final firstItem = positions.first;
+    final lastItem = positions.last;
+
+    if (targetIndex < firstItem.index || (targetIndex == firstItem.index && firstItem.itemLeadingEdge < 0.0)) {
+      scrollController.jumpTo(index: targetIndex, alignment: 0.0);
+    } else if (targetIndex > lastItem.index || (targetIndex == lastItem.index && lastItem.itemTrailingEdge > 1.0)) {
+      scrollController.jumpTo(index: targetIndex, alignment: 1.0);
+    }
   }
 
   Widget _gameDetails(AsyncValue<Settings> settings, Game gameToShow, ValueNotifier<bool> showDetails) {
@@ -293,7 +376,7 @@ class GamesPage extends HookConsumerWidget {
               data: (settings) => settings.showGameVideos && gameToShow.videoUrl != null
                   ? _gameVideo(settings, gameToShow)
                   : _gameImage(gameToShow),
-              error: (_, __) => _gameImage(gameToShow),
+              error: (_, _) => _gameImage(gameToShow),
               loading: () => const Center(child: CircularProgressIndicator())),
         ),
         const SizedBox(height: verticalSpacing),
@@ -399,23 +482,35 @@ class GamesPage extends HookConsumerWidget {
   Widget _collectionLogo(IconData icon, String text) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon, color: Colors.white),
+        Icon(icon, color: Colors.white, size: 20),
         const SizedBox(width: 8),
-        Text(text, style: const TextStyle(color: Colors.white, fontSize: 18)),
+        Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            height: 1.0,
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+        ),
       ],
     );
   }
 
-  int findGame(GameList gamelist, Game? selectedGame) {
+  int findGame(GameList? gamelist, Game? selectedGame) {
+    if (gamelist == null || gamelist.games.isEmpty) {
+      return 0;
+    }
     if (selectedGame == null) {
       return 0;
     }
-    final index = binarySearch(gamelist.games, selectedGame, compare: gamelist.compare);
-    if (index >= 0) {
+    final index = gamelist.games.indexWhere((g) => g.hash == selectedGame.hash);
+    if (index != -1) {
       return index;
     }
-    return lowerBound(gamelist.games, selectedGame, compare: gamelist.compare).clamp(0, gamelist.games.length - 1);
+    return 0;
   }
 }
 

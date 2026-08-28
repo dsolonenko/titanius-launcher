@@ -7,11 +7,29 @@ class ScraperSystemsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final systems = ref.watch(loadedSystemsProvider);
     final settings = ref.watch(settingsProvider);
-
-    final selected = useState("");
+    final selectedIndex = useState(0);
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/scraper/systems") return;
+      final sysList = systems.value?.where((e) => !e.isCollection && !e.isAndroid).toList() ?? [];
+      if (sysList.isEmpty) return;
+
+      if (key == GamepadButton.up) {
+        selectedIndex.value = (selectedIndex.value - 1).clamp(0, sysList.length - 1);
+      }
+      if (key == GamepadButton.down) {
+        selectedIndex.value = (selectedIndex.value + 1).clamp(0, sysList.length - 1);
+      }
+      if (key == GamepadButton.a) {
+        final system = sysList[selectedIndex.value.clamp(0, sysList.length - 1)];
+        final showSystem = settings.value?.scrapeTheseSystems.contains(system.id) ?? false;
+        ref
+            .read(settingsRepoProvider)
+            .setScrapeTheseSystem(system.id, !showSystem)
+            .then((value) {
+          final _ = ref.refresh(settingsProvider);
+        });
+      }
       if (key == GamepadButton.b) {
         GoRouter.of(context).pop();
       }
@@ -21,7 +39,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
         });
       }
       if (key == GamepadButton.y) {
-        final all = systems.value!.where((element) => !element.isCollection).map((e) => e.id).toList();
+        final all = sysList.map((e) => e.id).toList();
         ref.read(settingsRepoProvider).setScrapeTheseSystems(all).then((value) {
           final _ = ref.refresh(settingsProvider);
         });
@@ -46,12 +64,11 @@ class ScraperSystemsPage extends HookConsumerWidget {
         data: (systems) {
           return settings.when(
             data: (settings) {
+              final sysList = systems.where((e) => !e.isCollection && !e.isAndroid).toList();
               return GroupedListView<System, String>(
                 key: const PageStorageKey("settings/scraper/systems"),
-                elements: systems.where((e) => !e.isCollection && !e.isAndroid).toList(),
-                groupBy: (system) {
-                  return "Systems";
-                },
+                elements: sysList,
+                groupBy: (system) => "Systems",
                 groupSeparatorBuilder: (String value) => Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
@@ -61,24 +78,45 @@ class ScraperSystemsPage extends HookConsumerWidget {
                 ),
                 indexedItemBuilder: (context, system, index) {
                   final showSystem = settings.scrapeTheseSystems.contains(system.id);
-                  return ListTile(
-                    autofocus: selected.value == system.id || (selected.value.isEmpty && index == 0),
-                    onFocusChange: (value) {
-                      if (value) {
-                        selected.value = system.id;
-                      }
-                    },
-                    onTap: () {
-                      ref
-                          .read(settingsRepoProvider)
-                          .setScrapeTheseSystem(system.id, showSystem ? false : true)
-                          .then((value) {
-                        final _ = ref.refresh(settingsProvider);
-                      });
-                    },
-                    title: Text(system.name),
-                    subtitle: Text("Folders: ${system.folders.join(", ")}"),
-                    trailing: showSystem ? toggleOnIcon : toggleOffIcon,
+                  final isSelected = index == selectedIndex.value;
+                  return SelectedScrollTile(
+                    isSelected: isSelected,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      child: Material(
+                        color: isSelected ? Colors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                        child: ListTile(
+                          selected: isSelected,
+                          selectedColor: Colors.black,
+                          selectedTileColor: Colors.transparent,
+                          dense: true,
+                          onTap: () {
+                            selectedIndex.value = index;
+                            ref
+                                .read(settingsRepoProvider)
+                                .setScrapeTheseSystem(system.id, showSystem ? false : true)
+                                .then((value) {
+                              final _ = ref.refresh(settingsProvider);
+                            });
+                          },
+                          title: Text(
+                            system.name,
+                            style: TextStyle(
+                              color: isSelected ? Colors.black : Colors.white,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "Folders: ${system.folders.join(", ")}",
+                            style: TextStyle(
+                              color: isSelected ? Colors.black87 : Colors.grey,
+                            ),
+                          ),
+                          trailing: showSystem ? toggleOnIcon : toggleOffIcon,
+                        ),
+                      ),
+                    ),
                   );
                 },
               );

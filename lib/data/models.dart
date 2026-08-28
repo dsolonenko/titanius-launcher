@@ -63,7 +63,7 @@ class System {
 
   @override
   String toString() {
-    return 'Person{name: $name, folders: $folders}';
+    return 'System{id: $id, name: $name, folders: $folders}';
   }
 
   factory System.fromJson(Map<String, dynamic> json) {
@@ -111,11 +111,11 @@ class Emulator {
     );
   }
 
-  get isStandalone => intent.isStandalone;
-  get isCustom => id.startsWith("custom:");
+  bool get isStandalone => intent.isStandalone;
+  bool get isCustom => id.startsWith("custom:");
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Game {
   final System system;
   final String volumePath;
@@ -219,25 +219,25 @@ class Game {
   }
 
   XmlNode toXmlNode() {
-    return XmlElement(XmlName.fromString("game"), [
-      XmlAttribute(XmlName.fromString("id"), id ?? ""),
-      XmlAttribute(XmlName.fromString("source"), "ScreenScraper.fr"),
+    return XmlElement(XmlName.qualified("game"), [
+      XmlAttribute(XmlName.qualified("id"), id ?? ""),
+      XmlAttribute(XmlName.qualified("source"), "ScreenScraper.fr"),
     ], [
-      XmlElement(XmlName.fromString("path"), [], [XmlText(rom)]),
-      XmlElement(XmlName.fromString("name"), [], [XmlText(name)]),
-      XmlElement(XmlName.fromString("desc"), [], [XmlText(description ?? "")]),
-      XmlElement(XmlName.fromString("rating"), [], [XmlText(((rating ?? 0) / 10).toString())]),
-      XmlElement(XmlName.fromString("releasedate"), [], [XmlText(year?.toString() ?? "")]),
-      XmlElement(XmlName.fromString("developer"), [], [XmlText(developer ?? "")]),
-      XmlElement(XmlName.fromString("publisher"), [], [XmlText(publisher ?? "")]),
-      XmlElement(XmlName.fromString("genre"), [], [XmlText(genre ?? "")]),
-      XmlElement(XmlName.fromString("genreid"), [], [XmlText(genreId?.id.toString() ?? "")]),
-      XmlElement(XmlName.fromString("players"), [], [XmlText(players ?? "")]),
-      if (imageUrl != null) XmlElement(XmlName.fromString("image"), [], [XmlText(imageUrl ?? "")]),
-      if (thumbnailUrl != null) XmlElement(XmlName.fromString("thumbnail"), [], [XmlText(thumbnailUrl ?? "")]),
-      if (videoUrl != null) XmlElement(XmlName.fromString("video"), [], [XmlText(videoUrl ?? "")]),
-      XmlElement(XmlName.fromString("favorite"), [], [XmlText(favorite ? "true" : "false")]),
-      XmlElement(XmlName.fromString("hidden"), [], [XmlText(hidden ? "true" : "false")]),
+      XmlElement(XmlName.qualified("path"), [], [XmlText(rom)]),
+      XmlElement(XmlName.qualified("name"), [], [XmlText(name)]),
+      XmlElement(XmlName.qualified("desc"), [], [XmlText(description ?? "")]),
+      XmlElement(XmlName.qualified("rating"), [], [XmlText(((rating ?? 0) / 10).toString())]),
+      XmlElement(XmlName.qualified("releasedate"), [], [XmlText(year?.toString() ?? "")]),
+      XmlElement(XmlName.qualified("developer"), [], [XmlText(developer ?? "")]),
+      XmlElement(XmlName.qualified("publisher"), [], [XmlText(publisher ?? "")]),
+      XmlElement(XmlName.qualified("genre"), [], [XmlText(genre ?? "")]),
+      XmlElement(XmlName.qualified("genreid"), [], [XmlText(genreId?.id.toString() ?? "")]),
+      XmlElement(XmlName.qualified("players"), [], [XmlText(players ?? "")]),
+      if (imageUrl != null) XmlElement(XmlName.qualified("image"), [], [XmlText(imageUrl ?? "")]),
+      if (thumbnailUrl != null) XmlElement(XmlName.qualified("thumbnail"), [], [XmlText(thumbnailUrl ?? "")]),
+      if (videoUrl != null) XmlElement(XmlName.qualified("video"), [], [XmlText(videoUrl ?? "")]),
+      XmlElement(XmlName.qualified("favorite"), [], [XmlText(favorite ? "true" : "false")]),
+      XmlElement(XmlName.qualified("hidden"), [], [XmlText(hidden ? "true" : "false")]),
     ]);
   }
 
@@ -277,7 +277,15 @@ class Game {
     return 'Game{${system.id}/$rom}';
   }
 
-  factory Game.fromJson(Map<String, dynamic> json) => _$GameFromJson(json);
+  factory Game.fromJson(Map<String, dynamic> json) {
+    if (json['system'] is System) {
+      final system = json['system'] as System;
+      final map = Map<String, dynamic>.from(json);
+      map['system'] = system.toJson();
+      return _$GameFromJson(map);
+    }
+    return _$GameFromJson(json);
+  }
 
   Map<String, dynamic> toJson() => _$GameToJson(this);
 

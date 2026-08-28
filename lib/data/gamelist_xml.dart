@@ -29,12 +29,12 @@ void tryDelete(String? url) {
 
 Future<bool> setFavouriteInGamelistXml(Game game, bool favourite) {
   return _updateGamelistXml(
-      game, false, (document, romPath) => _setNode(document, romPath, "favorite", favourite ? "true" : "false"));
+      game, true, (document, romPath) => _setNode(document, romPath, "favorite", favourite ? "true" : "false", game));
 }
 
 Future<bool> setHiddenGameInGamelistXml(Game game, bool hidden) {
   return _updateGamelistXml(
-      game, false, (document, romPath) => _setNode(document, romPath, "hidden", hidden ? "true" : "false"));
+      game, true, (document, romPath) => _setNode(document, romPath, "hidden", hidden ? "true" : "false", game));
 }
 
 Future<bool> removeGameFromGamelistXml(Game game) {
@@ -56,12 +56,14 @@ Future<bool> _updateGamelistXml(
     if (await xmlFile.exists()) {
       final xmlContent = await xmlFile.readAsString();
       final document = XmlDocument.parse(xmlContent);
-      return _updateDocument(xmlFile, document, romPath, update);
+      return await _updateDocument(xmlFile, document, romPath, update);
     } else {
       if (createNew) {
         debugPrint('Creating new gamelist.xml');
-        final document = XmlDocument();
-        return _updateDocument(xmlFile, document, romPath, update);
+        final document = XmlDocument([
+          XmlElement(XmlName.qualified("gameList"), [], []),
+        ]);
+        return await _updateDocument(xmlFile, document, romPath, update);
       } else {
         debugPrint('Gamelist.xml not found');
         return false;
@@ -87,19 +89,37 @@ Future<bool> _updateDocument(File xmlFile, XmlDocument document, String romPath,
   }
 }
 
-bool _setNode(XmlDocument document, String romPath, String nodeName, String nodeValue) {
+bool _setNode(XmlDocument document, String romPath, String nodeName, String nodeValue, [Game? game]) {
   final games = document.findAllElements('game');
-  for (final game in games) {
-    final pathElement = game.findElements('path').firstOrNull;
-    if (pathElement?.innerText == romPath) {
-      final favouriteNode = game.findElements(nodeName).firstOrNull;
-      if (favouriteNode != null) {
-        favouriteNode.innerText = nodeValue;
+  for (final g in games) {
+    final pathElement = g.findElements('path').firstOrNull;
+    if (pathElement?.innerText == romPath ||
+        pathElement?.innerText == romPath.replaceFirst("./", "") ||
+        "./${pathElement?.innerText}" == romPath) {
+      final targetNode = g.findElements(nodeName).firstOrNull;
+      if (targetNode != null) {
+        targetNode.innerText = nodeValue;
       } else {
-        game.children.add(XmlElement(XmlName(nodeName), [], [XmlText(nodeValue)]));
+        g.children.add(XmlElement(XmlName.qualified(nodeName), [], [XmlText(nodeValue)]));
       }
       return true;
     }
+  }
+  if (game != null) {
+    var gamelistElement = document.findElements("gameList").firstOrNull;
+    if (gamelistElement == null) {
+      gamelistElement = XmlElement(XmlName.qualified("gameList"), [], []);
+      document.children.add(gamelistElement);
+    }
+    final gameNode = game.toXmlNode();
+    final targetNode = gameNode.findElements(nodeName).firstOrNull;
+    if (targetNode != null) {
+      targetNode.innerText = nodeValue;
+    } else {
+      gameNode.children.add(XmlElement(XmlName.qualified(nodeName), [], [XmlText(nodeValue)]));
+    }
+    gamelistElement.children.add(gameNode);
+    return true;
   }
   return false;
 }
@@ -107,8 +127,10 @@ bool _setNode(XmlDocument document, String romPath, String nodeName, String node
 bool _removeNode(XmlDocument document, String romPath) {
   final games = document.findAllElements('game');
   for (final game in games) {
-    final pathElement = game.findElements('path').first;
-    if (pathElement.innerText == romPath) {
+    final pathElement = game.findElements('path').firstOrNull;
+    if (pathElement?.innerText == romPath ||
+        pathElement?.innerText == romPath.replaceFirst("./", "") ||
+        "./${pathElement?.innerText}" == romPath) {
       return game.parent?.children.remove(game) ?? false;
     }
   }
@@ -119,7 +141,7 @@ bool _rewriteNode(XmlDocument document, String romPath, Game game) {
   _removeNode(document, romPath);
   var gamelistElement = document.findElements("gameList").firstOrNull;
   if (gamelistElement == null) {
-    gamelistElement = XmlElement(XmlName("gameList"), [], []);
+    gamelistElement = XmlElement(XmlName.qualified("gameList"), [], []);
     document.children.add(gamelistElement);
   }
   gamelistElement.children.add(game.toXmlNode());

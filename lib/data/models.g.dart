@@ -32,7 +32,7 @@ Game _$GameFromJson(Map<String, dynamic> json) => Game(
 );
 
 Map<String, dynamic> _$GameToJson(Game instance) => <String, dynamic>{
-  'system': instance.system,
+  'system': instance.system.toJson(),
   'volumePath': instance.volumePath,
   'systemFolder': instance.systemFolder,
   'folder': instance.folder,

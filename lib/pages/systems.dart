@@ -59,62 +59,69 @@ class SystemsPage extends HookConsumerWidget {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: const CustomAppBar(),
-      bottomNavigationBar: const PromptBar(
-        navigations: [
-          GamepadPrompt([GamepadButton.leftRight], "Choose"),
-          GamepadPrompt([GamepadButton.start], "Menu"),
-        ],
-        actions: [
-          GamepadPrompt([GamepadButton.a], "Select"),
-        ],
+      bottomNavigationBar: Container(
+        color: Colors.black.withValues(alpha: 0.5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 8),
+            games.when(
+              data: (games) => _gamesStats(context, games),
+              error: (error, stackTrace) => const Text("Error loading games"),
+              loading: () => const SizedBox.shrink(),
+            ),
+            allSystems.when(
+              data: (systems) => systems.isNotEmpty
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 8),
+                        PageViewDotIndicator(
+                          size: const Size(8, 8),
+                          unselectedSize: const Size(8, 8),
+                          currentItem: selectedSystem < systems.length ? selectedSystem : 0,
+                          count: systems.length,
+                          unselectedColor: Theme.of(context).colorScheme.surface.lighten(10),
+                          selectedColor: Theme.of(context).colorScheme.primary,
+                        ),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
+              loading: () => const SizedBox.shrink(),
+            ),
+            const PromptBar(
+              backgroundColor: Colors.transparent,
+              navigations: [
+                GamepadPrompt([GamepadButton.leftRight], "Choose"),
+                GamepadPrompt([GamepadButton.start], "Menu"),
+              ],
+              actions: [
+                GamepadPrompt([GamepadButton.a], "Select"),
+              ],
+            ),
+          ],
+        ),
       ),
       body: allSystems.when(
         data: (systems) => wallpaperPack.when(
           data: (wallpaperPack) {
-            return Stack(
-              children: [
-                PreloadPageView.builder(
-                  onPageChanged: (value) {
-                    ref.read(selectedSystemProvider.notifier).state = value;
-                  },
-                  preloadPagesCount: 1,
-                  controller: pageController,
-                  itemCount: systems.length,
-                  itemBuilder: (context, index) {
-                    if (index >= systems.length) return Container();
-                    final system = systems[index];
-                    return GestureDetector(
-                      onTap: () => GoRouter.of(context).go("/games/${system.id}"),
-                      child: _systemLogo(ref, context, system, wallpaperPack),
-                    );
-                  },
-                ),
-                systems.isNotEmpty
-                    ? Container(
-                        alignment: Alignment.bottomCenter,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            games.when(
-                                data: (games) => _gamesStats(context, games),
-                                error: (error, stackTrace) => const Text("Error loading games"),
-                                loading: () => Container()),
-                            const SizedBox(height: 8),
-                            PageViewDotIndicator(
-                              size: const Size(8, 8),
-                              unselectedSize: const Size(8, 8),
-                              currentItem: selectedSystem < systems.length ? selectedSystem : 0,
-                              count: systems.length,
-                              unselectedColor: Theme.of(context).colorScheme.surface.lighten(10),
-                              selectedColor: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(height: 8),
-                          ],
-                        ),
-                      )
-                    : Container(),
-              ],
+            return PreloadPageView.builder(
+              onPageChanged: (value) {
+                ref.read(selectedSystemProvider.notifier).state = value;
+              },
+              preloadPagesCount: 1,
+              controller: pageController,
+              itemCount: systems.length,
+              itemBuilder: (context, index) {
+                if (index >= systems.length) return Container();
+                final system = systems[index];
+                return GestureDetector(
+                  onTap: () => GoRouter.of(context).go("/games/${system.id}"),
+                  child: _systemLogo(ref, context, system, wallpaperPack),
+                );
+              },
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -191,9 +198,18 @@ class SystemsPage extends HookConsumerWidget {
             fit: BoxFit.fitWidth,
             child: Row(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(icon, color: iconColor),
-                Text(text, style: const TextStyle(color: Colors.white)),
+                const SizedBox(width: 8),
+                Text(
+                  text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    height: 1.0,
+                    leadingDistribution: TextLeadingDistribution.even,
+                  ),
+                ),
               ],
             ),
           ),
@@ -204,7 +220,7 @@ class SystemsPage extends HookConsumerWidget {
   }
 
   Widget _gamesStats(BuildContext context, GameList games) {
-    if (games.games.isEmpty) return Container();
+    if (games.games.isEmpty) return const SizedBox.shrink();
     return Text(
       "${games.games.length} games",
       style: const TextStyle(color: Colors.white, fontSize: 20),

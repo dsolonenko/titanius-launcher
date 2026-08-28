@@ -7,12 +7,16 @@
 #include "generated_plugin_registrant.h"
 
 #include <flutter_volume_controller/flutter_volume_controller_plugin.h>
+#include <gamepads_linux/gamepads_linux_plugin.h>
 #include <system_date_time_format/system_date_time_format_plugin.h>
 
 void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) flutter_volume_controller_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "FlutterVolumeControllerPlugin");
   flutter_volume_controller_plugin_register_with_registrar(flutter_volume_controller_registrar);
+  g_autoptr(FlPluginRegistrar) gamepads_linux_registrar =
+      fl_plugin_registry_get_registrar_for_plugin(registry, "GamepadsLinuxPlugin");
+  gamepads_linux_plugin_register_with_registrar(gamepads_linux_registrar);
   g_autoptr(FlPluginRegistrar) system_date_time_format_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "SystemDateTimeFormatPlugin");
   system_date_time_format_plugin_register_with_registrar(system_date_time_format_registrar);

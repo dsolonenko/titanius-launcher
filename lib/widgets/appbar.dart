@@ -23,20 +23,24 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(30);
+  Size get preferredSize => const Size.fromHeight(36);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scale = MediaQuery.textScalerOf(context).scale(1.0);
+    final barHeight = (30.0 * scale).clamp(30.0, 60.0);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      height: preferredSize.height,
-      color: (Theme.of(context).appBarTheme.backgroundColor ?? Colors.transparent).withValues(alpha: 0),
+      height: barHeight,
+      color: Colors.black.withValues(alpha: 0.5),
       alignment: Alignment.centerRight,
       child: const Row(mainAxisSize: MainAxisSize.max, children: [
         TimeWidget(),
         Spacer(),
         ScraperProgressWidget(),
+        SizedBox(width: 6),
         WifiWidget(),
+        SizedBox(width: 6),
         BatteryWidget(),
       ]),
     );

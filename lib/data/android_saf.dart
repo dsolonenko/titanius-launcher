@@ -17,20 +17,6 @@ class GrantedUri {
 
 final _safUtil = SafUtil();
 
-String _uriToFullPath(Uri uri) {
-  final String decodedPath = Uri.decodeComponent(uri.path);
-  final String volumeAndPath = decodedPath.replaceFirst('/tree/', '');
-  final List<String> segments = volumeAndPath.split(':');
-  final String grantedVolume = segments[0];
-  final String grantedPath = segments.length > 1 ? segments[1] : '';
-  final String grantedFullPath = "/storage/${grantedVolume == "primary" ? "emulated/0" : grantedVolume}/$grantedPath";
-  if (grantedFullPath.endsWith("/")) {
-    return grantedFullPath.substring(0, grantedFullPath.length - 1);
-  } else {
-    return grantedFullPath;
-  }
-}
-
 final grantedUrisProvider = FutureProvider<List<GrantedUri>>((ref) {
   if (Platform.isAndroid) {
     return _allGrantedReads();

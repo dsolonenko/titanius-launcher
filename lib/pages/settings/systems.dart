@@ -7,11 +7,30 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final systems = ref.watch(allSupportedSystemsProvider);
     final enabledSystems = ref.watch(enabledSystemsProvider);
-
-    final selected = useState("");
+    final selectedIndex = useState(0);
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/systems") return;
+      final sysList = systems.value ?? [];
+      if (sysList.isEmpty) return;
+
+      if (key == GamepadButton.up) {
+        selectedIndex.value = (selectedIndex.value - 1).clamp(0, sysList.length - 1);
+      }
+      if (key == GamepadButton.down) {
+        selectedIndex.value = (selectedIndex.value + 1).clamp(0, sysList.length - 1);
+      }
+      if (key == GamepadButton.a) {
+        final sys = sysList[selectedIndex.value.clamp(0, sysList.length - 1)];
+        final show = enabledSystems.value?.showSystem(sys.id) ?? true;
+        ref
+            .read(enabledSystemsRepoProvider)
+            .setShowSystem(sys.id, !show)
+            .then((value) {
+          ref.read(selectedSystemProvider.notifier).state = 0;
+          final _ = ref.refresh(enabledSystemsProvider);
+        });
+      }
       if (key == GamepadButton.b) {
         GoRouter.of(context).pop();
       }
@@ -45,24 +64,40 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                 ),
                 indexedItemBuilder: (context, system, index) {
                   final showSystem = enabledSystems.showSystem(system.id);
-                  return ListTile(
-                    autofocus: selected.value == system.id || (selected.value.isEmpty && index == 0),
-                    onFocusChange: (value) {
-                      if (value) {
-                        selected.value = system.id;
-                      }
-                    },
-                    onTap: () {
-                      ref
-                          .read(enabledSystemsRepoProvider)
-                          .setShowSystem(system.id, showSystem ? false : true)
-                          .then((value) {
-                        ref.read(selectedSystemProvider.notifier).state = 0;
-                        final _ = ref.refresh(enabledSystemsProvider);
-                      });
-                    },
-                    title: Text(system.name),
-                    trailing: showSystem ? toggleOnIcon : toggleOffIcon,
+                  final isSelected = index == selectedIndex.value;
+                  return SelectedScrollTile(
+                    isSelected: isSelected,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      child: Material(
+                        color: isSelected ? Colors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                        child: ListTile(
+                          selected: isSelected,
+                          selectedColor: Colors.black,
+                          selectedTileColor: Colors.transparent,
+                          dense: true,
+                          onTap: () {
+                            selectedIndex.value = index;
+                            ref
+                                .read(enabledSystemsRepoProvider)
+                                .setShowSystem(system.id, showSystem ? false : true)
+                                .then((value) {
+                              ref.read(selectedSystemProvider.notifier).state = 0;
+                              final _ = ref.refresh(enabledSystemsProvider);
+                            });
+                          },
+                          title: Text(
+                            system.name,
+                            style: TextStyle(
+                              color: isSelected ? Colors.black : Colors.white,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                          trailing: showSystem ? toggleOnIcon : toggleOffIcon,
+                        ),
+                      ),
+                    ),
                   );
                 },
               );
