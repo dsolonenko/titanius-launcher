@@ -15,7 +15,6 @@ workflows:
         - titanius
       vars:
         PACKAGE_NAME: "app.titanius.launcher"
-        BUILD_NAME: "0.4.$PROJECT_BUILD_NUMBER"
       groups:
         - github
         - screenscraper
@@ -25,6 +24,12 @@ workflows:
         - $FLUTTER_ROOT/.pub-cache
         - $HOME/.gradle/caches      
     scripts:
+      - name: Set up build version and number
+        script: | 
+          BUILD_NUMBER=$((200 + PROJECT_BUILD_NUMBER))
+          BUILD_NAME="0.5.$BUILD_NUMBER"
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $CM_ENV
+          echo "BUILD_NAME=$BUILD_NAME" >> $CM_ENV
       - name: Set up local.properties
         script: | 
           echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
@@ -47,7 +52,7 @@ workflows:
         ignore_failure: true
       - name: Build APK with Flutter
         script: | 
-          flutter build apk --release --build-name=$BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER
+          flutter build apk --release --build-name=$BUILD_NAME --build-number=$BUILD_NUMBER
       - name: Rename the apk file
         script: | 
           mv build/app/outputs/flutter-apk/app-release.apk \
@@ -56,7 +61,7 @@ workflows:
         script: |
           gh release create "$BUILD_NAME" --title "Release $BUILD_NAME" --notes "Automated release from CodeMagic" --draft "build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk"
     artifacts:
-      - build/app/outputs/flutter-apk/titanius-launcher-$BUILD_NAME.apk
+      - build/app/outputs/flutter-apk/titanius-launcher-*.apk
       - build/**/outputs/**/mapping.txt
       - flutter_drive.log
     publishing:
