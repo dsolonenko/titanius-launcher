@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId = "app.titanius.launcher"
-        minSdk = 26
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
