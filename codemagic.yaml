@@ -28,6 +28,9 @@ workflows:
       - name: Set up local.properties
         script: | 
           echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Clone screenscraper dependency
+        script: | 
+          git clone --depth 1 https://github.com/dsolonenko/screenscraper-api-dart.git ../screenscraper-api-dart
       - name: Get Flutter packages
         script: | 
           flutter pub get
