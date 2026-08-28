@@ -34,7 +34,7 @@ class RomsSettingsPage extends HookConsumerWidget {
         if (e is GrantedUri) {
           if (removing.value) {
             removing.value = false;
-            SafUtil()
+            Saf()
                 .releasePersistedPermission(e.uri.toString())
                 .then((value) => ref.refresh(grantedUrisProvider));
           } else {
@@ -63,7 +63,7 @@ class RomsSettingsPage extends HookConsumerWidget {
         }
       }
       if (key == GamepadButton.y) {
-        SafUtil().pickDirectory().then((docFile) {
+        Saf().pickDirectory().then((docFile) {
           if (docFile != null) {
             final _ = ref.refresh(grantedUrisProvider);
           }
@@ -132,7 +132,7 @@ class RomsSettingsPage extends HookConsumerWidget {
                                   selectedIndex.value = index;
                                   if (removing.value) {
                                     removing.value = false;
-                                    SafUtil()
+                                    Saf()
                                         .releasePersistedPermission(
                                           e.uri.toString(),
                                         )

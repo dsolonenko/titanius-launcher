@@ -60,8 +60,7 @@ dependencies:
   scrollable_positioned_list: ^0.3.8
   system_date_time_format: ^1.5.0
   grouped_list: ^6.0.0
-  saf_util: ^3.1.0
-  saf_stream: ^4.0.1
+  saf: ^2.1.2
   preload_page_view: ^0.2.0
   toggle_switch: ^2.1.0
   isolated_worker: ^0.1.1

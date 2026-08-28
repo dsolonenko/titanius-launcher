@@ -1157,22 +1157,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.28.0"
-  saf_stream:
+  saf:
     dependency: "direct main"
     description:
-      name: saf_stream
-      sha256: "3f740a4bb8411100d2b6b209e9cbbc3e711f4992d5af2c1513d9f047f2162620"
+      name: saf
+      sha256: "804fae1138fa13ec7beb5f26c14a179913c87d052cfa919cf68ce5e611b76fca"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.1"
-  saf_util:
-    dependency: "direct main"
-    description:
-      name: saf_util
-      sha256: "35cd99ec282f9fc68ec0fb35338315a7198250f8ff0d24006f8507a6aae3d344"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.0"
+    version: "2.1.2"
   screenscraper:
     dependency: "direct main"
     description:

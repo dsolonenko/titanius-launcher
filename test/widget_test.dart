@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:titanius/data/android_saf.dart';
 import 'package:titanius/data/files.dart';
 import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/models.dart';
@@ -11,6 +12,20 @@ import 'package:titanius/widgets/scraper_progress.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test('pathFromTreeUri decodes primary and external SD card SAF tree URIs properly', () {
+    final primaryRoms = Uri.parse('content://com.android.externalstorage.documents/tree/primary%3ARoms');
+    expect(pathFromTreeUri(primaryRoms), equals('/storage/emulated/0/Roms'));
+
+    final primaryRoot = Uri.parse('content://com.android.externalstorage.documents/tree/primary%3A');
+    expect(pathFromTreeUri(primaryRoot), equals('/storage/emulated/0'));
+
+    final sdcardRoms = Uri.parse('content://com.android.externalstorage.documents/tree/9C33-6BBD%3ARoms%2FNES');
+    expect(pathFromTreeUri(sdcardRoms), equals('/storage/9C33-6BBD/Roms/NES'));
+
+    final fileUri = Uri.parse('file:///home/user/Roms');
+    expect(pathFromTreeUri(fileUri), equals('/home/user/Roms'));
+  });
+
   test('fastHash produces deterministic hash codes for ROM paths', () {
     final hash1 = fastHash('nes/SuperMarioBros.zip');
     final hash2 = fastHash('nes/SuperMarioBros.zip');

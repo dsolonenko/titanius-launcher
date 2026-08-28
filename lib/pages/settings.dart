@@ -6,7 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
-import 'package:saf_util/saf_util.dart';
+import 'package:saf/saf.dart';
 
 import 'package:titanius/data/android_apps.dart';
 import 'package:titanius/data/android_saf.dart';

@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:saf_util/saf_util.dart';
-import 'package:saf_util/saf_util_platform_interface.dart';
+import 'package:saf/saf.dart';
 
 class GrantedUri {
   final Uri uri;
@@ -15,7 +14,7 @@ class GrantedUri {
   GrantedUri(this.uri, this.grantedFullPath);
 }
 
-final _safUtil = SafUtil();
+final _saf = Saf();
 
 final grantedUrisProvider = FutureProvider<List<GrantedUri>>((ref) {
   if (Platform.isAndroid) {
@@ -36,8 +35,51 @@ final grantedUrisProvider = FutureProvider<List<GrantedUri>>((ref) {
   return Future.value([]);
 });
 
+String? pathFromTreeUri(Uri uri) {
+  if (uri.scheme == 'file') {
+    return uri.toFilePath();
+  }
+  final decoded = Uri.decodeFull(uri.toString());
+  final treeIndex = decoded.indexOf('/tree/');
+  if (treeIndex != -1) {
+    String docId = decoded.substring(treeIndex + 6);
+    final docIndex = docId.indexOf('/document/');
+    if (docIndex != -1) {
+      docId = docId.substring(docIndex + 10);
+    }
+    final queryIndex = docId.indexOf('?');
+    if (queryIndex != -1) {
+      docId = docId.substring(0, queryIndex);
+    }
+    if (docId.startsWith('primary:')) {
+      final sub = docId.substring(8);
+      return sub.isEmpty ? '/storage/emulated/0' : '/storage/emulated/0/$sub';
+    } else if (docId == 'primary') {
+      return '/storage/emulated/0';
+    } else if (docId.contains(':')) {
+      final colon = docId.indexOf(':');
+      final root = docId.substring(0, colon);
+      final sub = docId.substring(colon + 1);
+      return sub.isEmpty ? '/storage/$root' : '/storage/$root/$sub';
+    } else {
+      return '/storage/$docId';
+    }
+  }
+  return null;
+}
+
 Future<List<GrantedUri>> _allGrantedReads() async {
-  return [];
+  try {
+    final perms = await _saf.persistedPermissions();
+    return perms.where((p) => p.read).map((p) {
+      final uri = Uri.parse(p.uri);
+      final path = pathFromTreeUri(uri) ?? uri.toString();
+      return GrantedUri(uri, path);
+    }).toList();
+  } catch (e) {
+    debugPrint('Error fetching persisted SAF permissions: $e');
+    return [];
+  }
 }
 
 Future<GrantedUri?> getMatchingPersistedUri(String filePath) async {
@@ -52,8 +94,8 @@ Future<SafDocumentFile?> getDocumentFile(String filePath) async {
   final matchingUri = await getMatchingPersistedUri(filePath);
   if (matchingUri != null) {
     final relativeFilePath = filePath.substring(matchingUri.grantedFullPath.length + 1);
-    final segments = relativeFilePath.split('/');
-    final matchingDoc = await _safUtil.child(matchingUri.uri.toString(), segments);
+    final segments = relativeFilePath.split('/').where((s) => s.isNotEmpty).toList();
+    final matchingDoc = await _saf.child(matchingUri.uri.toString(), segments);
     if (matchingDoc != null) {
       debugPrint("file:$filePath uri:${Uri.decodeFull(matchingDoc.uri)} name:${matchingDoc.name}");
       return matchingDoc;
