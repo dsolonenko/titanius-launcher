@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:gamepads/gamepads.dart' as gp;
 import 'package:go_router/go_router.dart';
 
@@ -31,13 +29,17 @@ enum GamepadButton {
 extension GoRouterLocation on GoRouter {
   String get location {
     final RouteMatch lastMatch = routerDelegate.currentConfiguration.last;
-    final RouteMatchList matchList =
-        lastMatch is ImperativeRouteMatch ? lastMatch.matches : routerDelegate.currentConfiguration;
+    final RouteMatchList matchList = lastMatch is ImperativeRouteMatch
+        ? lastMatch.matches
+        : routerDelegate.currentConfiguration;
     return matchList.uri.path;
   }
 }
 
-void useGamepad(WidgetRef ref, void Function(String location, GamepadButton key) listener) {
+void useGamepad(
+  WidgetRef ref,
+  void Function(String location, GamepadButton key) listener,
+) {
   return use(_GamepadHook(listener));
 }
 
@@ -56,6 +58,7 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
   GamepadButton? _repeatButton;
   Timer? _initialRepeatTimer;
   Timer? _repeatIntervalTimer;
+  final Set<GamepadButton> _pressedButtons = {};
 
   // Analog axis state
   bool _stickLeftActive = false;
@@ -68,9 +71,10 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
   @override
   void initHook() {
     super.initHook();
-    HardwareKeyboard.instance.addHandler(listener);
     try {
-      _gamepadSub = gp.Gamepads.normalizedEvents.listen(_handleNativeGamepadEvent);
+      _gamepadSub = gp.Gamepads.normalizedEvents.listen(
+        _handleNativeGamepadEvent,
+      );
     } catch (e) {
       debugPrint("Gamepads listener error: $e");
     }
@@ -83,7 +87,6 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
   void dispose() {
     _cancelRepeat();
     _gamepadSub?.cancel();
-    HardwareKeyboard.instance.removeHandler(listener);
     super.dispose();
   }
 
@@ -94,8 +97,9 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
     }
     final currentLocation = GoRouter.of(context).location;
 
-    // If already repeating this exact button, do not re-dispatch
-    if (_repeatButton == button) return;
+    // Some controllers emit multiple value=1 events while held. Treat the
+    // press as an edge and let our single repeat timer own held navigation.
+    if (!_pressedButtons.add(button)) return;
 
     _cancelRepeat();
     _dispatchButton(currentLocation, button);
@@ -110,19 +114,23 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
       _repeatButton = button;
       _initialRepeatTimer = Timer(const Duration(milliseconds: 260), () {
         if (_repeatButton == button && context.mounted) {
-          _repeatIntervalTimer = Timer.periodic(const Duration(milliseconds: 65), (timer) {
-            if (!context.mounted || _repeatButton != button) {
-              timer.cancel();
-              return;
-            }
-            _dispatchButton(GoRouter.of(context).location, button);
-          });
+          _repeatIntervalTimer = Timer.periodic(
+            const Duration(milliseconds: 65),
+            (timer) {
+              if (!context.mounted || _repeatButton != button) {
+                timer.cancel();
+                return;
+              }
+              _dispatchButton(GoRouter.of(context).location, button);
+            },
+          );
         }
       });
     }
   }
 
   void _onButtonUp(GamepadButton button) {
+    _pressedButtons.remove(button);
     if (_repeatButton == button) {
       _cancelRepeat();
     }
@@ -274,71 +282,5 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
       default:
         return null;
     }
-  }
-
-  bool listener(KeyEvent e) {
-    if (FocusManager.instance.primaryFocus?.context?.widget is EditableText) {
-      return false;
-    }
-    final button = _mapKeyToGamepadButton(e.logicalKey);
-    if (button != null) {
-      if (e is KeyDownEvent) {
-        _onButtonDown(button);
-        return true;
-      } else if (e is KeyUpEvent) {
-        _onButtonUp(button);
-        return true;
-      } else if (e is KeyRepeatEvent) {
-        // Handled by our auto-repeat timer
-        return true;
-      }
-    } else if (e is KeyDownEvent) {
-      if (e.logicalKey == LogicalKeyboardKey.audioVolumeUp) {
-        FlutterVolumeController.raiseVolume(null).then((value) => debugPrint("Volume raised"));
-        return true;
-      } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeDown) {
-        FlutterVolumeController.lowerVolume(null).then((value) => debugPrint("Volume lowered"));
-        return true;
-      } else if (e.logicalKey == LogicalKeyboardKey.audioVolumeMute) {
-        FlutterVolumeController.toggleMute().then((value) => debugPrint("Volume muted"));
-        return true;
-      }
-    }
-    return false;
-  }
-
-  GamepadButton? _mapKeyToGamepadButton(LogicalKeyboardKey key) {
-    if (key == LogicalKeyboardKey.arrowUp) return GamepadButton.up;
-    if (key == LogicalKeyboardKey.arrowDown) return GamepadButton.down;
-    if (key == LogicalKeyboardKey.arrowLeft) return GamepadButton.left;
-    if (key == LogicalKeyboardKey.arrowRight) return GamepadButton.right;
-    if (key == LogicalKeyboardKey.gameButtonA || key == LogicalKeyboardKey.numpad2 || key == LogicalKeyboardKey.space) {
-      return GamepadButton.a;
-    }
-    if (key == LogicalKeyboardKey.gameButtonB ||
-        key == LogicalKeyboardKey.backspace ||
-        key == LogicalKeyboardKey.escape ||
-        key == LogicalKeyboardKey.numpad6) {
-      return GamepadButton.b;
-    }
-    if (key == LogicalKeyboardKey.gameButtonX || key == LogicalKeyboardKey.numpad4 || key == LogicalKeyboardKey.keyX) {
-      return GamepadButton.x;
-    }
-    if (key == LogicalKeyboardKey.gameButtonY || key == LogicalKeyboardKey.numpad8 || key == LogicalKeyboardKey.keyY) {
-      return GamepadButton.y;
-    }
-    if (key == LogicalKeyboardKey.gameButtonC) return GamepadButton.c;
-    if (key == LogicalKeyboardKey.gameButtonZ) return GamepadButton.z;
-    if (key == LogicalKeyboardKey.gameButtonLeft1) return GamepadButton.l1;
-    if (key == LogicalKeyboardKey.gameButtonRight1) return GamepadButton.r1;
-    if (key == LogicalKeyboardKey.gameButtonLeft2) return GamepadButton.l2;
-    if (key == LogicalKeyboardKey.gameButtonRight2) return GamepadButton.r2;
-    if (key == LogicalKeyboardKey.gameButtonStart || key == LogicalKeyboardKey.enter) return GamepadButton.start;
-    if (key == LogicalKeyboardKey.gameButtonSelect ||
-        key == LogicalKeyboardKey.insert ||
-        key == LogicalKeyboardKey.tab) {
-      return GamepadButton.select;
-    }
-    return null;
   }
 }

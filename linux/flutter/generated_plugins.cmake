@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  flutter_volume_controller
   gamepads_linux
   system_date_time_format
 )

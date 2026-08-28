@@ -6,7 +6,7 @@ class CustomEmulatorsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final emulators = ref.watch(customEmulatorsProvider);
-    final selectedIndex = useState(0);
+    final selectedIndex = usePersistentSelection('/settings/cemulators');
     final confirm = useState(false);
 
     useGamepad(ref, (location, key) {
@@ -19,27 +19,38 @@ class CustomEmulatorsPage extends HookConsumerWidget {
         }
         if (key == GamepadButton.x) {
           if (emuList.isNotEmpty) {
-            final emulator = emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
-            ref.read(customEmulatorsRepoProvider).deleteCustomEmulator(emulator.name).then((value) {
-              final _ = ref.refresh(customEmulatorsProvider);
-            });
+            final emulator =
+                emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
+            ref
+                .read(customEmulatorsRepoProvider)
+                .deleteCustomEmulator(emulator.name)
+                .then((value) {
+                  final _ = ref.refresh(customEmulatorsProvider);
+                });
           }
           confirm.value = false;
         }
       } else {
         if (key == GamepadButton.up) {
           if (emuList.isNotEmpty) {
-            selectedIndex.value = (selectedIndex.value - 1).clamp(0, emuList.length - 1);
+            selectedIndex.value = (selectedIndex.value - 1).clamp(
+              0,
+              emuList.length - 1,
+            );
           }
         }
         if (key == GamepadButton.down) {
           if (emuList.isNotEmpty) {
-            selectedIndex.value = (selectedIndex.value + 1).clamp(0, emuList.length - 1);
+            selectedIndex.value = (selectedIndex.value + 1).clamp(
+              0,
+              emuList.length - 1,
+            );
           }
         }
         if (key == GamepadButton.a) {
           if (emuList.isNotEmpty) {
-            final emulator = emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
+            final emulator =
+                emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
             ref.read(temporaryEmulatorProvider.notifier).set(emulator);
             context.push("/settings/cemulators/edit");
           }
@@ -60,9 +71,7 @@ class CustomEmulatorsPage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Custom Emulators'),
-      ),
+      appBar: AppBar(title: const Text('Custom Emulators')),
       bottomNavigationBar: confirm.value
           ? const PromptBar(
               navigations: [],
@@ -84,8 +93,9 @@ class CustomEmulatorsPage extends HookConsumerWidget {
         skipLoadingOnRefresh: true,
         skipLoadingOnReload: true,
         data: (emulators) {
-          return ListView.builder(
+          return ControllerListView.builder(
             key: const PageStorageKey("settings/cemulators"),
+            selectedIndex: selectedIndex.value,
             itemCount: emulators.length,
             itemBuilder: (context, index) {
               final emulator = emulators[index];
@@ -93,7 +103,10 @@ class CustomEmulatorsPage extends HookConsumerWidget {
               return SelectedScrollTile(
                 isSelected: isSelected,
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   child: Material(
                     color: isSelected ? Colors.white : Colors.transparent,
                     borderRadius: BorderRadius.circular(4),
@@ -104,14 +117,18 @@ class CustomEmulatorsPage extends HookConsumerWidget {
                       dense: true,
                       onTap: () {
                         selectedIndex.value = index;
-                        ref.read(temporaryEmulatorProvider.notifier).set(emulator);
+                        ref
+                            .read(temporaryEmulatorProvider.notifier)
+                            .set(emulator);
                         context.push("/settings/cemulators/edit");
                       },
                       title: Text(
                         emulator.name,
                         style: TextStyle(
                           color: isSelected ? Colors.black : Colors.white,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
                       subtitle: Text(
@@ -123,7 +140,13 @@ class CustomEmulatorsPage extends HookConsumerWidget {
                         ),
                       ),
                       trailing: isSelected && confirm.value
-                          ? const Text("Delete?", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))
+                          ? const Text(
+                              "Delete?",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
                           : null,
                     ),
                   ),
@@ -132,12 +155,8 @@ class CustomEmulatorsPage extends HookConsumerWidget {
             },
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => const Center(
-          child: Text('Error'),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => const Center(child: Text('Error')),
       ),
     );
   }
@@ -149,7 +168,7 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final emulator = ref.watch(temporaryEmulatorProvider);
-    final selectedIndex = useState(0);
+    final selectedIndex = usePersistentSelection('/settings/cemulators/edit');
     final inPrompt = useState(false);
 
     Future<void> editName() async {
@@ -200,7 +219,9 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
           },
         );
         if (v != null) {
-          final updated = emulator.copyWith(amStartCommand: v.replaceAll("\n", ' '));
+          final updated = emulator.copyWith(
+            amStartCommand: v.replaceAll("\n", ' '),
+          );
           ref.read(temporaryEmulatorProvider.notifier).set(updated);
         }
       } finally {
@@ -227,12 +248,14 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
         }
       }
       if (key == GamepadButton.y) {
-        ref.read(customEmulatorsRepoProvider).saveCustomEmulator(emulator).then((value) {
-          final _ = ref.refresh(customEmulatorsProvider);
-          if (context.mounted) {
-            GoRouter.of(context).pop();
-          }
-        });
+        ref.read(customEmulatorsRepoProvider).saveCustomEmulator(emulator).then(
+          (value) {
+            final _ = ref.refresh(customEmulatorsProvider);
+            if (context.mounted) {
+              GoRouter.of(context).pop();
+            }
+          },
+        );
       }
       if (key == GamepadButton.b) {
         GoRouter.of(context).pop();
@@ -241,13 +264,15 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
 
     final fields = [
       (title: "Name", subtitle: emulator.name, onEdit: editName),
-      (title: "Command", subtitle: emulator.amStartCommand, onEdit: editCommand),
+      (
+        title: "Command",
+        subtitle: emulator.amStartCommand,
+        onEdit: editCommand,
+      ),
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Custom Emulator'),
-      ),
+      appBar: AppBar(title: const Text('Custom Emulator')),
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
@@ -256,7 +281,8 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.b], "Cancel"),
         ],
       ),
-      body: ListView.builder(
+      body: ControllerListView.builder(
+        selectedIndex: selectedIndex.value,
         itemCount: fields.length,
         itemBuilder: (context, index) {
           final field = fields[index];
@@ -275,7 +301,9 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
                   field.title,
                   style: TextStyle(
                     color: isSelected ? Colors.black : Colors.white,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
                 subtitle: Text(

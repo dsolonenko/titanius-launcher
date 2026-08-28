@@ -71,7 +71,9 @@ class AndroidPage extends HookConsumerWidget {
       if (key == GamepadButton.a) {
         final app = apps[currentIndex];
         ref.read(selectedAppProvider.notifier).state = app;
-        InstalledApps.startApp(app.packageName).catchError(handleIntentError(context, app.name));
+        InstalledApps.startApp(
+          app.packageName,
+        ).catchError(handleIntentError(context, app.name));
       }
       if (key == GamepadButton.l2 || key == GamepadButton.r2) {
         final allSystems = ref.read(detectedSystemsProvider).value ?? [];
@@ -104,7 +106,10 @@ class AndroidPage extends HookConsumerWidget {
       appBar: const CustomAppBar(),
       bottomNavigationBar: const PromptBar(
         navigations: [
-          GamepadPrompt([GamepadButton.upDown, GamepadButton.leftRight], "Select"),
+          GamepadPrompt([
+            GamepadButton.upDown,
+            GamepadButton.leftRight,
+          ], "Select"),
           GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
@@ -118,23 +123,27 @@ class AndroidPage extends HookConsumerWidget {
       body: allApps.when(
         data: (apps) {
           if (apps.isEmpty) {
-            return const Center(
-              child: Text("No apps selected"),
-            );
+            return const Center(child: Text("No apps selected"));
           }
-          final appToShow = selectedApp ?? apps.first;
+          final matchedIndex = selectedApp == null
+              ? 0
+              : apps.indexWhere(
+                  (app) => app.packageName == selectedApp.packageName,
+                );
+          final selectedIndex = matchedIndex < 0 ? 0 : matchedIndex;
+          final appToShow = apps[selectedIndex];
           return showDetals.value
               ? Row(
                   children: [
                     Expanded(
                       flex: 1,
-                      child: ListView.builder(
+                      child: ControllerListView.builder(
                         key: const PageStorageKey("android/apps_list"),
+                        selectedIndex: selectedIndex,
                         itemCount: apps.length,
                         itemBuilder: (context, index) {
                           final app = apps[index];
-                          final selected =
-                              selectedApp == null ? index == 0 : app.packageName == selectedApp.packageName;
+                          final selected = index == selectedIndex;
                           return _appTileList(context, ref, app, selected);
                         },
                       ),
@@ -144,20 +153,27 @@ class AndroidPage extends HookConsumerWidget {
                       child: InfoTiles(
                         children: [
                           InfoTile(title: "Name", subtitle: appToShow.name),
-                          InfoTile(title: "Package", subtitle: appToShow.packageName),
-                          InfoTile(title: "Version", subtitle: appToShow.versionName),
+                          InfoTile(
+                            title: "Package",
+                            subtitle: appToShow.packageName,
+                          ),
+                          InfoTile(
+                            title: "Version",
+                            subtitle: appToShow.versionName,
+                          ),
                         ],
                       ),
                     ),
                   ],
                 )
-              : GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 100),
+              : ControllerGridView.builder(
+                  maxCrossAxisExtent: 100,
                   key: const PageStorageKey("android/apps_grid"),
+                  selectedIndex: selectedIndex,
                   itemCount: apps.length,
                   itemBuilder: (context, index) {
                     final app = apps[index];
-                    final selected = selectedApp == null ? index == 0 : app.packageName == selectedApp.packageName;
+                    final selected = index == selectedIndex;
                     return _appTileGrid(context, ref, app, selected);
                   },
                 );
@@ -168,7 +184,12 @@ class AndroidPage extends HookConsumerWidget {
     );
   }
 
-  Widget _appTileGrid(BuildContext context, WidgetRef ref, AppInfo app, bool selected) {
+  Widget _appTileGrid(
+    BuildContext context,
+    WidgetRef ref,
+    AppInfo app,
+    bool selected,
+  ) {
     return SelectedScrollTile(
       isSelected: selected,
       child: Container(
@@ -187,7 +208,10 @@ class AndroidPage extends HookConsumerWidget {
                     bytes: app.icon!,
                     fit: BoxFit.contain,
                   )
-                : Icon(Icons.android, color: selected ? Colors.black : Colors.white),
+                : Icon(
+                    Icons.android,
+                    color: selected ? Colors.black : Colors.white,
+                  ),
             subtitle: Text(
               textAlign: TextAlign.center,
               app.name,
@@ -199,7 +223,9 @@ class AndroidPage extends HookConsumerWidget {
             ),
             onTap: () async {
               ref.read(selectedAppProvider.notifier).state = app;
-              InstalledApps.startApp(app.packageName).catchError(handleIntentError(context, app.name));
+              InstalledApps.startApp(
+                app.packageName,
+              ).catchError(handleIntentError(context, app.name));
             },
           ),
         ),
@@ -207,7 +233,12 @@ class AndroidPage extends HookConsumerWidget {
     );
   }
 
-  Widget _appTileList(BuildContext context, WidgetRef ref, AppInfo app, bool selected) {
+  Widget _appTileList(
+    BuildContext context,
+    WidgetRef ref,
+    AppInfo app,
+    bool selected,
+  ) {
     return SelectedScrollTile(
       isSelected: selected,
       child: Container(
@@ -227,7 +258,10 @@ class AndroidPage extends HookConsumerWidget {
                     bytes: app.icon!,
                     fit: BoxFit.contain,
                   )
-                : Icon(Icons.android, color: selected ? Colors.black : Colors.white),
+                : Icon(
+                    Icons.android,
+                    color: selected ? Colors.black : Colors.white,
+                  ),
             title: Text(
               app.name,
               style: TextStyle(
@@ -237,7 +271,9 @@ class AndroidPage extends HookConsumerWidget {
             ),
             onTap: () async {
               ref.read(selectedAppProvider.notifier).state = app;
-              InstalledApps.startApp(app.packageName).catchError(handleIntentError(context, app.name));
+              InstalledApps.startApp(
+                app.packageName,
+              ).catchError(handleIntentError(context, app.name));
             },
           ),
         ),
@@ -250,12 +286,13 @@ Function handleIntentError(BuildContext context, String appName) {
   return (err) {
     debugPrint(err.toString());
     Fluttertoast.showToast(
-        msg: "Unable to run $appName: $err",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
+      msg: "Unable to run $appName: $err",
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   };
 }

@@ -7,7 +7,7 @@ class AppsSettingsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final installedApps = ref.watch(installedAppsProvider);
     final selectedApps = ref.watch(androidAppsProvider);
-    final selectedIndex = useState(0);
+    final selectedIndex = usePersistentSelection('/settings/apps');
 
     useGamepad(ref, (location, key) {
       if (location != "/select_apps") return;
@@ -15,14 +15,21 @@ class AppsSettingsPage extends HookConsumerWidget {
       if (appsList.isEmpty) return;
 
       if (key == GamepadButton.up) {
-        selectedIndex.value = (selectedIndex.value - 1).clamp(0, appsList.length - 1);
+        selectedIndex.value = (selectedIndex.value - 1).clamp(
+          0,
+          appsList.length - 1,
+        );
       }
       if (key == GamepadButton.down) {
-        selectedIndex.value = (selectedIndex.value + 1).clamp(0, appsList.length - 1);
+        selectedIndex.value = (selectedIndex.value + 1).clamp(
+          0,
+          appsList.length - 1,
+        );
       }
       if (key == GamepadButton.a) {
         final app = appsList[selectedIndex.value.clamp(0, appsList.length - 1)];
-        final isSelected = selectedApps.value?.isSelected(app.packageName) ?? false;
+        final isSelected =
+            selectedApps.value?.isSelected(app.packageName) ?? false;
         ref
             .read(androidAppsRepoProvider)
             .selectApp(app.packageName, !isSelected)
@@ -37,9 +44,7 @@ class AppsSettingsPage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Selected Apps'),
-      ),
+      appBar: AppBar(title: const Text('Selected Apps')),
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
@@ -56,8 +61,9 @@ class AppsSettingsPage extends HookConsumerWidget {
             skipLoadingOnRefresh: true,
             skipLoadingOnReload: true,
             data: (selectedApps) {
-              return GroupedListView<AppInfo, String>(
+              return ControllerGroupedListView<AppInfo, String>(
                 key: const PageStorageKey("settings/apps"),
+                selectedIndex: selectedIndex.value,
                 elements: installedApps,
                 groupBy: (element) => "Apps",
                 groupSeparatorBuilder: (String value) => Padding(
@@ -68,12 +74,17 @@ class AppsSettingsPage extends HookConsumerWidget {
                   ),
                 ),
                 indexedItemBuilder: (context, app, index) {
-                  final isAppSelected = selectedApps.isSelected(app.packageName);
+                  final isAppSelected = selectedApps.isSelected(
+                    app.packageName,
+                  );
                   final isSelected = index == selectedIndex.value;
                   return SelectedScrollTile(
                     isSelected: isSelected,
                     child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 1,
+                      ),
                       child: Material(
                         color: isSelected ? Colors.white : Colors.transparent,
                         borderRadius: BorderRadius.circular(4),
@@ -87,13 +98,17 @@ class AppsSettingsPage extends HookConsumerWidget {
                             ref
                                 .read(androidAppsRepoProvider)
                                 .selectApp(app.packageName, !isAppSelected)
-                                .then((value) => ref.refresh(androidAppsProvider));
+                                .then(
+                                  (value) => ref.refresh(androidAppsProvider),
+                                );
                           },
                           title: Text(
                             app.name,
                             style: TextStyle(
                               color: isSelected ? Colors.black : Colors.white,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                           subtitle: Text(
@@ -108,8 +123,15 @@ class AppsSettingsPage extends HookConsumerWidget {
                                   bytes: app.icon!,
                                   fit: BoxFit.contain,
                                 )
-                              : Icon(Icons.android, color: isSelected ? Colors.black : Colors.white),
-                          trailing: isAppSelected ? toggleOnIcon : toggleOffIcon,
+                              : Icon(
+                                  Icons.android,
+                                  color: isSelected
+                                      ? Colors.black
+                                      : Colors.white,
+                                ),
+                          trailing: isAppSelected
+                              ? toggleOnIcon
+                              : toggleOffIcon,
                         ),
                       ),
                     ),
@@ -117,20 +139,12 @@ class AppsSettingsPage extends HookConsumerWidget {
                 },
               );
             },
-            loading: () => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            error: (error, stack) => const Center(
-              child: Text('Error'),
-            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => const Center(child: Text('Error')),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => const Center(
-          child: Text('Error'),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => const Center(child: Text('Error')),
       ),
     );
   }

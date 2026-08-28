@@ -7,7 +7,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final systems = ref.watch(allSupportedSystemsProvider);
     final enabledSystems = ref.watch(enabledSystemsProvider);
-    final selectedIndex = useState(0);
+    final selectedIndex = usePersistentSelection('/settings/systems');
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/systems") return;
@@ -15,18 +15,23 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
       if (sysList.isEmpty) return;
 
       if (key == GamepadButton.up) {
-        selectedIndex.value = (selectedIndex.value - 1).clamp(0, sysList.length - 1);
+        selectedIndex.value = (selectedIndex.value - 1).clamp(
+          0,
+          sysList.length - 1,
+        );
       }
       if (key == GamepadButton.down) {
-        selectedIndex.value = (selectedIndex.value + 1).clamp(0, sysList.length - 1);
+        selectedIndex.value = (selectedIndex.value + 1).clamp(
+          0,
+          sysList.length - 1,
+        );
       }
       if (key == GamepadButton.a) {
         final sys = sysList[selectedIndex.value.clamp(0, sysList.length - 1)];
         final show = enabledSystems.value?.showSystem(sys.id) ?? true;
-        ref
-            .read(enabledSystemsRepoProvider)
-            .setShowSystem(sys.id, !show)
-            .then((value) {
+        ref.read(enabledSystemsRepoProvider).setShowSystem(sys.id, !show).then((
+          value,
+        ) {
           ref.read(selectedSystemProvider.notifier).state = 0;
           final _ = ref.refresh(enabledSystemsProvider);
         });
@@ -37,9 +42,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Enabled Systems/Collections'),
-      ),
+      appBar: AppBar(title: const Text('Enabled Systems/Collections')),
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
@@ -53,10 +56,12 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
             skipLoadingOnRefresh: true,
             skipLoadingOnReload: true,
             data: (enabledSystems) {
-              return GroupedListView<System, String>(
+              return ControllerGroupedListView<System, String>(
                 key: const PageStorageKey("settings/systems"),
+                selectedIndex: selectedIndex.value,
                 elements: systems,
-                groupBy: (element) => element.isCollection ? "Collections" : "Systems",
+                groupBy: (element) =>
+                    element.isCollection ? "Collections" : "Systems",
                 groupSeparatorBuilder: (String value) => Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
@@ -70,7 +75,10 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                   return SelectedScrollTile(
                     isSelected: isSelected,
                     child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 1,
+                      ),
                       child: Material(
                         color: isSelected ? Colors.white : Colors.transparent,
                         borderRadius: BorderRadius.circular(4),
@@ -83,17 +91,25 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                             selectedIndex.value = index;
                             ref
                                 .read(enabledSystemsRepoProvider)
-                                .setShowSystem(system.id, showSystem ? false : true)
+                                .setShowSystem(
+                                  system.id,
+                                  showSystem ? false : true,
+                                )
                                 .then((value) {
-                              ref.read(selectedSystemProvider.notifier).state = 0;
-                              final _ = ref.refresh(enabledSystemsProvider);
-                            });
+                                  ref
+                                          .read(selectedSystemProvider.notifier)
+                                          .state =
+                                      0;
+                                  final _ = ref.refresh(enabledSystemsProvider);
+                                });
                           },
                           title: Text(
                             system.name,
                             style: TextStyle(
                               color: isSelected ? Colors.black : Colors.white,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                           trailing: showSystem ? toggleOnIcon : toggleOffIcon,
@@ -104,20 +120,12 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                 },
               );
             },
-            loading: () => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            error: (error, stack) => const Center(
-              child: Text('Error'),
-            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => const Center(child: Text('Error')),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => const Center(
-          child: Text('Error'),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => const Center(child: Text('Error')),
       ),
     );
   }

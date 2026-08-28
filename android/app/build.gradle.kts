@@ -56,7 +56,7 @@ flutter {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.20")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.3.20")
     implementation("androidx.documentfile:documentfile:1.0.1")
     implementation("androidx.multidex:multidex:2.0.1")
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
@@ -15,10 +14,7 @@ import 'package:titanius/widgets/selected_scroll_tile.dart';
 part 'package:titanius/pages/filters/genres.dart';
 
 const checkBoxSize = 40.0;
-const checkBoxOnIcon = Icon(
-  Icons.check_box_outlined,
-  size: checkBoxSize,
-);
+const checkBoxOnIcon = Icon(Icons.check_box_outlined, size: checkBoxSize);
 const checkBoxOffIcon = Icon(
   Icons.check_box_outline_blank_outlined,
   size: checkBoxSize,
@@ -32,7 +28,7 @@ class FiltersPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filter = ref.watch(temporaryGameFilterProvider(system));
-    final selectedIndex = useState(0);
+    final selectedIndex = usePersistentSelection('/games/$system/filter');
     final inPrompt = useState(false);
 
     Future<void> editNameFilter() async {
@@ -46,7 +42,9 @@ class FiltersPage extends HookConsumerWidget {
           controller: TextEditingController(text: filter.search),
         );
         if (value != null) {
-          ref.read(temporaryGameFilterProvider(system).notifier).setSearch(value);
+          ref
+              .read(temporaryGameFilterProvider(system).notifier)
+              .setSearch(value);
         }
       } finally {
         inPrompt.value = false;
@@ -56,13 +54,19 @@ class FiltersPage extends HookConsumerWidget {
     void cycleFavourite() {
       switch (filter.favourite) {
         case null:
-          ref.read(temporaryGameFilterProvider(system).notifier).setFavourite(true);
+          ref
+              .read(temporaryGameFilterProvider(system).notifier)
+              .setFavourite(true);
           break;
         case true:
-          ref.read(temporaryGameFilterProvider(system).notifier).setFavourite(false);
+          ref
+              .read(temporaryGameFilterProvider(system).notifier)
+              .setFavourite(false);
           break;
         case false:
-          ref.read(temporaryGameFilterProvider(system).notifier).setFavourite(null);
+          ref
+              .read(temporaryGameFilterProvider(system).notifier)
+              .setFavourite(null);
           break;
       }
     }
@@ -84,7 +88,9 @@ class FiltersPage extends HookConsumerWidget {
       ),
       (
         title: 'Genres',
-        subtitle: filter.genres.isEmpty ? "All" : filter.genres.map((genre) => genre.longName).join(", "),
+        subtitle: filter.genres.isEmpty
+            ? "All"
+            : filter.genres.map((genre) => genre.longName).join(", "),
         trailing: const Icon(Icons.arrow_forward_ios_rounded),
         onTap: () {
           context.push("/games/$system/filter/genres");
@@ -93,18 +99,20 @@ class FiltersPage extends HookConsumerWidget {
       (
         title: 'Is Favourite',
         subtitle: null as String?,
-        trailing: ToggleSwitch(
-          changeOnTap: false,
-          cancelToggle: (index) async => true,
-          minWidth: 40.0,
-          minHeight: 24.0,
-          cornerRadius: 20.0,
-          inactiveBgColor: Colors.black,
-          inactiveFgColor: Colors.grey,
-          initialLabelIndex: boolToIndex(filter.favourite),
-          totalSwitches: 3,
-          labels: const ['No', 'All', 'Yes'],
-        ) as Widget?,
+        trailing:
+            ToggleSwitch(
+                  changeOnTap: false,
+                  cancelToggle: (index) async => true,
+                  minWidth: 40.0,
+                  minHeight: 24.0,
+                  cornerRadius: 20.0,
+                  inactiveBgColor: Colors.black,
+                  inactiveFgColor: Colors.grey,
+                  initialLabelIndex: boolToIndex(filter.favourite),
+                  totalSwitches: 3,
+                  labels: const ['No', 'All', 'Yes'],
+                )
+                as Widget?,
         onTap: cycleFavourite,
       ),
     ];
@@ -116,10 +124,16 @@ class FiltersPage extends HookConsumerWidget {
       if (location != "/games/$system/filter") return;
 
       if (key == GamepadButton.up) {
-        selectedIndex.value = (selectedIndex.value - 1).clamp(0, items.length - 1);
+        selectedIndex.value = (selectedIndex.value - 1).clamp(
+          0,
+          items.length - 1,
+        );
       }
       if (key == GamepadButton.down) {
-        selectedIndex.value = (selectedIndex.value + 1).clamp(0, items.length - 1);
+        selectedIndex.value = (selectedIndex.value + 1).clamp(
+          0,
+          items.length - 1,
+        );
       }
       if (key == GamepadButton.a) {
         items[selectedIndex.value].onTap();
@@ -134,9 +148,7 @@ class FiltersPage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Filters'),
-      ),
+      appBar: AppBar(title: const Text('Filters')),
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
@@ -145,7 +157,8 @@ class FiltersPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.b], "Back"),
         ],
       ),
-      body: ListView.builder(
+      body: ControllerListView.builder(
+        selectedIndex: selectedIndex.value,
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
@@ -166,7 +179,9 @@ class FiltersPage extends HookConsumerWidget {
                     item.title,
                     style: TextStyle(
                       color: isSelected ? Colors.black : Colors.white,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                   subtitle: item.subtitle != null

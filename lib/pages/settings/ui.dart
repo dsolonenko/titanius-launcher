@@ -6,7 +6,7 @@ class UISettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    final selectedIndex = useState(0);
+    final selectedIndex = usePersistentSelection('/settings/ui');
 
     final s = settings.value;
 
@@ -14,9 +14,13 @@ class UISettingsPage extends HookConsumerWidget {
       final current = ref.read(settingsProvider).value;
       if (current == null) return;
       final currentScale = current.fontScale;
-      final newScale = double.parse((currentScale + delta).clamp(0.10, 3.00).toStringAsFixed(1));
+      final newScale = double.parse(
+        (currentScale + delta).clamp(0.10, 3.00).toStringAsFixed(1),
+      );
       final repo = ref.read(settingsRepoProvider);
-      repo.setFontScale(newScale).then((value) => ref.invalidate(settingsProvider));
+      repo
+          .setFontScale(newScale)
+          .then((value) => ref.invalidate(settingsProvider));
     }
 
     void resetFontScale() {
@@ -24,7 +28,9 @@ class UISettingsPage extends HookConsumerWidget {
       repo.setFontScale(1.0).then((value) => ref.invalidate(settingsProvider));
     }
 
-    final currentScaleStr = s == null ? "1.0x" : "${s.fontScale.toStringAsFixed(1)}x";
+    final currentScaleStr = s == null
+        ? "1.0x"
+        : "${s.fontScale.toStringAsFixed(1)}x";
 
     final items = s == null
         ? <_UiSettingItem>[]
@@ -45,9 +51,12 @@ class UISettingsPage extends HookConsumerWidget {
             ),
             _UiSettingItem(
               title: 'Show Only Unique Games In Collections',
-              trailing: s.uniqueGamesInCollections ? toggleOnIcon : toggleOffIcon,
+              trailing: s.uniqueGamesInCollections
+                  ? toggleOnIcon
+                  : toggleOffIcon,
               enabled: true,
-              onAction: (repo) => repo.setUniqueGamesInCollections(!s.uniqueGamesInCollections),
+              onAction: (repo) =>
+                  repo.setUniqueGamesInCollections(!s.uniqueGamesInCollections),
             ),
             _UiSettingItem(
               title: 'Show Hidden Games',
@@ -60,7 +69,8 @@ class UISettingsPage extends HookConsumerWidget {
               trailing: s.showOnlyGamelistRoms ? toggleOnIcon : toggleOffIcon,
               enabled: true,
               subtitle: 'Please refresh gamelists',
-              onAction: (repo) => repo.setShowOnlyGamelistRoms(!s.showOnlyGamelistRoms),
+              onAction: (repo) =>
+                  repo.setShowOnlyGamelistRoms(!s.showOnlyGamelistRoms),
             ),
             _UiSettingItem(
               title: 'Show Game Videos',
@@ -87,10 +97,16 @@ class UISettingsPage extends HookConsumerWidget {
       if (items.isEmpty) return;
 
       if (key == GamepadButton.up) {
-        selectedIndex.value = (selectedIndex.value - 1).clamp(0, items.length - 1);
+        selectedIndex.value = (selectedIndex.value - 1).clamp(
+          0,
+          items.length - 1,
+        );
       }
       if (key == GamepadButton.down) {
-        selectedIndex.value = (selectedIndex.value + 1).clamp(0, items.length - 1);
+        selectedIndex.value = (selectedIndex.value + 1).clamp(
+          0,
+          items.length - 1,
+        );
       }
       if (key == GamepadButton.left) {
         final item = items[selectedIndex.value.clamp(0, items.length - 1)];
@@ -110,7 +126,9 @@ class UISettingsPage extends HookConsumerWidget {
         final item = items[selectedIndex.value.clamp(0, items.length - 1)];
         if (item.enabled && item.onAction != null) {
           final repo = ref.read(settingsRepoProvider);
-          item.onAction!(repo).then((value) => ref.invalidate(settingsProvider));
+          item.onAction!(repo).then(
+            (value) => ref.invalidate(settingsProvider),
+          );
         }
       }
       if (key == GamepadButton.b) {
@@ -119,9 +137,7 @@ class UISettingsPage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('UI Settings'),
-      ),
+      appBar: AppBar(title: const Text('UI Settings')),
       bottomNavigationBar: const PromptBar(
         navigations: [
           GamepadPrompt([GamepadButton.leftRight], "Select"),
@@ -135,8 +151,9 @@ class UISettingsPage extends HookConsumerWidget {
         skipLoadingOnRefresh: true,
         skipLoadingOnReload: true,
         data: (_) {
-          return ListView.builder(
+          return ControllerListView.builder(
             key: const PageStorageKey('settings/ui'),
+            selectedIndex: selectedIndex.value,
             itemCount: items.length,
             itemBuilder: (context, index) {
               final item = items[index];
@@ -144,7 +161,10 @@ class UISettingsPage extends HookConsumerWidget {
               return SelectedScrollTile(
                 isSelected: isSelected,
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   child: Material(
                     color: isSelected ? Colors.white : Colors.transparent,
                     borderRadius: BorderRadius.circular(4),
@@ -158,7 +178,9 @@ class UISettingsPage extends HookConsumerWidget {
                         selectedIndex.value = index;
                         if (item.enabled && item.onAction != null) {
                           final repo = ref.read(settingsRepoProvider);
-                          item.onAction!(repo).then((value) => ref.invalidate(settingsProvider));
+                          item.onAction!(repo).then(
+                            (value) => ref.invalidate(settingsProvider),
+                          );
                         }
                       },
                       title: Text(
@@ -167,16 +189,20 @@ class UISettingsPage extends HookConsumerWidget {
                           color: !item.enabled
                               ? Colors.grey
                               : isSelected
-                                  ? Colors.black
-                                  : Colors.white,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              ? Colors.black
+                              : Colors.white,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
                       subtitle: item.subtitle != null
                           ? Text(
                               item.subtitle!,
                               style: TextStyle(
-                                color: isSelected ? Colors.black87 : Colors.grey,
+                                color: isSelected
+                                    ? Colors.black87
+                                    : Colors.grey,
                               ),
                             )
                           : null,
@@ -188,12 +214,8 @@ class UISettingsPage extends HookConsumerWidget {
             },
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => const Center(
-          child: Text('Error'),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => const Center(child: Text('Error')),
       ),
     );
   }

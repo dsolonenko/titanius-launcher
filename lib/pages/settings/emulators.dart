@@ -6,25 +6,37 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final emulators = ref.watch(alternativeEmulatorsProvider);
-    final selectedIndex = useState(0);
+    final selectedIndex = usePersistentSelection('/settings/emulators');
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/emulators") return;
-      final emuList = emulators.value?.where((element) => element.defaultEmulator != null).toList() ?? [];
+      final emuList =
+          emulators.value
+              ?.where((element) => element.defaultEmulator != null)
+              .toList() ??
+          [];
       if (emuList.isEmpty) return;
 
       if (key == GamepadButton.up) {
-        selectedIndex.value = (selectedIndex.value - 1).clamp(0, emuList.length - 1);
+        selectedIndex.value = (selectedIndex.value - 1).clamp(
+          0,
+          emuList.length - 1,
+        );
       }
       if (key == GamepadButton.down) {
-        selectedIndex.value = (selectedIndex.value + 1).clamp(0, emuList.length - 1);
+        selectedIndex.value = (selectedIndex.value + 1).clamp(
+          0,
+          emuList.length - 1,
+        );
       }
       if (key == GamepadButton.a) {
-        final current = emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
+        final current =
+            emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
         context.push("/settings/emulators/${current.system.id}");
       }
       if (key == GamepadButton.x) {
-        final current = emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
+        final current =
+            emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
         ref
             .read(perSystemConfigurationRepoProvider)
             .deleteAlternativeEmulator(current.system.id)
@@ -36,9 +48,7 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Alternative Emulators'),
-      ),
+      appBar: AppBar(title: const Text('Alternative Emulators')),
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
@@ -51,9 +61,12 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
         skipLoadingOnRefresh: true,
         skipLoadingOnReload: true,
         data: (emulators) {
-          final emuList = emulators.where((element) => element.defaultEmulator != null).toList();
-          return ListView.builder(
+          final emuList = emulators
+              .where((element) => element.defaultEmulator != null)
+              .toList();
+          return ControllerListView.builder(
             key: const PageStorageKey("settings/emulators"),
+            selectedIndex: selectedIndex.value,
             itemCount: emuList.length,
             itemBuilder: (context, index) {
               final isStandalone = emuList[index].defaultEmulator!.isStandalone;
@@ -62,7 +75,10 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
               return SelectedScrollTile(
                 isSelected: isSelected,
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   child: Material(
                     color: isSelected ? Colors.white : Colors.transparent,
                     borderRadius: BorderRadius.circular(4),
@@ -73,17 +89,25 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
                       dense: true,
                       onTap: () {
                         selectedIndex.value = index;
-                        context.push("/settings/emulators/${emuList[index].system.id}");
+                        context.push(
+                          "/settings/emulators/${emuList[index].system.id}",
+                        );
                       },
                       title: Text(
                         emuList[index].system.name,
                         style: TextStyle(
                           color: isSelected ? Colors.black : Colors.white,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
                       trailing: Text(
-                        "${emuList[index].defaultEmulator!.name}${isCustom ? " (Custom)" : isStandalone ? " (Standalone)" : ""}",
+                        "${emuList[index].defaultEmulator!.name}${isCustom
+                            ? " (Custom)"
+                            : isStandalone
+                            ? " (Standalone)"
+                            : ""}",
                         style: TextStyle(
                           color: isSelected ? Colors.black87 : Colors.grey,
                         ),
@@ -95,12 +119,8 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
             },
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => const Center(
-          child: Text('Error'),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => const Center(child: Text('Error')),
       ),
     );
   }
@@ -114,21 +134,33 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final emulators = ref.watch(alternativeEmulatorsProvider);
-    final selectedIndex = useState(0);
+    final selectedIndex = usePersistentSelection('/settings/emulators/$system');
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/emulators/$system") return;
-      final selected = emulators.value?.firstWhere((e) => e.system.id == system);
+      final selected = emulators.value?.firstWhere(
+        (e) => e.system.id == system,
+      );
       if (selected == null || selected.emulators.isEmpty) return;
 
       if (key == GamepadButton.up) {
-        selectedIndex.value = (selectedIndex.value - 1).clamp(0, selected.emulators.length - 1);
+        selectedIndex.value = (selectedIndex.value - 1).clamp(
+          0,
+          selected.emulators.length - 1,
+        );
       }
       if (key == GamepadButton.down) {
-        selectedIndex.value = (selectedIndex.value + 1).clamp(0, selected.emulators.length - 1);
+        selectedIndex.value = (selectedIndex.value + 1).clamp(
+          0,
+          selected.emulators.length - 1,
+        );
       }
       if (key == GamepadButton.a) {
-        final emulator = selected.emulators[selectedIndex.value.clamp(0, selected.emulators.length - 1)];
+        final emulator =
+            selected.emulators[selectedIndex.value.clamp(
+              0,
+              selected.emulators.length - 1,
+            )];
         ref
             .read(perSystemConfigurationRepoProvider)
             .saveAlternativeEmulator(system, emulator.id)
@@ -141,9 +173,7 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Emulators for $system'),
-      ),
+      appBar: AppBar(title: Text('Emulators for $system')),
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
@@ -156,25 +186,27 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
         skipLoadingOnReload: true,
         data: (emulators) {
           final selected = emulators.firstWhere((e) => e.system.id == system);
-          return GroupedListView<Emulator, String>(
+          return ControllerGroupedListView<Emulator, String>(
             key: PageStorageKey("settings/emulators/$system"),
+            selectedIndex: selectedIndex.value,
             elements: selected.emulators,
             groupBy: (element) => element.isCustom ? "Custom" : "Built-In",
             groupSeparatorBuilder: (String value) => Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                value,
-                style: const TextStyle(color: Colors.grey),
-              ),
+              child: Text(value, style: const TextStyle(color: Colors.grey)),
             ),
             indexedItemBuilder: (context, emulator, index) {
               final isStandalone = emulator.isStandalone;
-              final isCurrentDefault = selected.defaultEmulator?.id == emulator.id;
+              final isCurrentDefault =
+                  selected.defaultEmulator?.id == emulator.id;
               final isSelected = index == selectedIndex.value;
               return SelectedScrollTile(
                 isSelected: isSelected,
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   child: Material(
                     color: isSelected ? Colors.white : Colors.transparent,
                     borderRadius: BorderRadius.circular(4),
@@ -188,22 +220,36 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
                         ref
                             .read(perSystemConfigurationRepoProvider)
                             .saveAlternativeEmulator(system, emulator.id)
-                            .then((value) => ref.refresh(perSystemConfigurationsProvider));
+                            .then(
+                              (value) =>
+                                  ref.refresh(perSystemConfigurationsProvider),
+                            );
                         context.pop();
                       },
                       title: Text(
                         emulator.name,
                         style: TextStyle(
                           color: isSelected ? Colors.black : Colors.white,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
-                      leading: isCurrentDefault ? Icon(Icons.star, color: isSelected ? Colors.black : Colors.amber) : null,
+                      leading: isCurrentDefault
+                          ? Icon(
+                              Icons.star,
+                              color: isSelected ? Colors.black : Colors.amber,
+                            )
+                          : null,
                       minLeadingWidth: 20,
                       trailing: isStandalone
                           ? Text(
                               "Standalone",
-                              style: TextStyle(color: isSelected ? Colors.black87 : Colors.grey),
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Colors.black87
+                                    : Colors.grey,
+                              ),
                             )
                           : null,
                     ),
@@ -213,12 +259,8 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
             },
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => const Center(
-          child: Text('Error'),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => const Center(child: Text('Error')),
       ),
     );
   }

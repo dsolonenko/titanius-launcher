@@ -51,30 +51,43 @@ class GamesPage extends HookConsumerWidget {
       if (key == GamepadButton.up) {
         final gamelist = games.value;
         if (gamelist != null && gamelist.games.isNotEmpty) {
-          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          final selectedIndex = findGame(
+            gamelist,
+            ref.read(selectedGameProvider(system)),
+          );
           if (selectedIndex > 0) {
             final newIndex = selectedIndex - 1;
-            ref.read(selectedGameProvider(system).notifier).state = gamelist.games[newIndex];
+            ref.read(selectedGameProvider(system).notifier).state =
+                gamelist.games[newIndex];
           }
         }
       }
       if (key == GamepadButton.down) {
         final gamelist = games.value;
         if (gamelist != null && gamelist.games.isNotEmpty) {
-          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          final selectedIndex = findGame(
+            gamelist,
+            ref.read(selectedGameProvider(system)),
+          );
           if (selectedIndex < gamelist.games.length - 1) {
             final newIndex = selectedIndex + 1;
-            ref.read(selectedGameProvider(system).notifier).state = gamelist.games[newIndex];
+            ref.read(selectedGameProvider(system).notifier).state =
+                gamelist.games[newIndex];
           }
         }
       }
       if (key == GamepadButton.a) {
         final gamelist = games.value;
         if (gamelist != null && gamelist.games.isNotEmpty) {
-          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          final selectedIndex = findGame(
+            gamelist,
+            ref.read(selectedGameProvider(system)),
+          );
           final game = gamelist.games[selectedIndex];
           if (game.isFolder) {
-            ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
+            ref
+                .read(currentGameNavigationProvider(system).notifier)
+                .moveIntoFolder(game);
             ref.read(selectedGameProvider(system).notifier).state = null;
           } else {
             _launchGame(ref, game);
@@ -85,12 +98,16 @@ class GamesPage extends HookConsumerWidget {
         final gamelist = games.value;
         if (gamelist == null || gamelist.games.isEmpty) return;
         const pageSize = 10;
-        final current = findGame(gamelist, ref.read(selectedGameProvider(system)));
+        final current = findGame(
+          gamelist,
+          ref.read(selectedGameProvider(system)),
+        );
         final index = key == GamepadButton.l1
             ? max(current - pageSize, 0)
             : min(gamelist.games.length - 1, current + pageSize);
         debugPrint("Go to index=$index page=$pageSize");
-        ref.read(selectedGameProvider(system).notifier).state = gamelist.games[index];
+        ref.read(selectedGameProvider(system).notifier).state =
+            gamelist.games[index];
       }
       if (key == GamepadButton.l2 || key == GamepadButton.r2) {
         final allSystems = ref.read(loadedSystemsProvider).value ?? [];
@@ -111,7 +128,9 @@ class GamesPage extends HookConsumerWidget {
         if (navigation.isAtRoot) {
           GoRouter.of(context).go("/");
         } else {
-          Game game = ref.read(currentGameNavigationProvider(system).notifier).goBack();
+          Game game = ref
+              .read(currentGameNavigationProvider(system).notifier)
+              .goBack();
           ref.read(selectedGameProvider(system).notifier).state = game;
         }
       }
@@ -120,7 +139,9 @@ class GamesPage extends HookConsumerWidget {
       }
       if (key == GamepadButton.select) {
         final currentFilter = ref.read(currentGameFilterProvider(system));
-        ref.read(temporaryGameFilterProvider(system).notifier).set(currentFilter);
+        ref
+            .read(temporaryGameFilterProvider(system).notifier)
+            .set(currentFilter);
         GoRouter.of(context).go("/games/$system/filter");
       }
       if (key == GamepadButton.y) {
@@ -149,14 +170,13 @@ class GamesPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.b], "Back"),
           GamepadPrompt([GamepadButton.a], "Launch"),
         ],
-        text: "Filter: ${ref.read(currentGameFilterProvider(system)).description}",
+        text:
+            "Filter: ${ref.read(currentGameFilterProvider(system)).description}",
       ),
       body: games.when(
         data: (gamelist) {
           if (gamelist.games.isEmpty) {
-            return const Center(
-              child: Text("No games found"),
-            );
+            return const Center(child: Text("No games found"));
           }
           final selectedIndex = findGame(gamelist, selectedGame);
           final gameToShow = gamelist.games[selectedIndex];
@@ -176,8 +196,11 @@ class GamesPage extends HookConsumerWidget {
                       child: _systemLogo(gamelist.system),
                     ),
                     Expanded(
-                      child: ListView.builder(
-                        key: PageStorageKey("$system/${gamelist.currentFolder}"),
+                      child: ControllerListView.builder(
+                        key: PageStorageKey(
+                          "$system/${gamelist.currentFolder}",
+                        ),
+                        selectedIndex: selectedIndex,
                         itemCount: gamelist.games.length,
                         itemBuilder: (context, index) {
                           final game = gamelist.games[index];
@@ -185,9 +208,14 @@ class GamesPage extends HookConsumerWidget {
                           return SelectedScrollTile(
                             isSelected: isSelected,
                             child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 1,
+                              ),
                               child: Material(
-                                color: isSelected ? Colors.white : Colors.transparent,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.transparent,
                                 borderRadius: BorderRadius.circular(4),
                                 child: ListTile(
                                   key: ValueKey(game.romPath),
@@ -196,14 +224,35 @@ class GamesPage extends HookConsumerWidget {
                                   minLeadingWidth: 18,
                                   minVerticalPadding: 0,
                                   dense: true,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 0,
+                                  ),
                                   leading: game.isFolder
-                                      ? Icon(Icons.folder, size: 14, color: isSelected ? Colors.black : Colors.white)
+                                      ? Icon(
+                                          Icons.folder,
+                                          size: 14,
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.white,
+                                        )
                                       : game.hidden
-                                          ? Icon(Icons.visibility_off_rounded, size: 14, color: isSelected ? Colors.black : Colors.grey)
-                                          : system != "favourites" && game.favorite
-                                              ? Icon(Icons.star_rounded, size: 14, color: isSelected ? Colors.black : Colors.orangeAccent)
-                                              : null,
+                                      ? Icon(
+                                          Icons.visibility_off_rounded,
+                                          size: 14,
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.grey,
+                                        )
+                                      : system != "favourites" && game.favorite
+                                      ? Icon(
+                                          Icons.star_rounded,
+                                          size: 14,
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.orangeAccent,
+                                        )
+                                      : null,
                                   selected: isSelected,
                                   selectedColor: Colors.black,
                                   selectedTileColor: Colors.transparent,
@@ -212,8 +261,12 @@ class GamesPage extends HookConsumerWidget {
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: TextStyle(
-                                      color: isSelected ? Colors.black : Colors.white,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     ),
                                   ),
                                   subtitle: gamelist.system.isCollection
@@ -221,15 +274,37 @@ class GamesPage extends HookConsumerWidget {
                                           game.system.name,
                                           maxLines: 1,
                                           style: TextStyle(
-                                            color: isSelected ? Colors.black87 : Colors.grey,
+                                            color: isSelected
+                                                ? Colors.black87
+                                                : Colors.grey,
                                           ),
                                         )
                                       : null,
                                   onTap: () {
-                                    ref.read(selectedGameProvider(system).notifier).state = game;
+                                    ref
+                                            .read(
+                                              selectedGameProvider(
+                                                system,
+                                              ).notifier,
+                                            )
+                                            .state =
+                                        game;
                                     if (game.isFolder) {
-                                      ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
-                                      ref.read(selectedGameProvider(system).notifier).state = null;
+                                      ref
+                                          .read(
+                                            currentGameNavigationProvider(
+                                              system,
+                                            ).notifier,
+                                          )
+                                          .moveIntoFolder(game);
+                                      ref
+                                              .read(
+                                                selectedGameProvider(
+                                                  system,
+                                                ).notifier,
+                                              )
+                                              .state =
+                                          null;
                                     } else {
                                       _launchGame(ref, game);
                                     }
@@ -265,15 +340,26 @@ class GamesPage extends HookConsumerWidget {
 
   void _launchGame(WidgetRef ref, Game game) async {
     await ref.read(recentGamesRepoProvider).saveRecentGame(game);
-    final gameEmulator = await ref.read(perGameConfigurationProvider(game).future);
+    final gameEmulator = await ref.read(
+      perGameConfigurationProvider(game).future,
+    );
     final customEmulators = await ref.read(customEmulatorsProvider.future);
     if (gameEmulator != null && gameEmulator.emulator != "default") {
-      final emulators = [...game.system.builtInEmulators, ...customEmulators.map((e) => e.toEmulator())];
-      final emulator = emulators.firstWhereOrNull((element) => element.id == gameEmulator.emulator);
+      final emulators = [
+        ...game.system.builtInEmulators,
+        ...customEmulators.map((e) => e.toEmulator()),
+      ];
+      final emulator = emulators.firstWhereOrNull(
+        (element) => element.id == gameEmulator.emulator,
+      );
       _launchGameWithEmulator(emulator, game);
     } else {
-      final alternativeEmulators = await ref.read(alternativeEmulatorsProvider.future);
-      final emulators = alternativeEmulators.firstWhereOrNull((element) => element.system.id == game.system.id);
+      final alternativeEmulators = await ref.read(
+        alternativeEmulatorsProvider.future,
+      );
+      final emulators = alternativeEmulators.firstWhereOrNull(
+        (element) => element.system.id == game.system.id,
+      );
       final emulator = emulators?.defaultEmulator;
       _launchGameWithEmulator(emulator, game);
     }
@@ -281,7 +367,11 @@ class GamesPage extends HookConsumerWidget {
 
   void _launchGameWithEmulator(Emulator? emulator, Game game) {
     debugPrint("Launching ${game.absoluteRomPath} with ${emulator?.id}");
-    emulator?.intent.toIntent(game).then((intent) => intent.launch().catchError(handleIntentError(intent)));
+    emulator?.intent
+        .toIntent(game)
+        .then(
+          (intent) => intent.launch().catchError(handleIntentError(intent)),
+        );
   }
 
   Widget _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
@@ -320,9 +410,11 @@ class GamesPage extends HookConsumerWidget {
     );
   }
 
-
-
-  Widget _gameDetails(AsyncValue<Settings> settings, Game gameToShow, ValueNotifier<bool> showDetails) {
+  Widget _gameDetails(
+    AsyncValue<Settings> settings,
+    Game gameToShow,
+    ValueNotifier<bool> showDetails,
+  ) {
     if (showDetails.value) {
       return _gameDetailsLong(gameToShow);
     } else {
@@ -336,19 +428,19 @@ class GamesPage extends HookConsumerWidget {
       children: [
         Expanded(
           child: settings.when(
-              data: (settings) => settings.showGameVideos && gameToShow.videoUrl != null
-                  ? _gameVideo(settings, gameToShow)
-                  : _gameImage(gameToShow),
-              error: (_, _) => _gameImage(gameToShow),
-              loading: () => const Center(child: CircularProgressIndicator())),
+            data: (settings) =>
+                settings.showGameVideos && gameToShow.videoUrl != null
+                ? _gameVideo(settings, gameToShow)
+                : _gameImage(gameToShow),
+            error: (_, _) => _gameImage(gameToShow),
+            loading: () => const Center(child: CircularProgressIndicator()),
+          ),
         ),
         const SizedBox(height: verticalSpacing),
         RatingBarIndicator(
           rating: gameToShow.rating ?? 0,
-          itemBuilder: (context, index) => const Icon(
-            Icons.star,
-            color: Colors.amber,
-          ),
+          itemBuilder: (context, index) =>
+              const Icon(Icons.star, color: Colors.amber),
           itemCount: 10,
           itemSize: 14.0,
           direction: Axis.horizontal,
@@ -373,7 +465,11 @@ class GamesPage extends HookConsumerWidget {
   }
 
   Widget _gameVideo(Settings settings, Game gameToShow) {
-    return FadeImageToVideo(key: ValueKey(gameToShow.romPath), game: gameToShow, settings: settings);
+    return FadeImageToVideo(
+      key: ValueKey(gameToShow.romPath),
+      game: gameToShow,
+      settings: settings,
+    );
   }
 
   Widget _gameDetailsLong(Game gameToShow) {
@@ -389,34 +485,41 @@ class GamesPage extends HookConsumerWidget {
                 ),
               )
             : Text(gameToShow.name, textScaler: const TextScaler.linear(2)),
-        Text(
-          gameToShow.rom,
-        ),
+        Text(gameToShow.rom),
         RatingBarIndicator(
           rating: gameToShow.rating ?? 0,
-          itemBuilder: (context, index) => const Icon(
-            Icons.star,
-            color: Colors.amber,
-          ),
+          itemBuilder: (context, index) =>
+              const Icon(Icons.star, color: Colors.amber),
           itemCount: 10,
           itemSize: 14.0,
           direction: Axis.horizontal,
         ),
         gameToShow.players != null
             ? Text("Players: ${gameToShow.players}")
-            : const SizedBox(
-                height: 0,
-              ),
+            : const SizedBox(height: 0),
         Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(gameToShow.description ?? "No description", style: const TextStyle(color: Colors.grey))),
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            gameToShow.description ?? "No description",
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ),
         Expanded(
           child: InfoTiles(
             children: [
               InfoTile(title: "Genre", subtitle: gameToShow.genreToShow),
-              InfoTile(title: "Released", subtitle: gameToShow.year?.toString() ?? "-"),
-              InfoTile(title: "Developer", subtitle: gameToShow.developer ?? "-"),
-              InfoTile(title: "Publisher", subtitle: gameToShow.publisher ?? "-"),
+              InfoTile(
+                title: "Released",
+                subtitle: gameToShow.year?.toString() ?? "-",
+              ),
+              InfoTile(
+                title: "Developer",
+                subtitle: gameToShow.developer ?? "-",
+              ),
+              InfoTile(
+                title: "Publisher",
+                subtitle: gameToShow.publisher ?? "-",
+              ),
             ],
           ),
         ),
@@ -481,12 +584,14 @@ Function handleIntentError(AndroidIntent intent) {
   return (err) {
     debugPrint(err.toString());
     Fluttertoast.showToast(
-        msg: "Unable to run ${intent.package}. Please make sure the app is installed.",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
+      msg:
+          "Unable to run ${intent.package}. Please make sure the app is installed.",
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   };
 }

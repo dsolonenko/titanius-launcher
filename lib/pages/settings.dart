@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:installed_apps/app_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
@@ -40,7 +39,7 @@ class SettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final packageInfo = ref.watch(packageInfoProvider);
-    final selectedIndex = useState(0);
+    final selectedIndex = usePersistentSelection('/settings');
 
     final items = [
       (
@@ -48,7 +47,9 @@ class SettingsPage extends HookConsumerWidget {
         trailing: null as Widget?,
         onTap: () {
           // ignore: unused_result
-          ref.refresh(detectedSystemsProvider).whenData((value) => ref.read(allGamesProvider));
+          ref
+              .refresh(detectedSystemsProvider)
+              .whenData((value) => ref.read(allGamesProvider));
         },
       ),
       (
@@ -105,10 +106,16 @@ class SettingsPage extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (location != "/settings") return;
       if (key == GamepadButton.up) {
-        selectedIndex.value = (selectedIndex.value - 1).clamp(0, items.length - 1);
+        selectedIndex.value = (selectedIndex.value - 1).clamp(
+          0,
+          items.length - 1,
+        );
       }
       if (key == GamepadButton.down) {
-        selectedIndex.value = (selectedIndex.value + 1).clamp(0, items.length - 1);
+        selectedIndex.value = (selectedIndex.value + 1).clamp(
+          0,
+          items.length - 1,
+        );
       }
       if (key == GamepadButton.a) {
         items[selectedIndex.value].onTap();
@@ -123,20 +130,20 @@ class SettingsPage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       bottomNavigationBar: PromptBar(
         text: packageInfo.when(
-            data: (data) => "${data.appName} ${data.version}",
-            loading: () => "",
-            error: (error, stackTrace) => error.toString()),
+          data: (data) => "${data.appName} ${data.version}",
+          loading: () => "",
+          error: (error, stackTrace) => error.toString(),
+        ),
         actions: const [
           GamepadPrompt([GamepadButton.a], "Select"),
           GamepadPrompt([GamepadButton.b], "Back"),
         ],
       ),
-      body: ListView.builder(
+      body: ControllerListView.builder(
+        selectedIndex: selectedIndex.value,
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
@@ -157,7 +164,9 @@ class SettingsPage extends HookConsumerWidget {
                     item.title,
                     style: TextStyle(
                       color: isSelected ? Colors.black : Colors.white,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                   trailing: item.trailing,
