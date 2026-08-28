@@ -3,17 +3,54 @@ package app.titanius.launcher
 import android.content.ContentUris
 import android.content.ContentResolver
 import android.content.Intent
+import android.hardware.input.InputManager
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
 import android.provider.MediaStore
+import android.view.KeyEvent
+import android.view.MotionEvent
 import androidx.annotation.RequiresApi
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import org.flame_engine.gamepads_android.GamepadsCompatibleActivity
 
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterActivity(), GamepadsCompatibleActivity {
     private val CHANNEL = "file_utils"
+    private var gamepadKeyHandler: ((KeyEvent) -> Boolean)? = null
+    private var gamepadMotionHandler: ((MotionEvent) -> Boolean)? = null
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (gamepadKeyHandler?.invoke(event) == true) {
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
+    override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
+        if (gamepadMotionHandler?.invoke(event) == true) {
+            return true
+        }
+        return super.dispatchGenericMotionEvent(event)
+    }
+
+    override fun registerInputDeviceListener(
+        listener: InputManager.InputDeviceListener,
+        handler: Handler?,
+    ) {
+        val inputManager = getSystemService(INPUT_SERVICE) as InputManager
+        inputManager.registerInputDeviceListener(listener, handler)
+    }
+
+    override fun registerKeyEventHandler(handler: (KeyEvent) -> Boolean) {
+        gamepadKeyHandler = handler
+    }
+
+    override fun registerMotionEventHandler(handler: (MotionEvent) -> Boolean) {
+        gamepadMotionHandler = handler
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

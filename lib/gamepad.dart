@@ -12,6 +12,8 @@ enum GamepadButton {
   left,
   right,
   leftRight,
+  rightStickUp,
+  rightStickDown,
   a,
   b,
   x,
@@ -65,6 +67,9 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
   bool _stickRightActive = false;
   bool _stickUpActive = false;
   bool _stickDownActive = false;
+  bool _rightStickUpActive = false;
+  bool _rightStickDownActive = false;
+  String? _activeRightStickYAxisKey;
   bool _ltActive = false;
   bool _rtActive = false;
 
@@ -109,6 +114,8 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
         button == GamepadButton.down ||
         button == GamepadButton.left ||
         button == GamepadButton.right ||
+        button == GamepadButton.rightStickUp ||
+        button == GamepadButton.rightStickDown ||
         button == GamepadButton.l1 ||
         button == GamepadButton.r1) {
       _repeatButton = button;
@@ -219,6 +226,39 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
           if (_stickDownActive) {
             _stickDownActive = false;
             _onButtonUp(GamepadButton.down);
+          }
+        }
+      } else if (event.axis == gp.GamepadAxis.rightStickY) {
+        final rawAxisKey = event.rawEvent.key;
+        if (event.value.abs() > threshold) {
+          _activeRightStickYAxisKey = rawAxisKey;
+        } else if (_activeRightStickYAxisKey != null &&
+            _activeRightStickYAxisKey != rawAxisKey) {
+          return;
+        }
+        if (event.value > threshold) {
+          if (!_rightStickUpActive) {
+            _rightStickUpActive = true;
+            _rightStickDownActive = false;
+            _onButtonUp(GamepadButton.rightStickDown);
+            _onButtonDown(GamepadButton.rightStickUp);
+          }
+        } else if (event.value < -threshold) {
+          if (!_rightStickDownActive) {
+            _rightStickDownActive = true;
+            _rightStickUpActive = false;
+            _onButtonUp(GamepadButton.rightStickUp);
+            _onButtonDown(GamepadButton.rightStickDown);
+          }
+        } else if (event.value.abs() < resetThreshold) {
+          _activeRightStickYAxisKey = null;
+          if (_rightStickUpActive) {
+            _rightStickUpActive = false;
+            _onButtonUp(GamepadButton.rightStickUp);
+          }
+          if (_rightStickDownActive) {
+            _rightStickDownActive = false;
+            _onButtonUp(GamepadButton.rightStickDown);
           }
         }
       } else if (event.axis == gp.GamepadAxis.leftTrigger) {

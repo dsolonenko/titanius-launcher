@@ -34,6 +34,16 @@ class GamesPage extends HookConsumerWidget {
     final settings = ref.watch(settingsProvider);
 
     final showDetails = useState(false);
+    final detailsScrollController = useScrollController();
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (detailsScrollController.hasClients) {
+          detailsScrollController.jumpTo(0);
+        }
+      });
+      return null;
+    }, [selectedGame?.hash, showDetails.value]);
 
     useEffect(() {
       if (system == "recent") {
@@ -136,6 +146,20 @@ class GamesPage extends HookConsumerWidget {
       }
       if (key == GamepadButton.x) {
         showDetails.value = !showDetails.value;
+      }
+      if (key == GamepadButton.rightStickUp ||
+          key == GamepadButton.rightStickDown) {
+        if (!showDetails.value || !detailsScrollController.hasClients) return;
+        const scrollStep = 56.0;
+        final delta = key == GamepadButton.rightStickUp
+            ? -scrollStep
+            : scrollStep;
+        final position = detailsScrollController.position;
+        final target = (detailsScrollController.offset + delta).clamp(
+          position.minScrollExtent,
+          position.maxScrollExtent,
+        );
+        detailsScrollController.jumpTo(target);
       }
       if (key == GamepadButton.select) {
         final currentFilter = ref.read(currentGameFilterProvider(system));
@@ -326,7 +350,12 @@ class GamesPage extends HookConsumerWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: gameToShow.isFolder
                       ? _gameFolder(ref, context, gameToShow)
-                      : _gameDetails(settings, gameToShow, showDetails),
+                      : _gameDetails(
+                          settings,
+                          gameToShow,
+                          showDetails,
+                          detailsScrollController,
+                        ),
                 ),
               ),
             ],
@@ -414,9 +443,10 @@ class GamesPage extends HookConsumerWidget {
     AsyncValue<Settings> settings,
     Game gameToShow,
     ValueNotifier<bool> showDetails,
+    ScrollController detailsScrollController,
   ) {
     if (showDetails.value) {
-      return _gameDetailsLong(gameToShow);
+      return _gameDetailsLong(gameToShow, detailsScrollController);
     } else {
       return _gameDetailsShort(settings, gameToShow);
     }
@@ -472,58 +502,67 @@ class GamesPage extends HookConsumerWidget {
     );
   }
 
-  Widget _gameDetailsLong(Game gameToShow) {
-    return Column(
-      children: [
-        gameToShow.thumbnailUrl != null
-            ? SizedBox(
-                height: 60,
-                child: Image.file(
-                  File(gameToShow.thumbnailUrl!),
-                  fit: BoxFit.fitHeight,
-                  filterQuality: FilterQuality.none,
+  Widget _gameDetailsLong(
+    Game gameToShow,
+    ScrollController detailsScrollController,
+  ) {
+    return Scrollbar(
+      controller: detailsScrollController,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: detailsScrollController,
+        child: Column(
+          children: [
+            gameToShow.thumbnailUrl != null
+                ? SizedBox(
+                    height: 60,
+                    child: Image.file(
+                      File(gameToShow.thumbnailUrl!),
+                      fit: BoxFit.fitHeight,
+                      filterQuality: FilterQuality.none,
+                    ),
+                  )
+                : Text(gameToShow.name, textScaler: const TextScaler.linear(2)),
+            Text(gameToShow.rom),
+            RatingBarIndicator(
+              rating: gameToShow.rating ?? 0,
+              itemBuilder: (context, index) =>
+                  const Icon(Icons.star, color: Colors.amber),
+              itemCount: 10,
+              itemSize: 14.0,
+              direction: Axis.horizontal,
+            ),
+            gameToShow.players != null
+                ? Text("Players: ${gameToShow.players}")
+                : const SizedBox(height: 0),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                gameToShow.description ?? "No description",
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
+            InfoTiles(
+              columnCount: 1,
+              children: [
+                InfoTile(title: "Genre", subtitle: gameToShow.genreToShow),
+                InfoTile(
+                  title: "Released",
+                  subtitle: gameToShow.year?.toString() ?? "-",
                 ),
-              )
-            : Text(gameToShow.name, textScaler: const TextScaler.linear(2)),
-        Text(gameToShow.rom),
-        RatingBarIndicator(
-          rating: gameToShow.rating ?? 0,
-          itemBuilder: (context, index) =>
-              const Icon(Icons.star, color: Colors.amber),
-          itemCount: 10,
-          itemSize: 14.0,
-          direction: Axis.horizontal,
+                InfoTile(
+                  title: "Developer",
+                  subtitle: gameToShow.developer ?? "-",
+                ),
+                InfoTile(
+                  title: "Publisher",
+                  subtitle: gameToShow.publisher ?? "-",
+                ),
+              ],
+            ),
+          ],
         ),
-        gameToShow.players != null
-            ? Text("Players: ${gameToShow.players}")
-            : const SizedBox(height: 0),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            gameToShow.description ?? "No description",
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ),
-        Expanded(
-          child: InfoTiles(
-            children: [
-              InfoTile(title: "Genre", subtitle: gameToShow.genreToShow),
-              InfoTile(
-                title: "Released",
-                subtitle: gameToShow.year?.toString() ?? "-",
-              ),
-              InfoTile(
-                title: "Developer",
-                subtitle: gameToShow.developer ?? "-",
-              ),
-              InfoTile(
-                title: "Publisher",
-                subtitle: gameToShow.publisher ?? "-",
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 

@@ -28,28 +28,35 @@ class PromptBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final prompts = [...navigations, ...actions];
     return Container(
       color: backgroundColor ?? Colors.black.withValues(alpha: 0.5),
       padding: const EdgeInsets.all(8),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          ...navigations.map((e) => GamepadPromptWidget(
-                buttons: e.buttons,
-                prompt: e.prompt,
-              )),
-          Expanded(
-            child: Text(
+          if (text.isNotEmpty) ...[
+            Text(
               text,
-              textScaler: const TextScaler.linear(0.8),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
+            const SizedBox(height: 6),
+          ],
+          Wrap(
+            alignment: WrapAlignment.center,
+            runAlignment: WrapAlignment.center,
+            spacing: 16,
+            runSpacing: 6,
+            children: [
+              for (final prompt in prompts)
+                GamepadPromptWidget(
+                  buttons: prompt.buttons,
+                  prompt: prompt.prompt,
+                ),
+            ],
           ),
-          ...actions.map((e) => GamepadPromptWidget(
-                buttons: e.buttons,
-                prompt: e.prompt,
-              )),
         ],
       ),
     );

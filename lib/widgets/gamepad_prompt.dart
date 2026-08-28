@@ -25,11 +25,17 @@ class GamepadPromptWidget extends StatelessWidget {
   final List<GamepadButton> buttons;
   final String prompt;
 
-  const GamepadPromptWidget({super.key, required this.buttons, required this.prompt});
+  const GamepadPromptWidget({
+    super.key,
+    required this.buttons,
+    required this.prompt,
+  });
 
   @override
   Widget build(BuildContext context) {
-    String buttonText = buttons.map((button) => gamepadFontMappings[button]).join("");
+    String buttonText = buttons
+        .map((button) => gamepadFontMappings[button])
+        .join("");
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -51,7 +57,6 @@ class GamepadPromptWidget extends StatelessWidget {
             leadingDistribution: TextLeadingDistribution.even,
           ),
         ),
-        const SizedBox(width: 8),
       ],
     );
   }
