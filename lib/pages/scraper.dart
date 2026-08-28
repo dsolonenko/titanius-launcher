@@ -1,10 +1,6 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:ui';
 
-import 'package:cancellation_token/cancellation_token.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -91,9 +87,10 @@ class ScraperPage extends HookConsumerWidget {
     }
 
     void cycleScrapeTheseGames(bool next) {
-      if (settings.value == null) return;
+      final currentSettings = ref.read(settingsProvider).value;
+      if (currentSettings == null) return;
       int index = scrapeTheseGamesOptions
-          .indexWhere((id) => id == (settings.value!.scrapeTheseGames ?? "missing_details"));
+          .indexWhere((id) => id == (currentSettings.scrapeTheseGames ?? "missing_details"));
       if (next) {
         index++;
       } else {
@@ -108,13 +105,13 @@ class ScraperPage extends HookConsumerWidget {
       final selected = scrapeTheseGamesOptions[index];
       ref.read(settingsRepoProvider)
           .setScrapeTheseGames(selected)
-          .then((value) => ref.refresh(settingsProvider));
+          .then((value) => ref.invalidate(settingsProvider));
     }
 
     void stopScraper() {
       debugPrint("Stopping scraper service");
       final service = ref.read(scraperServiceProvider);
-      service.invoke("stop", {});
+      service.stopScrape();
     }
 
     useGamepad(ref, (location, key) {
@@ -467,81 +464,22 @@ Future<void> _startScraper(WidgetRef ref) async {
   final allSystems = await ref.read(allSupportedSystemsProvider.future);
   final settings = await ref.read(settingsProvider.future);
   final systemsToScrape = settings.scrapeTheseSystems.toSet();
-  final systems = allSystems.where((s) => systemsToScrape.contains(s.id)).map((e) => e.toJson()).toList();
-  final existingRoms = allGames.where((g) => systemsToScrape.contains(g.system.id)).map((e) => e.toJson()).toList();
+  final systems = allSystems.where((s) => systemsToScrape.contains(s.id)).toList();
+  final existingRoms = allGames.where((g) => systemsToScrape.contains(g.system.id)).toList();
   final service = ref.read(scraperServiceProvider);
-  if (Platform.isAndroid) {
-    await service.configure(
-      androidConfiguration: AndroidConfiguration(
-        onStart: onStart,
-        autoStart: false,
-        isForegroundMode: true,
-      ),
-      iosConfiguration: IosConfiguration(
-        autoStart: false,
-      ),
-    );
-    final isRunning = await service.isRunning();
-    if (isRunning) {
-      debugPrint("Already running");
-      return;
-    }
-    debugPrint("Starting service");
-    await service.startService();
-  } else {
-    debugPrint("Emulating service");
-    onStart(service);
+  if (await service.isRunning()) {
+    debugPrint("Already running");
+    return;
   }
-  debugPrint("Invoking service");
-  service.invoke(
-    "scrape",
-    {
-      "username": settings.screenScraperUser,
-      "password": settings.screenScraperPwd,
-      "romFolders": romFolders,
-      "roms": existingRoms,
-      "scrapeTheseGames": settings.scrapeTheseGames ?? "all_games",
-      "systems": systems,
-    },
+  debugPrint("Starting service");
+  await service.startScrape(
+    username: settings.screenScraperUser,
+    password: settings.screenScraperPwd,
+    romFolders: romFolders,
+    roms: existingRoms,
+    scrapeTheseGames: settings.scrapeTheseGames ?? "all_games",
+    systems: systems,
   );
-}
-
-CancellationToken? _scraperCancellationToken;
-
-@pragma('vm:entry-point')
-void onStart(ServiceInstance service) async {
-  DartPluginRegistrant.ensureInitialized();
-
-  service.on('scrape').listen((event) async {
-    debugPrint("Got scrape request: $event");
-    _scraperCancellationToken?.cancel();
-    final cancellationToken = CancellationToken();
-    _scraperCancellationToken = cancellationToken;
-    CancellableCompleter completer = CancellableCompleter(cancellationToken, onCancel: () {
-      debugPrint("Cancelling scrape request");
-      service.stopSelf();
-    });
-    completer.complete(scrapeGames(service, event, cancellationToken: cancellationToken));
-    debugPrint("Scraper is running...");
-  });
-
-  service.on('stop').listen((event) {
-    debugPrint("Force stopping the service");
-    _scraperCancellationToken?.cancel();
-    service.invoke(
-      'update',
-      {
-        "total": 0,
-        "success": 0,
-        "error": 0,
-        "pending": 0,
-        "system": "",
-        "rom": "",
-        "msg": "Cancelled",
-      },
-    );
-    service.stopSelf();
-  });
 }
 
 class SettingElement {

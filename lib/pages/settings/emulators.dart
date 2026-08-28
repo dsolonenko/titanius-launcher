@@ -48,6 +48,8 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
         ],
       ),
       body: emulators.when(
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
         data: (emulators) {
           final emuList = emulators.where((element) => element.defaultEmulator != null).toList();
           return ListView.builder(
@@ -150,6 +152,8 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
         ],
       ),
       body: emulators.when(
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
         data: (emulators) {
           final selected = emulators.firstWhere((e) => e.system.id == system);
           return GroupedListView<Emulator, String>(

@@ -33,7 +33,7 @@ extension GoRouterLocation on GoRouter {
     final RouteMatch lastMatch = routerDelegate.currentConfiguration.last;
     final RouteMatchList matchList =
         lastMatch is ImperativeRouteMatch ? lastMatch.matches : routerDelegate.currentConfiguration;
-    return matchList.uri.toString();
+    return matchList.uri.path;
   }
 }
 

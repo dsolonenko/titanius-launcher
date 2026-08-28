@@ -81,6 +81,8 @@ class CustomEmulatorsPage extends HookConsumerWidget {
               ],
             ),
       body: emulators.when(
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
         data: (emulators) {
           return ListView.builder(
             key: const PageStorageKey("settings/cemulators"),

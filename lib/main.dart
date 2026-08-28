@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -10,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/scraper.dart';
 import 'package:titanius/data/state.dart';
 import 'package:titanius/pages/filter.dart';
 
@@ -22,6 +24,29 @@ import 'package:titanius/widgets/scraper_progress.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isAndroid) {
+    FlutterForegroundTask.initCommunicationPort();
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'scraper_service_channel',
+        channelName: 'Scraper Service',
+        channelDescription: 'Notification channel for ROM scraper background task',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+        showWhen: true,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: false,
+        playSound: false,
+      ),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.nothing(),
+        autoRunOnBoot: false,
+        allowWakeLock: true,
+        allowWifiLock: true,
+      ),
+    );
+  }
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   await _ensureStoragePermission();
   runApp(
@@ -137,33 +162,30 @@ class MyApp extends HookConsumerWidget {
     final fontScale = settings.value?.fontScale ?? 1.0;
     final scraperService = ref.watch(scraperServiceProvider);
     useEffect(() {
-      final sub = scraperService.on("update").listen((event) {
-        final total = event!["total"] as int;
-        final pending = event["pending"] as int;
-        final msg = event["msg"] as String;
-        ref.read(scraperProgressStateProvider.notifier).set(ScraperProgress(
-              total: total,
-              pending: pending,
-              success: event["success"] as int,
-              error: event["error"] as int,
-              system: event["system"] as String,
-              rom: event["rom"] as String,
-              message: msg,
-            ));
-        if (msg == "Done" || msg == "Cancelled" || msg == "Quota exceeded") {
+      final sub = scraperService.progressStream.listen((progress) {
+        ref.read(scraperProgressStateProvider.notifier).set(progress);
+        if (progress.message == "Done" || progress.message == "Cancelled" || progress.message == "Quota exceeded") {
           ref.invalidate(allGamesProvider);
           ref.invalidate(gamesProvider);
           ref.invalidate(filteredGamesInFolderProvider);
         }
       });
       return () => sub.cancel();
-    }, []);
+    }, [scraperService]);
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Titanius Launcher',
       theme: _buildTheme(Brightness.dark),
       themeMode: ThemeMode.dark,
       routerConfig: _router,
+      shortcuts: const <ShortcutActivator, Intent>{
+        // Disable default directional focus traversal so gamepad / controller navigation is the primary driver
+        SingleActivator(LogicalKeyboardKey.arrowUp): DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowDown): DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowLeft): DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowRight): DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.tab): DoNothingAndStopPropagationIntent(),
+      },
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
@@ -182,6 +204,10 @@ class MyApp extends HookConsumerWidget {
       fontFamily: 'KarenFat',
     );
     return baseTheme.copyWith(
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
       textTheme: baseTheme.textTheme.apply(
         fontFamily: 'KarenFat',
       ),

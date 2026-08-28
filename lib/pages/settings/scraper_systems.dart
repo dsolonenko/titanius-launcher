@@ -63,6 +63,8 @@ class ScraperSystemsPage extends HookConsumerWidget {
       body: systems.when(
         data: (systems) {
           return settings.when(
+            skipLoadingOnRefresh: true,
+            skipLoadingOnReload: true,
             data: (settings) {
               final sysList = systems.where((e) => !e.isCollection && !e.isAndroid).toList();
               return GroupedListView<System, String>(

@@ -50,6 +50,8 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
       body: systems.when(
         data: (systems) {
           return enabledSystems.when(
+            skipLoadingOnRefresh: true,
+            skipLoadingOnReload: true,
             data: (enabledSystems) {
               return GroupedListView<System, String>(
                 key: const PageStorageKey("settings/systems"),

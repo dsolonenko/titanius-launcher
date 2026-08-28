@@ -11,17 +11,17 @@ class UISettingsPage extends HookConsumerWidget {
     final s = settings.value;
 
     void adjustFontScale(double delta) {
-      if (s == null) return;
-      final currentScale = s.fontScale;
+      final current = ref.read(settingsProvider).value;
+      if (current == null) return;
+      final currentScale = current.fontScale;
       final newScale = double.parse((currentScale + delta).clamp(0.10, 3.00).toStringAsFixed(1));
       final repo = ref.read(settingsRepoProvider);
-      repo.setFontScale(newScale).then((value) => ref.refresh(settingsProvider));
+      repo.setFontScale(newScale).then((value) => ref.invalidate(settingsProvider));
     }
 
     void resetFontScale() {
-      if (s == null) return;
       final repo = ref.read(settingsRepoProvider);
-      repo.setFontScale(1.0).then((value) => ref.refresh(settingsProvider));
+      repo.setFontScale(1.0).then((value) => ref.invalidate(settingsProvider));
     }
 
     final currentScaleStr = s == null ? "1.0x" : "${s.fontScale.toStringAsFixed(1)}x";
@@ -96,21 +96,21 @@ class UISettingsPage extends HookConsumerWidget {
         final item = items[selectedIndex.value.clamp(0, items.length - 1)];
         if (item.enabled && item.onLeft != null) {
           final repo = ref.read(settingsRepoProvider);
-          item.onLeft!(repo).then((value) => ref.refresh(settingsProvider));
+          item.onLeft!(repo).then((value) => ref.invalidate(settingsProvider));
         }
       }
       if (key == GamepadButton.right) {
         final item = items[selectedIndex.value.clamp(0, items.length - 1)];
         if (item.enabled && item.onRight != null) {
           final repo = ref.read(settingsRepoProvider);
-          item.onRight!(repo).then((value) => ref.refresh(settingsProvider));
+          item.onRight!(repo).then((value) => ref.invalidate(settingsProvider));
         }
       }
       if (key == GamepadButton.a) {
         final item = items[selectedIndex.value.clamp(0, items.length - 1)];
         if (item.enabled && item.onAction != null) {
           final repo = ref.read(settingsRepoProvider);
-          item.onAction!(repo).then((value) => ref.refresh(settingsProvider));
+          item.onAction!(repo).then((value) => ref.invalidate(settingsProvider));
         }
       }
       if (key == GamepadButton.b) {
@@ -132,6 +132,8 @@ class UISettingsPage extends HookConsumerWidget {
         ],
       ),
       body: settings.when(
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
         data: (_) {
           return ListView.builder(
             key: const PageStorageKey('settings/ui'),
@@ -156,7 +158,7 @@ class UISettingsPage extends HookConsumerWidget {
                         selectedIndex.value = index;
                         if (item.enabled && item.onAction != null) {
                           final repo = ref.read(settingsRepoProvider);
-                          item.onAction!(repo).then((value) => ref.refresh(settingsProvider));
+                          item.onAction!(repo).then((value) => ref.invalidate(settingsProvider));
                         }
                       },
                       title: Text(

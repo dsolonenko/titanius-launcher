@@ -49,8 +49,12 @@ class AppsSettingsPage extends HookConsumerWidget {
         ],
       ),
       body: installedApps.when(
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
         data: (installedApps) {
           return selectedApps.when(
+            skipLoadingOnRefresh: true,
+            skipLoadingOnReload: true,
             data: (selectedApps) {
               return GroupedListView<AppInfo, String>(
                 key: const PageStorageKey("settings/apps"),

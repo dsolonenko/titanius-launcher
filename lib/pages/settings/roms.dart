@@ -78,10 +78,16 @@ class RomsSettingsPage extends HookConsumerWidget {
         ],
       ),
       body: romFolders.when(
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
         data: (romFolders) {
           return paths.when(
+            skipLoadingOnRefresh: true,
+            skipLoadingOnReload: true,
             data: (paths) {
               return grantedUris.when(
+                skipLoadingOnRefresh: true,
+                skipLoadingOnReload: true,
                 data: (grantedUris) {
                   final allPaths = [...paths, ...grantedUris];
                   return GroupedListView<Object, String>(

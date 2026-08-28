@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:installed_apps/app_info.dart';
 import 'package:installed_apps/installed_apps.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:titanius/data/android_apps.dart';
 import 'package:titanius/data/state.dart';
@@ -15,6 +14,7 @@ import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/appbar.dart';
 import 'package:titanius/widgets/info_tile.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
+import 'package:titanius/widgets/selected_scroll_tile.dart';
 
 const double verticalSpacing = 10;
 
@@ -27,9 +27,6 @@ class AndroidPage extends HookConsumerWidget {
     final selectedApp = ref.watch(selectedAppProvider);
 
     final showDetals = useState(false);
-
-    final scrollController = ItemScrollController();
-    final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
 
     useGamepad(ref, (location, key) {
       if (location != "/games/android") return;
@@ -51,18 +48,12 @@ class AndroidPage extends HookConsumerWidget {
         if (currentIndex > 0) {
           final newIndex = currentIndex - 1;
           ref.read(selectedAppProvider.notifier).state = apps[newIndex];
-          if (showDetals.value) {
-            _ensureVisible(scrollController, itemPositionsListener, newIndex);
-          }
         }
       }
       if (key == GamepadButton.down) {
         if (currentIndex < apps.length - 1) {
           final newIndex = currentIndex + 1;
           ref.read(selectedAppProvider.notifier).state = apps[newIndex];
-          if (showDetals.value) {
-            _ensureVisible(scrollController, itemPositionsListener, newIndex);
-          }
         }
       }
       if (key == GamepadButton.left) {
@@ -132,17 +123,13 @@ class AndroidPage extends HookConsumerWidget {
             );
           }
           final appToShow = selectedApp ?? apps.first;
-          final index = apps.indexOf(appToShow).clamp(0, apps.length - 1);
           return showDetals.value
               ? Row(
                   children: [
                     Expanded(
                       flex: 1,
-                      child: ScrollablePositionedList.builder(
-                        itemScrollController: scrollController,
-                        itemPositionsListener: itemPositionsListener,
+                      child: ListView.builder(
                         key: const PageStorageKey("android/apps_list"),
-                        initialScrollIndex: index,
                         itemCount: apps.length,
                         itemBuilder: (context, index) {
                           final app = apps[index];
@@ -182,93 +169,80 @@ class AndroidPage extends HookConsumerWidget {
   }
 
   Widget _appTileGrid(BuildContext context, WidgetRef ref, AppInfo app, bool selected) {
-    return Container(
-      margin: const EdgeInsets.all(4),
-      child: Material(
-        color: selected ? Colors.white : Colors.transparent,
-        borderRadius: BorderRadius.circular(4),
-        child: ListTile(
-          key: ValueKey("android/grid/${app.packageName}"),
-          selected: selected,
-          selectedColor: Colors.black,
-          selectedTileColor: Colors.transparent,
-          title: app.icon != null
-              ? CachedMemoryImage(
-                  uniqueKey: app.packageName,
-                  bytes: app.icon!,
-                  fit: BoxFit.contain,
-                )
-              : Icon(Icons.android, color: selected ? Colors.black : Colors.white),
-          subtitle: Text(
-            textAlign: TextAlign.center,
-            app.name,
-            softWrap: false,
-            style: TextStyle(
-              color: selected ? Colors.black : Colors.white,
-              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+    return SelectedScrollTile(
+      isSelected: selected,
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        child: Material(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(4),
+          child: ListTile(
+            key: ValueKey("android/grid/${app.packageName}"),
+            selected: selected,
+            selectedColor: Colors.black,
+            selectedTileColor: Colors.transparent,
+            title: app.icon != null
+                ? CachedMemoryImage(
+                    uniqueKey: app.packageName,
+                    bytes: app.icon!,
+                    fit: BoxFit.contain,
+                  )
+                : Icon(Icons.android, color: selected ? Colors.black : Colors.white),
+            subtitle: Text(
+              textAlign: TextAlign.center,
+              app.name,
+              softWrap: false,
+              style: TextStyle(
+                color: selected ? Colors.black : Colors.white,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
+            onTap: () async {
+              ref.read(selectedAppProvider.notifier).state = app;
+              InstalledApps.startApp(app.packageName).catchError(handleIntentError(context, app.name));
+            },
           ),
-          onTap: () async {
-            ref.read(selectedAppProvider.notifier).state = app;
-            InstalledApps.startApp(app.packageName).catchError(handleIntentError(context, app.name));
-          },
         ),
       ),
     );
   }
 
   Widget _appTileList(BuildContext context, WidgetRef ref, AppInfo app, bool selected) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-      child: Material(
-        color: selected ? Colors.white : Colors.transparent,
-        borderRadius: BorderRadius.circular(4),
-        child: ListTile(
-          key: ValueKey("android/list/${app.packageName}"),
-          selected: selected,
-          selectedColor: Colors.black,
-          selectedTileColor: Colors.transparent,
-          dense: true,
-          leading: app.icon != null
-              ? CachedMemoryImage(
-                  uniqueKey: app.packageName,
-                  bytes: app.icon!,
-                  fit: BoxFit.contain,
-                )
-              : Icon(Icons.android, color: selected ? Colors.black : Colors.white),
-          title: Text(
-            app.name,
-            style: TextStyle(
-              color: selected ? Colors.black : Colors.white,
-              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+    return SelectedScrollTile(
+      isSelected: selected,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+        child: Material(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(4),
+          child: ListTile(
+            key: ValueKey("android/list/${app.packageName}"),
+            selected: selected,
+            selectedColor: Colors.black,
+            selectedTileColor: Colors.transparent,
+            dense: true,
+            leading: app.icon != null
+                ? CachedMemoryImage(
+                    uniqueKey: app.packageName,
+                    bytes: app.icon!,
+                    fit: BoxFit.contain,
+                  )
+                : Icon(Icons.android, color: selected ? Colors.black : Colors.white),
+            title: Text(
+              app.name,
+              style: TextStyle(
+                color: selected ? Colors.black : Colors.white,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
+            onTap: () async {
+              ref.read(selectedAppProvider.notifier).state = app;
+              InstalledApps.startApp(app.packageName).catchError(handleIntentError(context, app.name));
+            },
           ),
-          onTap: () async {
-            ref.read(selectedAppProvider.notifier).state = app;
-            InstalledApps.startApp(app.packageName).catchError(handleIntentError(context, app.name));
-          },
         ),
       ),
     );
-  }
-}
-
-void _ensureVisible(
-    ItemScrollController scrollController, ItemPositionsListener itemPositionsListener, int targetIndex) {
-  if (!scrollController.isAttached) return;
-  final positions = itemPositionsListener.itemPositions.value.toList();
-  if (positions.isEmpty) {
-    scrollController.jumpTo(index: targetIndex, alignment: 0.0);
-    return;
-  }
-  positions.sort((a, b) => a.index.compareTo(b.index));
-  final firstItem = positions.first;
-  final lastItem = positions.last;
-
-  if (targetIndex < firstItem.index || (targetIndex == firstItem.index && firstItem.itemLeadingEdge < 0.0)) {
-    scrollController.jumpTo(index: targetIndex, alignment: 0.0);
-  } else if (targetIndex > lastItem.index || (targetIndex == lastItem.index && lastItem.itemTrailingEdge > 1.0)) {
-    scrollController.jumpTo(index: targetIndex, alignment: 1.0);
   }
 }
 

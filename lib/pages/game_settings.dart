@@ -11,7 +11,6 @@ import 'package:sn_progress_dialog/progress_dialog.dart';
 
 import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/scraper.dart';
-import 'package:titanius/widgets/scraper_progress.dart';
 import 'package:titanius/widgets/selector.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/repo.dart';
@@ -95,7 +94,7 @@ class GameSettingsPage extends HookConsumerWidget {
     }
 
     Future<void> scrapeGame() async {
-      final scraperService = await ref.read(scraperServiceProvider);
+      final scraperService = ref.read(scraperServiceProvider);
       if (await scraperService.isRunning()) {
         if (context.mounted) {
           _showError(context, "Scraper already running...");
@@ -150,7 +149,7 @@ class GameSettingsPage extends HookConsumerWidget {
     Future<void> scrapeGameById() async {
       inPrompt.value = true;
       try {
-        final scraperService = await ref.read(scraperServiceProvider);
+        final scraperService = ref.read(scraperServiceProvider);
         if (await scraperService.isRunning()) {
           if (context.mounted) {
             _showError(context, "Scraper already running...");

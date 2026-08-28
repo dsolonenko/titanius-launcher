@@ -52,6 +52,8 @@ class DaijishoWallpaperPacksPage extends HookConsumerWidget {
         ],
       ),
       body: packs.when(
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
         data: (packs) {
           return ListView.builder(
             key: const PageStorageKey("settings/daijisho"),

@@ -103,7 +103,7 @@ class SettingsPage extends HookConsumerWidget {
     ];
 
     useGamepad(ref, (location, key) {
-      if (location != "/settings?source=$source") return;
+      if (location != "/settings") return;
       if (key == GamepadButton.up) {
         selectedIndex.value = (selectedIndex.value - 1).clamp(0, items.length - 1);
       }

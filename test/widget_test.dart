@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:titanius/data/files.dart';
 import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/scraper.dart';
 import 'package:titanius/data/state.dart';
 import 'package:titanius/widgets/scraper_progress.dart';
 
@@ -185,28 +187,80 @@ void main() {
     expect(quota.isRunning, isFalse);
   });
 
-  test('FakeServiceInstance handles scrape, update, stop and tracks running state', () async {
-    final service = FakeServiceInstance();
+  test('DesktopScraperService handles startScrape, stopScrape and receives progress events', () async {
+    final service = DesktopScraperService();
     expect(await service.isRunning(), isFalse);
 
-    final updates = <Map<String, dynamic>?>[];
-    final stops = <Map<String, dynamic>?>[];
-    final subUpdate = service.on('update').listen((event) => updates.add(event));
-    final subStop = service.on('stop').listen((event) => stops.add(event));
+    final updates = <ScraperProgress>[];
+    final sub = service.progressStream.listen((event) => updates.add(event));
 
-    service.invoke('scrape', {'username': 'test'});
-    expect(await service.isRunning(), isTrue);
+    await service.startScrape(
+      username: 'test',
+      password: 'pwd',
+      romFolders: [],
+      roms: [],
+      systems: [],
+      scrapeTheseGames: 'all_games',
+    );
 
-    service.invoke('update', {'msg': 'Scraping...', 'total': 5, 'pending': 4, 'success': 1, 'error': 0, 'system': 'gb', 'rom': 'rom.zip'});
-    expect(await service.isRunning(), isTrue);
-    expect(updates.length, 1);
-    expect(updates.first?['msg'], 'Scraping...');
+    await Future.delayed(const Duration(milliseconds: 50));
 
-    service.invoke('stop', {});
+    expect(updates.isNotEmpty, isTrue);
+    expect(updates.first.message, equals('Starting...'));
+
+    await service.stopScrape();
     expect(await service.isRunning(), isFalse);
-    expect(stops.length, 1);
 
-    await subUpdate.cancel();
-    await subStop.cancel();
+    await sub.cancel();
+  });
+
+  test('listGamesFromFiles filters out auxiliary and save files (.srm, .auto, .state, .sav, .png, etc.)', () async {
+    final tempDir = await Directory.systemTemp.createTemp('titanius_roms_test_');
+    try {
+      final gbaDir = Directory('${tempDir.path}/gba');
+      await gbaDir.create(recursive: true);
+
+      // Create real ROMs
+      await File('${gbaDir.path}/Pokemon - Emerald.zip').create();
+      await File('${gbaDir.path}/Zelda - Minish Cap.gba').create();
+
+      // Create auxiliary files
+      await File('${gbaDir.path}/Pokemon - Emerald.srm').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.srm.auto').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.auto').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.state').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.state1').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.state.auto').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.st0').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.sav').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.cht').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.cfg').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.png').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.mp4').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.txt').create();
+      await File('${gbaDir.path}/Pokemon - Emerald.bak').create();
+
+      const system = System(
+        id: 'gba',
+        screenScraperId: 12,
+        name: 'Game Boy Advance',
+        logo: 'gba.png',
+        folders: ['gba'],
+        builtInEmulators: [],
+      );
+
+      final games = await listGamesFromFiles(
+        romsFolder: tempDir.path,
+        folder: 'gba',
+        system: system,
+      );
+
+      final romNames = games.map((g) => g.rom).toList();
+      expect(romNames.length, equals(2));
+      expect(romNames, contains('./Pokemon - Emerald.zip'));
+      expect(romNames, contains('./Zelda - Minish Cap.gba'));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
   });
 }
