@@ -63,7 +63,6 @@ dependencies:
   saf: ^2.1.2
   preload_page_view: ^0.2.0
   toggle_switch: ^2.1.0
-  isolated_worker: ^0.1.1
   focus_detector_v2: ^3.1.0+1
   screenscraper:
     path: ../screenscraper-api-dart

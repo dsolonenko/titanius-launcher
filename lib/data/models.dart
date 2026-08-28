@@ -139,6 +139,7 @@ class Game {
   bool isFolder;
   bool hidden;
   bool fromGamelistXml;
+  late final int cachedHash = fastHash(romPath);
 
   Game(
     this.system,
@@ -170,7 +171,7 @@ class Game {
   String get romPath => "$systemFolder/${rom.replaceFirst("./", "")}";
   String get uniqueKey => id != null ? "id/$id" : "${system.id}/$name";
   String get genreToShow => genreId?.longName ?? "-";
-  int get hash => fastHash(romPath);
+  int get hash => cachedHash;
 
   factory Game.fromXmlNode(XmlNode node, System system, String volumePath, String systemFolder) {
     final id = node.attributes.firstWhereOrNull((element) => element.name.local == "id")?.value;
@@ -245,7 +246,8 @@ class Game {
     final romsPath = "$volumePath/$systemFolder";
     final path = file.absolute.path.replaceFirst(romsPath, ".");
     final fileName = file.uri.pathSegments.last;
-    final name = fileName.substring(0, fileName.lastIndexOf("."));
+    final extensionIndex = fileName.lastIndexOf(".");
+    final name = extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
     //debugPrint("Game from file romsPath=$romsPath path=$path fileName=$fileName");
     return Game(
       system,

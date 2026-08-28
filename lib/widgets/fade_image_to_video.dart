@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:video_player/video_player.dart';
@@ -17,48 +18,90 @@ class FadeImageToVideo extends StatefulWidget {
 }
 
 class FadeImageToVideoState extends State<FadeImageToVideo> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
+  Timer? _initializeTimer;
+  Timer? _fadeTimer;
   bool _playVideo = false;
   bool _inFocus = true;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.file(File(widget.game.videoUrl!))..setLooping(true);
+    _scheduleInitialize();
+  }
+
+  @override
+  void didUpdateWidget(covariant FadeImageToVideo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.game.absoluteRomPath != widget.game.absoluteRomPath ||
+        oldWidget.game.videoUrl != widget.game.videoUrl ||
+        oldWidget.settings.muteVideo != widget.settings.muteVideo ||
+        oldWidget.settings.fadeToVideo != widget.settings.fadeToVideo) {
+      _resetVideo();
+    }
+  }
+
+  void _resetVideo() {
+    _initializeTimer?.cancel();
+    _fadeTimer?.cancel();
+    _playVideo = false;
+    _disposeCurrentController();
+    _scheduleInitialize();
+  }
+
+  void _disposeCurrentController() {
+    final controller = _controller;
+    _controller = null;
+    if (controller != null) unawaited(controller.dispose());
+  }
+
+  void _scheduleInitialize() {
+    _initializeTimer?.cancel();
+    _initializeTimer = Timer(const Duration(milliseconds: 400), _initializeVideo);
+  }
+
+  Future<void> _initializeVideo() async {
+    if (!mounted || !_inFocus) return;
+    final controller = VideoPlayerController.file(File(widget.game.videoUrl!))..setLooping(true);
+    _controller = controller;
 
     if (widget.settings.muteVideo) {
-      _controller.setVolume(0.0);
+      controller.setVolume(0.0);
     }
-
+    try {
+      await controller.initialize();
+    } catch (error) {
+      if (identical(controller, _controller)) {
+        _controller = null;
+        await controller.dispose();
+      }
+      debugPrint('Unable to initialize video ${widget.game.videoUrl}: $error');
+      return;
+    }
+    if (!mounted || controller != _controller) return;
     if (widget.settings.fadeToVideo) {
-      _controller.initialize();
-      Future.delayed(const Duration(seconds: 2), () async {
-        if (_inFocus && mounted && _controller.value.isInitialized) {
+      _fadeTimer = Timer(const Duration(seconds: 2), () {
+        if (_inFocus && mounted && controller.value.isInitialized) {
           setState(() {
             _playVideo = true;
           });
-          _controller.play();
+          controller.play();
         }
       });
     } else {
       _playVideo = true;
-      _controller.initialize().then((value) {
-        if (mounted) {
-          // force aspect ratio
-          if (_inFocus) {
-            setState(() {
-              _playVideo = true;
-            });
-            _controller.play();
-          }
-        }
-      });
+      if (_inFocus) {
+        setState(() => _playVideo = true);
+        controller.play();
+      }
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _initializeTimer?.cancel();
+    _fadeTimer?.cancel();
+    _disposeCurrentController();
     super.dispose();
   }
 
@@ -68,11 +111,12 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
       onFocusGained: () {
         debugPrint('Focus gained');
         if (mounted) {
+          if (_controller == null) _scheduleInitialize();
           setState(() {
             _inFocus = true;
-            if (_controller.value.isInitialized) {
+            if (_controller?.value.isInitialized ?? false) {
               _playVideo = true;
-              _controller.play();
+              _controller?.play();
             }
           });
         }
@@ -80,8 +124,8 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
       onFocusLost: () {
         debugPrint('Focus lost');
         if (mounted) {
-          if (_controller.value.isInitialized) {
-            _controller.pause();
+          if (_controller?.value.isInitialized ?? false) {
+            _controller?.pause();
           }
           setState(() {
             _inFocus = false;
@@ -94,13 +138,14 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
   }
 
   Widget _buildVideoPlayer() {
-    if (_playVideo && _inFocus) {
+    final controller = _controller;
+    if (_playVideo && _inFocus && controller != null && controller.value.isInitialized) {
       return AspectRatio(
-        aspectRatio: _controller.value.aspectRatio,
-        child: VideoPlayer(_controller),
+        aspectRatio: controller.value.aspectRatio,
+        child: VideoPlayer(controller),
       );
     } else {
-      return Image.file(
+      return widget.game.imageUrl == null ? const SizedBox.shrink() : Image.file(
         File(widget.game.imageUrl!),
         fit: BoxFit.contain,
         filterQuality: FilterQuality.none,

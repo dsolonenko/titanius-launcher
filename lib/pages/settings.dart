@@ -46,10 +46,11 @@ class SettingsPage extends HookConsumerWidget {
         title: 'Refresh GameLists',
         trailing: null as Widget?,
         onTap: () {
-          // ignore: unused_result
-          ref
-              .refresh(detectedSystemsProvider)
-              .whenData((value) => ref.read(allGamesProvider));
+          ref.invalidate(detectedSystemsProvider);
+          ref.invalidate(loadedSystemsProvider);
+          ref.read(gameLibraryProvider).clear();
+          ref.invalidate(systemGamesProvider);
+          ref.read(allGamesProvider.future);
         },
       ),
       (

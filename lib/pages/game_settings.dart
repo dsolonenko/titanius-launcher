@@ -77,9 +77,9 @@ class GameSettingsPage extends HookConsumerWidget {
         (value) {
           if (value) {
             game.favorite = !game.favorite;
+            ref.read(gameLibraryProvider).invalidateSystem(game.system.id);
+            ref.invalidate(systemGamesProvider(game.system.id));
             ref.invalidate(allGamesProvider);
-            ref.invalidate(gamesProvider);
-            ref.invalidate(filteredGamesInFolderProvider);
           }
           if (context.mounted) {
             GoRouter.of(context).pop();
@@ -118,9 +118,9 @@ class GameSettingsPage extends HookConsumerWidget {
                     imageCache.clear();
                     imageCache.clearLiveImages();
                     game.update(scrapedGame);
+                    ref.read(gameLibraryProvider).invalidateSystem(game.system.id);
+                    ref.invalidate(systemGamesProvider(game.system.id));
                     ref.invalidate(allGamesProvider);
-                    ref.invalidate(gamesProvider);
-                    ref.invalidate(filteredGamesInFolderProvider);
                   }
                   if (context.mounted) {
                     GoRouter.of(context).pop();
@@ -194,9 +194,9 @@ class GameSettingsPage extends HookConsumerWidget {
                       imageCache.clear();
                       imageCache.clearLiveImages();
                       game.update(scrapedGame);
+                      ref.read(gameLibraryProvider).invalidateSystem(game.system.id);
+                      ref.invalidate(systemGamesProvider(game.system.id));
                       ref.invalidate(allGamesProvider);
-                      ref.invalidate(gamesProvider);
-                      ref.invalidate(filteredGamesInFolderProvider);
                     }
                     if (context.mounted) {
                       GoRouter.of(context).pop();
@@ -232,9 +232,9 @@ class GameSettingsPage extends HookConsumerWidget {
         (value) {
           if (value) {
             game.hidden = !game.hidden;
+            ref.read(gameLibraryProvider).invalidateSystem(game.system.id);
+            ref.invalidate(systemGamesProvider(game.system.id));
             ref.invalidate(allGamesProvider);
-            ref.invalidate(gamesProvider);
-            ref.invalidate(filteredGamesInFolderProvider);
           }
           if (context.mounted) {
             GoRouter.of(context).pop();
@@ -255,9 +255,9 @@ class GameSettingsPage extends HookConsumerWidget {
         deleteGame(game).then(
           (value) {
             if (value) {
+              ref.read(gameLibraryProvider).invalidateSystem(game.system.id);
+              ref.invalidate(systemGamesProvider(game.system.id));
               ref.invalidate(allGamesProvider);
-              ref.invalidate(gamesProvider);
-              ref.invalidate(filteredGamesInFolderProvider);
             }
             if (context.mounted) {
               GoRouter.of(context).pop();

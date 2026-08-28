@@ -12,7 +12,6 @@ import 'package:system_date_time_format/system_date_time_format.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/scraper.dart';
-import 'package:titanius/data/state.dart';
 import 'package:titanius/pages/filter.dart';
 
 import 'package:titanius/pages/game_settings.dart';
@@ -165,9 +164,9 @@ class MyApp extends HookConsumerWidget {
       final sub = scraperService.progressStream.listen((progress) {
         ref.read(scraperProgressStateProvider.notifier).set(progress);
         if (progress.message == "Done" || progress.message == "Cancelled" || progress.message == "Quota exceeded") {
+          ref.read(gameLibraryProvider).clear();
+          ref.invalidate(systemGamesProvider);
           ref.invalidate(allGamesProvider);
-          ref.invalidate(gamesProvider);
-          ref.invalidate(filteredGamesInFolderProvider);
         }
       });
       return () => sub.cancel();

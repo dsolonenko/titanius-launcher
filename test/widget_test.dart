@@ -1,13 +1,18 @@
 import 'dart:io';
+import 'dart:async';
+import 'dart:math';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:titanius/data/android_saf.dart';
 import 'package:titanius/data/files.dart';
 import 'package:titanius/data/gamelist_xml.dart';
+import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/scraper.dart';
 import 'package:titanius/data/state.dart';
+import 'package:titanius/data/systems.dart';
 import 'package:titanius/widgets/scraper_progress.dart';
 
 void main() {
@@ -276,6 +281,133 @@ void main() {
       expect(romNames, contains('./Zelda - Minish Cap.gba'));
     } finally {
       await tempDir.delete(recursive: true);
+    }
+  });
+
+  test('scanner retains legitimate ROM folders named media', () async {
+    final tempDir = await Directory.systemTemp.createTemp('titanius_streaming_scan_test_');
+    try {
+      await Directory('${tempDir.path}/gba/hacks').create(recursive: true);
+      await Directory('${tempDir.path}/gba/media/images/deep').create(recursive: true);
+      await File('${tempDir.path}/gba/original.gba').create();
+      await File('${tempDir.path}/gba/hacks/translated.gba').create();
+      await File('${tempDir.path}/gba/media/images/deep/not-a-rom.gba').create();
+      const system = System(id: 'gba', screenScraperId: 12, name: 'GBA', logo: 'gba.png', folders: ['gba'], builtInEmulators: []);
+      final games = await listGamesFromFiles(romsFolder: tempDir.path, folder: 'gba', system: system);
+      expect(games.map((game) => game.name), containsAll(['original', 'translated']));
+      expect(games.map((game) => game.name), contains('not-a-rom'));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
+
+  test('scanner keeps ROMs stored beside artwork', () async {
+    final tempDir = await Directory.systemTemp.createTemp('titanius_mixed_media_test_');
+    try {
+      final mixed = Directory('${tempDir.path}/gba/hacks');
+      await mixed.create(recursive: true);
+      await File('${mixed.path}/cover.png').create();
+      await File('${mixed.path}/game.gba').create();
+      const system = System(id: 'gba', screenScraperId: 12, name: 'GBA', logo: '', folders: ['gba'], builtInEmulators: []);
+      final games = await listGamesFromFiles(
+        romsFolder: tempDir.path,
+        folder: 'gba',
+        system: system,
+      );
+      expect(games.map((game) => game.name), contains('game'));
+      expect(games.map((game) => game.name), isNot(contains('cover')));
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
+
+  test('GameList indexes large collections for constant-time selection lookup', () {
+    const system = System(id: 'gba', screenScraperId: 12, name: 'GBA', logo: 'gba.png', folders: ['gba'], builtInEmulators: []);
+    final games = List.generate(10000,
+        (index) => Game(system, 'Game $index', '/roms', 'gba', '.', './game-$index.gba'));
+    final gameList = GameList(system, '.', games, null);
+    expect(gameList.indexOf(games[9999]), 9999);
+    expect(gameList.indexOf(Game(system, 'Missing', '/roms', 'gba', '.', './missing.gba')), -1);
+  });
+
+  test('GameLibrary coalesces requests and invalidates one system', () async {
+    var calls = 0;
+    final gate = Completer<void>();
+    final library = GameLibrary(loader: (params) async {
+      calls++;
+      await gate.future;
+      return [];
+    });
+    const system = System(id: 'gba', screenScraperId: 12, name: 'GBA', logo: 'gba.png', folders: ['gba'], builtInEmulators: []);
+    final params = SystemGamesTaskParams(['/roms'], system, false);
+    final first = library.load(params);
+    final second = library.load(params);
+    expect(identical(first, second), isTrue);
+    gate.complete();
+    await Future.wait([first, second]);
+    expect(calls, 1);
+    library.invalidateSystem('gba');
+    await library.load(params);
+    expect(calls, 2);
+  });
+
+  test('GameLibrary bounds concurrent system loads', () async {
+    var active = 0;
+    var peak = 0;
+    final library = GameLibrary(maxConcurrent: 2, loader: (params) async {
+      active++;
+      peak = max(peak, active);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      active--;
+      return [];
+    });
+    System system(String id) => System(id: id, screenScraperId: 1, name: id, logo: '', folders: [id], builtInEmulators: const []);
+    await Future.wait([
+      for (final id in ['a', 'b', 'c', 'd']) library.load(SystemGamesTaskParams(['/roms'], system(id), false)),
+    ]);
+    expect(peak, 2);
+  });
+
+  test('system visibility checks folders without scanning their contents', () async {
+    final tempDir = await Directory.systemTemp.createTemp('titanius_visibility_test_');
+    try {
+      const system = System(id: 'gba', screenScraperId: 12, name: 'GBA', logo: '', folders: ['gba'], builtInEmulators: []);
+      expect(await hasSystemFolder(system, [tempDir.path]), isFalse);
+      await Directory('${tempDir.path}/gba').create(recursive: true);
+      expect(await hasSystemFolder(system, [tempDir.path]), isTrue);
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  });
+
+  test('disabled systems never reach the game loader', () async {
+    var loads = 0;
+    final library = GameLibrary(loader: (params) async {
+      loads++;
+      return [];
+    });
+    final container = ProviderContainer(overrides: [
+      detectedSystemsProvider.overrideWith((ref) async => []),
+      romFoldersProvider.overrideWith((ref) async => ['/roms']),
+      settingsProvider.overrideWith((ref) async => Settings({})),
+      gameLibraryProvider.overrideWithValue(library),
+    ]);
+    try {
+      expect(await container.read(systemGamesProvider('gba').future), isEmpty);
+      expect(loads, 0);
+    } finally {
+      container.dispose();
+    }
+  });
+
+  test('system statistics stay disabled until deliberate interaction', () {
+    final container = ProviderContainer();
+    try {
+      expect(container.read(systemStatsEnabledProvider), isFalse);
+      container.read(systemStatsEnabledProvider.notifier).enable();
+      expect(container.read(systemStatsEnabledProvider), isTrue);
+    } finally {
+      container.dispose();
     }
   });
 }

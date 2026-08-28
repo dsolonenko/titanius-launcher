@@ -496,7 +496,7 @@ class GamesPage extends HookConsumerWidget {
 
   Widget _gameVideo(Settings settings, Game gameToShow) {
     return FadeImageToVideo(
-      key: ValueKey(gameToShow.romPath),
+      key: ValueKey(gameToShow.absoluteRomPath),
       game: gameToShow,
       settings: settings,
     );
@@ -611,7 +611,7 @@ class GamesPage extends HookConsumerWidget {
     if (selectedGame == null) {
       return 0;
     }
-    final index = gamelist.games.indexWhere((g) => g.hash == selectedGame.hash);
+    final index = gamelist.indexOf(selectedGame);
     if (index != -1) {
       return index;
     }

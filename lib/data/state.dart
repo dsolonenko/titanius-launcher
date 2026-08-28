@@ -23,6 +23,17 @@ final selectedSystemProvider = NotifierProvider<SelectedSystemNotifier, int>(
   SelectedSystemNotifier.new,
 );
 
+class SystemStatsEnabledNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void enable() => state = true;
+}
+
+final systemStatsEnabledProvider = NotifierProvider<SystemStatsEnabledNotifier, bool>(
+  SystemStatsEnabledNotifier.new,
+);
+
 class SelectedGameNotifier extends Notifier<Game?> {
   final String system;
   SelectedGameNotifier(this.system);
@@ -254,25 +265,10 @@ final deletedGamesProvider = NotifierProvider.family<DeletedGamesNotifier, Set<S
   DeletedGamesNotifier.new,
 );
 
-final gamesForCurrentSystemProvider = FutureProvider<GameList>((ref) async {
-  final allSystems = await ref.watch(loadedSystemsProvider.future);
-  if (allSystems.isEmpty) {
-    return const GameList(
-      systemAllGames,
-      ".",
-      [],
-      null,
-    );
-  }
-  final selectedSystem = ref.watch(selectedSystemProvider);
-  final system = allSystems[selectedSystem.clamp(0, allSystems.length - 1)];
-  final gamelist = await ref.watch(gamesProvider(system.id).future);
-  return gamelist;
-});
-
 final gamesInFolderProvider = FutureProvider.family<GameList, String>((ref, system) async {
-  final gamelist = await ref.watch(gamesProvider(system).future);
   final navigation = ref.watch(currentGameNavigationProvider(system));
+  final gamelistFuture = ref.watch(gamesProvider(system).future);
+  final gamelist = await gamelistFuture;
   if (gamelist.system.isCollection) {
     return gamelist;
   } else {
@@ -282,8 +278,9 @@ final gamesInFolderProvider = FutureProvider.family<GameList, String>((ref, syst
 });
 
 final filteredGamesInFolderProvider = FutureProvider.family<GameList, String>((ref, system) async {
-  final gamelist = await ref.watch(gamesInFolderProvider(system).future);
   final filter = ref.watch(currentGameFilterProvider(system));
+  final gamelistFuture = ref.watch(gamesInFolderProvider(system).future);
+  final gamelist = await gamelistFuture;
   final games = filter.apply(gamelist.games);
   return GameList(gamelist.system, gamelist.currentFolder, games, gamelist.compare);
 });

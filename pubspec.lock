@@ -709,14 +709,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  isolated_worker:
-    dependency: "direct main"
-    description:
-      name: isolated_worker
-      sha256: "79353f342871be5b6a19153a33d75f7a391aac9b210d97db4415d50c78e0170b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.1"
   jni:
     dependency: transitive
     description:

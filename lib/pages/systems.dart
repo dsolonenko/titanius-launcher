@@ -22,30 +22,28 @@ class SystemsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final allSystems = ref.watch(loadedSystemsProvider);
     final selectedSystem = ref.watch(selectedSystemProvider);
+    final systemStatsEnabled = ref.watch(systemStatsEnabledProvider);
     final wallpaperPack = ref.watch(daijishoCurrentThemeDataProvider);
-    final games = ref.watch(gamesForCurrentSystemProvider);
 
     final pageController = PreloadPageController(initialPage: selectedSystem);
-
-    // Forces games loading in background
-    games.whenData((games) {
-      debugPrint("Games: ${games.games.length}");
-    });
 
     useGamepad(ref, (location, key) {
       if (location != "/") return;
       if (allSystems.value == null || allSystems.value!.isEmpty) return;
       if (key == GamepadButton.r1 || key == GamepadButton.r2 || key == GamepadButton.right) {
+        ref.read(systemStatsEnabledProvider.notifier).enable();
         final currentSystem = ref.read(selectedSystemProvider);
         final next = (currentSystem + 1) % allSystems.value!.length;
         pageController.jumpToPage(next);
       }
       if (key == GamepadButton.l1 || key == GamepadButton.l2 || key == GamepadButton.left) {
+        ref.read(systemStatsEnabledProvider.notifier).enable();
         final currentSystem = ref.read(selectedSystemProvider);
         final prev = currentSystem - 1 < 0 ? allSystems.value!.length - 1 : currentSystem - 1;
         pageController.jumpToPage(prev);
       }
       if (key == GamepadButton.a) {
+        ref.read(systemStatsEnabledProvider.notifier).enable();
         final currentSystemIndex = ref.read(selectedSystemProvider);
         final system = allSystems.value![currentSystemIndex];
         GoRouter.of(context).go("/games/${system.id}");
@@ -66,9 +64,15 @@ class SystemsPage extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 8),
-            games.when(
-              data: (games) => _gamesStats(context, games),
-              error: (error, stackTrace) => const Text("Error loading games"),
+            allSystems.when(
+              data: (systems) {
+                if (systems.isEmpty) return const SizedBox.shrink();
+                final system = systems[selectedSystem.clamp(0, systems.length - 1)];
+                return !systemStatsEnabled || system.isCollection || system.isAndroid
+                    ? const SizedBox.shrink()
+                    : _SystemStats(system: system);
+              },
+              error: (_, _) => const SizedBox.shrink(),
               loading: () => const SizedBox.shrink(),
             ),
             allSystems.when(
@@ -107,21 +111,27 @@ class SystemsPage extends HookConsumerWidget {
       body: allSystems.when(
         data: (systems) => wallpaperPack.when(
           data: (wallpaperPack) {
-            return PreloadPageView.builder(
-              onPageChanged: (value) {
-                ref.read(selectedSystemProvider.notifier).state = value;
-              },
-              preloadPagesCount: 1,
-              controller: pageController,
-              itemCount: systems.length,
-              itemBuilder: (context, index) {
-                if (index >= systems.length) return Container();
-                final system = systems[index];
-                return GestureDetector(
-                  onTap: () => GoRouter.of(context).go("/games/${system.id}"),
-                  child: _systemLogo(ref, context, system, wallpaperPack),
-                );
-              },
+            return Listener(
+              onPointerDown: (_) => ref.read(systemStatsEnabledProvider.notifier).enable(),
+              child: PreloadPageView.builder(
+                onPageChanged: (value) {
+                  ref.read(selectedSystemProvider.notifier).state = value;
+                },
+                preloadPagesCount: 1,
+                controller: pageController,
+                itemCount: systems.length,
+                itemBuilder: (context, index) {
+                  if (index >= systems.length) return Container();
+                  final system = systems[index];
+                  return GestureDetector(
+                    onTap: () {
+                      ref.read(systemStatsEnabledProvider.notifier).enable();
+                      GoRouter.of(context).go("/games/${system.id}");
+                    },
+                    child: _systemLogo(ref, context, system, wallpaperPack),
+                  );
+                },
+              ),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -219,11 +229,22 @@ class SystemsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _gamesStats(BuildContext context, GameList games) {
-    if (games.games.isEmpty) return const SizedBox.shrink();
-    return Text(
-      "${games.games.length} games",
-      style: const TextStyle(color: Colors.white, fontSize: 20),
+}
+
+class _SystemStats extends ConsumerWidget {
+  final System system;
+
+  const _SystemStats({required this.system});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final games = ref.watch(gamesProvider(system.id));
+    return games.when(
+      data: (value) => value.games.isEmpty
+          ? const SizedBox.shrink()
+          : Text("${value.games.length} games", style: const TextStyle(color: Colors.white, fontSize: 20)),
+      error: (_, _) => const Text("Error loading games"),
+      loading: () => const SizedBox.shrink(),
     );
   }
 }

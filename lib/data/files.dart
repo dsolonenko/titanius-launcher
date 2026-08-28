@@ -17,16 +17,30 @@ Future<List<Game>> listGamesFromFiles({
   required String folder,
   required System system,
 }) async {
-  final romsPath = "$romsFolder/$folder";
-  final pathExists = await Directory(romsPath).exists();
-  if (!pathExists) {
-    return [];
+  return streamGamesFromFiles(romsFolder: romsFolder, folder: folder, system: system).toList();
+}
+
+Stream<Game> streamGamesFromFiles({
+  required String romsFolder,
+  required String folder,
+  required System system,
+}) async* {
+  final directory = Directory("$romsFolder/$folder");
+  if (!await directory.exists()) return;
+  await for (final file in _scanDirectory(directory)) {
+    if (!_nonRom(file)) yield Game.fromFile(file, system, romsFolder, folder);
   }
-  final dir = Directory(romsPath);
-  final allFiles = await dir.list(recursive: true, followLinks: false).toList();
-  allFiles.removeWhere((element) => _nonRom(element));
-  final gamesFromFiles = allFiles.map((file) => Game.fromFile(file, system, romsFolder, folder)).toList();
-  return gamesFromFiles;
+}
+
+Stream<File> _scanDirectory(Directory directory) async* {
+  await for (final entity in directory.list(followLinks: false)) {
+    if (entity is File) {
+      yield entity;
+    } else if (entity is Directory) {
+      final name = entity.uri.pathSegments.where((segment) => segment.isNotEmpty).last;
+      if (!name.startsWith('.')) yield* _scanDirectory(entity);
+    }
+  }
 }
 
 final _nonRomExtensions = {
