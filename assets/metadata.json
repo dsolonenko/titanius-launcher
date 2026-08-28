@@ -2151,6 +2151,51 @@
       ],
       "emulators": [
         {
+          "id": "io.github.lime3ds.lime3ds",
+          "name": "Lime3DS",
+          "intent": {
+            "component": "io.github.lime3ds.lime3ds/org.citra.citra_emu.activities.EmulationActivity",
+            "action": "android.intent.action.VIEW",
+            "args": {
+              "GamePath": "{file.path}"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "io.github.mandarine3ds.mandarine",
+          "name": "Mandarine 3DS",
+          "intent": {
+            "component": "io.github.mandarine3ds.mandarine/org.citra.citra_emu.activities.EmulationActivity",
+            "action": "android.intent.action.VIEW",
+            "args": {
+              "GamePath": "{file.path}"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "org.citra.citra_emu.canary",
+          "name": "Citra Canary",
+          "intent": {
+            "component": "org.citra.citra_emu.canary/org.citra.citra_emu.activities.EmulationActivity",
+            "action": "android.intent.action.VIEW",
+            "args": {
+              "GamePath": "{file.path}"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
           "id": "org.citra.citra_emu",
           "name": "Citra",
           "intent": {
@@ -2606,6 +2651,51 @@
       ],
       "emulators": [
         {
+          "id": "sudachi",
+          "name": "Sudachi",
+          "intent": {
+            "component": "org.sudachi.sudachi_emu/org.yuzu.yuzu_emu.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}"
+          }
+        },
+        {
+          "id": "suyu",
+          "name": "Suyu",
+          "intent": {
+            "component": "org.suyu.suyu_emu/org.yuzu.yuzu_emu.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}"
+          }
+        },
+        {
+          "id": "uzuy",
+          "name": "Uzuy Edge",
+          "intent": {
+            "component": "org.uzuy.uzuy_emu/org.yuzu.yuzu_emu.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}"
+          }
+        },
+        {
+          "id": "yuzu",
+          "name": "Yuzu",
+          "intent": {
+            "component": "org.yuzu.yuzu_emu/org.yuzu.yuzu_emu.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}"
+          }
+        },
+        {
+          "id": "yuzu_ea",
+          "name": "Yuzu Early Access",
+          "intent": {
+            "component": "org.yuzu.yuzu_emu.ea/org.yuzu.yuzu_emu.ui.main.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}"
+          }
+        },
+        {
           "id": "skyline",
           "name": "Skyline",
           "intent": {
@@ -2700,6 +2790,31 @@
             "args": {
               "AutoStartFile": "{file.documenturi}"
             }
+          }
+        }
+      ]
+    },
+    {
+      "id": "wiiu",
+      "screenScraperId": 18,
+      "name": "Nintendo Wii U",
+      "logo": "Nintendo Wii U.png",
+      "folders": [
+        "wiiu",
+        "wii-u"
+      ],
+      "emulators": [
+        {
+          "id": "cemu",
+          "name": "Cemu",
+          "intent": {
+            "component": "info.cemu.cemu/.MainActivity",
+            "action": "android.intent.action.VIEW",
+            "data": "{file.path}",
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
           }
         }
       ]
@@ -2968,6 +3083,48 @@
             "component": "org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity",
             "action": "android.intent.action.VIEW",
             "data": "{file.documenturi}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "psvita",
+      "screenScraperId": 62,
+      "name": "Sony PlayStation Vita",
+      "logo": "Sony PS Vita.png",
+      "folders": [
+        "psvita",
+        "vita"
+      ],
+      "emulators": [
+        {
+          "id": "vita3k",
+          "name": "Vita3K",
+          "intent": {
+            "component": "org.vita3k.emulator/.MainActivity",
+            "action": "android.intent.action.MAIN",
+            "args": {
+              "bootPath": "{file.documenturi}"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "vita3k_path",
+          "name": "Vita3K (Path)",
+          "intent": {
+            "component": "org.vita3k.emulator/.MainActivity",
+            "action": "android.intent.action.MAIN",
+            "args": {
+              "bootPath": "{file.path}"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
           }
         }
       ]
@@ -3905,6 +4062,21 @@
         "ps2"
       ],
       "emulators": [
+        {
+          "id": "nethersx2",
+          "name": "NetherSX2",
+          "intent": {
+            "component": "xyz.nethersx2.android/.EmulationActivity",
+            "action": "android.intent.action.MAIN",
+            "args": {
+              "bootPath": "{file.documenturi}"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
         {
           "id": "aethersx2",
           "name": "AetherSX2",

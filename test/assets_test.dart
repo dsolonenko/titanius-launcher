@@ -15,9 +15,9 @@ Future<void> main() async {
         ]);
 
         final allSystemsWithCollections = await container.read(allSupportedSystemsProvider.future);
-        expect(allSystemsWithCollections.length, 77);
+        expect(allSystemsWithCollections.length, 79);
         final allSystems = allSystemsWithCollections.where((element) => !element.isCollection);
-        expect(allSystems.length, 74);
+        expect(allSystems.length, 76);
         for (final system in allSystems) {
           await rootBundle.load("assets/images/white/${system.logo}");
           await rootBundle.load("assets/images/color/${system.logo}");
