@@ -25,7 +25,7 @@ class DaijishoWallpaperPacksPage extends HookConsumerWidget {
           packList.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final pack =
             packList[selectedIndex.value.clamp(0, packList.length - 1)];
         ref
@@ -34,7 +34,7 @@ class DaijishoWallpaperPacksPage extends HookConsumerWidget {
             .then((value) => ref.refresh(settingsProvider));
         GoRouter.of(context).go("/");
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
       if (key == GamepadButton.x) {
@@ -51,9 +51,9 @@ class DaijishoWallpaperPacksPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Apply"),
+          GamepadPrompt([GamepadButton.confirm], "Apply"),
           GamepadPrompt([GamepadButton.x], "Do not use wallpapers"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: packs.when(

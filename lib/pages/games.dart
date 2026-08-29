@@ -86,7 +86,7 @@ class GamesPage extends HookConsumerWidget {
           }
         }
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final gamelist = games.value;
         if (gamelist != null && gamelist.games.isNotEmpty) {
           final selectedIndex = findGame(
@@ -132,7 +132,7 @@ class GamesPage extends HookConsumerWidget {
           }
         }
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         final navigation = ref.read(currentGameNavigationProvider(system));
         debugPrint("Back: $navigation");
         if (navigation.isAtRoot) {
@@ -191,8 +191,8 @@ class GamesPage extends HookConsumerWidget {
         actions: const [
           GamepadPrompt([GamepadButton.x], "Details"),
           GamepadPrompt([GamepadButton.y], "Settings"),
-          GamepadPrompt([GamepadButton.b], "Back"),
-          GamepadPrompt([GamepadButton.a], "Launch"),
+          GamepadPrompt([GamepadButton.back], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Launch"),
         ],
         text:
             "Filter: ${ref.read(currentGameFilterProvider(system)).description}",

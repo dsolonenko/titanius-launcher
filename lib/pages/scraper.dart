@@ -128,17 +128,17 @@ class ScraperPage extends HookConsumerWidget {
       if (location != "/settings/scraper") return;
 
       if (isRunning) {
-        if (key == GamepadButton.x || key == GamepadButton.a) {
+        if (key == GamepadButton.x || key == GamepadButton.confirm) {
           stopScraper();
         }
-        if (key == GamepadButton.b) {
+        if (key == GamepadButton.back) {
           GoRouter.of(context).pop();
         }
         return;
       }
 
       if (confirm.value) {
-        if (key == GamepadButton.b) {
+        if (key == GamepadButton.back) {
           confirm.value = false;
         }
         if (key == GamepadButton.y) {
@@ -164,7 +164,7 @@ class ScraperPage extends HookConsumerWidget {
           cycleScrapeTheseGames(true);
         }
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         if (selectedIndex.value == 0) {
           editUsername();
         } else if (selectedIndex.value == 1) {
@@ -175,7 +175,7 @@ class ScraperPage extends HookConsumerWidget {
           context.push("/settings/scraper/systems");
         }
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
       if (key == GamepadButton.y) {
@@ -240,17 +240,17 @@ class ScraperPage extends HookConsumerWidget {
           ? PromptBar(
               navigations: const [],
               actions: const [
-                GamepadPrompt([GamepadButton.x, GamepadButton.a], "Stop"),
-                GamepadPrompt([GamepadButton.b], "Back"),
+                GamepadPrompt([GamepadButton.x, GamepadButton.confirm], "Stop"),
+                GamepadPrompt([GamepadButton.back], "Back"),
               ],
               text: "Scraping in background",
             )
           : PromptBar(
               navigations: const [],
               actions: [
-                GamepadPrompt([GamepadButton.a], "Select"),
+                GamepadPrompt([GamepadButton.confirm], "Select"),
                 GamepadPrompt([
-                  GamepadButton.b,
+                  GamepadButton.back,
                 ], confirm.value ? "Cancel" : "Back"),
                 GamepadPrompt([
                   GamepadButton.y,

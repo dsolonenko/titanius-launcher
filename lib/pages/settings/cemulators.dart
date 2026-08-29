@@ -14,7 +14,7 @@ class CustomEmulatorsPage extends HookConsumerWidget {
       final emuList = emulators.value ?? [];
 
       if (confirm.value) {
-        if (key == GamepadButton.b) {
+        if (key == GamepadButton.back) {
           confirm.value = false;
         }
         if (key == GamepadButton.x) {
@@ -47,7 +47,7 @@ class CustomEmulatorsPage extends HookConsumerWidget {
             );
           }
         }
-        if (key == GamepadButton.a) {
+        if (key == GamepadButton.confirm) {
           if (emuList.isNotEmpty) {
             final emulator =
                 emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
@@ -55,7 +55,7 @@ class CustomEmulatorsPage extends HookConsumerWidget {
             context.push("/settings/cemulators/edit");
           }
         }
-        if (key == GamepadButton.b) {
+        if (key == GamepadButton.back) {
           GoRouter.of(context).pop();
         }
         if (key == GamepadButton.y) {
@@ -77,7 +77,7 @@ class CustomEmulatorsPage extends HookConsumerWidget {
               navigations: [],
               actions: [
                 GamepadPrompt([GamepadButton.x], "Confirm Delete"),
-                GamepadPrompt([GamepadButton.b], "Cancel"),
+                GamepadPrompt([GamepadButton.back], "Cancel"),
               ],
             )
           : const PromptBar(
@@ -85,8 +85,8 @@ class CustomEmulatorsPage extends HookConsumerWidget {
               actions: [
                 GamepadPrompt([GamepadButton.y], "Create"),
                 GamepadPrompt([GamepadButton.x], "Delete"),
-                GamepadPrompt([GamepadButton.a], "Edit"),
-                GamepadPrompt([GamepadButton.b], "Back"),
+                GamepadPrompt([GamepadButton.confirm], "Edit"),
+                GamepadPrompt([GamepadButton.back], "Back"),
               ],
             ),
       body: emulators.when(
@@ -240,7 +240,7 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
       if (key == GamepadButton.down) {
         selectedIndex.value = (selectedIndex.value + 1).clamp(0, 1);
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         if (selectedIndex.value == 0) {
           editName();
         } else {
@@ -257,7 +257,7 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
           },
         );
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
     });
@@ -276,9 +276,9 @@ class EditCustomEmulatorPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Edit"),
+          GamepadPrompt([GamepadButton.confirm], "Edit"),
           GamepadPrompt([GamepadButton.y], "Save"),
-          GamepadPrompt([GamepadButton.b], "Cancel"),
+          GamepadPrompt([GamepadButton.back], "Cancel"),
         ],
       ),
       body: ControllerListView.builder(

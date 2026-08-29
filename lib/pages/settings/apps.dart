@@ -26,7 +26,7 @@ class AppsSettingsPage extends HookConsumerWidget {
           appsList.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final app = appsList[selectedIndex.value.clamp(0, appsList.length - 1)];
         final isSelected =
             selectedApps.value?.isSelected(app.packageName) ?? false;
@@ -35,7 +35,7 @@ class AppsSettingsPage extends HookConsumerWidget {
             .selectApp(app.packageName, !isSelected)
             .then((value) => ref.refresh(androidAppsProvider));
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).go("/games/android");
       }
       if (key == GamepadButton.y) {
@@ -49,8 +49,8 @@ class AppsSettingsPage extends HookConsumerWidget {
         navigations: [],
         actions: [
           GamepadPrompt([GamepadButton.y], "Refresh"),
-          GamepadPrompt([GamepadButton.a], "Change"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Change"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: installedApps.when(

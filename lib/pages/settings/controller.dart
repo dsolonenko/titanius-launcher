@@ -7,20 +7,44 @@ class ControllerSettingsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     final selectedIndex = usePersistentSelection('/settings/controller');
+    final pendingLayout = useRef<ControllerLayout?>(null);
+    final pendingSwapConfirm = useRef<bool?>(null);
+    final settingsWrite = useRef<Future<void>>(Future<void>.value());
 
     final s = settings.value;
 
-    void cycleControllerLayout(int direction) {
-      final current = ref.read(settingsProvider).value;
-      if (current == null) return;
+    Future<void> cycleControllerLayout(int direction) async {
+      final savedSettings = ref.read(settingsProvider).value;
+      final currentLayout =
+          pendingLayout.value ?? savedSettings?.controllerLayout;
+      if (currentLayout == null) return;
       final values = ControllerLayout.values;
-      final currentIndex = values.indexOf(current.controllerLayout);
-      final newIndex = (currentIndex + direction + values.length) % values.length;
+      final currentIndex = values.indexOf(currentLayout);
+      final newIndex =
+          (currentIndex + direction + values.length) % values.length;
       final newLayout = values[newIndex];
+      pendingLayout.value = newLayout;
       final repo = ref.read(settingsRepoProvider);
-      repo
-          .setControllerLayout(newLayout)
-          .then((value) => ref.invalidate(settingsProvider));
+      final write = settingsWrite.value.then(
+        (_) => repo.setControllerLayout(newLayout),
+      );
+      settingsWrite.value = write;
+      await write;
+    }
+
+    Future<void> toggleSwapConfirm() async {
+      final savedSettings = ref.read(settingsProvider).value;
+      final currentSwap =
+          pendingSwapConfirm.value ?? savedSettings?.swapConfirm;
+      if (currentSwap == null) return;
+      final newSwap = !currentSwap;
+      pendingSwapConfirm.value = newSwap;
+      final repo = ref.read(settingsRepoProvider);
+      final write = settingsWrite.value.then(
+        (_) => repo.setSwapConfirm(newSwap),
+      );
+      settingsWrite.value = write;
+      await write;
     }
 
     String getLayoutSubtitle(ControllerLayout layout) {
@@ -39,16 +63,16 @@ class ControllerSettingsPage extends HookConsumerWidget {
       final swap = settings.swapConfirm;
       if (layout == ControllerLayout.nintendo) {
         return swap
-            ? "A (East) confirms, B (South) cancels"
-            : "B (South) confirms, A (East) cancels";
+            ? "B (South) confirms, A (East) goes back"
+            : "A (East) confirms, B (South) goes back";
       } else if (layout == ControllerLayout.generic) {
         return swap
-            ? "East button confirms, South button cancels"
-            : "South button confirms, East button cancels";
+            ? "East button confirms, South button goes back"
+            : "South button confirms, East button goes back";
       } else {
         return swap
-            ? "B (East) confirms, A (South) cancels"
-            : "A (South) confirms, B (East) cancels";
+            ? "B (East) confirms, A (South) goes back"
+            : "A (South) confirms, B (East) goes back";
       }
     }
 
@@ -60,16 +84,16 @@ class ControllerSettingsPage extends HookConsumerWidget {
               subtitle: getLayoutSubtitle(s.controllerLayout),
               trailing: SelectorWidget(text: s.controllerLayout.label),
               enabled: true,
-              onAction: (repo) async => cycleControllerLayout(1),
-              onLeft: (repo) async => cycleControllerLayout(-1),
-              onRight: (repo) async => cycleControllerLayout(1),
+              onAction: (repo) => cycleControllerLayout(1),
+              onLeft: (repo) => cycleControllerLayout(-1),
+              onRight: (repo) => cycleControllerLayout(1),
             ),
             _UiSettingItem(
               title: 'Swap A/B for Confirm',
               subtitle: getSwapConfirmSubtitle(s),
               trailing: s.swapConfirm ? toggleOnIcon : toggleOffIcon,
               enabled: true,
-              onAction: (repo) => repo.setSwapConfirm(!s.swapConfirm),
+              onAction: (repo) => toggleSwapConfirm(),
             ),
           ];
 
@@ -103,7 +127,7 @@ class ControllerSettingsPage extends HookConsumerWidget {
           item.onRight!(repo).then((value) => ref.invalidate(settingsProvider));
         }
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final item = items[selectedIndex.value.clamp(0, items.length - 1)];
         if (item.enabled && item.onAction != null) {
           final repo = ref.read(settingsRepoProvider);
@@ -112,7 +136,7 @@ class ControllerSettingsPage extends HookConsumerWidget {
           );
         }
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
     });
@@ -124,8 +148,8 @@ class ControllerSettingsPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.leftRight], "Select"),
         ],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Change"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Change"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: settings.when(
@@ -207,7 +231,8 @@ class ControllerSettingsPage extends HookConsumerWidget {
                         horizontal: 16.0,
                       ),
                       child: _ControllerDiagram(
-                        layout: s?.controllerLayout ?? ControllerLayout.nintendo,
+                        layout:
+                            s?.controllerLayout ?? ControllerLayout.nintendo,
                         swapConfirm: s?.swapConfirm ?? false,
                       ),
                     ),
@@ -228,10 +253,7 @@ class _ControllerDiagram extends StatelessWidget {
   final ControllerLayout layout;
   final bool swapConfirm;
 
-  const _ControllerDiagram({
-    required this.layout,
-    required this.swapConfirm,
-  });
+  const _ControllerDiagram({required this.layout, required this.swapConfirm});
 
   Widget _buildFaceButton(String? glyph, {bool isFilled = false}) {
     if (glyph != null) {
@@ -266,35 +288,37 @@ class _ControllerDiagram extends StatelessWidget {
     final String? eastGlyph;
     final String? southGlyph;
 
-    final String confirmGlyph;
-    final String backGlyph;
-
     switch (layout) {
       case ControllerLayout.nintendo:
         northGlyph = "\u{21D0}"; // X
         westGlyph = "\u{21D1}"; // Y
         eastGlyph = "\u{21D3}"; // A
         southGlyph = "\u{21D2}"; // B
-        confirmGlyph = swapConfirm ? "\u{21D3}" : "\u{21D2}";
-        backGlyph = swapConfirm ? "\u{21D2}" : "\u{21D3}";
         break;
       case ControllerLayout.xbox:
         northGlyph = "\u{21D1}"; // Y
         westGlyph = "\u{21D0}"; // X
         eastGlyph = "\u{21D2}"; // B
         southGlyph = "\u{21D3}"; // A
-        confirmGlyph = swapConfirm ? "\u{21D2}" : "\u{21D3}";
-        backGlyph = swapConfirm ? "\u{21D3}" : "\u{21D2}";
         break;
       case ControllerLayout.generic:
         northGlyph = null;
         westGlyph = null;
         eastGlyph = null;
         southGlyph = null;
-        confirmGlyph = swapConfirm ? "\u{21A6}" : "\u{21A7}";
-        backGlyph = swapConfirm ? "\u{21A7}" : "\u{21A6}";
         break;
     }
+
+    final confirmGlyph = getGamepadButtonGlyph(
+      GamepadButton.confirm,
+      layout,
+      swapConfirm,
+    );
+    final backGlyph = getGamepadButtonGlyph(
+      GamepadButton.back,
+      layout,
+      swapConfirm,
+    );
 
     const double plateSize = 110;
     const double offset = 34;
@@ -321,16 +345,8 @@ class _ControllerDiagram extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Container(
-                width: offset * 2,
-                height: 1.5,
-                color: Colors.white10,
-              ),
-              Container(
-                width: 1.5,
-                height: offset * 2,
-                color: Colors.white10,
-              ),
+              Container(width: offset * 2, height: 1.5, color: Colors.white10),
+              Container(width: 1.5, height: offset * 2, color: Colors.white10),
               Transform.translate(
                 offset: const Offset(0, -offset),
                 child: _buildFaceButton(northGlyph),
@@ -339,7 +355,9 @@ class _ControllerDiagram extends StatelessWidget {
                 offset: const Offset(0, offset),
                 child: _buildFaceButton(
                   southGlyph,
-                  isFilled: !swapConfirm,
+                  isFilled:
+                      confirmButtonPosition(layout, swapConfirm) ==
+                      FaceButtonPosition.south,
                 ),
               ),
               Transform.translate(
@@ -350,7 +368,9 @@ class _ControllerDiagram extends StatelessWidget {
                 offset: const Offset(offset, 0),
                 child: _buildFaceButton(
                   eastGlyph,
-                  isFilled: swapConfirm,
+                  isFilled:
+                      confirmButtonPosition(layout, swapConfirm) ==
+                      FaceButtonPosition.east,
                 ),
               ),
             ],
@@ -361,15 +381,9 @@ class _ControllerDiagram extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _ActionPrompt(
-              label: "Confirm",
-              glyph: confirmGlyph,
-            ),
+            _ActionPrompt(label: "Confirm", glyph: confirmGlyph),
             const SizedBox(height: 14),
-            _ActionPrompt(
-              label: "Back",
-              glyph: backGlyph,
-            ),
+            _ActionPrompt(label: "Back", glyph: backGlyph),
           ],
         ),
       ],
@@ -381,10 +395,7 @@ class _ActionPrompt extends StatelessWidget {
   final String label;
   final String glyph;
 
-  const _ActionPrompt({
-    required this.label,
-    required this.glyph,
-  });
+  const _ActionPrompt({required this.label, required this.glyph});
 
   @override
   Widget build(BuildContext context) {

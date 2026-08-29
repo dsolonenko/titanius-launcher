@@ -118,7 +118,9 @@ class GameSettingsPage extends HookConsumerWidget {
                     imageCache.clear();
                     imageCache.clearLiveImages();
                     game.update(scrapedGame);
-                    ref.read(gameLibraryProvider).invalidateSystem(game.system.id);
+                    ref
+                        .read(gameLibraryProvider)
+                        .invalidateSystem(game.system.id);
                     ref.invalidate(systemGamesProvider(game.system.id));
                     ref.invalidate(allGamesProvider);
                   }
@@ -194,7 +196,9 @@ class GameSettingsPage extends HookConsumerWidget {
                       imageCache.clear();
                       imageCache.clearLiveImages();
                       game.update(scrapedGame);
-                      ref.read(gameLibraryProvider).invalidateSystem(game.system.id);
+                      ref
+                          .read(gameLibraryProvider)
+                          .invalidateSystem(game.system.id);
                       ref.invalidate(systemGamesProvider(game.system.id));
                       ref.invalidate(allGamesProvider);
                     }
@@ -382,10 +386,10 @@ class GameSettingsPage extends HookConsumerWidget {
           cycleEmulator(true);
         }
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         items[selectedIndex.value].onTap();
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         if (confirmDelete.value) {
           confirmDelete.value = false;
         } else {
@@ -399,8 +403,8 @@ class GameSettingsPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Select"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Select"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: workingOnIt.value

@@ -29,7 +29,7 @@ class RomsSettingsPage extends HookConsumerWidget {
           allPaths.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final e = allPaths[selectedIndex.value.clamp(0, allPaths.length - 1)];
         if (e is GrantedUri) {
           if (removing.value) {
@@ -55,19 +55,12 @@ class RomsSettingsPage extends HookConsumerWidget {
               .then((value) => ref.refresh(romFoldersProvider));
         }
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         if (removing.value) {
           removing.value = false;
         } else {
           GoRouter.of(context).pop();
         }
-      }
-      if (key == GamepadButton.y) {
-        Saf().pickDirectory().then((docFile) {
-          if (docFile != null) {
-            final _ = ref.refresh(grantedUrisProvider);
-          }
-        });
       }
     });
 
@@ -76,9 +69,8 @@ class RomsSettingsPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.y], "Add Shared Folder"),
-          GamepadPrompt([GamepadButton.a], "Change"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Change"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: romFolders.when(
@@ -165,7 +157,7 @@ class RomsSettingsPage extends HookConsumerWidget {
                                 ),
                                 trailing: isSelected && removing.value
                                     ? const GamepadPromptWidget(
-                                        buttons: [GamepadButton.a],
+                                        buttons: [GamepadButton.confirm],
                                         prompt: "Confirm?",
                                       )
                                     : Icon(

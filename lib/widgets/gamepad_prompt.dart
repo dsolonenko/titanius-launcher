@@ -25,14 +25,14 @@ String getGamepadButtonGlyph(
           return "\u{21A0}";
         case GamepadButton.leftRight:
           return "\u{21A2}";
-        case GamepadButton.a:
-          return swapConfirm ? "\u{21D3}" : "\u{21D2}";
-        case GamepadButton.b:
+        case GamepadButton.confirm:
           return swapConfirm ? "\u{21D2}" : "\u{21D3}";
+        case GamepadButton.back:
+          return swapConfirm ? "\u{21D3}" : "\u{21D2}";
         case GamepadButton.x:
-          return "\u{21D1}";
-        case GamepadButton.y:
           return "\u{21D0}";
+        case GamepadButton.y:
+          return "\u{21D1}";
         case GamepadButton.l1:
           return "\u{219C}";
         case GamepadButton.r1:
@@ -62,9 +62,9 @@ String getGamepadButtonGlyph(
           return "\u{21A0}";
         case GamepadButton.leftRight:
           return "\u{21A2}";
-        case GamepadButton.a:
+        case GamepadButton.confirm:
           return swapConfirm ? "\u{21A6}" : "\u{21A7}";
-        case GamepadButton.b:
+        case GamepadButton.back:
           return swapConfirm ? "\u{21A7}" : "\u{21A6}";
         case GamepadButton.x:
           return "\u{21A4}";
@@ -99,9 +99,9 @@ String getGamepadButtonGlyph(
           return "\u{21A0}";
         case GamepadButton.leftRight:
           return "\u{21A2}";
-        case GamepadButton.a:
+        case GamepadButton.confirm:
           return swapConfirm ? "\u{21D2}" : "\u{21D3}";
-        case GamepadButton.b:
+        case GamepadButton.back:
           return swapConfirm ? "\u{21D3}" : "\u{21D2}";
         case GamepadButton.x:
           return "\u{21D0}";
@@ -132,8 +132,8 @@ const gamepadFontMappings = {
   GamepadButton.left: "\u{219E}",
   GamepadButton.right: "\u{21A0}",
   GamepadButton.leftRight: "\u{21A2}",
-  GamepadButton.a: "\u{21D3}",
-  GamepadButton.b: "\u{21D2}",
+  GamepadButton.confirm: "\u{21D3}",
+  GamepadButton.back: "\u{21D2}",
   GamepadButton.x: "\u{21D0}",
   GamepadButton.y: "\u{21D1}",
   GamepadButton.l1: "\u{21B0}",

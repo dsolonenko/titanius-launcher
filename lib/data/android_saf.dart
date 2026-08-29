@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:saf/saf.dart';
 
 class GrantedUri {
@@ -84,16 +83,20 @@ Future<List<GrantedUri>> _allGrantedReads() async {
 
 Future<GrantedUri?> getMatchingPersistedUri(String filePath) async {
   final persistedUris = await _allGrantedReads();
-  return persistedUris.where((element) {
-    final grantedFullPath = element.grantedFullPath;
-    return filePath.startsWith(grantedFullPath);
-  }).firstOrNull;
+  final lowerFilePath = filePath.toLowerCase();
+  return persistedUris.firstWhereOrNull((element) {
+    final grantedFullPath = element.grantedFullPath.toLowerCase();
+    return lowerFilePath.startsWith(grantedFullPath);
+  });
 }
 
 Future<SafDocumentFile?> getDocumentFile(String filePath) async {
   final matchingUri = await getMatchingPersistedUri(filePath);
   if (matchingUri != null) {
-    final relativeFilePath = filePath.substring(matchingUri.grantedFullPath.length + 1);
+    final len = matchingUri.grantedFullPath.length;
+    final relativeFilePath = filePath.length > len
+        ? filePath.substring(len + (filePath[len] == '/' ? 1 : 0))
+        : '';
     final segments = relativeFilePath.split('/').where((s) => s.isNotEmpty).toList();
     final matchingDoc = await _saf.child(matchingUri.uri.toString(), segments);
     if (matchingDoc != null) {
@@ -101,16 +104,30 @@ Future<SafDocumentFile?> getDocumentFile(String filePath) async {
       return matchingDoc;
     }
   }
-
-  Fluttertoast.showToast(
-      msg: "Unable to run $filePath in a standalone emulator due to SAF restrictions.",
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 16.0);
   return null;
+}
+
+String pathToDocumentUri(String filePath) {
+  String path = filePath.replaceAll(r'\', '/');
+  if (path.startsWith('/storage/emulated/0/')) {
+    final rel = path.substring('/storage/emulated/0/'.length);
+    final docId = 'primary:$rel';
+    return 'content://com.android.externalstorage.documents/document/${Uri.encodeComponent(docId)}';
+  } else if (path.startsWith('/sdcard/')) {
+    final rel = path.substring('/sdcard/'.length);
+    final docId = 'primary:$rel';
+    return 'content://com.android.externalstorage.documents/document/${Uri.encodeComponent(docId)}';
+  } else if (path.startsWith('/storage/')) {
+    final sub = path.substring('/storage/'.length);
+    final slash = sub.indexOf('/');
+    if (slash != -1) {
+      final rootId = sub.substring(0, slash);
+      final rel = sub.substring(slash + 1);
+      final docId = '$rootId:$rel';
+      return 'content://com.android.externalstorage.documents/document/${Uri.encodeComponent(docId)}';
+    }
+  }
+  return 'content://com.android.externalstorage.documents/document/${Uri.encodeComponent("primary:$path")}';
 }
 
 const platform = MethodChannel('file_utils');

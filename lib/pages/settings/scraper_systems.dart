@@ -30,7 +30,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
           sysList.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final system =
             sysList[selectedIndex.value.clamp(0, sysList.length - 1)];
         final showSystem =
@@ -42,7 +42,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
               final _ = ref.refresh(settingsProvider);
             });
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
       if (key == GamepadButton.x) {
@@ -66,8 +66,8 @@ class ScraperSystemsPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.y], "Select All"),
         ],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Change"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Change"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: systems.when(

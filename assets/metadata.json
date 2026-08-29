@@ -2459,9 +2459,30 @@
           "intent": {
             "component": "me.magnum.melonds/.ui.emulator.EmulatorActivity",
             "action": "me.magnum.melonds.LAUNCH_ROM",
+            "data": "{file.documenturi}",
             "args": {
               "uri": "{file.documenturi}"
-            }
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
+          }
+        },
+        {
+          "id": "melonds-nightly",
+          "name": "MelonDS Nightly",
+          "intent": {
+            "component": "me.magnum.melonds.nightly/.ui.emulator.EmulatorActivity",
+            "action": "me.magnum.melonds.LAUNCH_ROM",
+            "data": "{file.documenturi}",
+            "args": {
+              "uri": "{file.documenturi}"
+            },
+            "flags": [
+              "--activity-clear-task",
+              "--activity-clear-top"
+            ]
           }
         },
         {

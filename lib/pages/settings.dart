@@ -126,10 +126,10 @@ class SettingsPage extends HookConsumerWidget {
           items.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         items[selectedIndex.value].onTap();
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         if (source == "root") {
           GoRouter.of(context).go("/");
         } else {
@@ -147,8 +147,8 @@ class SettingsPage extends HookConsumerWidget {
           error: (error, stackTrace) => error.toString(),
         ),
         actions: const [
-          GamepadPrompt([GamepadButton.a], "Select"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Select"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: ControllerListView.builder(

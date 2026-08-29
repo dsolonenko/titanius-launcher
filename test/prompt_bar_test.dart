@@ -35,8 +35,8 @@ void main() {
                 actions: [
                   GamepadPrompt([GamepadButton.x], 'Details'),
                   GamepadPrompt([GamepadButton.y], 'Settings'),
-                  GamepadPrompt([GamepadButton.b], 'Back'),
-                  GamepadPrompt([GamepadButton.a], 'Launch'),
+                  GamepadPrompt([GamepadButton.back], 'Back'),
+                  GamepadPrompt([GamepadButton.confirm], 'Launch'),
                 ],
               ),
             ),
@@ -70,9 +70,9 @@ void main() {
             child: Scaffold(
               bottomNavigationBar: PromptBar(
                 actions: [
-                  GamepadPrompt([GamepadButton.a], 'Apply'),
+                  GamepadPrompt([GamepadButton.confirm], 'Apply'),
                   GamepadPrompt([GamepadButton.x], 'Do not use wallpapers'),
-                  GamepadPrompt([GamepadButton.b], 'Back'),
+                  GamepadPrompt([GamepadButton.back], 'Back'),
                 ],
               ),
             ),

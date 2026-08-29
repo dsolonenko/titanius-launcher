@@ -26,7 +26,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
           sysList.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final sys = sysList[selectedIndex.value.clamp(0, sysList.length - 1)];
         final show = enabledSystems.value?.showSystem(sys.id) ?? true;
         ref.read(enabledSystemsRepoProvider).setShowSystem(sys.id, !show).then((
@@ -36,7 +36,7 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
           final _ = ref.refresh(enabledSystemsProvider);
         });
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
     });
@@ -46,8 +46,8 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Change"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Change"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: systems.when(

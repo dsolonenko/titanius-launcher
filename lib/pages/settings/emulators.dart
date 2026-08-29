@@ -29,7 +29,7 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
           emuList.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final current =
             emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
         context.push("/settings/emulators/${current.system.id}");
@@ -42,7 +42,7 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
             .deleteAlternativeEmulator(current.system.id)
             .then((value) => ref.refresh(perSystemConfigurationsProvider));
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
     });
@@ -52,9 +52,9 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Change"),
+          GamepadPrompt([GamepadButton.confirm], "Change"),
           GamepadPrompt([GamepadButton.x], "Default"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: emulators.when(
@@ -155,7 +155,7 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
           selected.emulators.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final emulator =
             selected.emulators[selectedIndex.value.clamp(
               0,
@@ -167,7 +167,7 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
             .then((value) => ref.refresh(perSystemConfigurationsProvider));
         context.pop();
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
     });
@@ -177,8 +177,8 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Select"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Select"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: emulators.when(

@@ -30,19 +30,25 @@ class SystemsPage extends HookConsumerWidget {
     useGamepad(ref, (location, key) {
       if (location != "/") return;
       if (allSystems.value == null || allSystems.value!.isEmpty) return;
-      if (key == GamepadButton.r1 || key == GamepadButton.r2 || key == GamepadButton.right) {
+      if (key == GamepadButton.r1 ||
+          key == GamepadButton.r2 ||
+          key == GamepadButton.right) {
         ref.read(systemStatsEnabledProvider.notifier).enable();
         final currentSystem = ref.read(selectedSystemProvider);
         final next = (currentSystem + 1) % allSystems.value!.length;
         pageController.jumpToPage(next);
       }
-      if (key == GamepadButton.l1 || key == GamepadButton.l2 || key == GamepadButton.left) {
+      if (key == GamepadButton.l1 ||
+          key == GamepadButton.l2 ||
+          key == GamepadButton.left) {
         ref.read(systemStatsEnabledProvider.notifier).enable();
         final currentSystem = ref.read(selectedSystemProvider);
-        final prev = currentSystem - 1 < 0 ? allSystems.value!.length - 1 : currentSystem - 1;
+        final prev = currentSystem - 1 < 0
+            ? allSystems.value!.length - 1
+            : currentSystem - 1;
         pageController.jumpToPage(prev);
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         ref.read(systemStatsEnabledProvider.notifier).enable();
         final currentSystemIndex = ref.read(selectedSystemProvider);
         final system = allSystems.value![currentSystemIndex];
@@ -67,8 +73,11 @@ class SystemsPage extends HookConsumerWidget {
             allSystems.when(
               data: (systems) {
                 if (systems.isEmpty) return const SizedBox.shrink();
-                final system = systems[selectedSystem.clamp(0, systems.length - 1)];
-                return !systemStatsEnabled || system.isCollection || system.isAndroid
+                final system =
+                    systems[selectedSystem.clamp(0, systems.length - 1)];
+                return !systemStatsEnabled ||
+                        system.isCollection ||
+                        system.isAndroid
                     ? const SizedBox.shrink()
                     : _SystemStats(system: system);
               },
@@ -84,9 +93,13 @@ class SystemsPage extends HookConsumerWidget {
                         PageViewDotIndicator(
                           size: const Size(8, 8),
                           unselectedSize: const Size(8, 8),
-                          currentItem: selectedSystem < systems.length ? selectedSystem : 0,
+                          currentItem: selectedSystem < systems.length
+                              ? selectedSystem
+                              : 0,
                           count: systems.length,
-                          unselectedColor: Theme.of(context).colorScheme.surface.lighten(10),
+                          unselectedColor: Theme.of(
+                            context,
+                          ).colorScheme.surface.lighten(10),
                           selectedColor: Theme.of(context).colorScheme.primary,
                         ),
                       ],
@@ -102,7 +115,7 @@ class SystemsPage extends HookConsumerWidget {
                 GamepadPrompt([GamepadButton.start], "Menu"),
               ],
               actions: [
-                GamepadPrompt([GamepadButton.a], "Select"),
+                GamepadPrompt([GamepadButton.confirm], "Select"),
               ],
             ),
           ],
@@ -112,7 +125,8 @@ class SystemsPage extends HookConsumerWidget {
         data: (systems) => wallpaperPack.when(
           data: (wallpaperPack) {
             return Listener(
-              onPointerDown: (_) => ref.read(systemStatsEnabledProvider.notifier).enable(),
+              onPointerDown: (_) =>
+                  ref.read(systemStatsEnabledProvider.notifier).enable(),
               child: PreloadPageView.builder(
                 onPageChanged: (value) {
                   ref.read(selectedSystemProvider.notifier).state = value;
@@ -143,27 +157,55 @@ class SystemsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _systemLogo(WidgetRef ref, BuildContext context, System system, WallpaperPack? wallpaperPack) {
+  Widget _systemLogo(
+    WidgetRef ref,
+    BuildContext context,
+    System system,
+    WallpaperPack? wallpaperPack,
+  ) {
     switch (system.id) {
       case "favourites":
-        return _textLogo(context, Icons.star_rounded, Colors.orangeAccent, "Favourites");
+        return _textLogo(
+          context,
+          Icons.star_rounded,
+          Colors.orangeAccent,
+          "Favourites",
+        );
       case "recent":
-        return _textLogo(context, Icons.history_rounded, Colors.redAccent, "Recent");
+        return _textLogo(
+          context,
+          Icons.history_rounded,
+          Colors.redAccent,
+          "Recent",
+        );
       case "all":
-        return _textLogo(context, Icons.apps_rounded, Colors.indigoAccent, "All Games");
+        return _textLogo(
+          context,
+          Icons.apps_rounded,
+          Colors.indigoAccent,
+          "All Games",
+        );
       default:
         if (wallpaperPack != null) {
-          final wallpaper =
-              wallpaperPack.wallpaperList.firstWhereOrNull((element) => element.matchPlatformShortname == system.id);
+          final wallpaper = wallpaperPack.wallpaperList.firstWhereOrNull(
+            (element) => element.matchPlatformShortname == system.id,
+          );
           if (wallpaper != null) {
             final imageUrl = wallpaper.imageUrl(wallpaperPack.rootPath);
             return _cachedImage(imageUrl);
           } else {
             if (wallpaperPack.hasDefaultWallpaper) {
-              final imageUrl = wallpaperPack.defaultWallpaperUrl(wallpaperPack.rootPath);
+              final imageUrl = wallpaperPack.defaultWallpaperUrl(
+                wallpaperPack.rootPath,
+              );
               return _cachedImage(imageUrl);
             } else {
-              return _textLogo(context, Icons.gamepad_rounded, Theme.of(context).primaryColor, system.name);
+              return _textLogo(
+                context,
+                Icons.gamepad_rounded,
+                Theme.of(context).primaryColor,
+                system.name,
+              );
             }
           }
         } else {
@@ -177,7 +219,8 @@ class SystemsPage extends HookConsumerWidget {
                   fit: BoxFit.contain,
                   filterQuality: FilterQuality.medium,
                   isAntiAlias: true,
-                  errorBuilder: (context, url, error) => const Icon(Icons.error),
+                  errorBuilder: (context, url, error) =>
+                      const Icon(Icons.error),
                 ),
               ),
               const Expanded(flex: 1, child: SizedBox()),
@@ -193,12 +236,19 @@ class SystemsPage extends HookConsumerWidget {
       imageUrl: imageUrl,
       filterQuality: FilterQuality.medium,
       fit: BoxFit.fill,
-      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-      errorWidget: (context, url, error) => const Icon(Icons.broken_image_rounded, size: 48),
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator()),
+      errorWidget: (context, url, error) =>
+          const Icon(Icons.broken_image_rounded, size: 48),
     );
   }
 
-  Widget _textLogo(BuildContext context, IconData icon, Color iconColor, String text) {
+  Widget _textLogo(
+    BuildContext context,
+    IconData icon,
+    Color iconColor,
+    String text,
+  ) {
     return Row(
       children: [
         const Expanded(flex: 1, child: SizedBox()),
@@ -228,7 +278,6 @@ class SystemsPage extends HookConsumerWidget {
       ],
     );
   }
-
 }
 
 class _SystemStats extends ConsumerWidget {
@@ -242,7 +291,10 @@ class _SystemStats extends ConsumerWidget {
     return games.when(
       data: (value) => value.games.isEmpty
           ? const SizedBox.shrink()
-          : Text("${value.games.length} games", style: const TextStyle(color: Colors.white, fontSize: 20)),
+          : Text(
+              "${value.games.length} games",
+              style: const TextStyle(color: Colors.white, fontSize: 20),
+            ),
       error: (_, _) => const Text("Error loading games"),
       loading: () => const SizedBox.shrink(),
     );

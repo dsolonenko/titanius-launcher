@@ -122,7 +122,7 @@ class UISettingsPage extends HookConsumerWidget {
           item.onRight!(repo).then((value) => ref.invalidate(settingsProvider));
         }
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final item = items[selectedIndex.value.clamp(0, items.length - 1)];
         if (item.enabled && item.onAction != null) {
           final repo = ref.read(settingsRepoProvider);
@@ -131,7 +131,7 @@ class UISettingsPage extends HookConsumerWidget {
           );
         }
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
     });
@@ -143,8 +143,8 @@ class UISettingsPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.leftRight], "Select"),
         ],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Change"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Change"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: settings.when(

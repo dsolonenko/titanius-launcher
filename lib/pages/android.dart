@@ -32,7 +32,7 @@ class AndroidPage extends HookConsumerWidget {
       if (location != "/games/android") return;
       final apps = allApps.value;
       if (apps == null || apps.isEmpty) {
-        if (key == GamepadButton.b) {
+        if (key == GamepadButton.back) {
           GoRouter.of(context).go("/");
         }
         if (key == GamepadButton.y) {
@@ -68,7 +68,7 @@ class AndroidPage extends HookConsumerWidget {
           ref.read(selectedAppProvider.notifier).state = apps[newIndex];
         }
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final app = apps[currentIndex];
         ref.read(selectedAppProvider.notifier).state = app;
         InstalledApps.startApp(
@@ -91,7 +91,7 @@ class AndroidPage extends HookConsumerWidget {
       if (key == GamepadButton.start) {
         GoRouter.of(context).push("/settings?source=android");
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).go("/");
       }
       if (key == GamepadButton.x) {
@@ -116,8 +116,8 @@ class AndroidPage extends HookConsumerWidget {
         actions: [
           GamepadPrompt([GamepadButton.x], "Details"),
           GamepadPrompt([GamepadButton.y], "Select Apps"),
-          GamepadPrompt([GamepadButton.b], "Back"),
-          GamepadPrompt([GamepadButton.a], "Launch"),
+          GamepadPrompt([GamepadButton.back], "Back"),
+          GamepadPrompt([GamepadButton.confirm], "Launch"),
         ],
       ),
       body: allApps.when(

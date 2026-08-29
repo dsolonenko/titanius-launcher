@@ -60,9 +60,13 @@ class LaunchIntent {
         : null;
     final romLocation = await _locateRom(game.absoluteRomPath);
     debugPrint("Rom location: $romLocation");
-    final args = {
-      for (var k in this.args.keys) k: _tokenValue(this.args[k], romLocation),
-    };
+    final args = <String, dynamic>{};
+    for (var k in this.args.keys) {
+      final val = _tokenValue(this.args[k], romLocation);
+      if (val != null) {
+        args[k] = val;
+      }
+    }
     final intent = AndroidIntent(
       action: action ?? 'action_view',
       package: parts[0],
@@ -78,10 +82,11 @@ class LaunchIntent {
   Future<RomLocation> _locateRom(String path) async {
     final uri = needsUri ? await saf.getMediaUri(path) : null;
     final document = needsDocumentUri ? await saf.getDocumentFile(path) : null;
+    final documentUri = document?.uri.toString() ?? (needsDocumentUri ? saf.pathToDocumentUri(path) : null);
     return RomLocation(
       path: path,
       uri: uri?.toString(),
-      documentUri: document?.uri.toString(),
+      documentUri: documentUri,
       documentMime: document != null ? (document.isDir ? 'resource/folder' : 'application/octet-stream') : null,
     );
   }
@@ -92,9 +97,9 @@ class LaunchIntent {
       case "{file.path}":
         return romLocation.path;
       case "{file.uri}":
-        return romLocation.uri;
+        return romLocation.uri ?? Uri.file(romLocation.path).toString();
       case "{file.documenturi}":
-        return romLocation.documentUri;
+        return romLocation.documentUri ?? saf.pathToDocumentUri(romLocation.path);
       default:
         return v;
     }

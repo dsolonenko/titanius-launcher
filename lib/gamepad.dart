@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gamepads/gamepads.dart' as gp;
 import 'package:go_router/go_router.dart';
+import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
 
 enum GamepadButton {
@@ -15,8 +16,8 @@ enum GamepadButton {
   leftRight,
   rightStickUp,
   rightStickDown,
-  a,
-  b,
+  confirm,
+  back,
   x,
   y,
   c,
@@ -27,6 +28,44 @@ enum GamepadButton {
   r2,
   start,
   select,
+}
+
+enum FaceButtonPosition { south, east, west, north }
+
+FaceButtonPosition confirmButtonPosition(
+  ControllerLayout layout,
+  bool swapConfirm,
+) {
+  final defaultPosition = layout == ControllerLayout.nintendo
+      ? FaceButtonPosition.east
+      : FaceButtonPosition.south;
+  if (!swapConfirm) return defaultPosition;
+  return defaultPosition == FaceButtonPosition.east
+      ? FaceButtonPosition.south
+      : FaceButtonPosition.east;
+}
+
+GamepadButton mapFaceButtonPosition(
+  FaceButtonPosition position,
+  ControllerLayout layout,
+  bool swapConfirm,
+) {
+  final confirmPosition = confirmButtonPosition(layout, swapConfirm);
+  switch (position) {
+    case FaceButtonPosition.south:
+    case FaceButtonPosition.east:
+      return position == confirmPosition
+          ? GamepadButton.confirm
+          : GamepadButton.back;
+    case FaceButtonPosition.west:
+      return layout == ControllerLayout.nintendo
+          ? GamepadButton.y
+          : GamepadButton.x;
+    case FaceButtonPosition.north:
+      return layout == ControllerLayout.nintendo
+          ? GamepadButton.x
+          : GamepadButton.y;
+  }
 }
 
 extension GoRouterLocation on GoRouter {
@@ -44,13 +83,24 @@ void useGamepad(
   void Function(String location, GamepadButton key) listener,
 ) {
   final settings = ref.watch(settingsProvider).value;
-  return use(_GamepadHook(listener, swapConfirm: settings?.swapConfirm ?? false));
+  return use(
+    _GamepadHook(
+      listener,
+      layout: settings?.controllerLayout ?? ControllerLayout.nintendo,
+      swapConfirm: settings?.swapConfirm ?? false,
+    ),
+  );
 }
 
 class _GamepadHook extends Hook<void> {
   final void Function(String location, GamepadButton key) listener;
+  final ControllerLayout layout;
   final bool swapConfirm;
-  const _GamepadHook(this.listener, {this.swapConfirm = false});
+  const _GamepadHook(
+    this.listener, {
+    required this.layout,
+    this.swapConfirm = false,
+  });
 
   @override
   _GamepadHookState createState() => _GamepadHookState();
@@ -64,6 +114,7 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
   Timer? _initialRepeatTimer;
   Timer? _repeatIntervalTimer;
   final Set<GamepadButton> _pressedButtons = {};
+  final Map<gp.GamepadButton, GamepadButton> _pressedNativeButtons = {};
 
   // Analog axis state
   bool _stickLeftActive = false;
@@ -160,17 +211,27 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
 
   void _handleNativeGamepadEvent(gp.NormalizedGamepadEvent event) {
     if (!context.mounted) return;
-    if (FocusManager.instance.primaryFocus?.context?.widget is EditableText) {
-      return;
-    }
 
     // Handle digital button presses & releases
     if (event.button != null) {
-      final btn = _mapNativeButton(event.button!);
-      if (btn != null) {
-        if (event.value == 1.0) {
+      final nativeButton = event.button!;
+      if (event.value == 1.0) {
+        // Suppress repeated native down events before remapping. A setting
+        // change while held can otherwise turn the same physical press into a
+        // different semantic action.
+        if (_pressedNativeButtons.containsKey(nativeButton)) return;
+        final btn = _mapNativeButton(nativeButton);
+        if (btn != null) {
+          _pressedNativeButtons[nativeButton] = btn;
           _onButtonDown(btn);
-        } else if (event.value == 0.0) {
+        }
+      } else if (event.value == 0.0) {
+        // Layout/swap can change in response to the press. Release the action
+        // captured on button-down instead of remapping with the new setting.
+        final btn =
+            _pressedNativeButtons.remove(nativeButton) ??
+            _mapNativeButton(nativeButton);
+        if (btn != null) {
           _onButtonUp(btn);
         }
       }
@@ -303,13 +364,29 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
       case gp.GamepadButton.dpadRight:
         return GamepadButton.right;
       case gp.GamepadButton.a:
-        return hook.swapConfirm ? GamepadButton.b : GamepadButton.a;
+        return mapFaceButtonPosition(
+          FaceButtonPosition.south,
+          hook.layout,
+          hook.swapConfirm,
+        );
       case gp.GamepadButton.b:
-        return hook.swapConfirm ? GamepadButton.a : GamepadButton.b;
+        return mapFaceButtonPosition(
+          FaceButtonPosition.east,
+          hook.layout,
+          hook.swapConfirm,
+        );
       case gp.GamepadButton.x:
-        return GamepadButton.x;
+        return mapFaceButtonPosition(
+          FaceButtonPosition.west,
+          hook.layout,
+          hook.swapConfirm,
+        );
       case gp.GamepadButton.y:
-        return GamepadButton.y;
+        return mapFaceButtonPosition(
+          FaceButtonPosition.north,
+          hook.layout,
+          hook.swapConfirm,
+        );
       case gp.GamepadButton.leftBumper:
         return GamepadButton.l1;
       case gp.GamepadButton.rightBumper:

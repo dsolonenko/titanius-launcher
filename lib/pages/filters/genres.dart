@@ -33,13 +33,13 @@ class GenresFilterPage extends HookConsumerWidget {
           genres.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         final genre = genres[selectedIndex.value.clamp(0, genres.length - 1)];
         ref
             .read(temporaryGameFilterProvider(system).notifier)
             .toggleGenre(genre);
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).go("/games/$system/filter");
       }
     });
@@ -49,8 +49,8 @@ class GenresFilterPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Change"),
-          GamepadPrompt([GamepadButton.b], "Apply"),
+          GamepadPrompt([GamepadButton.confirm], "Change"),
+          GamepadPrompt([GamepadButton.back], "Apply"),
         ],
       ),
       body: games.when(

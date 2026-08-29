@@ -135,10 +135,10 @@ class FiltersPage extends HookConsumerWidget {
           items.length - 1,
         );
       }
-      if (key == GamepadButton.a) {
+      if (key == GamepadButton.confirm) {
         items[selectedIndex.value].onTap();
       }
-      if (key == GamepadButton.b) {
+      if (key == GamepadButton.back) {
         GoRouter.of(context).go("/games/$system");
       }
       if (key == GamepadButton.x) {
@@ -152,9 +152,9 @@ class FiltersPage extends HookConsumerWidget {
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
-          GamepadPrompt([GamepadButton.a], "Change"),
+          GamepadPrompt([GamepadButton.confirm], "Change"),
           GamepadPrompt([GamepadButton.x], "Apply"),
-          GamepadPrompt([GamepadButton.b], "Back"),
+          GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
       body: ControllerListView.builder(
