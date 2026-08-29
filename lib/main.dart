@@ -140,6 +140,10 @@ final _router = GoRouter(
             ],
           ),
           GoRoute(
+            path: 'controller',
+            builder: (context, state) => const ControllerSettingsPage(),
+          ),
+          GoRoute(
             path: 'ui',
             builder: (context, state) => const UISettingsPage(),
           ),

@@ -9,6 +9,28 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'models.g.dart';
 
+enum ControllerLayout {
+  nintendo("Nintendo"),
+  xbox("Xbox"),
+  generic("Generic");
+
+  final String label;
+  const ControllerLayout(this.label);
+
+  static ControllerLayout fromString(String? value) {
+    switch (value) {
+      case "xbox":
+        return ControllerLayout.xbox;
+      case "generic":
+        return ControllerLayout.generic;
+      case "nintendo":
+      default:
+        return ControllerLayout.nintendo;
+    }
+  }
+}
+
+
 const systemAllGames = System(
   id: 'all',
   screenScraperId: 0,

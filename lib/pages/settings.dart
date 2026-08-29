@@ -27,6 +27,7 @@ import 'package:titanius/widgets/selector.dart';
 part 'package:titanius/pages/settings/systems.dart';
 part 'package:titanius/pages/settings/emulators.dart';
 part 'package:titanius/pages/settings/cemulators.dart';
+part 'package:titanius/pages/settings/controller.dart';
 part 'package:titanius/pages/settings/ui.dart';
 part 'package:titanius/pages/settings/roms.dart';
 part 'package:titanius/pages/settings/apps.dart';
@@ -86,6 +87,13 @@ class SettingsPage extends HookConsumerWidget {
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/cemulators");
+        },
+      ),
+      (
+        title: 'Controller',
+        trailing: arrowRight,
+        onTap: () {
+          context.push("/settings/controller");
         },
       ),
       (

@@ -25,6 +25,8 @@ class Settings {
   bool get fadeToVideo => _getBoolean('fadeToVideo', false);
   bool get muteVideo => _getBoolean('muteVideo', true);
   double get fontScale => _getDouble('fontScale', 1.0);
+  ControllerLayout get controllerLayout => ControllerLayout.fromString(_getString('controllerLayout'));
+  bool get swapConfirm => _getBoolean('swapConfirm', false);
   String? get daijishoWallpaperPack => _getString('daijishoWallpaperPack');
   String? get screenScraperUser => _getString('screenScraperUser');
   String? get screenScraperPwd => _getString('screenScraperPwd');
@@ -97,6 +99,14 @@ class SettingsRepo {
 
   Future<void> setFontScale(double value) async {
     return _setSetting('fontScale', value.toStringAsFixed(1));
+  }
+
+  Future<void> setControllerLayout(ControllerLayout layout) async {
+    return _setSetting('controllerLayout', layout.name);
+  }
+
+  Future<void> setSwapConfirm(bool value) async {
+    return _setBoolean('swapConfirm', value);
   }
 
   Future<void> setDaijishoWallpaperPack(String value) async {

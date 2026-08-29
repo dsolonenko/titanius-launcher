@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gamepads/gamepads.dart' as gp;
 import 'package:go_router/go_router.dart';
+import 'package:titanius/data/repo.dart';
 
 enum GamepadButton {
   up,
@@ -42,12 +43,14 @@ void useGamepad(
   WidgetRef ref,
   void Function(String location, GamepadButton key) listener,
 ) {
-  return use(_GamepadHook(listener));
+  final settings = ref.watch(settingsProvider).value;
+  return use(_GamepadHook(listener, swapConfirm: settings?.swapConfirm ?? false));
 }
 
 class _GamepadHook extends Hook<void> {
   final void Function(String location, GamepadButton key) listener;
-  const _GamepadHook(this.listener);
+  final bool swapConfirm;
+  const _GamepadHook(this.listener, {this.swapConfirm = false});
 
   @override
   _GamepadHookState createState() => _GamepadHookState();
@@ -300,9 +303,9 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
       case gp.GamepadButton.dpadRight:
         return GamepadButton.right;
       case gp.GamepadButton.a:
-        return GamepadButton.a;
+        return hook.swapConfirm ? GamepadButton.b : GamepadButton.a;
       case gp.GamepadButton.b:
-        return GamepadButton.b;
+        return hook.swapConfirm ? GamepadButton.a : GamepadButton.b;
       case gp.GamepadButton.x:
         return GamepadButton.x;
       case gp.GamepadButton.y:
