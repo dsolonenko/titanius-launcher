@@ -10,6 +10,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'models.g.dart';
 
 enum ControllerLayout {
+  retro("Retro"),
   nintendo("Nintendo"),
   xbox("Xbox"),
   generic("Generic");
@@ -19,17 +20,19 @@ enum ControllerLayout {
 
   static ControllerLayout fromString(String? value) {
     switch (value) {
+      case "retro":
+        return ControllerLayout.retro;
       case "xbox":
         return ControllerLayout.xbox;
       case "generic":
         return ControllerLayout.generic;
       case "nintendo":
-      default:
         return ControllerLayout.nintendo;
+      default:
+        return ControllerLayout.retro;
     }
   }
 }
-
 
 const systemAllGames = System(
   id: 'all',
@@ -72,14 +75,15 @@ class System {
   final List<Emulator> builtInEmulators;
   final bool isCollection;
 
-  const System(
-      {required this.id,
-      required this.screenScraperId,
-      required this.name,
-      required this.logo,
-      required this.folders,
-      required this.builtInEmulators,
-      this.isCollection = false});
+  const System({
+    required this.id,
+    required this.screenScraperId,
+    required this.name,
+    required this.logo,
+    required this.folders,
+    required this.builtInEmulators,
+    this.isCollection = false,
+  });
 
   bool get isAndroid => id == "android";
 
@@ -95,8 +99,11 @@ class System {
       name: json['name'],
       logo: json['logo'],
       folders: List<String>.from(json['folders']),
-      builtInEmulators:
-          json.containsKey("emulators") ? List<Emulator>.from(json['emulators'].map((x) => Emulator.fromJson(x))) : [],
+      builtInEmulators: json.containsKey("emulators")
+          ? List<Emulator>.from(
+              json['emulators'].map((x) => Emulator.fromJson(x)),
+            )
+          : [],
     );
   }
 
@@ -195,8 +202,15 @@ class Game {
   String get genreToShow => genreId?.longName ?? "-";
   int get hash => cachedHash;
 
-  factory Game.fromXmlNode(XmlNode node, System system, String volumePath, String systemFolder) {
-    final id = node.attributes.firstWhereOrNull((element) => element.name.local == "id")?.value;
+  factory Game.fromXmlNode(
+    XmlNode node,
+    System system,
+    String volumePath,
+    String systemFolder,
+  ) {
+    final id = node.attributes
+        .firstWhereOrNull((element) => element.name.local == "id")
+        ?.value;
     final name = node.findElements("name").first.innerText;
     final path = node.findElements("path").first.innerText;
     final description = node.findElements("desc").firstOrNull?.innerText;
@@ -208,11 +222,14 @@ class Game {
     final ratingString = node.findElements("rating").firstOrNull?.innerText;
     final rating = ratingString != null ? double.tryParse(ratingString) : null;
     final yearString = node.findElements("releasedate").firstOrNull?.innerText;
-    final year = yearString != null && yearString.length >= 4 ? int.parse(yearString.substring(0, 4)) : null;
+    final year = yearString != null && yearString.length >= 4
+        ? int.parse(yearString.substring(0, 4))
+        : null;
     final image = node.findElements("image").firstOrNull?.innerText;
     final video = node.findElements("video").firstOrNull?.innerText;
     final thumbnail = node.findElements("thumbnail").firstOrNull?.innerText;
-    final favorite = node.findElements("favorite").firstOrNull?.innerText == "true";
+    final favorite =
+        node.findElements("favorite").firstOrNull?.innerText == "true";
     final hidden = node.findElements("hidden").firstOrNull?.innerText == "true";
     final romsPath = "$volumePath/$systemFolder";
     return Game(
@@ -225,11 +242,19 @@ class Game {
       id: id,
       description: description,
       genre: genre,
-      genreId: genreId != null ? GameGenre.lookupFromId(int.tryParse(genreId)) : null,
+      genreId: genreId != null
+          ? GameGenre.lookupFromId(int.tryParse(genreId))
+          : null,
       rating: rating != null ? 10 * rating : null,
-      imageUrl: image != null ? "$romsPath/${image.replaceFirst("./", "")}" : null,
-      videoUrl: video != null ? "$romsPath/${video.replaceFirst("./", "")}" : null,
-      thumbnailUrl: thumbnail != null ? "$romsPath/${thumbnail.replaceFirst("./", "")}" : null,
+      imageUrl: image != null
+          ? "$romsPath/${image.replaceFirst("./", "")}"
+          : null,
+      videoUrl: video != null
+          ? "$romsPath/${video.replaceFirst("./", "")}"
+          : null,
+      thumbnailUrl: thumbnail != null
+          ? "$romsPath/${thumbnail.replaceFirst("./", "")}"
+          : null,
       developer: developer,
       publisher: publisher,
       players: players,
@@ -242,34 +267,64 @@ class Game {
   }
 
   XmlNode toXmlNode() {
-    return XmlElement(XmlName.qualified("game"), [
-      XmlAttribute(XmlName.qualified("id"), id ?? ""),
-      XmlAttribute(XmlName.qualified("source"), "ScreenScraper.fr"),
-    ], [
-      XmlElement(XmlName.qualified("path"), [], [XmlText(rom)]),
-      XmlElement(XmlName.qualified("name"), [], [XmlText(name)]),
-      XmlElement(XmlName.qualified("desc"), [], [XmlText(description ?? "")]),
-      XmlElement(XmlName.qualified("rating"), [], [XmlText(((rating ?? 0) / 10).toString())]),
-      XmlElement(XmlName.qualified("releasedate"), [], [XmlText(year?.toString() ?? "")]),
-      XmlElement(XmlName.qualified("developer"), [], [XmlText(developer ?? "")]),
-      XmlElement(XmlName.qualified("publisher"), [], [XmlText(publisher ?? "")]),
-      XmlElement(XmlName.qualified("genre"), [], [XmlText(genre ?? "")]),
-      XmlElement(XmlName.qualified("genreid"), [], [XmlText(genreId?.id.toString() ?? "")]),
-      XmlElement(XmlName.qualified("players"), [], [XmlText(players ?? "")]),
-      if (imageUrl != null) XmlElement(XmlName.qualified("image"), [], [XmlText(imageUrl ?? "")]),
-      if (thumbnailUrl != null) XmlElement(XmlName.qualified("thumbnail"), [], [XmlText(thumbnailUrl ?? "")]),
-      if (videoUrl != null) XmlElement(XmlName.qualified("video"), [], [XmlText(videoUrl ?? "")]),
-      XmlElement(XmlName.qualified("favorite"), [], [XmlText(favorite ? "true" : "false")]),
-      XmlElement(XmlName.qualified("hidden"), [], [XmlText(hidden ? "true" : "false")]),
-    ]);
+    return XmlElement(
+      XmlName.qualified("game"),
+      [
+        XmlAttribute(XmlName.qualified("id"), id ?? ""),
+        XmlAttribute(XmlName.qualified("source"), "ScreenScraper.fr"),
+      ],
+      [
+        XmlElement(XmlName.qualified("path"), [], [XmlText(rom)]),
+        XmlElement(XmlName.qualified("name"), [], [XmlText(name)]),
+        XmlElement(XmlName.qualified("desc"), [], [XmlText(description ?? "")]),
+        XmlElement(XmlName.qualified("rating"), [], [
+          XmlText(((rating ?? 0) / 10).toString()),
+        ]),
+        XmlElement(XmlName.qualified("releasedate"), [], [
+          XmlText(year?.toString() ?? ""),
+        ]),
+        XmlElement(XmlName.qualified("developer"), [], [
+          XmlText(developer ?? ""),
+        ]),
+        XmlElement(XmlName.qualified("publisher"), [], [
+          XmlText(publisher ?? ""),
+        ]),
+        XmlElement(XmlName.qualified("genre"), [], [XmlText(genre ?? "")]),
+        XmlElement(XmlName.qualified("genreid"), [], [
+          XmlText(genreId?.id.toString() ?? ""),
+        ]),
+        XmlElement(XmlName.qualified("players"), [], [XmlText(players ?? "")]),
+        if (imageUrl != null)
+          XmlElement(XmlName.qualified("image"), [], [XmlText(imageUrl ?? "")]),
+        if (thumbnailUrl != null)
+          XmlElement(XmlName.qualified("thumbnail"), [], [
+            XmlText(thumbnailUrl ?? ""),
+          ]),
+        if (videoUrl != null)
+          XmlElement(XmlName.qualified("video"), [], [XmlText(videoUrl ?? "")]),
+        XmlElement(XmlName.qualified("favorite"), [], [
+          XmlText(favorite ? "true" : "false"),
+        ]),
+        XmlElement(XmlName.qualified("hidden"), [], [
+          XmlText(hidden ? "true" : "false"),
+        ]),
+      ],
+    );
   }
 
-  factory Game.fromFile(FileSystemEntity file, System system, String volumePath, String systemFolder) {
+  factory Game.fromFile(
+    FileSystemEntity file,
+    System system,
+    String volumePath,
+    String systemFolder,
+  ) {
     final romsPath = "$volumePath/$systemFolder";
     final path = file.absolute.path.replaceFirst(romsPath, ".");
     final fileName = file.uri.pathSegments.last;
     final extensionIndex = fileName.lastIndexOf(".");
-    final name = extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
+    final name = extensionIndex > 0
+        ? fileName.substring(0, extensionIndex)
+        : fileName;
     //debugPrint("Game from file romsPath=$romsPath path=$path fileName=$fileName");
     return Game(
       system,
@@ -327,10 +382,15 @@ class Game {
     favorite = scrapedGame.favorite;
     hidden = scrapedGame.hidden;
     final romsPath = "$volumePath/$systemFolder";
-    imageUrl = scrapedGame.imageUrl != null ? "$romsPath/${scrapedGame.imageUrl!.replaceFirst("./", "")}" : null;
-    videoUrl = scrapedGame.videoUrl != null ? "$romsPath/${scrapedGame.videoUrl!.replaceFirst("./", "")}" : null;
-    thumbnailUrl =
-        scrapedGame.thumbnailUrl != null ? "$romsPath/${scrapedGame.thumbnailUrl!.replaceFirst("./", "")}" : null;
+    imageUrl = scrapedGame.imageUrl != null
+        ? "$romsPath/${scrapedGame.imageUrl!.replaceFirst("./", "")}"
+        : null;
+    videoUrl = scrapedGame.videoUrl != null
+        ? "$romsPath/${scrapedGame.videoUrl!.replaceFirst("./", "")}"
+        : null;
+    thumbnailUrl = scrapedGame.thumbnailUrl != null
+        ? "$romsPath/${scrapedGame.thumbnailUrl!.replaceFirst("./", "")}"
+        : null;
   }
 }
 

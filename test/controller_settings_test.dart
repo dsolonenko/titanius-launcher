@@ -12,8 +12,9 @@ import 'package:titanius/widgets/gamepad_prompt.dart';
 void main() {
   group('ControllerLayout & Glyphs', () {
     test(
-      'ControllerLayout.fromString parses correctly with fallback to nintendo',
+      'ControllerLayout.fromString parses correctly with fallback to retro',
       () {
+        expect(ControllerLayout.fromString('retro'), ControllerLayout.retro);
         expect(ControllerLayout.fromString('xbox'), ControllerLayout.xbox);
         expect(
           ControllerLayout.fromString('nintendo'),
@@ -23,30 +24,70 @@ void main() {
           ControllerLayout.fromString('generic'),
           ControllerLayout.generic,
         );
-        expect(
-          ControllerLayout.fromString('unknown'),
-          ControllerLayout.nintendo,
-        );
-        expect(ControllerLayout.fromString(null), ControllerLayout.nintendo);
+        expect(ControllerLayout.fromString('unknown'), ControllerLayout.retro);
+        expect(ControllerLayout.fromString(null), ControllerLayout.retro);
       },
     );
 
-    test('Xbox input actions and glyphs follow its physical layout', () {
+    test('Retro uses printed face labels and regular Start/Select glyphs', () {
       expect(
-        mapFaceButtonPosition(
-          FaceButtonPosition.south,
-          ControllerLayout.xbox,
+        confirmButtonPosition(ControllerLayout.retro, false),
+        FaceButtonPosition.east,
+      );
+      expect(
+        getGamepadButtonGlyph(
+          GamepadButton.confirm,
+          ControllerLayout.retro,
           false,
         ),
+        '\u{21D3}',
+      ); // A
+      expect(
+        getGamepadButtonGlyph(
+          GamepadButton.back,
+          ControllerLayout.retro,
+          false,
+        ),
+        '\u{21D2}',
+      ); // B
+      expect(
+        getGamepadButtonGlyph(GamepadButton.x, ControllerLayout.retro, false),
+        '\u{21D0}',
+      ); // X
+      expect(
+        getGamepadButtonGlyph(GamepadButton.y, ControllerLayout.retro, false),
+        '\u{21D1}',
+      ); // Y
+      expect(
+        getGamepadButtonGlyph(
+          GamepadButton.start,
+          ControllerLayout.retro,
+          false,
+        ),
+        '\u{21F8}',
+      );
+      expect(
+        getGamepadButtonGlyph(
+          GamepadButton.select,
+          ControllerLayout.retro,
+          false,
+        ),
+        '\u{21F7}',
+      );
+    });
+
+    test('Xbox labeled input actions and glyphs follow its layout', () {
+      expect(
+        mapLabeledFaceButton(FaceButtonLabel.a, false),
         GamepadButton.confirm,
       );
       expect(
-        mapFaceButtonPosition(
-          FaceButtonPosition.east,
-          ControllerLayout.xbox,
-          false,
-        ),
+        mapLabeledFaceButton(FaceButtonLabel.b, false),
         GamepadButton.back,
+      );
+      expect(
+        confirmButtonPosition(ControllerLayout.xbox, false),
+        FaceButtonPosition.south,
       );
       expect(
         getGamepadButtonGlyph(
@@ -86,12 +127,12 @@ void main() {
       ); // RT
 
       expect(
-        mapFaceButtonPosition(
-          FaceButtonPosition.east,
-          ControllerLayout.xbox,
-          true,
-        ),
+        mapLabeledFaceButton(FaceButtonLabel.b, true),
         GamepadButton.confirm,
+      );
+      expect(
+        confirmButtonPosition(ControllerLayout.xbox, true),
+        FaceButtonPosition.east,
       );
       expect(
         getGamepadButtonGlyph(
@@ -107,23 +148,19 @@ void main() {
       ); // A
     });
 
-    test('Nintendo input actions and glyphs follow its physical layout', () {
+    test('Nintendo labeled input actions and glyphs follow its layout', () {
       // Nintendo defaults to its labeled A (East) for confirm and B (South) for back.
       expect(
-        mapFaceButtonPosition(
-          FaceButtonPosition.east,
-          ControllerLayout.nintendo,
-          false,
-        ),
+        mapLabeledFaceButton(FaceButtonLabel.a, false),
         GamepadButton.confirm,
       );
       expect(
-        mapFaceButtonPosition(
-          FaceButtonPosition.south,
-          ControllerLayout.nintendo,
-          false,
-        ),
+        mapLabeledFaceButton(FaceButtonLabel.b, false),
         GamepadButton.back,
+      );
+      expect(
+        confirmButtonPosition(ControllerLayout.nintendo, false),
+        FaceButtonPosition.east,
       );
       expect(
         getGamepadButtonGlyph(
@@ -141,23 +178,9 @@ void main() {
         ),
         '\u{21D2}',
       ); // B
-      // Native X/Y are normalized positions: West emits Nintendo Y, North emits X.
-      expect(
-        mapFaceButtonPosition(
-          FaceButtonPosition.west,
-          ControllerLayout.nintendo,
-          false,
-        ),
-        GamepadButton.y,
-      );
-      expect(
-        mapFaceButtonPosition(
-          FaceButtonPosition.north,
-          ControllerLayout.nintendo,
-          false,
-        ),
-        GamepadButton.x,
-      );
+      // Android delivers the RG406V face buttons by their printed key labels.
+      expect(mapLabeledFaceButton(FaceButtonLabel.x, false), GamepadButton.x);
+      expect(mapLabeledFaceButton(FaceButtonLabel.y, false), GamepadButton.y);
       expect(
         getGamepadButtonGlyph(
           GamepadButton.x,
@@ -225,12 +248,12 @@ void main() {
 
       // Swap reverses Nintendo's default, making B (South) confirm.
       expect(
-        mapFaceButtonPosition(
-          FaceButtonPosition.south,
-          ControllerLayout.nintendo,
-          true,
-        ),
+        mapLabeledFaceButton(FaceButtonLabel.b, true),
         GamepadButton.confirm,
+      );
+      expect(
+        confirmButtonPosition(ControllerLayout.nintendo, true),
+        FaceButtonPosition.south,
       );
       expect(
         getGamepadButtonGlyph(
@@ -299,7 +322,7 @@ void main() {
 
   group('ControllerSettingsPage Widget Tests', () {
     testWidgets(
-      'renders controller layout and swap A/B toggle with Nintendo default',
+      'renders controller layout and swap A/B toggle with Retro default',
       (tester) async {
         final db = AppDatabase(NativeDatabase.memory());
         addTearDown(db.close);
@@ -316,8 +339,8 @@ void main() {
         expect(find.text('Controller Settings'), findsOneWidget);
         expect(find.text('Controller Layout'), findsOneWidget);
         expect(find.text('Swap A/B for Confirm'), findsOneWidget);
-        expect(find.text('Nintendo'), findsOneWidget);
-        expect(find.text('Nintendo style: B / A / Y / X'), findsOneWidget);
+        expect(find.text('Retro'), findsOneWidget);
+        expect(find.text('Retro style: B / A / Y / X'), findsOneWidget);
         expect(
           find.text('A (East) confirms, B (South) goes back'),
           findsOneWidget,
@@ -327,12 +350,12 @@ void main() {
         expect(find.text('Confirm'), findsOneWidget); // Diagram action chip
         expect(find.text('Back'), findsNWidgets(2)); // Diagram chip + PromptBar
 
-        // Tap to cycle layout to Xbox
+        // Tap to cycle layout to Nintendo.
         await tester.tap(find.text('Controller Layout'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Xbox'), findsOneWidget);
-        expect(find.text('Xbox style: A / B / X / Y'), findsOneWidget);
+        expect(find.text('Nintendo'), findsOneWidget);
+        expect(find.text('Nintendo style: B / A / Y / X'), findsOneWidget);
 
         // Rapid selections are queued from the latest requested value rather
         // than both reading the same stale provider state.
@@ -340,13 +363,6 @@ void main() {
         await tester.tap(find.text('Controller Layout'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Nintendo'), findsOneWidget);
-        expect(find.text('Nintendo style: B / A / Y / X'), findsOneWidget);
-
-        // Cycle twice to Generic for its positional swap description.
-        await tester.tap(find.text('Controller Layout'));
-        await tester.tap(find.text('Controller Layout'));
-        await tester.pumpAndSettle();
         expect(find.text('Generic'), findsOneWidget);
 
         // Tap to toggle Swap A/B

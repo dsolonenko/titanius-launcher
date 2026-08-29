@@ -32,11 +32,14 @@ enum GamepadButton {
 
 enum FaceButtonPosition { south, east, west, north }
 
+enum FaceButtonLabel { a, b, x, y }
+
 FaceButtonPosition confirmButtonPosition(
   ControllerLayout layout,
   bool swapConfirm,
 ) {
-  final defaultPosition = layout == ControllerLayout.nintendo
+  final defaultPosition =
+      layout == ControllerLayout.nintendo || layout == ControllerLayout.retro
       ? FaceButtonPosition.east
       : FaceButtonPosition.south;
   if (!swapConfirm) return defaultPosition;
@@ -45,26 +48,16 @@ FaceButtonPosition confirmButtonPosition(
       : FaceButtonPosition.east;
 }
 
-GamepadButton mapFaceButtonPosition(
-  FaceButtonPosition position,
-  ControllerLayout layout,
-  bool swapConfirm,
-) {
-  final confirmPosition = confirmButtonPosition(layout, swapConfirm);
-  switch (position) {
-    case FaceButtonPosition.south:
-    case FaceButtonPosition.east:
-      return position == confirmPosition
-          ? GamepadButton.confirm
-          : GamepadButton.back;
-    case FaceButtonPosition.west:
-      return layout == ControllerLayout.nintendo
-          ? GamepadButton.y
-          : GamepadButton.x;
-    case FaceButtonPosition.north:
-      return layout == ControllerLayout.nintendo
-          ? GamepadButton.x
-          : GamepadButton.y;
+GamepadButton mapLabeledFaceButton(FaceButtonLabel button, bool swapConfirm) {
+  switch (button) {
+    case FaceButtonLabel.a:
+      return swapConfirm ? GamepadButton.back : GamepadButton.confirm;
+    case FaceButtonLabel.b:
+      return swapConfirm ? GamepadButton.confirm : GamepadButton.back;
+    case FaceButtonLabel.x:
+      return GamepadButton.x;
+    case FaceButtonLabel.y:
+      return GamepadButton.y;
   }
 }
 
@@ -84,23 +77,14 @@ void useGamepad(
 ) {
   final settings = ref.watch(settingsProvider).value;
   return use(
-    _GamepadHook(
-      listener,
-      layout: settings?.controllerLayout ?? ControllerLayout.nintendo,
-      swapConfirm: settings?.swapConfirm ?? false,
-    ),
+    _GamepadHook(listener, swapConfirm: settings?.swapConfirm ?? false),
   );
 }
 
 class _GamepadHook extends Hook<void> {
   final void Function(String location, GamepadButton key) listener;
-  final ControllerLayout layout;
   final bool swapConfirm;
-  const _GamepadHook(
-    this.listener, {
-    required this.layout,
-    this.swapConfirm = false,
-  });
+  const _GamepadHook(this.listener, {this.swapConfirm = false});
 
   @override
   _GamepadHookState createState() => _GamepadHookState();
@@ -364,29 +348,13 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
       case gp.GamepadButton.dpadRight:
         return GamepadButton.right;
       case gp.GamepadButton.a:
-        return mapFaceButtonPosition(
-          FaceButtonPosition.south,
-          hook.layout,
-          hook.swapConfirm,
-        );
+        return mapLabeledFaceButton(FaceButtonLabel.a, hook.swapConfirm);
       case gp.GamepadButton.b:
-        return mapFaceButtonPosition(
-          FaceButtonPosition.east,
-          hook.layout,
-          hook.swapConfirm,
-        );
+        return mapLabeledFaceButton(FaceButtonLabel.b, hook.swapConfirm);
       case gp.GamepadButton.x:
-        return mapFaceButtonPosition(
-          FaceButtonPosition.west,
-          hook.layout,
-          hook.swapConfirm,
-        );
+        return mapLabeledFaceButton(FaceButtonLabel.x, hook.swapConfirm);
       case gp.GamepadButton.y:
-        return mapFaceButtonPosition(
-          FaceButtonPosition.north,
-          hook.layout,
-          hook.swapConfirm,
-        );
+        return mapLabeledFaceButton(FaceButtonLabel.y, hook.swapConfirm);
       case gp.GamepadButton.leftBumper:
         return GamepadButton.l1;
       case gp.GamepadButton.rightBumper:

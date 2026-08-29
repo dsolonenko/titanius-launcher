@@ -143,42 +143,59 @@ class ControllerGridView extends StatelessWidget {
     required this.itemCount,
     required this.itemBuilder,
     required this.maxCrossAxisExtent,
+    this.childAspectRatio = 1.0,
+    this.crossAxisSpacing = 8.0,
+    this.mainAxisSpacing = 8.0,
+    this.padding = const EdgeInsets.all(12),
   });
 
   final int selectedIndex;
   final int itemCount;
   final IndexedWidgetBuilder itemBuilder;
   final double maxCrossAxisExtent;
+  final double childAspectRatio;
+  final double crossAxisSpacing;
+  final double mainAxisSpacing;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final maxColumns = itemCount == 0 ? 1 : itemCount;
-        final columnCount = (constraints.maxWidth / maxCrossAxisExtent)
-            .ceil()
-            .clamp(1, maxColumns);
+        final horizontalPadding = padding.horizontal;
+        final availableWidth = (constraints.maxWidth - horizontalPadding).clamp(0.0, double.infinity);
+        final columnCount = (availableWidth / maxCrossAxisExtent).ceil().clamp(1, 20);
+        final totalSpacing = crossAxisSpacing * (columnCount - 1);
+        final cellWidth = (availableWidth - totalSpacing) / columnCount;
+        final cellHeight = cellWidth / childAspectRatio;
         final rowCount = (itemCount / columnCount).ceil();
         final selectedRow = itemCount == 0
             ? 0
             : selectedIndex.clamp(0, itemCount - 1) ~/ columnCount;
-        final cellExtent = constraints.maxWidth / columnCount;
 
         return ControllerListView.builder(
+          padding: padding,
           selectedIndex: selectedRow,
           itemCount: rowCount,
           itemBuilder: (context, rowIndex) {
-            return SizedBox(
-              height: cellExtent,
+            return Container(
+              margin: EdgeInsets.only(
+                bottom: rowIndex < rowCount - 1 ? mainAxisSpacing : 0,
+              ),
+              height: cellHeight,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: List.generate(columnCount, (columnIndex) {
                   final itemIndex = rowIndex * columnCount + columnIndex;
-                  return SizedBox(
-                    width: cellExtent,
-                    child: itemIndex < itemCount
-                        ? itemBuilder(context, itemIndex)
-                        : const SizedBox.shrink(),
+                  return Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        right: columnIndex < columnCount - 1 ? crossAxisSpacing : 0,
+                      ),
+                      child: itemIndex < itemCount
+                          ? itemBuilder(context, itemIndex)
+                          : const SizedBox.shrink(),
+                    ),
                   );
                 }),
               ),

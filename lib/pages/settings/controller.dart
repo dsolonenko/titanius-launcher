@@ -49,6 +49,8 @@ class ControllerSettingsPage extends HookConsumerWidget {
 
     String getLayoutSubtitle(ControllerLayout layout) {
       switch (layout) {
+        case ControllerLayout.retro:
+          return "Retro style: B / A / Y / X";
         case ControllerLayout.nintendo:
           return "Nintendo style: B / A / Y / X";
         case ControllerLayout.generic:
@@ -61,7 +63,8 @@ class ControllerSettingsPage extends HookConsumerWidget {
     String getSwapConfirmSubtitle(Settings settings) {
       final layout = settings.controllerLayout;
       final swap = settings.swapConfirm;
-      if (layout == ControllerLayout.nintendo) {
+      if (layout == ControllerLayout.nintendo ||
+          layout == ControllerLayout.retro) {
         return swap
             ? "B (South) confirms, A (East) goes back"
             : "A (East) confirms, B (South) goes back";
@@ -231,8 +234,7 @@ class ControllerSettingsPage extends HookConsumerWidget {
                         horizontal: 16.0,
                       ),
                       child: _ControllerDiagram(
-                        layout:
-                            s?.controllerLayout ?? ControllerLayout.nintendo,
+                        layout: s?.controllerLayout ?? ControllerLayout.retro,
                         swapConfirm: s?.swapConfirm ?? false,
                       ),
                     ),
@@ -289,6 +291,12 @@ class _ControllerDiagram extends StatelessWidget {
     final String? southGlyph;
 
     switch (layout) {
+      case ControllerLayout.retro:
+        northGlyph = "\u{21D0}"; // X
+        westGlyph = "\u{21D1}"; // Y
+        eastGlyph = "\u{21D3}"; // A
+        southGlyph = "\u{21D2}"; // B
+        break;
       case ControllerLayout.nintendo:
         northGlyph = "\u{21D0}"; // X
         westGlyph = "\u{21D1}"; // Y

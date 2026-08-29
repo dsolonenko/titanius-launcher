@@ -11,6 +11,43 @@ String getGamepadButtonGlyph(
   bool swapConfirm,
 ) {
   switch (layout) {
+    case ControllerLayout.retro:
+      switch (button) {
+        case GamepadButton.up:
+          return "\u{219F}";
+        case GamepadButton.down:
+          return "\u{21A1}";
+        case GamepadButton.upDown:
+          return "\u{21A3}";
+        case GamepadButton.left:
+          return "\u{219E}";
+        case GamepadButton.right:
+          return "\u{21A0}";
+        case GamepadButton.leftRight:
+          return "\u{21A2}";
+        case GamepadButton.confirm:
+          return swapConfirm ? "\u{21D2}" : "\u{21D3}";
+        case GamepadButton.back:
+          return swapConfirm ? "\u{21D3}" : "\u{21D2}";
+        case GamepadButton.x:
+          return "\u{21D0}";
+        case GamepadButton.y:
+          return "\u{21D1}";
+        case GamepadButton.l1:
+          return "\u{219C}";
+        case GamepadButton.r1:
+          return "\u{219D}";
+        case GamepadButton.l2:
+          return "\u{219A}";
+        case GamepadButton.r2:
+          return "\u{219B}";
+        case GamepadButton.start:
+          return "\u{21F8}";
+        case GamepadButton.select:
+          return "\u{21F7}";
+        default:
+          return "";
+      }
     case ControllerLayout.nintendo:
       switch (button) {
         case GamepadButton.up:
@@ -157,7 +194,7 @@ class GamepadPromptWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider).value;
-    final layout = settings?.controllerLayout ?? ControllerLayout.nintendo;
+    final layout = settings?.controllerLayout ?? ControllerLayout.retro;
     final swapConfirm = settings?.swapConfirm ?? false;
 
     String buttonText = buttons

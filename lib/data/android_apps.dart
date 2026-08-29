@@ -7,10 +7,12 @@ import 'package:titanius/data/repo.dart';
 
 final installedAppsProvider = FutureProvider<List<AppInfo>>((ref) async {
   final apps = await InstalledApps.getInstalledApps(
-    excludeSystemApps: true,
+    excludeSystemApps: false,
     withIcon: true,
   );
-  return apps.sortedBy((element) => element.name);
+  return apps
+      .where((element) => element.packageName != 'app.titanius.launcher')
+      .sortedBy((element) => element.name.toLowerCase());
 });
 
 final selectedAndroidAppsProvider = FutureProvider<List<AppInfo>>((ref) async {

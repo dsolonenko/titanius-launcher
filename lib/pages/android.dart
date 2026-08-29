@@ -44,26 +44,39 @@ class AndroidPage extends HookConsumerWidget {
       int currentIndex = apps.indexOf(selectedApp ?? apps.first);
       if (currentIndex == -1) currentIndex = 0;
 
+      final screenWidth = MediaQuery.of(context).size.width - 24;
+      final columns = showDetals.value
+          ? 1
+          : (screenWidth / 150).ceil().clamp(1, 20);
+
       if (key == GamepadButton.up) {
+        if (showDetals.value) {
+          if (currentIndex > 0) {
+            ref.read(selectedAppProvider.notifier).state = apps[currentIndex - 1];
+          }
+        } else {
+          final newIndex = (currentIndex - columns).clamp(0, apps.length - 1);
+          ref.read(selectedAppProvider.notifier).state = apps[newIndex];
+        }
+      }
+      if (key == GamepadButton.down) {
+        if (showDetals.value) {
+          if (currentIndex < apps.length - 1) {
+            ref.read(selectedAppProvider.notifier).state = apps[currentIndex + 1];
+          }
+        } else {
+          final newIndex = (currentIndex + columns).clamp(0, apps.length - 1);
+          ref.read(selectedAppProvider.notifier).state = apps[newIndex];
+        }
+      }
+      if (key == GamepadButton.left) {
         if (currentIndex > 0) {
           final newIndex = currentIndex - 1;
           ref.read(selectedAppProvider.notifier).state = apps[newIndex];
         }
       }
-      if (key == GamepadButton.down) {
-        if (currentIndex < apps.length - 1) {
-          final newIndex = currentIndex + 1;
-          ref.read(selectedAppProvider.notifier).state = apps[newIndex];
-        }
-      }
-      if (key == GamepadButton.left) {
-        if (!showDetals.value && currentIndex > 0) {
-          final newIndex = currentIndex - 1;
-          ref.read(selectedAppProvider.notifier).state = apps[newIndex];
-        }
-      }
       if (key == GamepadButton.right) {
-        if (!showDetals.value && currentIndex < apps.length - 1) {
+        if (currentIndex < apps.length - 1) {
           final newIndex = currentIndex + 1;
           ref.read(selectedAppProvider.notifier).state = apps[newIndex];
         }
@@ -167,7 +180,11 @@ class AndroidPage extends HookConsumerWidget {
                   ],
                 )
               : ControllerGridView.builder(
-                  maxCrossAxisExtent: 100,
+                  maxCrossAxisExtent: 150,
+                  childAspectRatio: 0.88,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  padding: const EdgeInsets.all(12),
                   key: const PageStorageKey("android/apps_grid"),
                   selectedIndex: selectedIndex,
                   itemCount: apps.length,
@@ -192,41 +209,56 @@ class AndroidPage extends HookConsumerWidget {
   ) {
     return SelectedScrollTile(
       isSelected: selected,
-      child: Container(
-        margin: const EdgeInsets.all(4),
-        child: Material(
-          color: selected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(4),
-          child: ListTile(
-            key: ValueKey("android/grid/${app.packageName}"),
-            selected: selected,
-            selectedColor: Colors.black,
-            selectedTileColor: Colors.transparent,
-            title: app.icon != null
-                ? CachedMemoryImage(
-                    uniqueKey: app.packageName,
-                    bytes: app.icon!,
-                    fit: BoxFit.contain,
-                  )
-                : Icon(
-                    Icons.android,
-                    color: selected ? Colors.black : Colors.white,
+      child: Material(
+        color: selected ? Colors.white : Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        elevation: selected ? 4 : 0,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
+            ref.read(selectedAppProvider.notifier).state = app;
+            InstalledApps.startApp(
+              app.packageName,
+            ).catchError(handleIntentError(context, app.name));
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Center(
+                    child: app.icon != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: CachedMemoryImage(
+                              uniqueKey: app.packageName,
+                              bytes: app.icon!,
+                              fit: BoxFit.contain,
+                            ),
+                          )
+                        : Icon(
+                            Icons.android,
+                            size: 48,
+                            color: selected ? Colors.black : Colors.white,
+                          ),
                   ),
-            subtitle: Text(
-              textAlign: TextAlign.center,
-              app.name,
-              softWrap: false,
-              style: TextStyle(
-                color: selected ? Colors.black : Colors.white,
-                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-              ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  app.name,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: selected ? Colors.black : Colors.white,
+                    fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-            onTap: () async {
-              ref.read(selectedAppProvider.notifier).state = app;
-              InstalledApps.startApp(
-                app.packageName,
-              ).catchError(handleIntentError(context, app.name));
-            },
           ),
         ),
       ),

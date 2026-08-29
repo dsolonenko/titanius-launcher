@@ -260,18 +260,34 @@ class ScraperPage extends HookConsumerWidget {
       body: isRunning
           ? _buildActiveScrapingView(context, ref, scraperProgress, stopScraper)
           : confirm.value
-          ? const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.bolt, size: 48),
-                  SizedBox(height: 8),
-                  Text("Start scraping?"),
-                  SizedBox(height: 8),
-                  Text(
-                    "It may take a while... Scraping will run in background.",
-                  ),
-                ],
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.bolt, size: 56, color: Colors.amber),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Start scraping?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "It may take a while... Scraping will run in background.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )
           : ControllerListView.builder(
