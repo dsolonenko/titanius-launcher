@@ -1,4 +1,3 @@
-import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:installed_apps/app_info.dart';
 import 'package:flutter/material.dart';

@@ -121,14 +121,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.12.7"
-  cached_memory_image:
-    dependency: "direct main"
-    description:
-      name: cached_memory_image
-      sha256: b44be7e551599a393574f74fe33ca73272dc0b32a13a442382c4b2b69a83f286
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.5.0"
   cached_network_image:
     dependency: "direct main"
     description:

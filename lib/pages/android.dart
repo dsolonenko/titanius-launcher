@@ -1,4 +1,3 @@
-import 'package:cached_memory_image/cached_memory_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -27,6 +26,13 @@ class AndroidPage extends HookConsumerWidget {
     final selectedApp = ref.watch(selectedAppProvider);
 
     final showDetals = useState(false);
+    final detailsScrollController = useScrollController();
+
+    useValueChanged<AppInfo?, void>(selectedApp, (previous, _) {
+      if (detailsScrollController.hasClients) {
+        detailsScrollController.jumpTo(0);
+      }
+    });
 
     useGamepad(ref, (location, key) {
       if (location != "/games/android") return;
@@ -110,6 +116,20 @@ class AndroidPage extends HookConsumerWidget {
       if (key == GamepadButton.x) {
         showDetals.value = !showDetals.value;
       }
+      if (key == GamepadButton.rightStickUp ||
+          key == GamepadButton.rightStickDown) {
+        if (!showDetals.value || !detailsScrollController.hasClients) return;
+        const scrollStep = 56.0;
+        final delta = key == GamepadButton.rightStickUp
+            ? -scrollStep
+            : scrollStep;
+        final position = detailsScrollController.position;
+        final target = (detailsScrollController.offset + delta).clamp(
+          position.minScrollExtent,
+          position.maxScrollExtent,
+        );
+        detailsScrollController.jumpTo(target);
+      }
       if (key == GamepadButton.y) {
         GoRouter.of(context).go("/select_apps");
       }
@@ -149,7 +169,7 @@ class AndroidPage extends HookConsumerWidget {
               ? Row(
                   children: [
                     Expanded(
-                      flex: 1,
+                      flex: 10,
                       child: ControllerListView.builder(
                         key: const PageStorageKey("android/apps_list"),
                         selectedIndex: selectedIndex,
@@ -162,19 +182,10 @@ class AndroidPage extends HookConsumerWidget {
                       ),
                     ),
                     Expanded(
-                      flex: 2,
-                      child: InfoTiles(
-                        children: [
-                          InfoTile(title: "Name", subtitle: appToShow.name),
-                          InfoTile(
-                            title: "Package",
-                            subtitle: appToShow.packageName,
-                          ),
-                          InfoTile(
-                            title: "Version",
-                            subtitle: appToShow.versionName,
-                          ),
-                        ],
+                      flex: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _appDetails(appToShow, detailsScrollController),
                       ),
                     ),
                   ],
@@ -232,10 +243,11 @@ class AndroidPage extends HookConsumerWidget {
                     child: app.icon != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: CachedMemoryImage(
-                              uniqueKey: app.packageName,
-                              bytes: app.icon!,
+                            child: Image.memory(
+                              app.icon!,
+                              gaplessPlayback: true,
                               fit: BoxFit.contain,
+                              filterQuality: FilterQuality.medium,
                             ),
                           )
                         : Icon(
@@ -285,10 +297,13 @@ class AndroidPage extends HookConsumerWidget {
             selectedTileColor: Colors.transparent,
             dense: true,
             leading: app.icon != null
-                ? CachedMemoryImage(
-                    uniqueKey: app.packageName,
-                    bytes: app.icon!,
+                ? Image.memory(
+                    app.icon!,
+                    gaplessPlayback: true,
                     fit: BoxFit.contain,
+                    width: 36,
+                    height: 36,
+                    filterQuality: FilterQuality.medium,
                   )
                 : Icon(
                     Icons.android,
@@ -308,6 +323,54 @@ class AndroidPage extends HookConsumerWidget {
               ).catchError(handleIntentError(context, app.name));
             },
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _appDetails(AppInfo app, ScrollController detailsScrollController) {
+    return Scrollbar(
+      controller: detailsScrollController,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: detailsScrollController,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (app.icon != null)
+              SizedBox(
+                height: 72,
+                child: Image.memory(
+                  app.icon!,
+                  gaplessPlayback: true,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.medium,
+                ),
+              )
+            else
+              const Icon(Icons.android, size: 72),
+            const SizedBox(height: 10),
+            Text(
+              app.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            InfoTiles(
+              columnCount: 1,
+              children: [
+                InfoTile(title: "Package", subtitle: app.packageName),
+                InfoTile(
+                  title: "Version",
+                  subtitle: app.versionName.isNotEmpty ? app.versionName : "-",
+                ),
+                InfoTile(
+                  title: "Version Code",
+                  subtitle: app.versionCode.toString(),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

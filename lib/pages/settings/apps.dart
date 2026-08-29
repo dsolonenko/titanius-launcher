@@ -118,10 +118,13 @@ class AppsSettingsPage extends HookConsumerWidget {
                             ),
                           ),
                           leading: app.icon != null
-                              ? CachedMemoryImage(
-                                  uniqueKey: app.packageName,
-                                  bytes: app.icon!,
+                              ? Image.memory(
+                                  app.icon!,
+                                  gaplessPlayback: true,
                                   fit: BoxFit.contain,
+                                  width: 36,
+                                  height: 36,
+                                  filterQuality: FilterQuality.medium,
                                 )
                               : Icon(
                                   Icons.android,
