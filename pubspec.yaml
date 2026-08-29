@@ -65,11 +65,12 @@ dependencies:
   focus_detector_v2: ^3.1.0+1
   screenscraper:
     path: ../screenscraper-api-dart
+  retroachievements:
+    path: ../retroachievements-api-dart
   envied: ^1.3.8
   sn_progress_dialog: ^2.0.0
   dio: ^5.3.2
   retry: ^3.1.2
-  prompt_dialog: ^1.0.14
   fade_indexed_stack: ^0.2.2
   json_annotation: ^4.12.0
   percent_indicator: ^4.0.1

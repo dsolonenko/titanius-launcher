@@ -30,6 +30,14 @@ class Settings {
   String? get daijishoWallpaperPack => _getString('daijishoWallpaperPack');
   String? get screenScraperUser => _getString('screenScraperUser');
   String? get screenScraperPwd => _getString('screenScraperPwd');
+  String? get retroAchievementsUser => _getString('retroAchievementsUser');
+  String? get retroAchievementsApiKey => _getString('retroAchievementsApiKey');
+  bool get showRetroAchievementsInAppBar => _getBoolean('showRetroAchievementsInAppBar', true);
+  bool get hasRetroAchievements =>
+      retroAchievementsUser != null &&
+      retroAchievementsUser!.trim().isNotEmpty &&
+      retroAchievementsApiKey != null &&
+      retroAchievementsApiKey!.trim().isNotEmpty;
   String? get scrapeTheseGames => _getString('scrapeTheseGames');
   List<String> get scrapeTheseSystems => _getStringList('scrapeTheseSystems');
 
@@ -123,6 +131,23 @@ class SettingsRepo {
 
   Future<void> setScreenScraperPwd(String value) async {
     return _setSetting('screenScraperPwd', value);
+  }
+
+  Future<void> setRetroAchievementsUser(String value) async {
+    return _setSetting('retroAchievementsUser', value.trim());
+  }
+
+  Future<void> setRetroAchievementsApiKey(String value) async {
+    return _setSetting('retroAchievementsApiKey', value.trim());
+  }
+
+  Future<void> setShowRetroAchievementsInAppBar(bool value) async {
+    return _setBoolean('showRetroAchievementsInAppBar', value);
+  }
+
+  Future<void> clearRetroAchievements() async {
+    await _resetSetting('retroAchievementsUser');
+    await _resetSetting('retroAchievementsApiKey');
   }
 
   Future<void> setScrapeTheseGames(String value) async {

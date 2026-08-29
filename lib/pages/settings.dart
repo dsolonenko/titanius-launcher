@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prompt_dialog/prompt_dialog.dart';
+import 'package:titanius/widgets/prompt_dialog.dart';
 import 'package:saf/saf.dart';
 
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:titanius/data/android_apps.dart';
 import 'package:titanius/data/android_saf.dart';
 import 'package:titanius/data/daijisho.dart';
@@ -14,6 +15,7 @@ import 'package:titanius/data/emulators.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
+import 'package:titanius/data/retroachievements.dart';
 import 'package:titanius/data/state.dart';
 import 'package:titanius/data/systems.dart';
 import 'package:titanius/gamepad.dart';
@@ -31,6 +33,7 @@ part 'package:titanius/pages/settings/ui.dart';
 part 'package:titanius/pages/settings/roms.dart';
 part 'package:titanius/pages/settings/apps.dart';
 part 'package:titanius/pages/settings/daijisho.dart';
+part 'package:titanius/pages/settings/retroachievements.dart';
 
 class SettingsPage extends HookConsumerWidget {
   final String? source;
@@ -41,9 +44,13 @@ class SettingsPage extends HookConsumerWidget {
     final packageInfo = ref.watch(packageInfoProvider);
     final selectedIndex = usePersistentSelection('/settings');
 
+    final settings = ref.watch(settingsProvider);
+    final s = settings.value;
+
     final items = [
       (
         title: 'Refresh GameLists',
+        subtitle: null as String?,
         trailing: null as Widget?,
         onTap: () {
           ref.invalidate(detectedSystemsProvider);
@@ -55,13 +62,25 @@ class SettingsPage extends HookConsumerWidget {
       ),
       (
         title: 'Scraper',
+        subtitle: null as String?,
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/scraper");
         },
       ),
       (
+        title: 'RetroAchievements',
+        subtitle: s?.hasRetroAchievements == true
+            ? s!.retroAchievementsUser
+            : 'Not configured',
+        trailing: arrowRight,
+        onTap: () {
+          context.push("/settings/retroachievements");
+        },
+      ),
+      (
         title: 'ROMs Folders',
+        subtitle: null as String?,
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/roms");
@@ -69,6 +88,7 @@ class SettingsPage extends HookConsumerWidget {
       ),
       (
         title: 'Systems/Collections',
+        subtitle: null as String?,
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/systems");
@@ -76,6 +96,7 @@ class SettingsPage extends HookConsumerWidget {
       ),
       (
         title: 'Emulators',
+        subtitle: null as String?,
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/emulators");
@@ -83,6 +104,7 @@ class SettingsPage extends HookConsumerWidget {
       ),
       (
         title: 'Custom Emulators',
+        subtitle: null as String?,
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/cemulators");
@@ -90,6 +112,7 @@ class SettingsPage extends HookConsumerWidget {
       ),
       (
         title: 'Controller',
+        subtitle: null as String?,
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/controller");
@@ -97,6 +120,7 @@ class SettingsPage extends HookConsumerWidget {
       ),
       (
         title: 'UI Settings',
+        subtitle: null as String?,
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/ui");
@@ -104,6 +128,7 @@ class SettingsPage extends HookConsumerWidget {
       ),
       (
         title: 'Daijishō Wallpaper Pack',
+        subtitle: null as String?,
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/daijisho");
@@ -177,6 +202,16 @@ class SettingsPage extends HookConsumerWidget {
                           : FontWeight.normal,
                     ),
                   ),
+                  subtitle: item.subtitle != null
+                      ? Text(
+                          item.subtitle!,
+                          style: TextStyle(
+                            color: isSelected
+                                ? Colors.black87
+                                : Colors.grey,
+                          ),
+                        )
+                      : null,
                   trailing: item.trailing,
                   onTap: () {
                     selectedIndex.value = index;

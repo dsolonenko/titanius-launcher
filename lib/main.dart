@@ -112,6 +112,10 @@ final _router = GoRouter(
             ),
           ]),
           GoRoute(
+            path: 'retroachievements',
+            builder: (context, state) => const RetroAchievementsSettingsPage(),
+          ),
+          GoRoute(
             path: 'roms',
             builder: (context, state) => const RomsSettingsPage(),
           ),

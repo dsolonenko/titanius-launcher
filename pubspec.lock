@@ -1077,14 +1077,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.5"
-  prompt_dialog:
-    dependency: "direct main"
-    description:
-      name: prompt_dialog
-      sha256: e7fabed675565d7d845dfb51d0d5de2b40a3a241ff32c7cc617ee46cb3d0a57b
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.18"
   pub_semver:
     dependency: transitive
     description:
@@ -1117,6 +1109,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  retroachievements:
+    dependency: "direct main"
+    description:
+      path: "../retroachievements-api-dart"
+      relative: true
+    source: path
+    version: "0.1.0"
   retry:
     dependency: "direct main"
     description:

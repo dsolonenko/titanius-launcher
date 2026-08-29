@@ -14,6 +14,7 @@ import 'package:titanius/data/state.dart';
 import 'package:titanius/gamepad.dart';
 import 'package:titanius/widgets/appbar.dart';
 import 'package:titanius/widgets/prompt_bar.dart';
+import 'package:titanius/widgets/retroachievements_profile.dart';
 
 class SystemsPage extends HookConsumerWidget {
   const SystemsPage({super.key});
@@ -59,98 +60,106 @@ class SystemsPage extends HookConsumerWidget {
       }
     });
 
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      appBar: const CustomAppBar(),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 8),
-          allSystems.when(
-            data: (systems) {
-              if (systems.isEmpty) return const SizedBox.shrink();
-              final system =
-                  systems[selectedSystem.clamp(0, systems.length - 1)];
-              return !systemStatsEnabled ||
-                      system.isCollection ||
-                      system.isAndroid
-                  ? const SizedBox.shrink()
-                  : _SystemStats(system: system);
-            },
-            error: (_, _) => const SizedBox.shrink(),
-            loading: () => const SizedBox.shrink(),
-          ),
-          allSystems.when(
-            data: (systems) => systems.isNotEmpty
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 8),
-                      PageViewDotIndicator(
-                        size: const Size(8, 8),
-                        unselectedSize: const Size(8, 8),
-                        currentItem: selectedSystem < systems.length
-                            ? selectedSystem
-                            : 0,
-                        count: systems.length,
-                        unselectedColor: Theme.of(
-                          context,
-                        ).colorScheme.surface.lighten(10),
-                        selectedColor: Theme.of(context).colorScheme.primary,
-                      ),
-                    ],
-                  )
-                : const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-            loading: () => const SizedBox.shrink(),
-          ),
-          const SizedBox(height: 8),
-          const PromptBar(
-            navigations: [
-              GamepadPrompt([GamepadButton.leftRight], "Choose"),
-              GamepadPrompt([GamepadButton.start], "Menu"),
-            ],
-            actions: [
-              GamepadPrompt([GamepadButton.confirm], "Select"),
-            ],
-          ),
-        ],
-      ),
-      body: allSystems.when(
-        data: (systems) => wallpaperPack.when(
-          data: (wallpaperPack) {
-            return Listener(
-              onPointerDown: (_) =>
-                  ref.read(systemStatsEnabledProvider.notifier).enable(),
-              child: PreloadPageView.builder(
-                onPageChanged: (value) {
-                  ref.read(selectedSystemProvider.notifier).state = value;
+    return Stack(
+      children: [
+        Scaffold(
+          extendBody: true,
+          extendBodyBehindAppBar: true,
+          appBar: const CustomAppBar(),
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 8),
+              allSystems.when(
+                data: (systems) {
+                  if (systems.isEmpty) return const SizedBox.shrink();
+                  final system =
+                      systems[selectedSystem.clamp(0, systems.length - 1)];
+                  return !systemStatsEnabled ||
+                          system.isCollection ||
+                          system.isAndroid
+                      ? const SizedBox.shrink()
+                      : _SystemStats(system: system);
                 },
-                preloadPagesCount: 1,
-                controller: pageController,
-                itemCount: systems.length,
-                itemBuilder: (context, index) {
-                  if (index >= systems.length) return Container();
-                  final system = systems[index];
-                  return GestureDetector(
-                    onTap: () {
-                      ref.read(systemStatsEnabledProvider.notifier).enable();
-                      GoRouter.of(context).go("/games/${system.id}");
-                    },
-                    child: _systemLogo(ref, context, system, wallpaperPack),
-                  );
-                },
+                error: (_, _) => const SizedBox.shrink(),
+                loading: () => const SizedBox.shrink(),
               ),
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => Text(error.toString()),
+              allSystems.when(
+                data: (systems) => systems.isNotEmpty
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 8),
+                          PageViewDotIndicator(
+                            size: const Size(8, 8),
+                            unselectedSize: const Size(8, 8),
+                            currentItem: selectedSystem < systems.length
+                                ? selectedSystem
+                                : 0,
+                            count: systems.length,
+                            unselectedColor: Theme.of(
+                              context,
+                            ).colorScheme.surface.lighten(10),
+                            selectedColor: Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+                loading: () => const SizedBox.shrink(),
+              ),
+              const SizedBox(height: 8),
+              const PromptBar(
+                navigations: [
+                  GamepadPrompt([GamepadButton.leftRight], "Choose"),
+                  GamepadPrompt([GamepadButton.start], "Menu"),
+                ],
+                actions: [
+                  GamepadPrompt([GamepadButton.confirm], "Select"),
+                ],
+              ),
+            ],
+          ),
+          body: allSystems.when(
+            data: (systems) => wallpaperPack.when(
+              data: (wallpaperPack) {
+                return Listener(
+                  onPointerDown: (_) =>
+                      ref.read(systemStatsEnabledProvider.notifier).enable(),
+                  child: PreloadPageView.builder(
+                    onPageChanged: (value) {
+                      ref.read(selectedSystemProvider.notifier).state = value;
+                    },
+                    preloadPagesCount: 1,
+                    controller: pageController,
+                    itemCount: systems.length,
+                    itemBuilder: (context, index) {
+                      if (index >= systems.length) return Container();
+                      final system = systems[index];
+                      return GestureDetector(
+                        onTap: () {
+                          ref.read(systemStatsEnabledProvider.notifier).enable();
+                          GoRouter.of(context).go("/games/${system.id}");
+                        },
+                        child: _systemLogo(ref, context, system, wallpaperPack),
+                      );
+                    },
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) => Text(error.toString()),
+            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => Text(error.toString()),
+          ),
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Text(error.toString()),
-      ),
+        const Align(
+          alignment: Alignment.topCenter,
+          child: RetroAchievementsProfileWidget(),
+        ),
+      ],
     );
   }
 
