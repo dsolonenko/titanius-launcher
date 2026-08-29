@@ -29,7 +29,7 @@ class ControllerListView extends HookWidget {
     required this.itemCount,
     required this.itemBuilder,
     this.padding,
-    this.initialAlignment = 0.15,
+    this.initialAlignment = 0.0,
   });
 
   final int selectedIndex;
@@ -42,12 +42,16 @@ class ControllerListView extends HookWidget {
   Widget build(BuildContext context) {
     final scrollController = useMemoized(ItemScrollController.new);
     final positionsListener = useMemoized(ItemPositionsListener.create);
+    final selectedItemKey = useMemoized(GlobalKey.new);
+    final previousIndex = useRef(selectedIndex);
     final safeIndex = itemCount == 0
         ? 0
         : selectedIndex.clamp(0, itemCount - 1);
 
     useEffect(() {
       if (itemCount == 0) return null;
+      final movingDown = safeIndex >= previousIndex.value;
+      previousIndex.value = safeIndex;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted || !scrollController.isAttached) return;
         final positions = positionsListener.itemPositions.value;
@@ -58,11 +62,27 @@ class ControllerListView extends HookWidget {
             break;
           }
         }
+        const edgeTolerance = 0.001;
         final fullyVisible =
             selectedPosition != null &&
-            selectedPosition.itemLeadingEdge >= 0 &&
-            selectedPosition.itemTrailingEdge <= 1;
-        if (!fullyVisible) {
+            selectedPosition.itemLeadingEdge >= -edgeTolerance &&
+            selectedPosition.itemTrailingEdge <= 1 + edgeTolerance;
+        if (fullyVisible) return;
+
+        final selectedContext = selectedItemKey.currentContext;
+        if (selectedContext != null) {
+          // For adjacent controller navigation, move only enough pixels to
+          // reveal the row. ItemScrollController.jumpTo rebuilds the list
+          // around a new anchor, which is especially jarring at the last row.
+          Scrollable.ensureVisible(
+            selectedContext,
+            duration: Duration.zero,
+            alignmentPolicy: movingDown
+                ? ScrollPositionAlignmentPolicy.keepVisibleAtEnd
+                : ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+          );
+        } else {
+          // Large selection jumps can target an item outside the build cache.
           scrollController.jumpTo(
             index: safeIndex,
             alignment: initialAlignment,
@@ -79,7 +99,11 @@ class ControllerListView extends HookWidget {
       initialAlignment: initialAlignment,
       padding: padding,
       itemCount: itemCount,
-      itemBuilder: itemBuilder,
+      itemBuilder: (context, index) {
+        final child = itemBuilder(context, index);
+        if (index != safeIndex) return child;
+        return KeyedSubtree(key: selectedItemKey, child: child);
+      },
     );
   }
 }
@@ -163,8 +187,14 @@ class ControllerGridView extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final horizontalPadding = padding.horizontal;
-        final availableWidth = (constraints.maxWidth - horizontalPadding).clamp(0.0, double.infinity);
-        final columnCount = (availableWidth / maxCrossAxisExtent).ceil().clamp(1, 20);
+        final availableWidth = (constraints.maxWidth - horizontalPadding).clamp(
+          0.0,
+          double.infinity,
+        );
+        final columnCount = (availableWidth / maxCrossAxisExtent).ceil().clamp(
+          1,
+          20,
+        );
         final totalSpacing = crossAxisSpacing * (columnCount - 1);
         final cellWidth = (availableWidth - totalSpacing) / columnCount;
         final cellHeight = cellWidth / childAspectRatio;
@@ -190,7 +220,9 @@ class ControllerGridView extends StatelessWidget {
                   return Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(
-                        right: columnIndex < columnCount - 1 ? crossAxisSpacing : 0,
+                        right: columnIndex < columnCount - 1
+                            ? crossAxisSpacing
+                            : 0,
                       ),
                       child: itemIndex < itemCount
                           ? itemBuilder(context, itemIndex)

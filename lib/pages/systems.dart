@@ -63,63 +63,60 @@ class SystemsPage extends HookConsumerWidget {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: const CustomAppBar(),
-      bottomNavigationBar: Container(
-        color: Colors.black.withValues(alpha: 0.5),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 8),
-            allSystems.when(
-              data: (systems) {
-                if (systems.isEmpty) return const SizedBox.shrink();
-                final system =
-                    systems[selectedSystem.clamp(0, systems.length - 1)];
-                return !systemStatsEnabled ||
-                        system.isCollection ||
-                        system.isAndroid
-                    ? const SizedBox.shrink()
-                    : _SystemStats(system: system);
-              },
-              error: (_, _) => const SizedBox.shrink(),
-              loading: () => const SizedBox.shrink(),
-            ),
-            allSystems.when(
-              data: (systems) => systems.isNotEmpty
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 8),
-                        PageViewDotIndicator(
-                          size: const Size(8, 8),
-                          unselectedSize: const Size(8, 8),
-                          currentItem: selectedSystem < systems.length
-                              ? selectedSystem
-                              : 0,
-                          count: systems.length,
-                          unselectedColor: Theme.of(
-                            context,
-                          ).colorScheme.surface.lighten(10),
-                          selectedColor: Theme.of(context).colorScheme.primary,
-                        ),
-                      ],
-                    )
-                  : const SizedBox.shrink(),
-              error: (_, _) => const SizedBox.shrink(),
-              loading: () => const SizedBox.shrink(),
-            ),
-            const PromptBar(
-              backgroundColor: Colors.transparent,
-              navigations: [
-                GamepadPrompt([GamepadButton.leftRight], "Choose"),
-                GamepadPrompt([GamepadButton.start], "Menu"),
-              ],
-              actions: [
-                GamepadPrompt([GamepadButton.confirm], "Select"),
-              ],
-            ),
-          ],
-        ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 8),
+          allSystems.when(
+            data: (systems) {
+              if (systems.isEmpty) return const SizedBox.shrink();
+              final system =
+                  systems[selectedSystem.clamp(0, systems.length - 1)];
+              return !systemStatsEnabled ||
+                      system.isCollection ||
+                      system.isAndroid
+                  ? const SizedBox.shrink()
+                  : _SystemStats(system: system);
+            },
+            error: (_, _) => const SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+          ),
+          allSystems.when(
+            data: (systems) => systems.isNotEmpty
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 8),
+                      PageViewDotIndicator(
+                        size: const Size(8, 8),
+                        unselectedSize: const Size(8, 8),
+                        currentItem: selectedSystem < systems.length
+                            ? selectedSystem
+                            : 0,
+                        count: systems.length,
+                        unselectedColor: Theme.of(
+                          context,
+                        ).colorScheme.surface.lighten(10),
+                        selectedColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+          ),
+          const SizedBox(height: 8),
+          const PromptBar(
+            navigations: [
+              GamepadPrompt([GamepadButton.leftRight], "Choose"),
+              GamepadPrompt([GamepadButton.start], "Menu"),
+            ],
+            actions: [
+              GamepadPrompt([GamepadButton.confirm], "Select"),
+            ],
+          ),
+        ],
       ),
       body: allSystems.when(
         data: (systems) => wallpaperPack.when(
@@ -184,6 +181,13 @@ class SystemsPage extends HookConsumerWidget {
           Icons.apps_rounded,
           Colors.indigoAccent,
           "All Games",
+        );
+      case "no_metadata":
+        return _textLogo(
+          context,
+          Icons.help_outline_rounded,
+          Colors.amberAccent,
+          "No Metadata",
         );
       default:
         if (wallpaperPack != null) {
@@ -293,7 +297,16 @@ class _SystemStats extends ConsumerWidget {
           ? const SizedBox.shrink()
           : Text(
               "${value.games.length} games",
-              style: const TextStyle(color: Colors.white, fontSize: 20),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                shadows: [
+                  Shadow(offset: Offset(0, 1), blurRadius: 4, color: Colors.black),
+                  Shadow(offset: Offset(0, 2), blurRadius: 8, color: Colors.black87),
+                  Shadow(offset: Offset(0, 0), blurRadius: 10, color: Colors.black),
+                ],
+              ),
             ),
       error: (_, _) => const Text("Error loading games"),
       loading: () => const SizedBox.shrink(),

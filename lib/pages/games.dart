@@ -574,6 +574,8 @@ class GamesPage extends HookConsumerWidget {
         return _collectionLogo(Icons.history, "Recent");
       case "all":
         return _collectionLogo(Icons.apps, "All Games");
+      case "no_metadata":
+        return _collectionLogo(Icons.help_outline_rounded, "No Metadata");
       default:
         return Image.asset(
           "assets/images/white/${system.logo}",

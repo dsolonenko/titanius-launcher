@@ -4,6 +4,82 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:titanius/widgets/selected_scroll_tile.dart';
 
 void main() {
+  testWidgets('controller lists place their first row at the top', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 320,
+            height: 240,
+            child: ControllerListView.builder(
+              selectedIndex: 0,
+              itemCount: 3,
+              itemBuilder: (context, index) => SizedBox(
+                key: ValueKey('top-item-$index'),
+                height: 48,
+                child: Text('Top item $index'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final listTop = tester.getTopLeft(find.byType(ControllerListView)).dy;
+    final firstItemTop = tester
+        .getTopLeft(find.byKey(const ValueKey('top-item-0')))
+        .dy;
+    expect(firstItemTop, listTop);
+  });
+
+  testWidgets('sequential navigation reveals the last row without animation', (
+    tester,
+  ) async {
+    final selected = ValueNotifier<int>(0);
+    addTearDown(selected.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 320,
+            height: 192,
+            child: ValueListenableBuilder<int>(
+              valueListenable: selected,
+              builder: (context, index, _) => ControllerListView.builder(
+                selectedIndex: index,
+                itemCount: 8,
+                itemBuilder: (context, itemIndex) => SizedBox(
+                  key: ValueKey('edge-item-$itemIndex'),
+                  height: 48,
+                  child: Text('Edge item $itemIndex'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    for (var index = 1; index < 8; index++) {
+      selected.value = index;
+      await tester.pump();
+      await tester.pump();
+    }
+
+    final listBottom = tester.getBottomLeft(find.byType(ControllerListView)).dy;
+    final lastItemBottom = tester
+        .getBottomLeft(find.byKey(const ValueKey('edge-item-7')))
+        .dy;
+    expect(lastItemBottom, lessThanOrEqualTo(listBottom + 0.001));
+    expect(tester.hasRunningAnimations, isFalse);
+  });
+
   testWidgets('a selection jump reveals an item outside the build cache', (
     tester,
   ) async {

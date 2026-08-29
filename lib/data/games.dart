@@ -225,7 +225,7 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
 }
 
 final gamesProvider = FutureProvider.family<GameList, String>((ref, systemId) async {
-  final isCollection = {systemFavourites.id, systemRecent.id, systemAllGames.id}.contains(systemId);
+  final isCollection = collections.any((c) => c.id == systemId);
   final sourceProvider = isCollection ? allGamesProvider : systemGamesProvider(systemId);
   final systemsFuture = ref.watch(allSupportedSystemsProvider.future);
   final settingsFuture = ref.watch(settingsProvider.future);
@@ -266,6 +266,12 @@ final gamesProvider = FutureProvider.family<GameList, String>((ref, systemId) as
       final sorter = GameSorter(settings);
       final gamesButNotFolders = allGames.where((game) => !game.isFolder).toList();
       final games = settings.uniqueGamesInCollections ? _uniqueGames(gamesButNotFolders) : gamesButNotFolders;
+      final gamesInCollection = _sortGames(settings, games);
+      return GameList(system, ".", gamesInCollection, sorter.compare);
+    case "no_metadata":
+      final sorter = GameSorter(settings);
+      final gamesWithoutMetadata = allGames.where((game) => !game.isFolder && !game.hasMetadata).toList();
+      final games = settings.uniqueGamesInCollections ? _uniqueGames(gamesWithoutMetadata) : gamesWithoutMetadata;
       final gamesInCollection = _sortGames(settings, games);
       return GameList(system, ".", gamesInCollection, sorter.compare);
     default:

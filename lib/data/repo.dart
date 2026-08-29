@@ -274,7 +274,7 @@ class EnabledSystems {
 
   bool get showSystemAndroid => showSystem('android');
   bool get showSystemFavourites => showSystem('favourites');
-  bool showSystem(String id) => _getBoolean('showSystem/$id', true);
+  bool showSystem(String id) => _getBoolean('showSystem/$id', id == 'no_metadata' ? false : true);
   bool _getBoolean(String key, bool defaultValue) {
     return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
   }

@@ -6,52 +6,90 @@ import 'package:xml/xml.dart';
 import 'package:titanius/data/models.dart';
 
 Future<bool> deleteGame(Game game) async {
-  return File(game.absoluteRomPath).delete().then((value) {
+  try {
+    await File(game.absoluteRomPath).delete();
     tryDelete(game.imageUrl);
     tryDelete(game.videoUrl);
     tryDelete(game.thumbnailUrl);
-    return removeGameFromGamelistXml(game);
-  }, onError: (error) {
+    // Removing stale metadata is best-effort. A missing gamelist.xml or a ROM
+    // that was never listed there must not turn a successful file deletion
+    // into a reported failure.
+    try {
+      await removeGameFromGamelistXml(game);
+    } catch (error) {
+      debugPrint('Error removing deleted game from gamelist.xml: $error');
+    }
+    return true;
+  } catch (error) {
     debugPrint('Error deleting game ${game.absoluteRomPath}: $error');
     return false;
-  });
+  }
 }
 
 void tryDelete(String? url) {
   if (url != null) {
-    File(url).delete().then((value) {
-      debugPrint('Deleted $url');
-    }, onError: (error) {
-      debugPrint('Error deleting $url: $error');
-    });
+    File(url).delete().then(
+      (value) {
+        debugPrint('Deleted $url');
+      },
+      onError: (error) {
+        debugPrint('Error deleting $url: $error');
+      },
+    );
   }
 }
 
 Future<bool> setFavouriteInGamelistXml(Game game, bool favourite) {
   return _updateGamelistXml(
-      game, true, (document, romPath) => _setNode(document, romPath, "favorite", favourite ? "true" : "false", game));
+    game,
+    true,
+    (document, romPath) => _setNode(
+      document,
+      romPath,
+      "favorite",
+      favourite ? "true" : "false",
+      game,
+    ),
+  );
 }
 
 Future<bool> setHiddenGameInGamelistXml(Game game, bool hidden) {
   return _updateGamelistXml(
-      game, true, (document, romPath) => _setNode(document, romPath, "hidden", hidden ? "true" : "false", game));
+    game,
+    true,
+    (document, romPath) =>
+        _setNode(document, romPath, "hidden", hidden ? "true" : "false", game),
+  );
 }
 
 Future<bool> removeGameFromGamelistXml(Game game) {
-  return _updateGamelistXml(game, false, (document, romPath) => _removeNode(document, romPath));
+  return _updateGamelistXml(
+    game,
+    false,
+    (document, romPath) => _removeNode(document, romPath),
+  );
 }
 
 Future<bool> updateGameInGamelistXml(Game game) {
-  return _updateGamelistXml(game, true, (document, romPath) => _rewriteNode(document, romPath, game));
+  return _updateGamelistXml(
+    game,
+    true,
+    (document, romPath) => _rewriteNode(document, romPath, game),
+  );
 }
 
 Future<bool> _updateGamelistXml(
-    Game game, bool createNew, bool Function(XmlDocument document, String romPath) update) async {
+  Game game,
+  bool createNew,
+  bool Function(XmlDocument document, String romPath) update,
+) async {
   final stopwatch = Stopwatch()..start();
   try {
     final systemFolderPath = game.absoluteFolderPath;
     final romPath = game.rom;
-    debugPrint('Updating gamelist.xml for systemFolderPath=$systemFolderPath, romPath=$romPath');
+    debugPrint(
+      'Updating gamelist.xml for systemFolderPath=$systemFolderPath, romPath=$romPath',
+    );
     final xmlFile = File('$systemFolderPath/gamelist.xml');
     if (await xmlFile.exists()) {
       final xmlContent = await xmlFile.readAsString();
@@ -75,8 +113,12 @@ Future<bool> _updateGamelistXml(
   }
 }
 
-Future<bool> _updateDocument(File xmlFile, XmlDocument document, String romPath,
-    bool Function(XmlDocument document, String romPath) update) async {
+Future<bool> _updateDocument(
+  File xmlFile,
+  XmlDocument document,
+  String romPath,
+  bool Function(XmlDocument document, String romPath) update,
+) async {
   final isUpdated = update(document, romPath);
   if (isUpdated) {
     final updatedXmlContent = document.toXmlString(pretty: true, indent: '  ');
@@ -89,7 +131,13 @@ Future<bool> _updateDocument(File xmlFile, XmlDocument document, String romPath,
   }
 }
 
-bool _setNode(XmlDocument document, String romPath, String nodeName, String nodeValue, [Game? game]) {
+bool _setNode(
+  XmlDocument document,
+  String romPath,
+  String nodeName,
+  String nodeValue, [
+  Game? game,
+]) {
   final games = document.findAllElements('game');
   for (final g in games) {
     final pathElement = g.findElements('path').firstOrNull;
@@ -100,7 +148,9 @@ bool _setNode(XmlDocument document, String romPath, String nodeName, String node
       if (targetNode != null) {
         targetNode.innerText = nodeValue;
       } else {
-        g.children.add(XmlElement(XmlName.qualified(nodeName), [], [XmlText(nodeValue)]));
+        g.children.add(
+          XmlElement(XmlName.qualified(nodeName), [], [XmlText(nodeValue)]),
+        );
       }
       return true;
     }
@@ -116,7 +166,9 @@ bool _setNode(XmlDocument document, String romPath, String nodeName, String node
     if (targetNode != null) {
       targetNode.innerText = nodeValue;
     } else {
-      gameNode.children.add(XmlElement(XmlName.qualified(nodeName), [], [XmlText(nodeValue)]));
+      gameNode.children.add(
+        XmlElement(XmlName.qualified(nodeName), [], [XmlText(nodeValue)]),
+      );
     }
     gamelistElement.children.add(gameNode);
     return true;

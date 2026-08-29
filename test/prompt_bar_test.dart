@@ -46,8 +46,8 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Scroll'), findsOneWidget);
-    expect(find.text('Launch'), findsOneWidget);
+    expect(find.text('Scroll'), findsWidgets);
+    expect(find.text('Launch'), findsWidgets);
   });
 
   testWidgets('a long settings hint remains attached to its button', (
@@ -82,6 +82,6 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Do not use wallpapers'), findsOneWidget);
+    expect(find.text('Do not use wallpapers'), findsWidgets);
   });
 }

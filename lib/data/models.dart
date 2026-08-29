@@ -64,7 +64,17 @@ const systemRecent = System(
   isCollection: true,
 );
 
-const collections = [systemRecent, systemFavourites, systemAllGames];
+const systemNoMetadata = System(
+  id: 'no_metadata',
+  screenScraperId: 0,
+  name: 'No Metadata',
+  logo: "",
+  folders: [],
+  builtInEmulators: [],
+  isCollection: true,
+);
+
+const collections = [systemRecent, systemFavourites, systemAllGames, systemNoMetadata];
 
 class System {
   final String id;
@@ -336,6 +346,16 @@ class Game {
       fromGamelistXml: false,
     );
   }
+
+  bool get hasMetadata =>
+      id != null ||
+      description != null ||
+      imageUrl != null ||
+      videoUrl != null ||
+      thumbnailUrl != null ||
+      developer != null ||
+      publisher != null ||
+      genre != null;
 
   bool get needsScraping =>
       id == null ||

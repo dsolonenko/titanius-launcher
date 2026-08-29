@@ -256,24 +256,37 @@ class GameSettingsPage extends HookConsumerWidget {
     Future<void> handleDeleteGame() async {
       if (confirmDelete.value) {
         workingOnIt.value = true;
-        deleteGame(game).then(
-          (value) {
-            if (value) {
-              ref.read(gameLibraryProvider).invalidateSystem(game.system.id);
-              ref.invalidate(systemGamesProvider(game.system.id));
-              ref.invalidate(allGamesProvider);
-            }
-            if (context.mounted) {
-              GoRouter.of(context).pop();
-            }
-          },
-          onError: (error, stack) {
-            workingOnIt.value = false;
-            if (context.mounted) {
-              _showError(context, error);
-            }
-          },
-        );
+        try {
+          final deleted = await deleteGame(game);
+          if (!deleted) {
+            throw FileSystemException(
+              'Unable to delete game',
+              game.absoluteRomPath,
+            );
+          }
+
+          ref.read(gameLibraryProvider).invalidateSystem(game.system.id);
+          ref.invalidate(systemGamesProvider(game.system.id));
+          ref.invalidate(allGamesProvider);
+
+          // Refresh the route the user is returning to as well as the source
+          // system. This matters when `system` is a collection such as All,
+          // Favourites, or Recent.
+          ref.invalidate(gamesProvider(system));
+          ref.invalidate(gamesInFolderProvider(system));
+          ref.invalidate(filteredGamesInFolderProvider(system));
+          ref.read(selectedGameProvider(system).notifier).state = null;
+          await ref.read(filteredGamesInFolderProvider(system).future);
+
+          if (context.mounted) {
+            GoRouter.of(context).pop();
+          }
+        } catch (error) {
+          workingOnIt.value = false;
+          if (context.mounted) {
+            _showError(context, error);
+          }
+        }
       } else {
         confirmDelete.value = true;
       }
