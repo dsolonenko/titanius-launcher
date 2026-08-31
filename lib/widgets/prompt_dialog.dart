@@ -88,8 +88,9 @@ class _FullscreenPromptContent extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useMemoized(() => GlobalKey<FormState>());
-    final internalController =
-        useTextEditingController(text: initialValue ?? '');
+    final internalController = useTextEditingController(
+      text: initialValue ?? '',
+    );
     final controller = externalController ?? internalController;
     final focusNode = useFocusNode();
 
@@ -117,23 +118,25 @@ class _FullscreenPromptContent extends HookConsumerWidget {
 
     final isKeyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
 
-    final effectiveDecoration =
-        (decoration ?? const InputDecoration()).copyWith(
-      border: decoration?.border ?? const OutlineInputBorder(),
-      filled: decoration?.filled ?? true,
-      fillColor:
-          decoration?.fillColor ?? Colors.white.withValues(alpha: 0.07),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      suffixIcon: controller.text.isNotEmpty
-          ? IconButton(
-              icon: const Icon(Icons.clear, size: 20),
-              onPressed: () {
-                controller.clear();
-              },
-            )
-          : null,
-    );
+    final effectiveDecoration = (decoration ?? const InputDecoration())
+        .copyWith(
+          border: decoration?.border ?? const OutlineInputBorder(),
+          filled: decoration?.filled ?? true,
+          fillColor:
+              decoration?.fillColor ?? Colors.white.withValues(alpha: 0.07),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
+          suffixIcon: controller.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 20),
+                  onPressed: () {
+                    controller.clear();
+                  },
+                )
+              : null,
+        );
 
     return MediaQuery.withClampedTextScaling(
       maxScaleFactor: 1.35,
@@ -158,7 +161,8 @@ class _FullscreenPromptContent extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: TextButton.icon(
                 icon: const Icon(Icons.check, size: 18),
-                label: textOK ??
+                label:
+                    textOK ??
                     const Text(
                       'Save',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -180,8 +184,10 @@ class _FullscreenPromptContent extends HookConsumerWidget {
         body: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Form(
               key: formKey,
               child: Column(
@@ -201,10 +207,7 @@ class _FullscreenPromptContent extends HookConsumerWidget {
                     cursorRadius: const Radius.circular(2),
                     textInputAction: TextInputAction.done,
                     scrollPadding: const EdgeInsets.all(24),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                     decoration: effectiveDecoration,
                     validator: validator,
                     onFieldSubmitted: (_) => submit(),

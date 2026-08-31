@@ -12,7 +12,12 @@ class RomLocation {
   String? documentUri;
   String? documentMime;
 
-  RomLocation({required this.path, this.uri, this.documentUri, this.documentMime});
+  RomLocation({
+    required this.path,
+    this.uri,
+    this.documentUri,
+    this.documentMime,
+  });
 
   @override
   String toString() {
@@ -27,14 +32,21 @@ class LaunchIntent {
   final Map<String, dynamic> args;
   final List<String> flags;
 
-  LaunchIntent(
-      {required this.target, required this.action, required this.data, required this.args, required this.flags});
+  LaunchIntent({
+    required this.target,
+    required this.action,
+    required this.data,
+    required this.args,
+    required this.flags,
+  });
 
   bool get isStandalone => !target.startsWith('com.retroarch.aarch64/');
   bool get needsUri => _hasToken("{file.uri}");
   bool get needsDocumentUri => _hasToken("{file.documenturi}");
 
-  bool _hasToken(String token) => data?.contains(token) ?? args.values.any((e) => e.toString().contains(token));
+  bool _hasToken(String token) =>
+      data?.contains(token) ??
+      args.values.any((e) => e.toString().contains(token));
 
   Future<AndroidIntent> toIntent(Game game) async {
     final flags = this.flags.map((e) {
@@ -55,8 +67,8 @@ class LaunchIntent {
     final package = parts[0];
     final component = parts.length > 1
         ? parts[1].startsWith(".")
-            ? "$package${parts[1]}"
-            : parts[1]
+              ? "$package${parts[1]}"
+              : parts[1]
         : null;
     final romLocation = await _locateRom(game.absoluteRomPath);
     debugPrint("Rom location: $romLocation");
@@ -82,12 +94,16 @@ class LaunchIntent {
   Future<RomLocation> _locateRom(String path) async {
     final uri = needsUri ? await saf.getMediaUri(path) : null;
     final document = needsDocumentUri ? await saf.getDocumentFile(path) : null;
-    final documentUri = document?.uri.toString() ?? (needsDocumentUri ? saf.pathToDocumentUri(path) : null);
+    final documentUri =
+        document?.uri.toString() ??
+        (needsDocumentUri ? saf.pathToDocumentUri(path) : null);
     return RomLocation(
       path: path,
       uri: uri?.toString(),
       documentUri: documentUri,
-      documentMime: document != null ? (document.isDir ? 'resource/folder' : 'application/octet-stream') : null,
+      documentMime: document != null
+          ? (document.isDir ? 'resource/folder' : 'application/octet-stream')
+          : null,
     );
   }
 
@@ -99,14 +115,21 @@ class LaunchIntent {
       case "{file.uri}":
         return romLocation.uri ?? Uri.file(romLocation.path).toString();
       case "{file.documenturi}":
-        return romLocation.documentUri ?? saf.pathToDocumentUri(romLocation.path);
+        return romLocation.documentUri ??
+            saf.pathToDocumentUri(romLocation.path);
       default:
         return v;
     }
   }
 
   static LaunchIntent parseAmStartCommand(String command) {
-    LaunchIntent intent = LaunchIntent(target: '', action: '', data: '', args: {}, flags: []);
+    LaunchIntent intent = LaunchIntent(
+      target: '',
+      action: '',
+      data: '',
+      args: {},
+      flags: [],
+    );
     List<String> parts = command.split(' ');
 
     for (int i = 0; i < parts.length; i++) {
@@ -192,7 +215,11 @@ class LaunchIntent {
 
   @override
   int get hashCode {
-    return target.hashCode ^ action.hashCode ^ data.hashCode ^ args.hashCode ^ flags.hashCode;
+    return target.hashCode ^
+        action.hashCode ^
+        data.hashCode ^
+        args.hashCode ^
+        flags.hashCode;
   }
 
   @override

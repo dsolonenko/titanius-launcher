@@ -58,7 +58,8 @@ class AndroidPage extends HookConsumerWidget {
       if (key == GamepadButton.up) {
         if (showDetals.value) {
           if (currentIndex > 0) {
-            ref.read(selectedAppProvider.notifier).state = apps[currentIndex - 1];
+            ref.read(selectedAppProvider.notifier).state =
+                apps[currentIndex - 1];
           }
         } else {
           final newIndex = (currentIndex - columns).clamp(0, apps.length - 1);
@@ -68,7 +69,8 @@ class AndroidPage extends HookConsumerWidget {
       if (key == GamepadButton.down) {
         if (showDetals.value) {
           if (currentIndex < apps.length - 1) {
-            ref.read(selectedAppProvider.notifier).state = apps[currentIndex + 1];
+            ref.read(selectedAppProvider.notifier).state =
+                apps[currentIndex + 1];
           }
         } else {
           final newIndex = (currentIndex + columns).clamp(0, apps.length - 1);

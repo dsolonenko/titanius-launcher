@@ -17,7 +17,11 @@ Future<List<Game>> listGamesFromFiles({
   required String folder,
   required System system,
 }) async {
-  return streamGamesFromFiles(romsFolder: romsFolder, folder: folder, system: system).toList();
+  return streamGamesFromFiles(
+    romsFolder: romsFolder,
+    folder: folder,
+    system: system,
+  ).toList();
 }
 
 Stream<Game> streamGamesFromFiles({
@@ -37,7 +41,9 @@ Stream<File> _scanDirectory(Directory directory) async* {
     if (entity is File) {
       yield entity;
     } else if (entity is Directory) {
-      final name = entity.uri.pathSegments.where((segment) => segment.isNotEmpty).last;
+      final name = entity.uri.pathSegments
+          .where((segment) => segment.isNotEmpty)
+          .last;
       if (!name.startsWith('.')) yield* _scanDirectory(entity);
     }
   }
@@ -69,7 +75,10 @@ final _nonRomExtensions = {
   '.bak', '.old', '.orig', '.tmp',
 };
 
-final _savestatePattern = RegExp(r'\.(state\d*|st\d+|ss\d+)(\.(auto|bak))?$', caseSensitive: false);
+final _savestatePattern = RegExp(
+  r'\.(state\d*|st\d+|ss\d+)(\.(auto|bak))?$',
+  caseSensitive: false,
+);
 
 bool _nonRom(FileSystemEntity element) {
   if (element is Directory) {

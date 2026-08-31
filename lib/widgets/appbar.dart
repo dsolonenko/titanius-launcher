@@ -9,7 +9,9 @@ import 'package:titanius/widgets/wifi.dart';
 
 final batteryProvider = StreamProvider<BatteryInfo>((ref) {
   final battery = Battery();
-  return battery.onBatteryStateChanged.asyncMap((event) async => BatteryInfo(event, await battery.batteryLevel));
+  return battery.onBatteryStateChanged.asyncMap(
+    (event) async => BatteryInfo(event, await battery.batteryLevel),
+  );
 });
 
 class BatteryInfo {
@@ -34,15 +36,18 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
       height: barHeight,
       color: Colors.black.withValues(alpha: 0.5),
       alignment: Alignment.centerRight,
-      child: const Row(mainAxisSize: MainAxisSize.max, children: [
-        TimeWidget(),
-        Spacer(),
-        ScraperProgressWidget(),
-        SizedBox(width: 6),
-        WifiWidget(),
-        SizedBox(width: 6),
-        BatteryWidget(),
-      ]),
+      child: const Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          TimeWidget(),
+          Spacer(),
+          ScraperProgressWidget(),
+          SizedBox(width: 6),
+          WifiWidget(),
+          SizedBox(width: 6),
+          BatteryWidget(),
+        ],
+      ),
     );
   }
 }

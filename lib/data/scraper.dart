@@ -8,7 +8,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:screenscraper/screenscraper.dart'
-    show DoNotRetryException, DoneForTheDayException, MediaLink, RomScraper, ScreenScraperException;
+    show
+        DoNotRetryException,
+        DoneForTheDayException,
+        MediaLink,
+        RomScraper,
+        ScreenScraperException;
 import 'package:titanius/data/env.dart';
 import 'package:titanius/data/files.dart';
 import 'package:titanius/data/gamelist_xml.dart';
@@ -22,34 +27,50 @@ class Scraper {
   final dio = Dio();
 
   Scraper({required String userName, required String userPassword})
-      : _scraper = RomScraper(
-          devId: Env.devId,
-          devPassword: Env.devPassword,
-          softwareName: Env.appName,
-          userName: userName,
-          userPassword: userPassword,
-          httpLogging: true,
-        );
+    : _scraper = RomScraper(
+        devId: Env.devId,
+        devPassword: Env.devPassword,
+        softwareName: Env.appName,
+        userName: userName,
+        userPassword: userPassword,
+        httpLogging: true,
+      );
 
-  Future<Game> scrape(Game rom, void Function(String msg) progress, {int? gameId}) async {
+  Future<Game> scrape(
+    Game rom,
+    void Function(String msg) progress, {
+    int? gameId,
+  }) async {
     progress("Scraping...");
     const r = RetryOptions(maxAttempts: 5, delayFactor: Duration(seconds: 1));
     final game = await r.retry(
       () => gameId != null
-          ? _scraper.scrapeGame(systemId: rom.system.screenScraperId, gameId: gameId)
-          : _scraper.scrapeRom(systemId: rom.system.screenScraperId, romPath: rom.absoluteRomPath),
+          ? _scraper.scrapeGame(
+              systemId: rom.system.screenScraperId,
+              gameId: gameId,
+            )
+          : _scraper.scrapeRom(
+              systemId: rom.system.screenScraperId,
+              romPath: rom.absoluteRomPath,
+            ),
       retryIf: (e) => _canRetryScraper(e),
     );
     debugPrint("ScreenScraper ID for ${rom.absoluteRomPath} is ${game.gameId}");
     final file = File(rom.absoluteRomPath);
     final fileName = file.uri.pathSegments.last;
-    final fileNameNoExt = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf(".")) : fileName;
+    final fileNameNoExt = fileName.contains(".")
+        ? fileName.substring(0, fileName.lastIndexOf("."))
+        : fileName;
     final romsPath = "${rom.volumePath}/${rom.systemFolder}";
     var imageUrl = rom.imageUrl;
     if (game.media.screenshot != null) {
       progress("Downloading screenshot...");
       imageUrl = await r.retry(
-        () => _downloadMedia(game.media.screenshot!, fileNameNoExt, "$romsPath/media/images"),
+        () => _downloadMedia(
+          game.media.screenshot!,
+          fileNameNoExt,
+          "$romsPath/media/images",
+        ),
         retryIf: (e) => _canRetryScraper(e),
       );
     }
@@ -57,7 +78,11 @@ class Scraper {
     if (game.media.videoNormalized != null) {
       progress("Downloading video...");
       videoUrl = await r.retry(
-        () => _downloadMedia(game.media.videoNormalized!, fileNameNoExt, "$romsPath/media/videos"),
+        () => _downloadMedia(
+          game.media.videoNormalized!,
+          fileNameNoExt,
+          "$romsPath/media/videos",
+        ),
         retryIf: (e) => _canRetryScraper(e),
       );
     }
@@ -65,7 +90,11 @@ class Scraper {
     if (game.media.wheel != null) {
       progress("Downloading wheel...");
       thumbnailUrl = await r.retry(
-        () => _downloadMedia(game.media.wheel!, fileNameNoExt, "$romsPath/media/wheels"),
+        () => _downloadMedia(
+          game.media.wheel!,
+          fileNameNoExt,
+          "$romsPath/media/wheels",
+        ),
         retryIf: (e) => _canRetryScraper(e),
       );
     }
@@ -95,18 +124,28 @@ class Scraper {
     );
   }
 
-  Future<String?> _downloadMedia(MediaLink mediaLink, String fileNameNoExt, String destinationFolder) async {
+  Future<String?> _downloadMedia(
+    MediaLink mediaLink,
+    String fileNameNoExt,
+    String destinationFolder,
+  ) async {
     final mediaName = "$fileNameNoExt.${mediaLink.format}";
     debugPrint("Downloading $destinationFolder/$mediaName");
     final newFilePath = "$destinationFolder/$mediaName";
     final newFile = File(newFilePath);
     newFile.parent.createSync(recursive: true);
-    final response = await dio.download(mediaLink.url, "$destinationFolder/$mediaName");
+    final response = await dio.download(
+      mediaLink.url,
+      "$destinationFolder/$mediaName",
+    );
     debugPrint("Response: ${response.statusCode} ${response.statusMessage}");
     if (response.statusCode == 200) {
       return newFile.absolute.path;
     } else {
-      throw ScreenScraperException.fromHttpResponse(response.statusCode ?? 401, response.data.toString());
+      throw ScreenScraperException.fromHttpResponse(
+        response.statusCode ?? 401,
+        response.data.toString(),
+      );
     }
   }
 
@@ -182,9 +221,7 @@ class ForegroundScraperService implements ScraperService {
       serviceTypes: [ForegroundServiceTypes.dataSync],
       notificationTitle: 'Titanius Scraper',
       notificationText: 'Starting scraper...',
-      notificationButtons: [
-        const NotificationButton(id: 'stop', text: 'Stop'),
-      ],
+      notificationButtons: [const NotificationButton(id: 'stop', text: 'Stop')],
       callback: startScraperServiceCallback,
     );
 
@@ -234,39 +271,43 @@ class DesktopScraperService implements ScraperService {
     _running = true;
     _cancellationToken = CancellationToken();
 
-    unawaited(scrapeGames(
-      username: username,
-      password: password,
-      romFolders: romFolders,
-      roms: roms,
-      systems: systems,
-      scrapeTheseGames: scrapeTheseGames,
-      cancellationToken: _cancellationToken,
-      onProgress: (update) {
-        final progress = ScraperProgress.fromJson(update);
-        if (!progress.isRunning) {
-          _running = false;
-        }
-        _progressController.add(progress);
-      },
-    ).whenComplete(() {
-      _running = false;
-    }));
+    unawaited(
+      scrapeGames(
+        username: username,
+        password: password,
+        romFolders: romFolders,
+        roms: roms,
+        systems: systems,
+        scrapeTheseGames: scrapeTheseGames,
+        cancellationToken: _cancellationToken,
+        onProgress: (update) {
+          final progress = ScraperProgress.fromJson(update);
+          if (!progress.isRunning) {
+            _running = false;
+          }
+          _progressController.add(progress);
+        },
+      ).whenComplete(() {
+        _running = false;
+      }),
+    );
   }
 
   @override
   Future<void> stopScrape() async {
     _cancellationToken?.cancel();
     _running = false;
-    _progressController.add(ScraperProgress(
-      total: 0,
-      pending: 0,
-      success: 0,
-      error: 0,
-      system: "",
-      rom: "",
-      message: "Cancelled",
-    ));
+    _progressController.add(
+      ScraperProgress(
+        total: 0,
+        pending: 0,
+        success: 0,
+        error: 0,
+        system: "",
+        rom: "",
+        message: "Cancelled",
+      ),
+    );
   }
 }
 
@@ -304,12 +345,22 @@ class ScraperTaskHandler extends TaskHandler {
 
         final username = map['username'] as String?;
         final password = map['password'] as String?;
-        final romFolders = (map['romFolders'] as List).map((e) => e.toString()).toList();
+        final romFolders = (map['romFolders'] as List)
+            .map((e) => e.toString())
+            .toList();
         final roms = (map['roms'] as List)
-            .map((e) => e is Game ? e : Game.fromJson(Map<String, dynamic>.from(e as Map)))
+            .map(
+              (e) => e is Game
+                  ? e
+                  : Game.fromJson(Map<String, dynamic>.from(e as Map)),
+            )
             .toList();
         final systems = (map['systems'] as List)
-            .map((e) => e is System ? e : System.fromJson(Map<String, dynamic>.from(e as Map)))
+            .map(
+              (e) => e is System
+                  ? e
+                  : System.fromJson(Map<String, dynamic>.from(e as Map)),
+            )
             .toList();
         final scrapeTheseGames = map['scrapeTheseGames'] as String;
 
@@ -396,7 +447,9 @@ Future<void> scrapeGames({
 }) async {
   try {
     final romsMap = {for (var rom in roms) rom.absoluteRomPath: rom};
-    debugPrint("Scraping $scrapeTheseGames for ${systems.length} systems with ${roms.length} existing roms...");
+    debugPrint(
+      "Scraping $scrapeTheseGames for ${systems.length} systems with ${roms.length} existing roms...",
+    );
     onProgress({
       "total": 0,
       "success": 0,
@@ -481,7 +534,10 @@ Future<void> scrapeGames({
     var success = 0;
     var error = 0;
     var pending = gamesToScrape.length;
-    final scraper = Scraper(userName: username ?? "", userPassword: password ?? "");
+    final scraper = Scraper(
+      userName: username ?? "",
+      userPassword: password ?? "",
+    );
     for (var game in gamesToScrape) {
       if (cancellationToken?.isCancelled ?? false) {
         debugPrint("Scraping cancelled by user");

@@ -27,9 +27,7 @@ final grantedUrisProvider = FutureProvider<List<GrantedUri>>((ref) {
     ]);
   }
   if (Platform.isWindows) {
-    return Future.value([
-      GrantedUri(Uri.parse("file:///D:/Roms"), "D:/Roms"),
-    ]);
+    return Future.value([GrantedUri(Uri.parse("file:///D:/Roms"), "D:/Roms")]);
   }
   return Future.value([]);
 });
@@ -97,10 +95,15 @@ Future<SafDocumentFile?> getDocumentFile(String filePath) async {
     final relativeFilePath = filePath.length > len
         ? filePath.substring(len + (filePath[len] == '/' ? 1 : 0))
         : '';
-    final segments = relativeFilePath.split('/').where((s) => s.isNotEmpty).toList();
+    final segments = relativeFilePath
+        .split('/')
+        .where((s) => s.isNotEmpty)
+        .toList();
     final matchingDoc = await _saf.child(matchingUri.uri.toString(), segments);
     if (matchingDoc != null) {
-      debugPrint("file:$filePath uri:${Uri.decodeFull(matchingDoc.uri)} name:${matchingDoc.name}");
+      debugPrint(
+        "file:$filePath uri:${Uri.decodeFull(matchingDoc.uri)} name:${matchingDoc.name}",
+      );
       return matchingDoc;
     }
   }
@@ -134,7 +137,9 @@ const platform = MethodChannel('file_utils');
 
 Future<String?> getMediaUri(String filePath) async {
   try {
-    final String contentUri = await platform.invokeMethod('getContentUri', {'path': filePath});
+    final String contentUri = await platform.invokeMethod('getContentUri', {
+      'path': filePath,
+    });
     return contentUri;
   } on PlatformException catch (e) {
     debugPrint('Error: ${e.message}');

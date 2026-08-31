@@ -12,7 +12,9 @@ Future<RcHashResult?> computeRomMd5(String filePath, {int? consoleId}) async {
     try {
       return await rcHashCompute(path: filePath, consoleId: consoleId);
     } catch (e, stack) {
-      debugPrint('[RA Hasher] Error computing ROM MD5 for $filePath: $e\n$stack');
+      debugPrint(
+        '[RA Hasher] Error computing ROM MD5 for $filePath: $e\n$stack',
+      );
       return null;
     }
   });
@@ -36,9 +38,14 @@ Future<GameRetroAchievements?> resolveGameRetroAchievements({
 
   final consoleId = game.system.retroAchievementsId;
   debugPrint('[RA Matcher] Hashing "${game.name}" (${game.romPath})...');
-  final hashResult = await computeRomMd5(game.absoluteRomPath, consoleId: consoleId);
+  final hashResult = await computeRomMd5(
+    game.absoluteRomPath,
+    consoleId: consoleId,
+  );
   if (hashResult == null) {
-    debugPrint('[RA Matcher] Could not hash "${game.name}" at "${game.absoluteRomPath}"');
+    debugPrint(
+      '[RA Matcher] Could not hash "${game.name}" at "${game.absoluteRomPath}"',
+    );
     return null;
   }
   var match = RaCache.findByHash(hashResult.primaryHash, consoleId: consoleId);
@@ -49,7 +56,9 @@ Future<GameRetroAchievements?> resolveGameRetroAchievements({
       match = RaCache.findByHash(alt, consoleId: consoleId);
       if (match != null) {
         usedHash = alt;
-        debugPrint('[RA Matcher] Matched "${game.name}" using alternate hash ($alt)!');
+        debugPrint(
+          '[RA Matcher] Matched "${game.name}" using alternate hash ($alt)!',
+        );
         break;
       }
     }
@@ -62,7 +71,9 @@ Future<GameRetroAchievements?> resolveGameRetroAchievements({
       if (anyConsoleMatch != null) {
         match = anyConsoleMatch;
         usedHash = h;
-        debugPrint('[RA Matcher] Matched "${game.name}" in console ID ${anyConsoleMatch.consoleId} (expected $consoleId)');
+        debugPrint(
+          '[RA Matcher] Matched "${game.name}" in console ID ${anyConsoleMatch.consoleId} (expected $consoleId)',
+        );
         break;
       }
     }
@@ -75,9 +86,13 @@ Future<GameRetroAchievements?> resolveGameRetroAchievements({
   final badgeUrl = match?.imageIcon;
 
   if (match != null) {
-    debugPrint('[RA Matcher] [MATCH] "${game.name}" -> RA ID: $raGameId, Title: "$raTitle", Achievements: $numAchievements, Points: $points (MD5: $usedHash)');
+    debugPrint(
+      '[RA Matcher] [MATCH] "${game.name}" -> RA ID: $raGameId, Title: "$raTitle", Achievements: $numAchievements, Points: $points (MD5: $usedHash)',
+    );
   } else {
-    debugPrint('[RA Matcher] [NO MATCH] "${game.name}" (MD5: ${hashResult.primaryHash}, Console ID: $consoleId)');
+    debugPrint(
+      '[RA Matcher] [NO MATCH] "${game.name}" (MD5: ${hashResult.primaryHash}, Console ID: $consoleId)',
+    );
   }
 
   await repo.saveEntry(
@@ -105,14 +120,25 @@ Future<void> scanSystemRetroAchievements({
   }
 
   final cachedMap = await repo.getEntriesForSystem(system, games);
-  final unCached = games.where((g) => !g.isFolder && (!cachedMap.containsKey(g.romPath) || cachedMap[g.romPath]?.raGameId == null)).toList();
+  final unCached = games
+      .where(
+        (g) =>
+            !g.isFolder &&
+            (!cachedMap.containsKey(g.romPath) ||
+                cachedMap[g.romPath]?.raGameId == null),
+      )
+      .toList();
 
   if (unCached.isEmpty) {
-    debugPrint('[RA Scanner] All ${games.length} games in "${system.name}" are already cached in SQLite.');
+    debugPrint(
+      '[RA Scanner] All ${games.length} games in "${system.name}" are already cached in SQLite.',
+    );
     return;
   }
 
-  debugPrint('[RA Scanner] Scanning ${unCached.length} un-cached games in "${system.name}" (Console ID: ${system.retroAchievementsId})...');
+  debugPrint(
+    '[RA Scanner] Scanning ${unCached.length} un-cached games in "${system.name}" (Console ID: ${system.retroAchievementsId})...',
+  );
 
   int matchedCount = 0;
   for (final game in unCached) {
@@ -123,7 +149,8 @@ Future<void> scanSystemRetroAchievements({
     }
   }
 
-  debugPrint('[RA Scanner] Finished scan for "${system.name}". Found $matchedCount new games with achievements.');
+  debugPrint(
+    '[RA Scanner] Finished scan for "${system.name}". Found $matchedCount new games with achievements.',
+  );
   onUpdated?.call();
 }
-

@@ -64,10 +64,7 @@ class PromptBar extends StatelessWidget {
             ),
             const SizedBox(height: 4),
           ],
-          InfiniteMarquee(
-            contentKey: _signature,
-            child: promptsRow,
-          ),
+          InfiniteMarquee(contentKey: _signature, child: promptsRow),
         ],
       ),
     );
@@ -167,7 +164,8 @@ class _InfiniteMarqueeState extends State<InfiniteMarquee>
 
   void _measureAndStart() {
     if (!mounted) return;
-    final renderBox = _childKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        _childKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null && renderBox.hasSize) {
       final width = renderBox.size.width;
       if (_contentWidth != width) {
@@ -188,7 +186,8 @@ class _InfiniteMarqueeState extends State<InfiniteMarquee>
         _availableWidth = constraints.maxWidth;
         WidgetsBinding.instance.addPostFrameCallback((_) => _measureAndStart());
 
-        final overflows = _contentWidth != null && _contentWidth! > _availableWidth;
+        final overflows =
+            _contentWidth != null && _contentWidth! > _availableWidth;
 
         return SingleChildScrollView(
           controller: _scrollController,
@@ -197,14 +196,12 @@ class _InfiniteMarqueeState extends State<InfiniteMarquee>
           child: ConstrainedBox(
             constraints: BoxConstraints(minWidth: _availableWidth),
             child: Row(
-              mainAxisAlignment:
-                  overflows ? MainAxisAlignment.start : MainAxisAlignment.center,
+              mainAxisAlignment: overflows
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                KeyedSubtree(
-                  key: _childKey,
-                  child: widget.child,
-                ),
+                KeyedSubtree(key: _childKey, child: widget.child),
                 if (overflows) ...[
                   SizedBox(width: widget.blankSpace),
                   widget.child,

@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final Connectivity connectivity = Connectivity();
-final connectivityProvider = StreamProvider.autoDispose<ConnectivityResult>((ref) {
-  return connectivity.onConnectivityChanged.map((results) => results.isNotEmpty ? results.first : ConnectivityResult.none);
+final connectivityProvider = StreamProvider.autoDispose<ConnectivityResult>((
+  ref,
+) {
+  return connectivity.onConnectivityChanged.map(
+    (results) => results.isNotEmpty ? results.first : ConnectivityResult.none,
+  );
 });
 
 class WifiWidget extends ConsumerWidget {

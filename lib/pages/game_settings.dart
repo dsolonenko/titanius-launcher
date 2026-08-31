@@ -30,7 +30,8 @@ class GameSettingsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedGame = ref.watch(selectedGameProvider(system));
     final gamelist = ref.watch(filteredGamesInFolderProvider(system)).value;
-    final game = (selectedGame?.hash == hash ? selectedGame : null) ??
+    final game =
+        (selectedGame?.hash == hash ? selectedGame : null) ??
         selectedGame ??
         gamelist?.games.firstWhereOrNull((g) => g.hash == hash);
     final gameEmulator = ref.watch(perGameConfigurationProvider(game));
@@ -339,7 +340,8 @@ class GameSettingsPage extends HookConsumerWidget {
           subtitle: gameRa.when(
             data: (ra) {
               if (ra == null) return "Checking ROM hash...";
-              if (ra.raGameId == null) return "No match for ROM hash in RA catalog";
+              if (ra.raGameId == null)
+                return "No match for ROM hash in RA catalog";
               if (ra.numAchievements == 0) {
                 return "Matched (${ra.raTitle ?? 'Game'}) • 0 achievements";
               }
@@ -348,14 +350,17 @@ class GameSettingsPage extends HookConsumerWidget {
             loading: () => "Checking ROM hash...",
             error: (_, _) => "Error checking hash",
           ),
-          trailing: (gameRa.value?.raGameId != null &&
+          trailing:
+              (gameRa.value?.raGameId != null &&
                   (gameRa.value?.numAchievements ?? 0) > 0)
               ? const Icon(Icons.chevron_right, color: Colors.amberAccent)
               : null as Widget?,
           onTap: () {
             if (gameRa.value?.raGameId != null &&
                 (gameRa.value?.numAchievements ?? 0) > 0) {
-              GoRouter.of(context).push("/games/$system/game/$hash/achievements");
+              GoRouter.of(
+                context,
+              ).push("/games/$system/game/$hash/achievements");
             }
           },
         ),
@@ -390,7 +395,9 @@ class GameSettingsPage extends HookConsumerWidget {
                   forceRefresh: true,
                 );
                 if (res != null) {
-                  ref.read(retroAchievementsProgressMapProvider.notifier).set(raGameId, res);
+                  ref
+                      .read(retroAchievementsProgressMapProvider.notifier)
+                      .set(raGameId, res);
                 }
                 ref.invalidate(gameRetroAchievementsDetailsProvider(raGameId));
                 ref.invalidate(gameRetroAchievementsProvider(game));

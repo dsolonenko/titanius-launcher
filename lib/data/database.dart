@@ -66,16 +66,18 @@ class RetroAchievementsApiCacheEntries extends Table {
   IntColumn get timestamp => integer()();
 }
 
-@DriftDatabase(tables: [
-  SettingEntries,
-  CustomEmulatorEntries,
-  AlternativeEmulatorEntries,
-  GameEmulatorEntries,
-  RecentGameEntries,
-  AndroidAppEntries,
-  GameRetroAchievementsEntries,
-  RetroAchievementsApiCacheEntries,
-])
+@DriftDatabase(
+  tables: [
+    SettingEntries,
+    CustomEmulatorEntries,
+    AlternativeEmulatorEntries,
+    GameEmulatorEntries,
+    RecentGameEntries,
+    AndroidAppEntries,
+    GameRetroAchievementsEntries,
+    RetroAchievementsApiCacheEntries,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
@@ -84,16 +86,16 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) => m.createAll(),
-        onUpgrade: (m, from, to) async {
-          if (from < 2) {
-            await m.createTable(gameRetroAchievementsEntries);
-          }
-          if (from < 3) {
-            await m.createTable(retroAchievementsApiCacheEntries);
-          }
-        },
-      );
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.createTable(gameRetroAchievementsEntries);
+      }
+      if (from < 3) {
+        await m.createTable(retroAchievementsApiCacheEntries);
+      }
+    },
+  );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'titanius_db');
@@ -102,12 +104,13 @@ class AppDatabase extends _$AppDatabase {
 
 extension CustomEmulatorUtils on CustomEmulator {
   static CustomEmulator empty() => const CustomEmulator(
-        id: 0,
-        name: "Custom PPSSPP",
-        amStartCommand: 'am start -n org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity '
-            '-a android.intent.action.VIEW -d "{file.documenturi}" '
-            '--activity-clear-task --activity-clear-top --activity-no-history',
-      );
+    id: 0,
+    name: "Custom PPSSPP",
+    amStartCommand:
+        'am start -n org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity '
+        '-a android.intent.action.VIEW -d "{file.documenturi}" '
+        '--activity-clear-task --activity-clear-top --activity-no-history',
+  );
 
   Emulator toEmulator() {
     return Emulator(

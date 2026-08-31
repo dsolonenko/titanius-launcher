@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final batteryProvider = StreamProvider.autoDispose<BatteryInfo>((ref) {
   final battery = Battery();
   return battery.onBatteryStateChanged.asyncMap(
-      (event) async => BatteryInfo(event, await battery.batteryLevel));
+    (event) async => BatteryInfo(event, await battery.batteryLevel),
+  );
 });
 
 class BatteryInfo {
@@ -22,10 +23,10 @@ class BatteryWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final battery = ref.watch(batteryProvider);
     return battery.when(
-      data: (b) => Row(mainAxisSize: MainAxisSize.min, children: [
-        _imageForBattery(b),
-        Text("${b.level}%"),
-      ]),
+      data: (b) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [_imageForBattery(b), Text("${b.level}%")],
+      ),
       loading: () => const Text("Loading..."),
       error: (error, stack) => const Text("Error"),
     );

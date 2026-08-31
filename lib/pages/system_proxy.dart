@@ -32,7 +32,9 @@ class SystemProxy extends HookConsumerWidget {
       if (key == GamepadButton.l2 ||
           (!isAndroid && !isRetroAchievements && key == GamepadButton.left)) {
         final currentSystem = ref.read(selectedSystemProvider);
-        final prev = currentSystem - 1 < 0 ? allSystems.value!.length - 1 : currentSystem - 1;
+        final prev = currentSystem - 1 < 0
+            ? allSystems.value!.length - 1
+            : currentSystem - 1;
         ref.read(selectedSystemProvider.notifier).state = prev;
         GoRouter.of(context).go("/games/${allSystems.value![prev].id}");
       }
@@ -46,9 +48,7 @@ class SystemProxy extends HookConsumerWidget {
     } else if (isRetroAchievements) {
       return const PlayerRetroAchievementsPage();
     } else {
-      return GamesPage(
-        system: system,
-      );
+      return GamesPage(system: system);
     }
   }
 }

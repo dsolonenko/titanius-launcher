@@ -56,7 +56,15 @@ class ScraperProgress {
 class ScraperProgressStateNotifier extends Notifier<ScraperProgress> {
   @override
   ScraperProgress build() {
-    return ScraperProgress(total: 0, pending: 0, success: 0, error: 0, system: "", rom: "", message: "");
+    return ScraperProgress(
+      total: 0,
+      pending: 0,
+      success: 0,
+      error: 0,
+      system: "",
+      rom: "",
+      message: "",
+    );
   }
 
   void set(ScraperProgress progress) {
@@ -64,9 +72,10 @@ class ScraperProgressStateNotifier extends Notifier<ScraperProgress> {
   }
 }
 
-final scraperProgressStateProvider = NotifierProvider<ScraperProgressStateNotifier, ScraperProgress>(
-  ScraperProgressStateNotifier.new,
-);
+final scraperProgressStateProvider =
+    NotifierProvider<ScraperProgressStateNotifier, ScraperProgress>(
+      ScraperProgressStateNotifier.new,
+    );
 
 final f = NumberFormat("0.0%");
 
@@ -81,8 +90,9 @@ class ScraperProgressWidget extends HookConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final double percent =
-        progressState.total > 0 ? (progressState.total - progressState.pending) / progressState.total : 0;
+    final double percent = progressState.total > 0
+        ? (progressState.total - progressState.pending) / progressState.total
+        : 0;
 
     final scale = MediaQuery.textScalerOf(context).scale(1.0);
     final lineHeight = 16.0 * scale;
