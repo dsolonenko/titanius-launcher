@@ -18,7 +18,9 @@ final installedAppsProvider = FutureProvider<List<AppInfo>>((ref) async {
 final selectedAndroidAppsProvider = FutureProvider<List<AppInfo>>((ref) async {
   final installedApps = await ref.watch(installedAppsProvider.future);
   final selectedApps = await ref.watch(androidAppsProvider.future);
-  return installedApps.where((element) => selectedApps.isSelected(element.packageName)).toList();
+  return installedApps
+      .where((element) => selectedApps.isSelected(element.packageName))
+      .toList();
 });
 
 final packageInfoProvider = FutureProvider<PackageInfo>((ref) async {

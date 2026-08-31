@@ -19,10 +19,16 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider).value;
+    final hasRetroAchievements = ref.watch(
+      settingsProvider.select(
+        (settings) => settings.value?.hasRetroAchievements ?? false,
+      ),
+    );
     final summaryAsync = ref.watch(retroAchievementsUserSummaryProvider);
     final awardsAsync = ref.watch(retroAchievementsUserAwardsProvider);
-    final progressAsync = ref.watch(retroAchievementsUserCompletionProgressProvider);
+    final progressAsync = ref.watch(
+      retroAchievementsUserCompletionProgressProvider,
+    );
 
     final scrollController = useScrollController();
     final isRefreshing = useState<bool>(false);
@@ -42,9 +48,12 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
       return list;
     }, [summary]);
 
-    final completionList = progress?.results ?? const <UserCompletionProgressEntity>[];
+    final completionList =
+        progress?.results ?? const <UserCompletionProgressEntity>[];
     final visibleAwards = useMemoized(() {
-      final list = List<UserAward>.from(awards?.visibleUserAwards ?? const <UserAward>[]);
+      final list = List<UserAward>.from(
+        awards?.visibleUserAwards ?? const <UserAward>[],
+      );
       list.sort((a, b) {
         final dateA = DateTime.tryParse(a.awardedAt);
         final dateB = DateTime.tryParse(b.awardedAt);
@@ -75,10 +84,13 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
           curve: Curves.easeOut,
         );
       }
-      if (key == GamepadButton.rightStickUp || key == GamepadButton.rightStickDown) {
+      if (key == GamepadButton.rightStickUp ||
+          key == GamepadButton.rightStickDown) {
         if (!scrollController.hasClients) return;
         const scrollStep = 80.0;
-        final delta = key == GamepadButton.rightStickUp ? -scrollStep : scrollStep;
+        final delta = key == GamepadButton.rightStickUp
+            ? -scrollStep
+            : scrollStep;
         final position = scrollController.position;
         final target = (scrollController.offset + delta).clamp(
           position.minScrollExtent,
@@ -108,7 +120,9 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
       if (key == GamepadButton.l2 || key == GamepadButton.r2) {
         final allSystems = ref.read(detectedSystemsProvider).value ?? [];
         if (allSystems.isNotEmpty) {
-          final currentIdx = allSystems.indexWhere((s) => s.id == "retroachievements");
+          final currentIdx = allSystems.indexWhere(
+            (s) => s.id == "retroachievements",
+          );
           final baseIdx = currentIdx != -1 ? currentIdx : 0;
           final nextIdx = key == GamepadButton.r2
               ? (baseIdx + 1) % allSystems.length
@@ -146,7 +160,7 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
       }
     });
 
-    if (settings == null || !settings.hasRetroAchievements) {
+    if (!hasRetroAchievements) {
       return Scaffold(
         appBar: const CustomAppBar(),
         bottomNavigationBar: const PromptBar(
@@ -200,16 +214,19 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
       appBar: const CustomAppBar(),
       bottomNavigationBar: PromptBar(
         navigations: const [
-          GamepadPrompt([GamepadButton.upDown, GamepadButton.rightStickUp, GamepadButton.rightStickDown], "Scroll"),
+          GamepadPrompt([
+            GamepadButton.upDown,
+            GamepadButton.rightStickUp,
+            GamepadButton.rightStickDown,
+          ], "Scroll"),
           GamepadPrompt([GamepadButton.l1, GamepadButton.r1], "Page"),
           GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
         actions: [
-          GamepadPrompt(
-            const [GamepadButton.y],
-            isRefreshing.value ? "Refreshing..." : "Refresh",
-          ),
+          GamepadPrompt(const [
+            GamepadButton.y,
+          ], isRefreshing.value ? "Refreshing..." : "Refresh"),
           const GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
@@ -232,12 +249,18 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
                         _buildUserAwardTile(context, award),
                     ],
                     if (recent10.isNotEmpty) ...[
-                      _buildSectionHeader("Recent Achievements", recent10.length),
+                      _buildSectionHeader(
+                        "Recent Achievements",
+                        recent10.length,
+                      ),
                       for (final achievement in recent10)
                         _buildRecentAchievementTile(context, achievement),
                     ],
                     if (completionList.isNotEmpty) ...[
-                      _buildSectionHeader("Game Progress", completionList.length),
+                      _buildSectionHeader(
+                        "Game Progress",
+                        completionList.length,
+                      ),
                       for (final game in completionList)
                         _buildGameProgressTile(context, game),
                     ],
@@ -248,10 +271,7 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildUserAwardTile(
-    BuildContext context,
-    UserAward award,
-  ) {
+  Widget _buildUserAwardTile(BuildContext context, UserAward award) {
     final isMastery = award.awardType == AwardType.masteryCompletion;
     final isBeaten = award.awardType == AwardType.gameBeaten;
     final trophyColor = isMastery
@@ -277,7 +297,9 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
             width: 58,
             height: 58,
             child: ClipRRect(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(5),
+              ),
               child: award.imageIcon.isNotEmpty
                   ? CachedNetworkImage(
                       imageUrl: MediaUrls.gameImageUrl(award.imageIcon),
@@ -285,14 +307,22 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
                       errorWidget: (_, _, _) => Container(
                         color: Colors.black26,
                         child: const Center(
-                          child: Icon(Icons.emoji_events, size: 24, color: Colors.amberAccent),
+                          child: Icon(
+                            Icons.emoji_events,
+                            size: 24,
+                            color: Colors.amberAccent,
+                          ),
                         ),
                       ),
                     )
                   : Container(
                       color: Colors.black26,
                       child: const Center(
-                        child: Icon(Icons.emoji_events, size: 24, color: Colors.amberAccent),
+                        child: Icon(
+                          Icons.emoji_events,
+                          size: 24,
+                          color: Colors.amberAccent,
+                        ),
                       ),
                     ),
             ),
@@ -390,10 +420,7 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
           const SizedBox(width: 6),
           Text(
             "($count)",
-            style: const TextStyle(
-              fontSize: 10,
-              color: Colors.white38,
-            ),
+            style: const TextStyle(fontSize: 10, color: Colors.white38),
           ),
         ],
       ),
@@ -404,12 +431,22 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
     BuildContext context,
     UserCompletionProgressEntity game,
   ) {
-    final isMastered = game.highestAwardKind == AwardKind.mastered || (game.numAwardedHardcore == game.maxPossible && game.maxPossible > 0);
-    final isCompleted = game.highestAwardKind == AwardKind.completed || (game.numAwarded == game.maxPossible && game.maxPossible > 0);
-    final trophyColor = isMastered ? Colors.amberAccent : (isCompleted ? Colors.lightBlueAccent : Colors.white70);
+    final isMastered =
+        game.highestAwardKind == AwardKind.mastered ||
+        (game.numAwardedHardcore == game.maxPossible && game.maxPossible > 0);
+    final isCompleted =
+        game.highestAwardKind == AwardKind.completed ||
+        (game.numAwarded == game.maxPossible && game.maxPossible > 0);
+    final trophyColor = isMastered
+        ? Colors.amberAccent
+        : (isCompleted ? Colors.lightBlueAccent : Colors.white70);
 
-    final pct = game.maxPossible > 0 ? (game.numAwarded / game.maxPossible * 100).toInt() : 0;
-    final hcText = game.numAwardedHardcore > 0 ? " • ${game.numAwardedHardcore} HC" : "";
+    final pct = game.maxPossible > 0
+        ? (game.numAwarded / game.maxPossible * 100).toInt()
+        : 0;
+    final hcText = game.numAwardedHardcore > 0
+        ? " • ${game.numAwardedHardcore} HC"
+        : "";
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
@@ -426,7 +463,9 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
             width: 58,
             height: 58,
             child: ClipRRect(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(5),
+              ),
               child: game.imageIcon.isNotEmpty
                   ? CachedNetworkImage(
                       imageUrl: MediaUrls.gameImageUrl(game.imageIcon),
@@ -434,14 +473,22 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
                       errorWidget: (_, _, _) => Container(
                         color: Colors.black26,
                         child: const Center(
-                          child: Icon(Icons.videogame_asset, size: 24, color: Colors.white54),
+                          child: Icon(
+                            Icons.videogame_asset,
+                            size: 24,
+                            color: Colors.white54,
+                          ),
                         ),
                       ),
                     )
                   : Container(
                       color: Colors.black26,
                       child: const Center(
-                        child: Icon(Icons.videogame_asset, size: 24, color: Colors.white54),
+                        child: Icon(
+                          Icons.videogame_asset,
+                          size: 24,
+                          color: Colors.white54,
+                        ),
                       ),
                     ),
             ),
@@ -517,7 +564,9 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
             width: 58,
             height: 58,
             child: ClipRRect(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(5),
+              ),
               child: achievement.badgeName.isNotEmpty
                   ? CachedNetworkImage(
                       imageUrl: MediaUrls.badgeUrl(achievement.badgeName),
@@ -525,14 +574,22 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
                       errorWidget: (_, _, _) => Container(
                         color: Colors.black26,
                         child: const Center(
-                          child: Icon(Icons.emoji_events, size: 24, color: Colors.amberAccent),
+                          child: Icon(
+                            Icons.emoji_events,
+                            size: 24,
+                            color: Colors.amberAccent,
+                          ),
                         ),
                       ),
                     )
                   : Container(
                       color: Colors.black26,
                       child: const Center(
-                        child: Icon(Icons.emoji_events, size: 24, color: Colors.amberAccent),
+                        child: Icon(
+                          Icons.emoji_events,
+                          size: 24,
+                          color: Colors.amberAccent,
+                        ),
                       ),
                     ),
             ),

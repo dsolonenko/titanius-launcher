@@ -6,7 +6,9 @@ class AppsSettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final installedApps = ref.watch(installedAppsProvider);
-    final selectedApps = ref.watch(androidAppsProvider);
+    final selectionReady = ref.watch(
+      androidAppsChangesProvider.select((selection) => selection.hasValue),
+    );
     final selectedIndex = usePersistentSelection('/settings/apps');
 
     useGamepad(ref, (location, key) {
@@ -28,12 +30,15 @@ class AppsSettingsPage extends HookConsumerWidget {
       }
       if (key == GamepadButton.confirm) {
         final app = appsList[selectedIndex.value.clamp(0, appsList.length - 1)];
-        final isSelected =
-            selectedApps.value?.isSelected(app.packageName) ?? false;
-        ref
-            .read(androidAppsRepoProvider)
-            .selectApp(app.packageName, !isSelected)
-            .then((value) => ref.refresh(androidAppsProvider));
+        final selected = ref.read(androidAppsChangesProvider).value;
+        if (selected != null) {
+          ref
+              .read(androidAppsRepoProvider)
+              .selectApp(
+                app.packageName,
+                !selected.isSelected(app.packageName),
+              );
+        }
       }
       if (key == GamepadButton.back) {
         GoRouter.of(context).go("/games/android");
@@ -57,27 +62,28 @@ class AppsSettingsPage extends HookConsumerWidget {
         skipLoadingOnRefresh: true,
         skipLoadingOnReload: true,
         data: (installedApps) {
-          return selectedApps.when(
-            skipLoadingOnRefresh: true,
-            skipLoadingOnReload: true,
-            data: (selectedApps) {
-              return ControllerGroupedListView<AppInfo, String>(
-                key: const PageStorageKey("settings/apps"),
-                selectedIndex: selectedIndex.value,
-                elements: installedApps,
-                groupBy: (element) => "Apps",
-                groupSeparatorBuilder: (String value) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    value,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ),
-                indexedItemBuilder: (context, app, index) {
-                  final isAppSelected = selectedApps.isSelected(
-                    app.packageName,
+          if (!selectionReady) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return ControllerGroupedListView<AppInfo, String>(
+            key: const PageStorageKey("settings/apps"),
+            selectedIndex: selectedIndex.value,
+            elements: installedApps,
+            groupBy: (element) => "Apps",
+            groupSeparatorBuilder: (String value) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(value, style: const TextStyle(color: Colors.grey)),
+            ),
+            indexedItemBuilder: (context, app, index) {
+              final isSelected = index == selectedIndex.value;
+              return Consumer(
+                builder: (context, ref, _) {
+                  final isAppSelected = ref.watch(
+                    androidAppsChangesProvider.select(
+                      (selection) =>
+                          selection.value?.isSelected(app.packageName) ?? false,
+                    ),
                   );
-                  final isSelected = index == selectedIndex.value;
                   return SelectedScrollTile(
                     isSelected: isSelected,
                     child: Container(
@@ -97,10 +103,7 @@ class AppsSettingsPage extends HookConsumerWidget {
                             selectedIndex.value = index;
                             ref
                                 .read(androidAppsRepoProvider)
-                                .selectApp(app.packageName, !isAppSelected)
-                                .then(
-                                  (value) => ref.refresh(androidAppsProvider),
-                                );
+                                .selectApp(app.packageName, !isAppSelected);
                           },
                           title: Text(
                             app.name,
@@ -142,8 +145,6 @@ class AppsSettingsPage extends HookConsumerWidget {
                 },
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => const Center(child: Text('Error')),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

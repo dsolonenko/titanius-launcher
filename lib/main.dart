@@ -30,7 +30,8 @@ void main() async {
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'scraper_service_channel',
         channelName: 'Scraper Service',
-        channelDescription: 'Notification channel for ROM scraper background task',
+        channelDescription:
+            'Notification channel for ROM scraper background task',
         channelImportance: NotificationChannelImportance.LOW,
         priority: NotificationPriority.LOW,
         showWhen: true,
@@ -49,13 +50,7 @@ void main() async {
   }
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   await _ensureStoragePermission();
-  runApp(
-    const ProviderScope(
-      child: SDTFScope(
-        child: MyApp(),
-      ),
-    ),
-  );
+  runApp(const ProviderScope(child: SDTFScope(child: MyApp())));
 }
 
 Future<void> _ensureStoragePermission() async {
@@ -71,13 +66,11 @@ Future<void> _ensureStoragePermission() async {
 
 final _router = GoRouter(
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const SystemsPage(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const SystemsPage()),
     GoRoute(
       path: '/games/:system',
-      builder: (context, state) => SystemProxy(system: state.pathParameters['system']!),
+      builder: (context, state) =>
+          SystemProxy(system: state.pathParameters['system']!),
       routes: [
         GoRoute(
           path: "game/:hash",
@@ -97,11 +90,13 @@ final _router = GoRouter(
         ),
         GoRoute(
           path: 'filter',
-          builder: (context, state) => FiltersPage(system: state.pathParameters['system']!),
+          builder: (context, state) =>
+              FiltersPage(system: state.pathParameters['system']!),
           routes: [
             GoRoute(
               path: "genres",
-              builder: (context, state) => GenresFilterPage(system: state.pathParameters['system']!),
+              builder: (context, state) =>
+                  GenresFilterPage(system: state.pathParameters['system']!),
             ),
           ],
         ),
@@ -112,60 +107,68 @@ final _router = GoRouter(
       builder: (context, state) => const AppsSettingsPage(),
     ),
     GoRoute(
-        path: '/settings',
-        builder: (context, state) => SettingsPage(source: state.uri.queryParameters['source']),
-        routes: [
-          GoRoute(path: 'scraper', builder: (context, state) => const ScraperPage(), routes: [
+      path: '/settings',
+      builder: (context, state) =>
+          SettingsPage(source: state.uri.queryParameters['source']),
+      routes: [
+        GoRoute(
+          path: 'scraper',
+          builder: (context, state) => const ScraperPage(),
+          routes: [
             GoRoute(
               path: 'systems',
               builder: (context, state) => const ScraperSystemsPage(),
             ),
-          ]),
-          GoRoute(
-            path: 'retroachievements',
-            builder: (context, state) => const RetroAchievementsSettingsPage(),
-          ),
-          GoRoute(
-            path: 'roms',
-            builder: (context, state) => const RomsSettingsPage(),
-          ),
-          GoRoute(
-            path: 'systems',
-            builder: (context, state) => const ShowSystemsSettingsPage(),
-          ),
-          GoRoute(
-            path: 'cemulators',
-            builder: (context, state) => const CustomEmulatorsPage(),
-            routes: [
-              GoRoute(
-                path: "edit",
-                builder: (context, state) => const EditCustomEmulatorPage(),
-              )
-            ],
-          ),
-          GoRoute(
-            path: 'emulators',
-            builder: (context, state) => const AlternativeEmulatorsSettingPage(),
-            routes: [
-              GoRoute(
-                path: ":system",
-                builder: (context, state) => SelectAlternativeEmulatorSettingPage(state.pathParameters['system']!),
-              )
-            ],
-          ),
-          GoRoute(
-            path: 'controller',
-            builder: (context, state) => const ControllerSettingsPage(),
-          ),
-          GoRoute(
-            path: 'ui',
-            builder: (context, state) => const UISettingsPage(),
-          ),
-          GoRoute(
-            path: 'daijisho',
-            builder: (context, state) => const DaijishoWallpaperPacksPage(),
-          ),
-        ]),
+          ],
+        ),
+        GoRoute(
+          path: 'retroachievements',
+          builder: (context, state) => const RetroAchievementsSettingsPage(),
+        ),
+        GoRoute(
+          path: 'roms',
+          builder: (context, state) => const RomsSettingsPage(),
+        ),
+        GoRoute(
+          path: 'systems',
+          builder: (context, state) => const ShowSystemsSettingsPage(),
+        ),
+        GoRoute(
+          path: 'cemulators',
+          builder: (context, state) => const CustomEmulatorsPage(),
+          routes: [
+            GoRoute(
+              path: "edit",
+              builder: (context, state) => const EditCustomEmulatorPage(),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: 'emulators',
+          builder: (context, state) => const AlternativeEmulatorsSettingPage(),
+          routes: [
+            GoRoute(
+              path: ":system",
+              builder: (context, state) => SelectAlternativeEmulatorSettingPage(
+                state.pathParameters['system']!,
+              ),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: 'controller',
+          builder: (context, state) => const ControllerSettingsPage(),
+        ),
+        GoRoute(
+          path: 'ui',
+          builder: (context, state) => const UISettingsPage(),
+        ),
+        GoRoute(
+          path: 'daijisho',
+          builder: (context, state) => const DaijishoWallpaperPacksPage(),
+        ),
+      ],
+    ),
   ],
 );
 
@@ -175,13 +178,18 @@ class MyApp extends HookConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
-    final fontScale = settings.value?.fontScale ?? 1.0;
+    // Do not rebuild MaterialApp/router for every setting mutation. Font scale
+    // is the only setting owned by this root widget.
+    final fontScale = ref.watch(
+      settingsProvider.select((settings) => settings.value?.fontScale ?? 1.0),
+    );
     final scraperService = ref.watch(scraperServiceProvider);
     useEffect(() {
       final sub = scraperService.progressStream.listen((progress) {
         ref.read(scraperProgressStateProvider.notifier).set(progress);
-        if (progress.message == "Done" || progress.message == "Cancelled" || progress.message == "Quota exceeded") {
+        if (progress.message == "Done" ||
+            progress.message == "Cancelled" ||
+            progress.message == "Quota exceeded") {
           ref.read(gameLibraryProvider).clear();
           ref.invalidate(systemGamesProvider);
           ref.invalidate(allGamesProvider);
@@ -197,17 +205,22 @@ class MyApp extends HookConsumerWidget {
       routerConfig: _router,
       shortcuts: const <ShortcutActivator, Intent>{
         // Disable default directional focus traversal so gamepad / controller navigation is the primary driver
-        SingleActivator(LogicalKeyboardKey.arrowUp): DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowDown): DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowLeft): DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowRight): DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.tab): DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowUp):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowDown):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowLeft):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowRight):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.tab):
+            DoNothingAndStopPropagationIntent(),
       },
       builder: (context, child) {
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(fontScale),
-          ),
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(fontScale)),
           child: child!,
         );
       },
@@ -225,9 +238,7 @@ class MyApp extends HookConsumerWidget {
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
-      textTheme: baseTheme.textTheme.apply(
-        fontFamily: 'KarenFat',
-      ),
+      textTheme: baseTheme.textTheme.apply(fontFamily: 'KarenFat'),
       listTileTheme: const ListTileThemeData(
         selectedTileColor: Colors.white,
         selectedColor: Colors.black,

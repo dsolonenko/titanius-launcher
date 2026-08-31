@@ -9,14 +9,24 @@ export 'package:retroachievements/retroachievements.dart' hide Game, GameList;
 export 'package:retroachievements/cache.dart';
 
 final retroAchievementsAuthProvider = Provider<AuthObject?>((ref) {
-  final settings = ref.watch(settingsProvider).value;
-  if (settings == null || !settings.hasRetroAchievements) {
+  final credentials = ref.watch(
+    settingsProvider.select(
+      (settings) => (
+        username: settings.value?.retroAchievementsUser,
+        apiKey: settings.value?.retroAchievementsApiKey,
+      ),
+    ),
+  );
+  if (credentials.username == null ||
+      credentials.username!.trim().isEmpty ||
+      credentials.apiKey == null ||
+      credentials.apiKey!.trim().isEmpty) {
     return null;
   }
   try {
     return buildAuthorization(
-      username: settings.retroAchievementsUser!,
-      webApiKey: settings.retroAchievementsApiKey!,
+      username: credentials.username!,
+      webApiKey: credentials.apiKey!,
     );
   } catch (e) {
     debugPrint("Failed to build RA authorization: $e");
@@ -33,35 +43,38 @@ Future<UserSummary?> _fetchAndCacheUserSummary(
       apiBaseUrl,
       '/API_GetUserSummary.php',
       auth,
-      args: {
-        'u': auth.username,
-        'g': 5,
-        'a': 5,
-      },
+      args: {'u': auth.username, 'g': 5, 'a': 5},
     );
     final rawResponse = await call(url: url);
     if (rawResponse is! Map) {
-      debugPrint("RA API returned non-map response for user summary: $rawResponse");
+      debugPrint(
+        "RA API returned non-map response for user summary: $rawResponse",
+      );
       return null;
     }
-    final sanitized = serializeProperties(
-      rawResponse,
-      shouldCastToNumbers: [
-        'RecentlyPlayedCount',
-        'Points',
-        'SoftcorePoints',
-        'MemberSince',
-        'TotalRank',
-        'TotalSoftcoreRank',
-        'ID',
-        'NumAwarded',
-        'NumAwardedHardcore',
-        'TrueRatio',
-        'DisplayOrder',
-      ],
-    ) as Map<String, dynamic>;
+    final sanitized =
+        serializeProperties(
+              rawResponse,
+              shouldCastToNumbers: [
+                'RecentlyPlayedCount',
+                'Points',
+                'SoftcorePoints',
+                'MemberSince',
+                'TotalRank',
+                'TotalSoftcoreRank',
+                'ID',
+                'NumAwarded',
+                'NumAwardedHardcore',
+                'TrueRatio',
+                'DisplayOrder',
+              ],
+            )
+            as Map<String, dynamic>;
     final summary = UserSummary.fromJson(sanitized);
-    await cacheRepo.putCache('user_summary_${auth.username}', json.encode(sanitized));
+    await cacheRepo.putCache(
+      'user_summary_${auth.username}',
+      json.encode(sanitized),
+    );
     return summary;
   } catch (e, stack) {
     debugPrint("Failed to fetch RA user summary: $e\n$stack");
@@ -82,26 +95,30 @@ Future<UserAwards?> _fetchAndCacheUserAwards(
     );
     final rawResponse = await call(url: url);
     if (rawResponse is! Map) {
-      debugPrint("RA API returned non-map response for user awards: $rawResponse");
+      debugPrint(
+        "RA API returned non-map response for user awards: $rawResponse",
+      );
       return null;
     }
-    final sanitized = serializeProperties(
-      rawResponse,
-      shouldCastToNumbers: [
-        'TotalAwardsCount',
-        'HiddenAwardsCount',
-        'MasteryAwardsCount',
-        'CompletionAwardsCount',
-        'BeatenHardcoreAwardsCount',
-        'BeatenSoftcoreAwardsCount',
-        'EventAwardsCount',
-        'SiteAwardsCount',
-        'AwardID',
-        'AwardData',
-        'AwardDataExtra',
-        'DisplayOrder',
-      ],
-    ) as Map<String, dynamic>;
+    final sanitized =
+        serializeProperties(
+              rawResponse,
+              shouldCastToNumbers: [
+                'TotalAwardsCount',
+                'HiddenAwardsCount',
+                'MasteryAwardsCount',
+                'CompletionAwardsCount',
+                'BeatenHardcoreAwardsCount',
+                'BeatenSoftcoreAwardsCount',
+                'EventAwardsCount',
+                'SiteAwardsCount',
+                'AwardID',
+                'AwardData',
+                'AwardDataExtra',
+                'DisplayOrder',
+              ],
+            )
+            as Map<String, dynamic>;
     final cacheKey = 'user_awards_${auth.username}';
     await cacheRepo.putCache(cacheKey, json.encode(sanitized));
     return UserAwards.fromJson(sanitized);
@@ -120,29 +137,29 @@ Future<UserCompletionProgress?> _fetchAndCacheUserCompletionProgress(
       apiBaseUrl,
       '/API_GetUserCompletionProgress.php',
       auth,
-      args: {
-        'u': auth.username,
-        'o': 0,
-        'c': 500,
-      },
+      args: {'u': auth.username, 'o': 0, 'c': 500},
     );
     final rawResponse = await call(url: url);
     if (rawResponse is! Map) {
-      debugPrint("RA API returned non-map response for user completion progress: $rawResponse");
+      debugPrint(
+        "RA API returned non-map response for user completion progress: $rawResponse",
+      );
       return null;
     }
-    final sanitized = serializeProperties(
-      rawResponse,
-      shouldCastToNumbers: [
-        'Count',
-        'Total',
-        'GameID',
-        'ConsoleID',
-        'MaxPossible',
-        'NumAwarded',
-        'NumAwardedHardcore',
-      ],
-    ) as Map<String, dynamic>;
+    final sanitized =
+        serializeProperties(
+              rawResponse,
+              shouldCastToNumbers: [
+                'Count',
+                'Total',
+                'GameID',
+                'ConsoleID',
+                'MaxPossible',
+                'NumAwarded',
+                'NumAwardedHardcore',
+              ],
+            )
+            as Map<String, dynamic>;
     final cacheKey = 'user_completion_progress_${auth.username}';
     await cacheRepo.putCache(cacheKey, json.encode(sanitized));
     return UserCompletionProgress.fromJson(sanitized);
@@ -152,8 +169,9 @@ Future<UserCompletionProgress?> _fetchAndCacheUserCompletionProgress(
   }
 }
 
-final retroAchievementsUserSummaryProvider =
-    FutureProvider<UserSummary?>((ref) async {
+final retroAchievementsUserSummaryProvider = FutureProvider<UserSummary?>((
+  ref,
+) async {
   final auth = ref.watch(retroAchievementsAuthProvider);
   if (auth == null) {
     return null;
@@ -194,8 +212,9 @@ final retroAchievementsUserSummaryProvider =
   return await _fetchAndCacheUserSummary(auth, cacheRepo);
 });
 
-final retroAchievementsUserAwardsProvider =
-    FutureProvider<UserAwards?>((ref) async {
+final retroAchievementsUserAwardsProvider = FutureProvider<UserAwards?>((
+  ref,
+) async {
   final auth = ref.watch(retroAchievementsAuthProvider);
   if (auth == null) {
     return null;
@@ -238,45 +257,52 @@ final retroAchievementsUserAwardsProvider =
 
 final retroAchievementsUserCompletionProgressProvider =
     FutureProvider<UserCompletionProgress?>((ref) async {
-  final auth = ref.watch(retroAchievementsAuthProvider);
-  if (auth == null) {
-    return null;
-  }
-  final cacheRepo = ref.watch(retroAchievementsCacheRepoProvider);
-  final cacheKey = 'user_completion_progress_${auth.username}';
-
-  // 1. Fresh cache (< 24h) returns immediately
-  final cached = await cacheRepo.getValidCache(cacheKey);
-  if (cached != null) {
-    try {
-      final jsonMap = json.decode(cached) as Map<String, dynamic>;
-      return UserCompletionProgress.fromJson(jsonMap);
-    } catch (e) {
-      debugPrint("Failed to parse cached user completion progress: $e");
-    }
-  }
-
-  // 2. Stale cache (> 24h) returns immediately and silently refreshes in background
-  final stale = await cacheRepo.getAnyCache(cacheKey);
-  if (stale != null) {
-    unawaited(() async {
-      try {
-        final fresh = await _fetchAndCacheUserCompletionProgress(auth, cacheRepo);
-        if (fresh != null) {
-          ref.invalidateSelf();
-        }
-      } catch (e) {
-        debugPrint("Background refresh of user completion progress failed: $e");
+      final auth = ref.watch(retroAchievementsAuthProvider);
+      if (auth == null) {
+        return null;
       }
-    }());
-    try {
-      return UserCompletionProgress.fromJson(json.decode(stale) as Map<String, dynamic>);
-    } catch (_) {}
-  }
+      final cacheRepo = ref.watch(retroAchievementsCacheRepoProvider);
+      final cacheKey = 'user_completion_progress_${auth.username}';
 
-  // 3. No cache at all: fetch synchronously from API
-  return await _fetchAndCacheUserCompletionProgress(auth, cacheRepo);
-});
+      // 1. Fresh cache (< 24h) returns immediately
+      final cached = await cacheRepo.getValidCache(cacheKey);
+      if (cached != null) {
+        try {
+          final jsonMap = json.decode(cached) as Map<String, dynamic>;
+          return UserCompletionProgress.fromJson(jsonMap);
+        } catch (e) {
+          debugPrint("Failed to parse cached user completion progress: $e");
+        }
+      }
+
+      // 2. Stale cache (> 24h) returns immediately and silently refreshes in background
+      final stale = await cacheRepo.getAnyCache(cacheKey);
+      if (stale != null) {
+        unawaited(() async {
+          try {
+            final fresh = await _fetchAndCacheUserCompletionProgress(
+              auth,
+              cacheRepo,
+            );
+            if (fresh != null) {
+              ref.invalidateSelf();
+            }
+          } catch (e) {
+            debugPrint(
+              "Background refresh of user completion progress failed: $e",
+            );
+          }
+        }());
+        try {
+          return UserCompletionProgress.fromJson(
+            json.decode(stale) as Map<String, dynamic>,
+          );
+        } catch (_) {}
+      }
+
+      // 3. No cache at all: fetch synchronously from API
+      return await _fetchAndCacheUserCompletionProgress(auth, cacheRepo);
+    });
 
 Future<void> refreshAllPlayerRetroAchievementsData(WidgetRef ref) async {
   final auth = ref.read(retroAchievementsAuthProvider);
@@ -322,11 +348,7 @@ Future<GameInfoAndUserProgress?> fetchGameInfoAndUserProgressWithCache({
       apiBaseUrl,
       '/API_GetGameInfoAndUserProgress.php',
       auth,
-      args: {
-        'g': gameId,
-        'u': auth.username,
-        'a': 1,
-      },
+      args: {'g': gameId, 'u': auth.username, 'a': 1},
     );
     final rawResponse = await call(url: url);
     if (rawResponse is! Map) {
@@ -339,24 +361,28 @@ Future<GameInfoAndUserProgress?> fetchGameInfoAndUserProgressWithCache({
         await cacheRepo.putCache(cacheKey, json.encode(fallback));
         return GameInfoAndUserProgress.fromJson(fallback);
       }
-      debugPrint("RA API returned non-map response for game $gameId: $rawResponse");
+      debugPrint(
+        "RA API returned non-map response for game $gameId: $rawResponse",
+      );
       return null;
     }
-    final sanitized = serializeProperties(
-      rawResponse,
-      shouldCastToNumbers: [
-        'ID',
-        'NumAwarded',
-        'NumAwardedHardcore',
-        'NumAwardedToUser',
-        'NumAwardedToUserHardcore',
-        'Points',
-        'TrueRatio',
-        'DisplayOrder',
-        'NumDistinctPlayersCasual',
-        'NumDistinctPlayersHardcore',
-      ],
-    ) as Map<String, dynamic>;
+    final sanitized =
+        serializeProperties(
+              rawResponse,
+              shouldCastToNumbers: [
+                'ID',
+                'NumAwarded',
+                'NumAwardedHardcore',
+                'NumAwardedToUser',
+                'NumAwardedToUserHardcore',
+                'Points',
+                'TrueRatio',
+                'DisplayOrder',
+                'NumDistinctPlayersCasual',
+                'NumDistinctPlayersHardcore',
+              ],
+            )
+            as Map<String, dynamic>;
     await cacheRepo.putCache(cacheKey, json.encode(sanitized));
     return GameInfoAndUserProgress.fromJson(sanitized);
   } catch (e, stack) {
@@ -384,7 +410,9 @@ class RetroAchievementsProgressNotifier
     if (auth != null) {
       Future.microtask(() async {
         try {
-          final entries = await cacheRepo.getAllValidCacheEntries('game_progress_');
+          final entries = await cacheRepo.getAllValidCacheEntries(
+            'game_progress_',
+          );
           final parsed = <int, GameInfoAndUserProgress>{};
           for (final entry in entries) {
             final key = entry.$1;
@@ -394,7 +422,8 @@ class RetroAchievementsProgressNotifier
                 final gameId = int.tryParse(parts[2]);
                 if (gameId != null) {
                   try {
-                    final jsonMap = json.decode(entry.$2) as Map<String, dynamic>;
+                    final jsonMap =
+                        json.decode(entry.$2) as Map<String, dynamic>;
                     parsed[gameId] = GameInfoAndUserProgress.fromJson(jsonMap);
                   } catch (_) {}
                 }
@@ -426,33 +455,53 @@ class RetroAchievementsProgressNotifier
 }
 
 final retroAchievementsProgressMapProvider =
-    NotifierProvider<RetroAchievementsProgressNotifier, Map<int, GameInfoAndUserProgress>>(
-  RetroAchievementsProgressNotifier.new,
-);
+    NotifierProvider<
+      RetroAchievementsProgressNotifier,
+      Map<int, GameInfoAndUserProgress>
+    >(RetroAchievementsProgressNotifier.new);
+
+/// Changes whenever all persisted RetroAchievements caches are cleared.
+/// Screens that perform background matching watch this so an already-mounted
+/// game list starts a fresh pass against the empty mapping table.
+class RetroAchievementsCacheRevisionNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void bump() => state++;
+}
+
+final retroAchievementsCacheRevisionProvider =
+    NotifierProvider<RetroAchievementsCacheRevisionNotifier, int>(
+      RetroAchievementsCacheRevisionNotifier.new,
+    );
 
 final gameRetroAchievementsDetailsProvider =
     FutureProvider.family<GameInfoAndUserProgress?, int>((ref, raGameId) async {
-  final memoryProgress = ref.watch(retroAchievementsProgressMapProvider)[raGameId];
-  if (memoryProgress != null) {
-    return memoryProgress;
-  }
+      final memoryProgress = ref.watch(
+        retroAchievementsProgressMapProvider,
+      )[raGameId];
+      if (memoryProgress != null) {
+        return memoryProgress;
+      }
 
-  final auth = ref.watch(retroAchievementsAuthProvider);
-  if (auth == null) {
-    return null;
-  }
-  final cacheRepo = ref.watch(retroAchievementsCacheRepoProvider);
-  final progress = await fetchGameInfoAndUserProgressWithCache(
-    auth: auth,
-    gameId: raGameId,
-    cacheRepo: cacheRepo,
-    allowNetwork: true,
-  );
-  if (progress != null) {
-    ref.read(retroAchievementsProgressMapProvider.notifier).set(raGameId, progress);
-  }
-  return progress;
-});
+      final auth = ref.watch(retroAchievementsAuthProvider);
+      if (auth == null) {
+        return null;
+      }
+      final cacheRepo = ref.watch(retroAchievementsCacheRepoProvider);
+      final progress = await fetchGameInfoAndUserProgressWithCache(
+        auth: auth,
+        gameId: raGameId,
+        cacheRepo: cacheRepo,
+        allowNetwork: true,
+      );
+      if (progress != null) {
+        ref
+            .read(retroAchievementsProgressMapProvider.notifier)
+            .set(raGameId, progress);
+      }
+      return progress;
+    });
 
 extension GameInfoAndUserProgressUtils on GameInfoAndUserProgress {
   int get userEarnedPoints {
@@ -488,9 +537,6 @@ Future<UserProfile> testRetroAchievementsCredentials({
   required String username,
   required String webApiKey,
 }) async {
-  final auth = buildAuthorization(
-    username: username,
-    webApiKey: webApiKey,
-  );
+  final auth = buildAuthorization(username: username, webApiKey: webApiKey);
   return getUserProfile(auth, username: username);
 }

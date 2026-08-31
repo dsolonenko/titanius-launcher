@@ -10,25 +10,30 @@ const Color _raLabelBlue = Color(0xFF5B9BF3);
 class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
   final EdgeInsetsGeometry? margin;
 
-  const RetroAchievementsPlayerHeaderCard({
-    super.key,
-    this.margin,
-  });
+  const RetroAchievementsPlayerHeaderCard({super.key, this.margin});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider).value;
+    final account = ref.watch(
+      settingsProvider.select(
+        (settings) => (
+          enabled: settings.value?.hasRetroAchievements ?? false,
+          username: settings.value?.retroAchievementsUser,
+        ),
+      ),
+    );
     final summary = ref.watch(retroAchievementsUserSummaryProvider).value;
 
-    if (settings == null || !settings.hasRetroAchievements) {
+    if (!account.enabled) {
       return const SizedBox.shrink();
     }
 
     final numberFormat = NumberFormat.decimalPattern();
 
     final pointsFormatted = numberFormat.format(summary?.totalPoints ?? 0);
-    final truePointsFormatted =
-        numberFormat.format(summary?.totalTruePoints ?? 0);
+    final truePointsFormatted = numberFormat.format(
+      summary?.totalTruePoints ?? 0,
+    );
 
     // Member Since formatting: "12 Oct 2021"
     String memberSinceFormatted = "--";
@@ -80,7 +85,7 @@ class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
                 imageUrl: MediaUrls.userPicUrl(
                   summary?.userPic.isNotEmpty == true
                       ? summary!.userPic
-                      : (settings.retroAchievementsUser ?? ''),
+                      : (account.username ?? ''),
                 ),
                 width: 80,
                 height: 80,
@@ -100,9 +105,7 @@ class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
               children: [
                 // Big Username
                 Text(
-                  settings.retroAchievementsUser ??
-                      summary?.userPic ??
-                      "Player",
+                  account.username ?? summary?.userPic ?? "Player",
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -243,21 +246,23 @@ class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
 class RetroAchievementsGamesOverviewBar extends HookConsumerWidget {
   final EdgeInsetsGeometry? margin;
 
-  const RetroAchievementsGamesOverviewBar({
-    super.key,
-    this.margin,
-  });
+  const RetroAchievementsGamesOverviewBar({super.key, this.margin});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider).value;
-    if (settings == null || !settings.hasRetroAchievements) {
+    final hasRetroAchievements = ref.watch(
+      settingsProvider.select(
+        (settings) => settings.value?.hasRetroAchievements ?? false,
+      ),
+    );
+    if (!hasRetroAchievements) {
       return const SizedBox.shrink();
     }
 
     final awards = ref.watch(retroAchievementsUserAwardsProvider).value;
-    final progress =
-        ref.watch(retroAchievementsUserCompletionProgressProvider).value;
+    final progress = ref
+        .watch(retroAchievementsUserCompletionProgressProvider)
+        .value;
 
     final completionList =
         progress?.results ?? const <UserCompletionProgressEntity>[];
@@ -265,25 +270,33 @@ class RetroAchievementsGamesOverviewBar extends HookConsumerWidget {
     final masteredCount = (awards != null && awards.masteryAwardsCount > 0)
         ? awards.masteryAwardsCount
         : completionList
-            .where((g) =>
-                g.highestAwardKind == AwardKind.mastered ||
-                (g.numAwardedHardcore == g.maxPossible && g.maxPossible > 0))
-            .length;
-    final beatenCount = (awards != null &&
+              .where(
+                (g) =>
+                    g.highestAwardKind == AwardKind.mastered ||
+                    (g.numAwardedHardcore == g.maxPossible &&
+                        g.maxPossible > 0),
+              )
+              .length;
+    final beatenCount =
+        (awards != null &&
             (awards.beatenHardcoreAwardsCount > 0 ||
                 awards.beatenSoftcoreAwardsCount > 0 ||
                 awards.completionAwardsCount > 0))
         ? (awards.beatenHardcoreAwardsCount +
-            awards.beatenSoftcoreAwardsCount +
-            awards.completionAwardsCount)
+              awards.beatenSoftcoreAwardsCount +
+              awards.completionAwardsCount)
         : completionList
-            .where((g) =>
-                g.highestAwardKind == AwardKind.beatenHardcore ||
-                g.highestAwardKind == AwardKind.beatenSoftcore ||
-                g.highestAwardKind == AwardKind.completed)
-            .length;
-    final unfinishedCount =
-        (playedCount - masteredCount - beatenCount).clamp(0, playedCount);
+              .where(
+                (g) =>
+                    g.highestAwardKind == AwardKind.beatenHardcore ||
+                    g.highestAwardKind == AwardKind.beatenSoftcore ||
+                    g.highestAwardKind == AwardKind.completed,
+              )
+              .length;
+    final unfinishedCount = (playedCount - masteredCount - beatenCount).clamp(
+      0,
+      playedCount,
+    );
 
     return Container(
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -300,13 +313,22 @@ class RetroAchievementsGamesOverviewBar extends HookConsumerWidget {
           _buildStatColumn("Played", playedCount.toString(), Colors.white),
           _buildDivider(),
           _buildStatColumn(
-              "Unfinished", unfinishedCount.toString(), const Color(0xFFFFA726)),
+            "Unfinished",
+            unfinishedCount.toString(),
+            const Color(0xFFFFA726),
+          ),
           _buildDivider(),
           _buildStatColumn(
-              "Beaten", beatenCount.toString(), const Color(0xFF42A5F5)),
+            "Beaten",
+            beatenCount.toString(),
+            const Color(0xFF42A5F5),
+          ),
           _buildDivider(),
           _buildStatColumn(
-              "Mastered", masteredCount.toString(), const Color(0xFFFFD54F)),
+            "Mastered",
+            masteredCount.toString(),
+            const Color(0xFFFFD54F),
+          ),
         ],
       ),
     );
@@ -327,20 +349,13 @@ class RetroAchievementsGamesOverviewBar extends HookConsumerWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Colors.white60,
-          ),
+          style: const TextStyle(fontSize: 11, color: Colors.white60),
         ),
       ],
     );
   }
 
   Widget _buildDivider() {
-    return Container(
-      height: 24,
-      width: 1,
-      color: Colors.white12,
-    );
+    return Container(height: 24, width: 1, color: Colors.white12);
   }
 }

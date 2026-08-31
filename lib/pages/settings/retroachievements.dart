@@ -6,10 +6,11 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    final selectedIndex =
-        usePersistentSelection('/settings/retroachievements');
+    final selectedIndex = usePersistentSelection('/settings/retroachievements');
     final inPrompt = useState(false);
     final isTesting = useState(false);
+    final isClearingCaches = useState(false);
+    final confirmClearCaches = useState(false);
     final s = settings.value;
 
     Future<void> editUsername() async {
@@ -87,8 +88,7 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
         ref.invalidate(retroAchievementsUserSummaryProvider);
         if (context.mounted) {
           Fluttertoast.showToast(
-            msg:
-                'Connected as ${profile.user}! Points: ${profile.totalPoints}',
+            msg: 'Connected as ${profile.user}! Points: ${profile.totalPoints}',
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             backgroundColor: Colors.green,
@@ -123,6 +123,47 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
       }
     }
 
+    Future<void> clearCaches() async {
+      if (isClearingCaches.value) return;
+      if (!confirmClearCaches.value) {
+        confirmClearCaches.value = true;
+        return;
+      }
+
+      confirmClearCaches.value = false;
+      isClearingCaches.value = true;
+      try {
+        await ref.read(retroAchievementsCacheRepoProvider).clearAll();
+        ref.invalidate(gameRetroAchievementsProvider);
+        ref.invalidate(systemRetroAchievementsProvider);
+        ref.invalidate(gameRetroAchievementsDetailsProvider);
+        ref.invalidate(retroAchievementsUserSummaryProvider);
+        ref.invalidate(retroAchievementsUserAwardsProvider);
+        ref.invalidate(retroAchievementsUserCompletionProgressProvider);
+        ref.invalidate(retroAchievementsProgressMapProvider);
+        ref.read(retroAchievementsCacheRevisionProvider.notifier).bump();
+        if (context.mounted) {
+          Fluttertoast.showToast(
+            msg: 'All Cheevos caches cleared',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          Fluttertoast.showToast(
+            msg: 'Could not clear Cheevos caches: $e',
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
+        }
+      } finally {
+        isClearingCaches.value = false;
+      }
+    }
+
     String maskApiKey(String? key) {
       if (key == null || key.isEmpty) return 'Not configured';
       if (key.length <= 6) return '••••••';
@@ -151,8 +192,8 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
               subtitle: isTesting.value
                   ? 'Testing connection...'
                   : (s.hasRetroAchievements
-                      ? 'Verify login credentials'
-                      : 'Configure credentials first'),
+                        ? 'Verify login credentials'
+                        : 'Configure credentials first'),
               trailing: isTesting.value
                   ? const SizedBox(
                       width: 16,
@@ -161,6 +202,28 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
                     )
                   : arrowRight,
               onAction: testConnection,
+            ),
+            _RASettingItem(
+              title: 'Clear Cheevos Caches',
+              subtitle: isClearingCaches.value
+                  ? 'Deleting cached hashes, mappings, and API data...'
+                  : confirmClearCaches.value
+                  ? 'Press Select again to confirm'
+                  : 'Recalculate ROM hashes and mappings for every system',
+              trailing: isClearingCaches.value
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(
+                      confirmClearCaches.value
+                          ? Icons.warning_amber_rounded
+                          : Icons.delete_sweep_outlined,
+                      color: Colors.orangeAccent,
+                      size: 20,
+                    ),
+              onAction: clearCaches,
             ),
             if (s.hasRetroAchievements)
               _RASettingItem(
@@ -181,12 +244,14 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
       if (items.isEmpty) return;
 
       if (key == GamepadButton.up) {
+        confirmClearCaches.value = false;
         selectedIndex.value = (selectedIndex.value - 1).clamp(
           0,
           items.length - 1,
         );
       }
       if (key == GamepadButton.down) {
+        confirmClearCaches.value = false;
         selectedIndex.value = (selectedIndex.value + 1).clamp(
           0,
           items.length - 1,
@@ -197,6 +262,10 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
         item.onAction();
       }
       if (key == GamepadButton.back) {
+        if (confirmClearCaches.value) {
+          confirmClearCaches.value = false;
+          return;
+        }
         GoRouter.of(context).pop();
       }
     });
@@ -230,8 +299,7 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
                           vertical: 1,
                         ),
                         child: Material(
-                          color:
-                              isSelected ? Colors.white : Colors.transparent,
+                          color: isSelected ? Colors.white : Colors.transparent,
                           borderRadius: BorderRadius.circular(4),
                           child: ListTile(
                             selected: isSelected,
@@ -239,6 +307,9 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
                             selectedTileColor: Colors.transparent,
                             dense: true,
                             onTap: () {
+                              if (selectedIndex.value != index) {
+                                confirmClearCaches.value = false;
+                              }
                               selectedIndex.value = index;
                               item.onAction();
                             },
@@ -269,10 +340,14 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
               ),
               if (!s.hasRetroAchievements)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(6),

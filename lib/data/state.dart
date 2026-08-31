@@ -30,9 +30,10 @@ class SystemStatsEnabledNotifier extends Notifier<bool> {
   void enable() => state = true;
 }
 
-final systemStatsEnabledProvider = NotifierProvider<SystemStatsEnabledNotifier, bool>(
-  SystemStatsEnabledNotifier.new,
-);
+final systemStatsEnabledProvider =
+    NotifierProvider<SystemStatsEnabledNotifier, bool>(
+      SystemStatsEnabledNotifier.new,
+    );
 
 class SelectedGameNotifier extends Notifier<Game?> {
   final String system;
@@ -45,9 +46,10 @@ class SelectedGameNotifier extends Notifier<Game?> {
   set state(Game? value) => super.state = value;
 }
 
-final selectedGameProvider = NotifierProvider.family<SelectedGameNotifier, Game?, String>(
-  SelectedGameNotifier.new,
-);
+final selectedGameProvider =
+    NotifierProvider.family<SelectedGameNotifier, Game?, String>(
+      SelectedGameNotifier.new,
+    );
 
 class SelectedAppNotifier extends Notifier<AppInfo?> {
   @override
@@ -102,9 +104,11 @@ class CurrentGameNavigationNotifier extends Notifier<GameNavigation> {
 }
 
 final currentGameNavigationProvider =
-    NotifierProvider.family<CurrentGameNavigationNotifier, GameNavigation, String>(
-  CurrentGameNavigationNotifier.new,
-);
+    NotifierProvider.family<
+      CurrentGameNavigationNotifier,
+      GameNavigation,
+      String
+    >(CurrentGameNavigationNotifier.new);
 
 class GameFilter {
   final String system;
@@ -112,9 +116,15 @@ class GameFilter {
   final bool? favourite;
   final Set<GameGenre> genres;
 
-  factory GameFilter.empty(String system) => GameFilter(system, search: "", genres: {});
+  factory GameFilter.empty(String system) =>
+      GameFilter(system, search: "", genres: {});
 
-  GameFilter(this.system, {this.search = "", this.genres = const {}, this.favourite});
+  GameFilter(
+    this.system, {
+    this.search = "",
+    this.genres = const {},
+    this.favourite,
+  });
 
   bool get isEmpty => search.isEmpty && genres.isEmpty && favourite == null;
 
@@ -124,10 +134,10 @@ class GameFilter {
           favourite == null
               ? ""
               : favourite == true
-                  ? "Fav"
-                  : "Non-Fav",
+              ? "Fav"
+              : "Non-Fav",
           search,
-          genres.map((g) => g.longName).join(", ")
+          genres.map((g) => g.longName).join(", "),
         ].where((e) => e.toString().isNotEmpty).join(", ");
 
   List<Game> apply(List<Game> games) {
@@ -137,10 +147,14 @@ class GameFilter {
     final filteredGames = [...games];
     if (search.isNotEmpty) {
       final term = search.toLowerCase();
-      filteredGames.retainWhere((game) => game.name.toLowerCase().contains(term));
+      filteredGames.retainWhere(
+        (game) => game.name.toLowerCase().contains(term),
+      );
     }
     if (genres.isNotEmpty) {
-      filteredGames.retainWhere((game) => game.genreId != null && genres.contains(game.genreId));
+      filteredGames.retainWhere(
+        (game) => game.genreId != null && genres.contains(game.genreId),
+      );
     }
     if (favourite != null) {
       filteredGames.retainWhere((game) => game.favorite == favourite);
@@ -160,14 +174,19 @@ class CurrentGameFilterNotifier extends Notifier<GameFilter> {
 
   void set(GameFilter filter) {
     debugPrint("set filter ${filter.description}");
-    state = GameFilter(filter.system, search: filter.search, genres: filter.genres, favourite: filter.favourite);
+    state = GameFilter(
+      filter.system,
+      search: filter.search,
+      genres: filter.genres,
+      favourite: filter.favourite,
+    );
   }
 }
 
 final currentGameFilterProvider =
     NotifierProvider.family<CurrentGameFilterNotifier, GameFilter, String>(
-  CurrentGameFilterNotifier.new,
-);
+      CurrentGameFilterNotifier.new,
+    );
 
 class TemporaryGameFilterNotifier extends Notifier<GameFilter> {
   final String system;
@@ -185,15 +204,30 @@ class TemporaryGameFilterNotifier extends Notifier<GameFilter> {
     } else {
       genres.add(genre);
     }
-    state = GameFilter(state.system, search: state.search, genres: genres, favourite: state.favourite);
+    state = GameFilter(
+      state.system,
+      search: state.search,
+      genres: genres,
+      favourite: state.favourite,
+    );
   }
 
   void setSearch(String? text) {
-    state = GameFilter(state.system, search: text ?? "", genres: state.genres, favourite: state.favourite);
+    state = GameFilter(
+      state.system,
+      search: text ?? "",
+      genres: state.genres,
+      favourite: state.favourite,
+    );
   }
 
   void setFavourite(bool? favourite) {
-    state = GameFilter(state.system, search: state.search, genres: state.genres, favourite: favourite);
+    state = GameFilter(
+      state.system,
+      search: state.search,
+      genres: state.genres,
+      favourite: favourite,
+    );
   }
 
   void set(GameFilter filter) {
@@ -207,8 +241,8 @@ class TemporaryGameFilterNotifier extends Notifier<GameFilter> {
 
 final temporaryGameFilterProvider =
     NotifierProvider.family<TemporaryGameFilterNotifier, GameFilter, String>(
-  TemporaryGameFilterNotifier.new,
-);
+      TemporaryGameFilterNotifier.new,
+    );
 
 class TemporaryEmulatorNotifier extends Notifier<CustomEmulator> {
   @override
@@ -225,26 +259,30 @@ class TemporaryEmulatorNotifier extends Notifier<CustomEmulator> {
   }
 }
 
-final temporaryEmulatorProvider = NotifierProvider<TemporaryEmulatorNotifier, CustomEmulator>(
-  TemporaryEmulatorNotifier.new,
-);
+final temporaryEmulatorProvider =
+    NotifierProvider<TemporaryEmulatorNotifier, CustomEmulator>(
+      TemporaryEmulatorNotifier.new,
+    );
 
-final currentVideoProvider = FutureProvider.family<VideoPlayerController?, String>((ref, system) async {
-  final game = ref.watch(selectedGameProvider(system));
-  final settings = await ref.watch(settingsProvider.future);
-  if (game != null && game.videoUrl != null) {
-    if (settings.showGameVideos) {
-      final controller = VideoPlayerController.file(File(game.videoUrl!));
-      controller.setLooping(true);
-      controller.setVolume(0);
-      ref.onDispose(() => controller.dispose());
-      await controller.initialize();
-      controller.play();
-      return controller;
-    }
-  }
-  return null;
-});
+final currentVideoProvider =
+    FutureProvider.family<VideoPlayerController?, String>((ref, system) async {
+      final game = ref.watch(selectedGameProvider(system));
+      final showGameVideos = await ref.watch(
+        settingsProvider.selectAsync((settings) => settings.showGameVideos),
+      );
+      if (game != null && game.videoUrl != null) {
+        if (showGameVideos) {
+          final controller = VideoPlayerController.file(File(game.videoUrl!));
+          controller.setLooping(true);
+          controller.setVolume(0);
+          ref.onDispose(() => controller.dispose());
+          await controller.initialize();
+          controller.play();
+          return controller;
+        }
+      }
+      return null;
+    });
 
 class DeletedGamesNotifier extends Notifier<Set<String>> {
   final String system;
@@ -261,26 +299,45 @@ class DeletedGamesNotifier extends Notifier<Set<String>> {
   }
 }
 
-final deletedGamesProvider = NotifierProvider.family<DeletedGamesNotifier, Set<String>, String>(
-  DeletedGamesNotifier.new,
-);
+final deletedGamesProvider =
+    NotifierProvider.family<DeletedGamesNotifier, Set<String>, String>(
+      DeletedGamesNotifier.new,
+    );
 
-final gamesInFolderProvider = FutureProvider.family<GameList, String>((ref, system) async {
+final gamesInFolderProvider = FutureProvider.family<GameList, String>((
+  ref,
+  system,
+) async {
   final navigation = ref.watch(currentGameNavigationProvider(system));
   final gamelistFuture = ref.watch(gamesProvider(system).future);
   final gamelist = await gamelistFuture;
   if (gamelist.system.isCollection) {
     return gamelist;
   } else {
-    final gamesInFolder = gamelist.games.where((game) => game.folder == navigation.folder).toList();
-    return GameList(gamelist.system, navigation.folder, gamesInFolder, gamelist.compare);
+    final gamesInFolder = gamelist.games
+        .where((game) => game.folder == navigation.folder)
+        .toList();
+    return GameList(
+      gamelist.system,
+      navigation.folder,
+      gamesInFolder,
+      gamelist.compare,
+    );
   }
 });
 
-final filteredGamesInFolderProvider = FutureProvider.family<GameList, String>((ref, system) async {
+final filteredGamesInFolderProvider = FutureProvider.family<GameList, String>((
+  ref,
+  system,
+) async {
   final filter = ref.watch(currentGameFilterProvider(system));
   final gamelistFuture = ref.watch(gamesInFolderProvider(system).future);
   final gamelist = await gamelistFuture;
   final games = filter.apply(gamelist.games);
-  return GameList(gamelist.system, gamelist.currentFolder, games, gamelist.compare);
+  return GameList(
+    gamelist.system,
+    gamelist.currentFolder,
+    games,
+    gamelist.compare,
+  );
 });

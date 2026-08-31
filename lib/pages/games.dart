@@ -25,6 +25,11 @@ import 'package:titanius/widgets/prompt_bar.dart';
 import 'package:titanius/widgets/selected_scroll_tile.dart';
 
 const double verticalSpacing = 4;
+typedef GameDisplaySettings = ({
+  bool fadeToVideo,
+  bool muteVideo,
+  bool showGameVideos,
+});
 
 class GamesPage extends HookConsumerWidget {
   final String system;
@@ -34,34 +39,56 @@ class GamesPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final games = ref.watch(filteredGamesInFolderProvider(system));
     final selectedGame = ref.watch(selectedGameProvider(system));
-    final settings = ref.watch(settingsProvider);
+    final retroAchievementsCacheRevision = ref.watch(
+      retroAchievementsCacheRevisionProvider,
+    );
+    final settings = ref.watch(
+      settingsProvider.select(
+        (settings) => settings.whenData(
+          (value) => (
+            fadeToVideo: value.fadeToVideo,
+            muteVideo: value.muteVideo,
+            showGameVideos: value.showGameVideos,
+          ),
+        ),
+      ),
+    );
 
     final showDetails = useState(false);
     final detailsScrollController = useScrollController();
 
     final currentGamelist = games.value;
-    final currentSelectedIndex = (currentGamelist != null && currentGamelist.games.isNotEmpty)
+    final currentSelectedIndex =
+        (currentGamelist != null && currentGamelist.games.isNotEmpty)
         ? findGame(currentGamelist, selectedGame)
         : -1;
     final currentGameToShow =
-        (currentGamelist != null && currentSelectedIndex >= 0 && currentSelectedIndex < currentGamelist.games.length)
+        (currentGamelist != null &&
+            currentSelectedIndex >= 0 &&
+            currentSelectedIndex < currentGamelist.games.length)
         ? currentGamelist.games[currentSelectedIndex]
         : null;
 
     useEffect(() {
       final auth = ref.read(retroAchievementsAuthProvider);
-      if (currentGameToShow == null || !currentGameToShow.system.hasRetroAchievements || auth == null) {
+      if (currentGameToShow == null ||
+          !currentGameToShow.system.hasRetroAchievements ||
+          auth == null) {
         return null;
       }
       final repo = ref.read(gameRetroAchievementsRepoProvider);
       final cacheRepo = ref.read(retroAchievementsCacheRepoProvider);
-      final progressNotifier = ref.read(retroAchievementsProgressMapProvider.notifier);
+      final progressNotifier = ref.read(
+        retroAchievementsProgressMapProvider.notifier,
+      );
 
       final timer = Timer(const Duration(milliseconds: 500), () async {
         if (!context.mounted) return;
         final entry = await repo.getEntry(currentGameToShow.romPath);
         if (!context.mounted) return;
-        if (entry != null && entry.raGameId != null && entry.numAchievements > 0) {
+        if (entry != null &&
+            entry.raGameId != null &&
+            entry.numAchievements > 0) {
           final raGameId = entry.raGameId!;
           if (progressNotifier.has(raGameId)) return;
 
@@ -102,52 +129,78 @@ class GamesPage extends HookConsumerWidget {
       return null;
     }, const []);
 
-    useEffect(() {
-      final gamelist = games.value;
-      if (gamelist != null && gamelist.system.hasRetroAchievements) {
-        final repo = ref.read(gameRetroAchievementsRepoProvider);
-        scanSystemRetroAchievements(
-          system: gamelist.system,
-          games: gamelist.games,
-          repo: repo,
-          onUpdated: () {
-            if (!context.mounted) return;
-            ref.invalidate(systemRetroAchievementsProvider((system: gamelist.system, games: gamelist.games)));
-          },
-        );
-      }
-      return null;
-    }, [games.value?.system.id, games.value?.currentFolder, games.value?.games.length]);
+    useEffect(
+      () {
+        final gamelist = games.value;
+        if (gamelist != null && gamelist.system.hasRetroAchievements) {
+          final repo = ref.read(gameRetroAchievementsRepoProvider);
+          scanSystemRetroAchievements(
+            system: gamelist.system,
+            games: gamelist.games,
+            repo: repo,
+            onUpdated: () {
+              if (!context.mounted) return;
+              ref.invalidate(
+                systemRetroAchievementsProvider((
+                  system: gamelist.system,
+                  games: gamelist.games,
+                )),
+              );
+            },
+          );
+        }
+        return null;
+      },
+      [
+        games.value?.system.id,
+        games.value?.currentFolder,
+        games.value?.games.length,
+        retroAchievementsCacheRevision,
+      ],
+    );
 
     useGamepadChord(ref, (location, key, pressed) {
       if (location != "/games/$system") return;
       if (key == GamepadButton.up) {
         final gamelist = games.value;
         if (gamelist != null && gamelist.games.isNotEmpty) {
-          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          final selectedIndex = findGame(
+            gamelist,
+            ref.read(selectedGameProvider(system)),
+          );
           if (selectedIndex > 0) {
             final newIndex = selectedIndex - 1;
-            ref.read(selectedGameProvider(system).notifier).state = gamelist.games[newIndex];
+            ref.read(selectedGameProvider(system).notifier).state =
+                gamelist.games[newIndex];
           }
         }
       }
       if (key == GamepadButton.down) {
         final gamelist = games.value;
         if (gamelist != null && gamelist.games.isNotEmpty) {
-          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          final selectedIndex = findGame(
+            gamelist,
+            ref.read(selectedGameProvider(system)),
+          );
           if (selectedIndex < gamelist.games.length - 1) {
             final newIndex = selectedIndex + 1;
-            ref.read(selectedGameProvider(system).notifier).state = gamelist.games[newIndex];
+            ref.read(selectedGameProvider(system).notifier).state =
+                gamelist.games[newIndex];
           }
         }
       }
       if (key == GamepadButton.confirm) {
         final gamelist = games.value;
         if (gamelist != null && gamelist.games.isNotEmpty) {
-          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          final selectedIndex = findGame(
+            gamelist,
+            ref.read(selectedGameProvider(system)),
+          );
           final game = gamelist.games[selectedIndex];
           if (game.isFolder) {
-            ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
+            ref
+                .read(currentGameNavigationProvider(system).notifier)
+                .moveIntoFolder(game);
             ref.read(selectedGameProvider(system).notifier).state = null;
           } else {
             _launchGame(ref, game);
@@ -158,12 +211,16 @@ class GamesPage extends HookConsumerWidget {
         final gamelist = games.value;
         if (gamelist == null || gamelist.games.isEmpty) return;
         const pageSize = 10;
-        final current = findGame(gamelist, ref.read(selectedGameProvider(system)));
+        final current = findGame(
+          gamelist,
+          ref.read(selectedGameProvider(system)),
+        );
         final index = key == GamepadButton.l1
             ? max(current - pageSize, 0)
             : min(gamelist.games.length - 1, current + pageSize);
         debugPrint("Go to index=$index page=$pageSize");
-        ref.read(selectedGameProvider(system).notifier).state = gamelist.games[index];
+        ref.read(selectedGameProvider(system).notifier).state =
+            gamelist.games[index];
       }
       if (key == GamepadButton.l2 || key == GamepadButton.r2) {
         final allSystems = ref.read(loadedSystemsProvider).value ?? [];
@@ -184,18 +241,27 @@ class GamesPage extends HookConsumerWidget {
         if (navigation.isAtRoot) {
           GoRouter.of(context).go("/");
         } else {
-          Game game = ref.read(currentGameNavigationProvider(system).notifier).goBack();
+          Game game = ref
+              .read(currentGameNavigationProvider(system).notifier)
+              .goBack();
           ref.read(selectedGameProvider(system).notifier).state = game;
         }
       }
       if (key == GamepadButton.l3 || key == GamepadButton.r3) {
         final gamelist = games.value;
         if (gamelist != null && gamelist.games.isNotEmpty) {
-          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          final selectedIndex = findGame(
+            gamelist,
+            ref.read(selectedGameProvider(system)),
+          );
           final selectedGame = gamelist.games[selectedIndex];
-          if (!selectedGame.isFolder && selectedGame.system.hasRetroAchievements) {
-            ref.read(selectedGameProvider(system).notifier).state = selectedGame;
-            GoRouter.of(context).push("/games/$system/game/${selectedGame.hash}/achievements");
+          if (!selectedGame.isFolder &&
+              selectedGame.system.hasRetroAchievements) {
+            ref.read(selectedGameProvider(system).notifier).state =
+                selectedGame;
+            GoRouter.of(
+              context,
+            ).push("/games/$system/game/${selectedGame.hash}/achievements");
             return;
           }
         }
@@ -203,10 +269,13 @@ class GamesPage extends HookConsumerWidget {
       if (key == GamepadButton.x) {
         showDetails.value = !showDetails.value;
       }
-      if (key == GamepadButton.rightStickUp || key == GamepadButton.rightStickDown) {
+      if (key == GamepadButton.rightStickUp ||
+          key == GamepadButton.rightStickDown) {
         if (!showDetails.value || !detailsScrollController.hasClients) return;
         const scrollStep = 56.0;
-        final delta = key == GamepadButton.rightStickUp ? -scrollStep : scrollStep;
+        final delta = key == GamepadButton.rightStickUp
+            ? -scrollStep
+            : scrollStep;
         final position = detailsScrollController.position;
         final target = (detailsScrollController.offset + delta).clamp(
           position.minScrollExtent,
@@ -216,17 +285,25 @@ class GamesPage extends HookConsumerWidget {
       }
       if (key == GamepadButton.select) {
         final currentFilter = ref.read(currentGameFilterProvider(system));
-        ref.read(temporaryGameFilterProvider(system).notifier).set(currentFilter);
+        ref
+            .read(temporaryGameFilterProvider(system).notifier)
+            .set(currentFilter);
         GoRouter.of(context).go("/games/$system/filter");
       }
       if (key == GamepadButton.y) {
         final gamelist = games.value;
         if (gamelist != null && gamelist.games.isNotEmpty) {
-          final selectedIndex = findGame(gamelist, ref.read(selectedGameProvider(system)));
+          final selectedIndex = findGame(
+            gamelist,
+            ref.read(selectedGameProvider(system)),
+          );
           final selectedGame = gamelist.games[selectedIndex];
           if (!selectedGame.isFolder) {
-            ref.read(selectedGameProvider(system).notifier).state = selectedGame;
-            GoRouter.of(context).push("/games/$system/game/${selectedGame.hash}");
+            ref.read(selectedGameProvider(system).notifier).state =
+                selectedGame;
+            GoRouter.of(
+              context,
+            ).push("/games/$system/game/${selectedGame.hash}");
           }
         }
       }
@@ -241,17 +318,30 @@ class GamesPage extends HookConsumerWidget {
     final selectedIdx = (gamelistData != null && gamelistData.games.isNotEmpty)
         ? findGame(gamelistData, currentSelectedGame)
         : -1;
-    final selectedGameToShow = (gamelistData != null && selectedIdx >= 0 && selectedIdx < gamelistData.games.length)
+    final selectedGameToShow =
+        (gamelistData != null &&
+            selectedIdx >= 0 &&
+            selectedIdx < gamelistData.games.length)
         ? gamelistData.games[selectedIdx]
         : null;
-    final systemAchievementsMap = (gamelistData?.system.hasRetroAchievements ?? false)
+    final systemAchievementsMap =
+        (gamelistData?.system.hasRetroAchievements ?? false)
         ? (ref
-                  .watch(systemRetroAchievementsProvider((system: gamelistData!.system, games: gamelistData.games)))
+                  .watch(
+                    systemRetroAchievementsProvider((
+                      system: gamelistData!.system,
+                      games: gamelistData.games,
+                    )),
+                  )
                   .value ??
               const <String, GameRetroAchievements>{})
         : const <String, GameRetroAchievements>{};
-    final selectedGameRa = selectedGameToShow != null ? systemAchievementsMap[selectedGameToShow.romPath] : null;
-    final hasRaForSelected = selectedGameRa?.raGameId != null && (selectedGameRa?.numAchievements ?? 0) > 0;
+    final selectedGameRa = selectedGameToShow != null
+        ? systemAchievementsMap[selectedGameToShow.romPath]
+        : null;
+    final hasRaForSelected =
+        selectedGameRa?.raGameId != null &&
+        (selectedGameRa?.numAchievements ?? 0) > 0;
 
     return Scaffold(
       appBar: const CustomAppBar(),
@@ -259,11 +349,14 @@ class GamesPage extends HookConsumerWidget {
         navigations: [
           const GamepadPrompt([GamepadButton.l1, GamepadButton.r1], "Scroll"),
           const GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
-          GamepadPrompt(const [GamepadButton.select], "Filter: ${currentFilter.description}"),
+          GamepadPrompt(const [
+            GamepadButton.select,
+          ], "Filter: ${currentFilter.description}"),
           const GamepadPrompt([GamepadButton.start], "Menu"),
         ],
         actions: [
-          if (hasRaForSelected) const GamepadPrompt([GamepadButton.l3], "Achievements"),
+          if (hasRaForSelected)
+            const GamepadPrompt([GamepadButton.l3], "Achievements"),
           const GamepadPrompt([GamepadButton.x], "Details"),
           const GamepadPrompt([GamepadButton.y], "Settings"),
           const GamepadPrompt([GamepadButton.back], "Back"),
@@ -291,26 +384,34 @@ class GamesPage extends HookConsumerWidget {
                   children: [
                     Container(
                       height: 48,
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       alignment: Alignment.center,
                       child: _systemLogo(gamelist.system),
                     ),
                     Expanded(
                       child: ControllerListView.builder(
-                        key: PageStorageKey("$system/${gamelist.currentFolder}"),
+                        key: PageStorageKey(
+                          "$system/${gamelist.currentFolder}",
+                        ),
                         selectedIndex: selectedIndex,
                         itemCount: gamelist.games.length,
                         itemBuilder: (context, index) {
                           final game = gamelist.games[index];
                           final isSelected = index == selectedIndex;
                           final gameRa = systemRaMap[game.romPath];
-                          final hasRa = gameRa?.raGameId != null && (gameRa?.numAchievements ?? 0) > 0;
-                          final progressMap = ref.watch(retroAchievementsProgressMapProvider);
-                          final gameProgress = (hasRa && gameRa?.raGameId != null)
+                          final hasRa =
+                              gameRa?.raGameId != null &&
+                              (gameRa?.numAchievements ?? 0) > 0;
+                          final progressMap = ref.watch(
+                            retroAchievementsProgressMapProvider,
+                          );
+                          final gameProgress =
+                              (hasRa && gameRa?.raGameId != null)
                               ? progressMap[gameRa!.raGameId!]
                               : null;
                           final isMastered = gameProgress?.isMastered ?? false;
-                          final isCompleted = gameProgress?.isCompleted ?? false;
+                          final isCompleted =
+                              gameProgress?.isCompleted ?? false;
 
                           final textScaler = MediaQuery.textScalerOf(context);
                           final fontScale = textScaler.scale(1.0);
@@ -319,9 +420,14 @@ class GamesPage extends HookConsumerWidget {
                           return SelectedScrollTile(
                             isSelected: isSelected,
                             child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 1,
+                              ),
                               child: Material(
-                                color: isSelected ? Colors.white : Colors.transparent,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.transparent,
                                 borderRadius: BorderRadius.circular(4),
                                 child: ListTile(
                                   key: ValueKey(game.romPath),
@@ -330,20 +436,33 @@ class GamesPage extends HookConsumerWidget {
                                   minLeadingWidth: 18 * fontScale,
                                   minVerticalPadding: 0,
                                   dense: true,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 0,
+                                  ),
                                   leading: game.isFolder
-                                      ? Icon(Icons.folder, size: iconSize, color: isSelected ? Colors.black : Colors.white)
+                                      ? Icon(
+                                          Icons.folder,
+                                          size: iconSize,
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.white,
+                                        )
                                       : game.hidden
                                       ? Icon(
                                           Icons.visibility_off_rounded,
                                           size: iconSize,
-                                          color: isSelected ? Colors.black : Colors.grey,
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.grey,
                                         )
                                       : system != "favourites" && game.favorite
                                       ? Icon(
                                           Icons.star,
                                           size: iconSize,
-                                          color: isSelected ? Colors.black : Colors.orangeAccent,
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.orangeAccent,
                                         )
                                       : null,
                                   selected: isSelected,
@@ -351,13 +470,19 @@ class GamesPage extends HookConsumerWidget {
                                   selectedTileColor: Colors.transparent,
                                   trailing: hasRa
                                       ? Icon(
-                                          const IconData(0x1F3C6, fontFamily: "Prompt"),
+                                          const IconData(
+                                            0x1F3C6,
+                                            fontFamily: "Prompt",
+                                          ),
                                           size: iconSize,
                                           color: isSelected
                                               ? Colors.black87
                                               : (isMastered
-                                                  ? Colors.amberAccent
-                                                  : (isCompleted ? Colors.lightBlueAccent : Colors.white70)),
+                                                    ? Colors.amberAccent
+                                                    : (isCompleted
+                                                          ? Colors
+                                                                .lightBlueAccent
+                                                          : Colors.white70)),
                                         )
                                       : null,
                                   title: Text(
@@ -365,22 +490,50 @@ class GamesPage extends HookConsumerWidget {
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: TextStyle(
-                                      color: isSelected ? Colors.black : Colors.white,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     ),
                                   ),
                                   subtitle: gamelist.system.isCollection
                                       ? Text(
                                           game.system.name,
                                           maxLines: 1,
-                                          style: TextStyle(color: isSelected ? Colors.black87 : Colors.grey),
+                                          style: TextStyle(
+                                            color: isSelected
+                                                ? Colors.black87
+                                                : Colors.grey,
+                                          ),
                                         )
                                       : null,
                                   onTap: () {
-                                    ref.read(selectedGameProvider(system).notifier).state = game;
+                                    ref
+                                            .read(
+                                              selectedGameProvider(
+                                                system,
+                                              ).notifier,
+                                            )
+                                            .state =
+                                        game;
                                     if (game.isFolder) {
-                                      ref.read(currentGameNavigationProvider(system).notifier).moveIntoFolder(game);
-                                      ref.read(selectedGameProvider(system).notifier).state = null;
+                                      ref
+                                          .read(
+                                            currentGameNavigationProvider(
+                                              system,
+                                            ).notifier,
+                                          )
+                                          .moveIntoFolder(game);
+                                      ref
+                                              .read(
+                                                selectedGameProvider(
+                                                  system,
+                                                ).notifier,
+                                              )
+                                              .state =
+                                          null;
                                     } else {
                                       _launchGame(ref, game);
                                     }
@@ -424,15 +577,26 @@ class GamesPage extends HookConsumerWidget {
 
   void _launchGame(WidgetRef ref, Game game) async {
     await ref.read(recentGamesRepoProvider).saveRecentGame(game);
-    final gameEmulator = await ref.read(perGameConfigurationProvider(game).future);
+    final gameEmulator = await ref.read(
+      perGameConfigurationProvider(game).future,
+    );
     final customEmulators = await ref.read(customEmulatorsProvider.future);
     if (gameEmulator != null && gameEmulator.emulator != "default") {
-      final emulators = [...game.system.builtInEmulators, ...customEmulators.map((e) => e.toEmulator())];
-      final emulator = emulators.firstWhereOrNull((element) => element.id == gameEmulator.emulator);
+      final emulators = [
+        ...game.system.builtInEmulators,
+        ...customEmulators.map((e) => e.toEmulator()),
+      ];
+      final emulator = emulators.firstWhereOrNull(
+        (element) => element.id == gameEmulator.emulator,
+      );
       _launchGameWithEmulator(emulator, game);
     } else {
-      final alternativeEmulators = await ref.read(alternativeEmulatorsProvider.future);
-      final emulators = alternativeEmulators.firstWhereOrNull((element) => element.system.id == game.system.id);
+      final alternativeEmulators = await ref.read(
+        alternativeEmulatorsProvider.future,
+      );
+      final emulators = alternativeEmulators.firstWhereOrNull(
+        (element) => element.system.id == game.system.id,
+      );
       final emulator = emulators?.defaultEmulator;
       _launchGameWithEmulator(emulator, game);
     }
@@ -440,7 +604,11 @@ class GamesPage extends HookConsumerWidget {
 
   void _launchGameWithEmulator(Emulator? emulator, Game game) {
     debugPrint("Launching ${game.absoluteRomPath} with ${emulator?.id}");
-    emulator?.intent.toIntent(game).then((intent) => intent.launch().catchError(handleIntentError(intent)));
+    emulator?.intent
+        .toIntent(game)
+        .then(
+          (intent) => intent.launch().catchError(handleIntentError(intent)),
+        );
   }
 
   Widget _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {
@@ -465,7 +633,11 @@ class GamesPage extends HookConsumerWidget {
           return Column(
             children: [
               Expanded(
-                child: Image.file(File(game.imageUrl!), fit: BoxFit.contain, filterQuality: FilterQuality.none),
+                child: Image.file(
+                  File(game.imageUrl!),
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.none,
+                ),
               ),
               Text(game.name, softWrap: false),
             ],
@@ -478,14 +650,20 @@ class GamesPage extends HookConsumerWidget {
   Widget _gameDetails(
     WidgetRef ref,
     BuildContext context,
-    AsyncValue<Settings> settings,
+    AsyncValue<GameDisplaySettings> settings,
     Game gameToShow,
     GameRetroAchievements? gameRa,
     ValueNotifier<bool> showDetails,
     ScrollController detailsScrollController,
   ) {
     if (showDetails.value) {
-      return _gameDetailsLong(ref, context, gameToShow, gameRa, detailsScrollController);
+      return _gameDetailsLong(
+        ref,
+        context,
+        gameToShow,
+        gameRa,
+        detailsScrollController,
+      );
     } else {
       return _gameDetailsShort(ref, context, settings, gameToShow, gameRa);
     }
@@ -494,12 +672,14 @@ class GamesPage extends HookConsumerWidget {
   Widget _gameDetailsShort(
     WidgetRef ref,
     BuildContext context,
-    AsyncValue<Settings> settings,
+    AsyncValue<GameDisplaySettings> settings,
     Game gameToShow,
     GameRetroAchievements? gameRa,
   ) {
-    final resolvedRa = gameRa ?? ref.watch(gameRetroAchievementsProvider(gameToShow)).value;
-    final hasRa = resolvedRa?.raGameId != null && (resolvedRa?.numAchievements ?? 0) > 0;
+    final resolvedRa =
+        gameRa ?? ref.watch(gameRetroAchievementsProvider(gameToShow)).value;
+    final hasRa =
+        resolvedRa?.raGameId != null && (resolvedRa?.numAchievements ?? 0) > 0;
     final textScaler = MediaQuery.textScalerOf(context);
     final fontScale = textScaler.scale(1.0);
     final starScale = 1.0 + (fontScale - 1.0) * 0.5;
@@ -509,14 +689,21 @@ class GamesPage extends HookConsumerWidget {
     final progressMap = ref.watch(retroAchievementsProgressMapProvider);
     final progress = (hasRa && resolvedRa?.raGameId != null)
         ? (progressMap[resolvedRa!.raGameId!] ??
-              ref.watch(gameRetroAchievementsDetailsProvider(resolvedRa.raGameId!)).value)
+              ref
+                  .watch(
+                    gameRetroAchievementsDetailsProvider(resolvedRa.raGameId!),
+                  )
+                  .value)
         : null;
 
     final String raText;
     if (progress != null) {
       final earnedPts = progress.userEarnedPoints;
-      final totalPts = progress.calculatedTotalPoints > 0 ? progress.calculatedTotalPoints : resolvedRa!.points;
-      raText = "${progress.numAwardedToUser}/${resolvedRa!.numAchievements} • $earnedPts/$totalPts pts";
+      final totalPts = progress.calculatedTotalPoints > 0
+          ? progress.calculatedTotalPoints
+          : resolvedRa!.points;
+      raText =
+          "${progress.numAwardedToUser}/${resolvedRa!.numAchievements} • $earnedPts/$totalPts pts";
     } else if (hasRa) {
       raText = "${resolvedRa!.numAchievements}";
     } else {
@@ -531,13 +718,13 @@ class GamesPage extends HookConsumerWidget {
     final badgeBgColor = isMastered
         ? Colors.amber.withValues(alpha: 0.15)
         : (isCompleted
-            ? Colors.lightBlue.withValues(alpha: 0.15)
-            : Colors.white.withValues(alpha: 0.08));
+              ? Colors.lightBlue.withValues(alpha: 0.15)
+              : Colors.white.withValues(alpha: 0.08));
     final badgeBorderColor = isMastered
         ? Colors.amberAccent.withValues(alpha: 0.4)
         : (isCompleted
-            ? Colors.lightBlueAccent.withValues(alpha: 0.4)
-            : Colors.white.withValues(alpha: 0.2));
+              ? Colors.lightBlueAccent.withValues(alpha: 0.4)
+              : Colors.white.withValues(alpha: 0.2));
     const glyph = "\u{1F3C6}";
 
     return Column(
@@ -562,14 +749,13 @@ class GamesPage extends HookConsumerWidget {
               gameToShow.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         Expanded(
           child: settings.when(
-            data: (settings) => settings.showGameVideos && gameToShow.videoUrl != null
+            data: (settings) =>
+                settings.showGameVideos && gameToShow.videoUrl != null
                 ? _gameVideo(settings, gameToShow)
                 : _gameImage(gameToShow),
             error: (_, _) => _gameImage(gameToShow),
@@ -579,7 +765,8 @@ class GamesPage extends HookConsumerWidget {
         const SizedBox(height: 6),
         RatingBarIndicator(
           rating: (gameToShow.rating ?? 0) / 2,
-          itemBuilder: (context, index) => const Icon(Icons.star, color: Colors.amber),
+          itemBuilder: (context, index) =>
+              const Icon(Icons.star, color: Colors.amber),
           itemCount: 5,
           itemSize: starSize,
           direction: Axis.horizontal,
@@ -589,7 +776,9 @@ class GamesPage extends HookConsumerWidget {
           InkWell(
             borderRadius: BorderRadius.circular(4),
             onTap: () {
-              GoRouter.of(context).push("/games/${gameToShow.system.id}/game/${gameToShow.hash}/achievements");
+              GoRouter.of(context).push(
+                "/games/${gameToShow.system.id}/game/${gameToShow.hash}/achievements",
+              );
             },
             child: Container(
               height: (22.0 * fontScale).clamp(20.0, 32.0),
@@ -638,12 +827,23 @@ class GamesPage extends HookConsumerWidget {
 
   Widget _gameImage(Game gameToShow) {
     return gameToShow.imageUrl != null
-        ? Image.file(File(gameToShow.imageUrl!), filterQuality: FilterQuality.none, fit: BoxFit.contain)
+        ? Image.file(
+            File(gameToShow.imageUrl!),
+            filterQuality: FilterQuality.none,
+            fit: BoxFit.contain,
+          )
         : const Text("No image");
   }
 
-  Widget _gameVideo(Settings settings, Game gameToShow) {
-    return FadeImageToVideo(key: ValueKey(gameToShow.absoluteRomPath), game: gameToShow, settings: settings);
+  Widget _gameVideo(GameDisplaySettings settings, Game gameToShow) {
+    return FadeImageToVideo(
+      key: ValueKey(gameToShow.absoluteRomPath),
+      game: gameToShow,
+      settings: (
+        fadeToVideo: settings.fadeToVideo,
+        muteVideo: settings.muteVideo,
+      ),
+    );
   }
 
   Widget _gameDetailsLong(
@@ -653,8 +853,10 @@ class GamesPage extends HookConsumerWidget {
     GameRetroAchievements? gameRa,
     ScrollController detailsScrollController,
   ) {
-    final resolvedRa = gameRa ?? ref.watch(gameRetroAchievementsProvider(gameToShow)).value;
-    final hasRa = resolvedRa?.raGameId != null && (resolvedRa?.numAchievements ?? 0) > 0;
+    final resolvedRa =
+        gameRa ?? ref.watch(gameRetroAchievementsProvider(gameToShow)).value;
+    final hasRa =
+        resolvedRa?.raGameId != null && (resolvedRa?.numAchievements ?? 0) > 0;
     final textScaler = MediaQuery.textScalerOf(context);
     final fontScale = textScaler.scale(1.0);
     final starScale = 1.0 + (fontScale - 1.0) * 0.5;
@@ -664,14 +866,21 @@ class GamesPage extends HookConsumerWidget {
     final progressMap = ref.watch(retroAchievementsProgressMapProvider);
     final progress = (hasRa && resolvedRa?.raGameId != null)
         ? (progressMap[resolvedRa!.raGameId!] ??
-              ref.watch(gameRetroAchievementsDetailsProvider(resolvedRa.raGameId!)).value)
+              ref
+                  .watch(
+                    gameRetroAchievementsDetailsProvider(resolvedRa.raGameId!),
+                  )
+                  .value)
         : null;
 
     final String raText;
     if (progress != null) {
       final earnedPts = progress.userEarnedPoints;
-      final totalPts = progress.calculatedTotalPoints > 0 ? progress.calculatedTotalPoints : resolvedRa!.points;
-      raText = "${progress.numAwardedToUser}/${resolvedRa!.numAchievements} • $earnedPts/$totalPts pts";
+      final totalPts = progress.calculatedTotalPoints > 0
+          ? progress.calculatedTotalPoints
+          : resolvedRa!.points;
+      raText =
+          "${progress.numAwardedToUser}/${resolvedRa!.numAchievements} • $earnedPts/$totalPts pts";
     } else if (hasRa) {
       raText = "${resolvedRa!.numAchievements}";
     } else {
@@ -685,13 +894,13 @@ class GamesPage extends HookConsumerWidget {
     final badgeBgColor = isMastered
         ? Colors.amber.withValues(alpha: 0.15)
         : (isCompleted
-            ? Colors.lightBlue.withValues(alpha: 0.15)
-            : Colors.white.withValues(alpha: 0.08));
+              ? Colors.lightBlue.withValues(alpha: 0.15)
+              : Colors.white.withValues(alpha: 0.08));
     final badgeBorderColor = isMastered
         ? Colors.amberAccent.withValues(alpha: 0.4)
         : (isCompleted
-            ? Colors.lightBlueAccent.withValues(alpha: 0.4)
-            : Colors.white.withValues(alpha: 0.2));
+              ? Colors.lightBlueAccent.withValues(alpha: 0.4)
+              : Colors.white.withValues(alpha: 0.2));
     const glyph = "\u{1F3C6}";
 
     return Scrollbar(
@@ -715,7 +924,8 @@ class GamesPage extends HookConsumerWidget {
             const SizedBox(height: 4),
             RatingBarIndicator(
               rating: (gameToShow.rating ?? 0) / 2,
-              itemBuilder: (context, index) => const Icon(Icons.star, color: Colors.amber),
+              itemBuilder: (context, index) =>
+                  const Icon(Icons.star, color: Colors.amber),
               itemCount: 5,
               itemSize: starSize,
               direction: Axis.horizontal,
@@ -725,7 +935,9 @@ class GamesPage extends HookConsumerWidget {
               InkWell(
                 borderRadius: BorderRadius.circular(4),
                 onTap: () {
-                  GoRouter.of(context).push("/games/${gameToShow.system.id}/game/${gameToShow.hash}/achievements");
+                  GoRouter.of(context).push(
+                    "/games/${gameToShow.system.id}/game/${gameToShow.hash}/achievements",
+                  );
                 },
                 child: Container(
                   height: (22.0 * fontScale).clamp(20.0, 32.0),
@@ -769,10 +981,15 @@ class GamesPage extends HookConsumerWidget {
               ),
             ],
             const SizedBox(height: 4),
-            gameToShow.players != null ? Text("Players: ${gameToShow.players}") : const SizedBox(height: 0),
+            gameToShow.players != null
+                ? Text("Players: ${gameToShow.players}")
+                : const SizedBox(height: 0),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(gameToShow.description ?? "No description", style: const TextStyle(color: Colors.grey)),
+              child: Text(
+                gameToShow.description ?? "No description",
+                style: const TextStyle(color: Colors.grey),
+              ),
             ),
             InfoTiles(
               columnCount: 1,
@@ -780,12 +997,22 @@ class GamesPage extends HookConsumerWidget {
                 if (hasRa)
                   InfoTile(
                     title: "Achievements",
-                    subtitle: "${resolvedRa!.numAchievements} (${resolvedRa.points} pts)",
+                    subtitle:
+                        "${resolvedRa!.numAchievements} (${resolvedRa.points} pts)",
                   ),
                 InfoTile(title: "Genre", subtitle: gameToShow.genreToShow),
-                InfoTile(title: "Released", subtitle: gameToShow.year?.toString() ?? "-"),
-                InfoTile(title: "Developer", subtitle: gameToShow.developer ?? "-"),
-                InfoTile(title: "Publisher", subtitle: gameToShow.publisher ?? "-"),
+                InfoTile(
+                  title: "Released",
+                  subtitle: gameToShow.year?.toString() ?? "-",
+                ),
+                InfoTile(
+                  title: "Developer",
+                  subtitle: gameToShow.developer ?? "-",
+                ),
+                InfoTile(
+                  title: "Publisher",
+                  subtitle: gameToShow.publisher ?? "-",
+                ),
               ],
             ),
           ],
@@ -797,13 +1024,13 @@ class GamesPage extends HookConsumerWidget {
   Widget _systemLogo(System system) {
     switch (system.id) {
       case "favourites":
-        return _collectionLogo("\u{2605}", "Favourites", glyphYOffset: -6.0);
+        return _collectionLogo("Favourites");
       case "recent":
-        return _collectionLogo("\u{23F2}", "Recent");
+        return _collectionLogo("Recent");
       case "all":
-        return _collectionLogo("\u{1F579}", "All Games");
+        return _collectionLogo("All Games");
       case "no_metadata":
-        return _collectionLogo("\u{2753}", "No Metadata");
+        return _collectionLogo("No Metadata");
       default:
         return Image.asset(
           "assets/images/white/${system.logo}",
@@ -814,32 +1041,16 @@ class GamesPage extends HookConsumerWidget {
     }
   }
 
-  Widget _collectionLogo(String glyph, String text, {double glyphYOffset = -2.0}) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Transform.translate(
-          offset: Offset(0, glyphYOffset),
-          child: Text(
-            glyph,
-            style: const TextStyle(
-              fontFamily: "Prompt",
-              fontSize: 22,
-              color: Colors.white,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: const TextStyle(
-            fontFamily: "KarenFat",
-            color: Colors.white,
-            fontSize: 18,
-          ),
-        ),
-      ],
+  Widget _collectionLogo(String text) {
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontFamily: "KarenFat",
+        color: Colors.white,
+        fontSize: 18,
+      ),
     );
   }
 
@@ -862,7 +1073,8 @@ Function handleIntentError(AndroidIntent intent) {
   return (err) {
     debugPrint(err.toString());
     Fluttertoast.showToast(
-      msg: "Unable to run ${intent.package}. Please make sure the app is installed.",
+      msg:
+          "Unable to run ${intent.package}. Please make sure the app is installed.",
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,

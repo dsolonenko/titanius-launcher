@@ -20,13 +20,15 @@ class Settings {
   bool get favouritesOnTop => _getBoolean('favouritesOnTop', false);
   bool get showHiddenGames => _getBoolean('showHiddenGames', false);
   bool get showOnlyGamelistRoms => _getBoolean('showOnlyGamelistRoms', false);
-  bool get uniqueGamesInCollections => _getBoolean('uniqueGamesInCollections', false);
+  bool get uniqueGamesInCollections =>
+      _getBoolean('uniqueGamesInCollections', false);
   bool get compactGameList => _getBoolean('compactGameList', false);
   bool get showGameVideos => _getBoolean('showGameVideos', false);
   bool get fadeToVideo => _getBoolean('fadeToVideo', false);
   bool get muteVideo => _getBoolean('muteVideo', true);
   double get fontScale => _getDouble('fontScale', 1.0);
-  ControllerLayout get controllerLayout => ControllerLayout.fromString(_getString('controllerLayout'));
+  ControllerLayout get controllerLayout =>
+      ControllerLayout.fromString(_getString('controllerLayout'));
   bool get swapConfirm => _getBoolean('swapConfirm', false);
   String? get daijishoWallpaperPack => _getString('daijishoWallpaperPack');
   String? get screenScraperUser => _getString('screenScraperUser');
@@ -42,11 +44,15 @@ class Settings {
   List<String> get scrapeTheseSystems => _getStringList('scrapeTheseSystems');
 
   double _getDouble(String key, double defaultValue) {
-    return settings.containsKey(key) ? double.tryParse(settings[key]!.value) ?? defaultValue : defaultValue;
+    return settings.containsKey(key)
+        ? double.tryParse(settings[key]!.value) ?? defaultValue
+        : defaultValue;
   }
 
   bool _getBoolean(String key, bool defaultValue) {
-    return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
+    return settings.containsKey(key)
+        ? settings[key]!.value == "true"
+        : defaultValue;
   }
 
   String? _getString(String key) {
@@ -67,6 +73,19 @@ class SettingsRepo {
     final settingsList = await db.select(db.settingEntries).get();
     final settingsMap = {for (final s in settingsList) s.key: s};
     return Settings(settingsMap);
+  }
+
+  Stream<Set<String>> watchScrapeTheseSystems() {
+    final query = db.select(db.settingEntries)
+      ..where((entry) => entry.key.equals('scrapeTheseSystems'));
+    return query
+        .watchSingleOrNull()
+        .map(
+          (setting) => setting == null || setting.value.isEmpty
+              ? <String>{}
+              : setting.value.split(',').toSet(),
+        )
+        .distinct(setEquals);
   }
 
   Future<void> setFavoutesOnTop(bool value) async {
@@ -174,7 +193,9 @@ class SettingsRepo {
   }
 
   Future<void> _setSetting(String key, String value) async {
-    await db.into(db.settingEntries).insert(
+    await db
+        .into(db.settingEntries)
+        .insert(
           SettingEntriesCompanion.insert(key: key, value: value),
           mode: InsertMode.insertOrReplace,
         );
@@ -192,14 +213,34 @@ class RomFoldersRepo {
 
   Future<List<String>> getRomFolders() async {
     final defaultRomFolders = await _getDefaultRomFolders();
-    final setting = await (db.select(db.settingEntries)..where((t) => t.key.equals("romsFolders"))).getSingleOrNull();
+    final setting = await (db.select(
+      db.settingEntries,
+    )..where((t) => t.key.equals("romsFolders"))).getSingleOrNull();
     return setting != null ? setting.value.split(",") : defaultRomFolders;
+  }
+
+  Stream<List<String>> watchRomFolders() async* {
+    final defaultRomFolders = await _getDefaultRomFolders();
+    final query = db.select(db.settingEntries)
+      ..where((entry) => entry.key.equals('romsFolders'));
+    yield* query
+        .watchSingleOrNull()
+        .map(
+          (setting) =>
+              setting == null ? defaultRomFolders : setting.value.split(','),
+        )
+        .distinct(listEquals);
   }
 
   Future<void> saveRomsFolders(List<String> romsFolders) async {
     debugPrint("Folders $romsFolders");
-    await db.into(db.settingEntries).insert(
-          SettingEntriesCompanion.insert(key: 'romsFolders', value: romsFolders.join(",")),
+    await db
+        .into(db.settingEntries)
+        .insert(
+          SettingEntriesCompanion.insert(
+            key: 'romsFolders',
+            value: romsFolders.join(","),
+          ),
           mode: InsertMode.insertOrReplace,
         );
   }
@@ -216,7 +257,9 @@ class RecentGamesRepo {
 
   Future<void> saveRecentGame(Game game) async {
     debugPrint("Recent ${game.romPath}");
-    await db.into(db.recentGameEntries).insert(
+    await db
+        .into(db.recentGameEntries)
+        .insert(
           RecentGameEntriesCompanion.insert(
             romPath: game.romPath,
             timestamp: DateTime.now().millisecondsSinceEpoch,
@@ -236,14 +279,21 @@ class PerSystemConfigurationRepo {
   }
 
   Future<void> saveAlternativeEmulator(String system, String emulator) async {
-    await db.into(db.alternativeEmulatorEntries).insert(
-          AlternativeEmulatorEntriesCompanion.insert(system: system, emulator: emulator),
+    await db
+        .into(db.alternativeEmulatorEntries)
+        .insert(
+          AlternativeEmulatorEntriesCompanion.insert(
+            system: system,
+            emulator: emulator,
+          ),
           mode: InsertMode.insertOrReplace,
         );
   }
 
   Future<void> deleteAlternativeEmulator(String system) async {
-    await (db.delete(db.alternativeEmulatorEntries)..where((t) => t.system.equals(system))).go();
+    await (db.delete(
+      db.alternativeEmulatorEntries,
+    )..where((t) => t.system.equals(system))).go();
   }
 }
 
@@ -256,14 +306,21 @@ class CustomEmulatorsRepo {
   }
 
   Future<void> saveCustomEmulator(CustomEmulator emulator) async {
-    await db.into(db.customEmulatorEntries).insert(
-          CustomEmulatorEntriesCompanion.insert(name: emulator.name, amStartCommand: emulator.amStartCommand),
+    await db
+        .into(db.customEmulatorEntries)
+        .insert(
+          CustomEmulatorEntriesCompanion.insert(
+            name: emulator.name,
+            amStartCommand: emulator.amStartCommand,
+          ),
           mode: InsertMode.insertOrReplace,
         );
   }
 
   Future<void> deleteCustomEmulator(String name) async {
-    await (db.delete(db.customEmulatorEntries)..where((t) => t.name.equals(name))).go();
+    await (db.delete(
+      db.customEmulatorEntries,
+    )..where((t) => t.name.equals(name))).go();
   }
 }
 
@@ -277,14 +334,21 @@ class PerGameConfigurationRepo {
   }
 
   Future<void> saveGameEmulator(Game game, String emulator) async {
-    await db.into(db.gameEmulatorEntries).insert(
-          GameEmulatorEntriesCompanion.insert(romPath: game.romPath, emulator: emulator),
+    await db
+        .into(db.gameEmulatorEntries)
+        .insert(
+          GameEmulatorEntriesCompanion.insert(
+            romPath: game.romPath,
+            emulator: emulator,
+          ),
           mode: InsertMode.insertOrReplace,
         );
   }
 
   Future<GameEmulator?> getGameEmulator(Game game) {
-    return (db.select(db.gameEmulatorEntries)..where((t) => t.romPath.equals(game.romPath))).getSingleOrNull();
+    return (db.select(
+      db.gameEmulatorEntries,
+    )..where((t) => t.romPath.equals(game.romPath))).getSingleOrNull();
   }
 }
 
@@ -296,10 +360,14 @@ class EnabledSystems {
   bool get showSystemAndroid => showSystem('android');
   bool get showSystemFavourites => showSystem('favourites');
   bool get showSystemRetroAchievements => showSystem('retroachievements');
-  bool showSystem(String id) =>
-      _getBoolean('showSystem/$id', (id == 'no_metadata' || id == 'retroachievements') ? false : true);
+  bool showSystem(String id) => _getBoolean(
+    'showSystem/$id',
+    (id == 'no_metadata' || id == 'retroachievements') ? false : true,
+  );
   bool _getBoolean(String key, bool defaultValue) {
-    return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
+    return settings.containsKey(key)
+        ? settings[key]!.value == "true"
+        : defaultValue;
   }
 }
 
@@ -314,12 +382,30 @@ class EnabledSystemsRepo {
     return EnabledSystems(settingsMap);
   }
 
+  Stream<EnabledSystems> watchEnabledSystems() {
+    final query = db.select(db.settingEntries)
+      ..where((entry) => entry.key.like('showSystem/%'));
+    return query
+        .watch()
+        .map((settingsList) {
+          final settingsMap = {
+            for (final setting in settingsList) setting.key: setting,
+          };
+          return EnabledSystems(settingsMap);
+        })
+        .distinct(
+          (previous, next) => mapEquals(previous.settings, next.settings),
+        );
+  }
+
   Future<void> setShowSystem(String id, bool value) async {
     return _setBoolean('showSystem/$id', value);
   }
 
   Future<void> _setBoolean(String key, bool value) async {
-    await db.into(db.settingEntries).insert(
+    await db
+        .into(db.settingEntries)
+        .insert(
           SettingEntriesCompanion.insert(key: key, value: value.toString()),
           mode: InsertMode.insertOrReplace,
         );
@@ -345,14 +431,29 @@ class AndroidAppsRepo {
     return SelectedApps(settingsSet);
   }
 
+  Stream<SelectedApps> watchSelectedApps() {
+    return db
+        .select(db.androidAppEntries)
+        .watch()
+        .map(
+          (entries) =>
+              SelectedApps({for (final entry in entries) entry.package}),
+        )
+        .distinct((previous, next) => setEquals(previous.apps, next.apps));
+  }
+
   Future<void> selectApp(String package, bool selected) async {
     if (selected) {
-      await db.into(db.androidAppEntries).insert(
+      await db
+          .into(db.androidAppEntries)
+          .insert(
             AndroidAppEntriesCompanion.insert(package: package),
             mode: InsertMode.insertOrReplace,
           );
     } else {
-      await (db.delete(db.androidAppEntries)..where((t) => t.package.equals(package))).go();
+      await (db.delete(
+        db.androidAppEntries,
+      )..where((t) => t.package.equals(package))).go();
     }
   }
 }
@@ -363,9 +464,9 @@ class GameRetroAchievementsRepo {
   GameRetroAchievementsRepo(this.db);
 
   Future<GameRetroAchievements?> getEntry(String romPath) async {
-    return (db.select(db.gameRetroAchievementsEntries)
-          ..where((t) => t.romPath.equals(romPath)))
-        .getSingleOrNull();
+    return (db.select(
+      db.gameRetroAchievementsEntries,
+    )..where((t) => t.romPath.equals(romPath))).getSingleOrNull();
   }
 
   Future<Map<String, GameRetroAchievements>> getEntriesForSystem(
@@ -374,9 +475,9 @@ class GameRetroAchievementsRepo {
   ) async {
     if (games.isEmpty) return {};
     final romPaths = games.map((g) => g.romPath).toList();
-    final list = await (db.select(db.gameRetroAchievementsEntries)
-          ..where((t) => t.romPath.isIn(romPaths)))
-        .get();
+    final list = await (db.select(
+      db.gameRetroAchievementsEntries,
+    )..where((t) => t.romPath.isIn(romPaths))).get();
     return {for (final e in list) e.romPath: e};
   }
 
@@ -394,7 +495,9 @@ class GameRetroAchievementsRepo {
     String? raTitle,
     String? badgeUrl,
   }) async {
-    await db.into(db.gameRetroAchievementsEntries).insert(
+    await db
+        .into(db.gameRetroAchievementsEntries)
+        .insert(
           GameRetroAchievementsEntriesCompanion.insert(
             romPath: romPath,
             md5Hash: md5Hash,
@@ -435,9 +538,9 @@ class RetroAchievementsCacheRepo {
     final syncHit = getSyncCache(key, maxAge: maxAge);
     if (syncHit != null) return syncHit;
 
-    final entry = await (db.select(db.retroAchievementsApiCacheEntries)
-          ..where((t) => t.cacheKey.equals(key)))
-        .getSingleOrNull();
+    final entry = await (db.select(
+      db.retroAchievementsApiCacheEntries,
+    )..where((t) => t.cacheKey.equals(key))).getSingleOrNull();
     if (entry == null) return null;
     _memoryCache[key] = (entry.responseJson, entry.timestamp);
     final age = DateTime.now().millisecondsSinceEpoch - entry.timestamp;
@@ -451,9 +554,9 @@ class RetroAchievementsCacheRepo {
     if (_memoryCache.containsKey(key)) {
       return _memoryCache[key]!.$1;
     }
-    final entry = await (db.select(db.retroAchievementsApiCacheEntries)
-          ..where((t) => t.cacheKey.equals(key)))
-        .getSingleOrNull();
+    final entry = await (db.select(
+      db.retroAchievementsApiCacheEntries,
+    )..where((t) => t.cacheKey.equals(key))).getSingleOrNull();
     if (entry != null) {
       _memoryCache[key] = (entry.responseJson, entry.timestamp);
     }
@@ -463,7 +566,9 @@ class RetroAchievementsCacheRepo {
   Future<void> putCache(String key, String responseJson) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     _memoryCache[key] = (responseJson, now);
-    await db.into(db.retroAchievementsApiCacheEntries).insert(
+    await db
+        .into(db.retroAchievementsApiCacheEntries)
+        .insert(
           RetroAchievementsApiCacheEntriesCompanion.insert(
             cacheKey: key,
             responseJson: responseJson,
@@ -477,9 +582,9 @@ class RetroAchievementsCacheRepo {
     String prefix, {
     Duration maxAge = const Duration(hours: 24),
   }) async {
-    final entries = await (db.select(db.retroAchievementsApiCacheEntries)
-          ..where((t) => t.cacheKey.like('$prefix%')))
-        .get();
+    final entries = await (db.select(
+      db.retroAchievementsApiCacheEntries,
+    )..where((t) => t.cacheKey.like('$prefix%'))).get();
 
     final result = <(String key, String responseJson)>[];
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -496,22 +601,26 @@ class RetroAchievementsCacheRepo {
 
   Future<void> invalidate(String key) async {
     _memoryCache.remove(key);
-    await (db.delete(db.retroAchievementsApiCacheEntries)
-          ..where((t) => t.cacheKey.equals(key)))
-        .go();
+    await (db.delete(
+      db.retroAchievementsApiCacheEntries,
+    )..where((t) => t.cacheKey.equals(key))).go();
   }
 
   Future<void> clearAll() async {
     _memoryCache.clear();
-    await db.delete(db.retroAchievementsApiCacheEntries).go();
+    await db.transaction(() async {
+      await db.delete(db.gameRetroAchievementsEntries).go();
+      await db.delete(db.retroAchievementsApiCacheEntries).go();
+    });
   }
 }
 
-final retroAchievementsCacheRepoProvider =
-    Provider<RetroAchievementsCacheRepo>((ref) {
-  final db = ref.watch(databaseProvider);
-  return RetroAchievementsCacheRepo(db);
-});
+final retroAchievementsCacheRepoProvider = Provider<RetroAchievementsCacheRepo>(
+  (ref) {
+    final db = ref.watch(databaseProvider);
+    return RetroAchievementsCacheRepo(db);
+  },
+);
 
 final settingsRepoProvider = Provider<SettingsRepo>((ref) {
   final db = ref.watch(databaseProvider);
@@ -521,6 +630,54 @@ final settingsRepoProvider = Provider<SettingsRepo>((ref) {
 final settingsProvider = FutureProvider<Settings>((ref) async {
   final repo = ref.watch(settingsRepoProvider);
   return repo.getSettings();
+});
+
+final scrapeTheseSystemsProvider = StreamProvider<Set<String>>((ref) {
+  return ref.watch(settingsRepoProvider).watchScrapeTheseSystems();
+});
+
+/// The scraper stores its complete selection in one CSV setting. Keep only this
+/// small writer queue so rapid toggles cannot overwrite one another before the
+/// database stream emits its next value.
+class PersistedSetWriter {
+  PersistedSetWriter(this.write, this.onSaved);
+
+  final Future<void> Function(Set<String> selection) write;
+  final VoidCallback onSaved;
+  Future<void> _writes = Future<void>.value();
+  Set<String>? _pending;
+
+  void toggle(Set<String> current, String id) {
+    final updated = {...(_pending ?? current)};
+    updated.contains(id) ? updated.remove(id) : updated.add(id);
+    replace(updated);
+  }
+
+  void replace(Iterable<String> ids) {
+    final snapshot = Set<String>.unmodifiable(ids);
+    _pending = snapshot;
+    _writes = _writes
+        .then((_) => write(snapshot))
+        .then((_) {
+          if (setEquals(_pending, snapshot)) _pending = null;
+          onSaved();
+        })
+        .catchError((Object error, StackTrace stackTrace) {
+          if (setEquals(_pending, snapshot)) _pending = null;
+          debugPrint('Unable to save selection: $error');
+        });
+  }
+
+  @visibleForTesting
+  Future<void> waitForPersistence() => _writes;
+}
+
+final scrapeTheseSystemsWriterProvider = Provider<PersistedSetWriter>((ref) {
+  final repo = ref.watch(settingsRepoProvider);
+  return PersistedSetWriter(
+    (selection) => repo.setScrapeTheseSystems(selection.toList()),
+    () => ref.invalidate(settingsProvider),
+  );
 });
 
 final recentGamesRepoProvider = Provider<RecentGamesRepo>((ref) {
@@ -538,82 +695,112 @@ final romFoldersRepoProvider = Provider<RomFoldersRepo>((ref) {
   return RomFoldersRepo(db);
 });
 
+final romFoldersChangesProvider = StreamProvider<List<String>>((ref) {
+  return ref.watch(romFoldersRepoProvider).watchRomFolders();
+});
+
 final romFoldersProvider = FutureProvider<List<String>>((ref) async {
+  final changes = ref.watch(romFoldersChangesProvider);
+  return changes.value ?? ref.watch(romFoldersRepoProvider).getRomFolders();
+});
+
+final romFoldersWriterProvider = Provider<PersistedSetWriter>((ref) {
   final repo = ref.watch(romFoldersRepoProvider);
-  return repo.getRomFolders();
+  return PersistedSetWriter(
+    (selection) => repo.saveRomsFolders(selection.toList()),
+    () {},
+  );
 });
 
-final perSystemConfigurationRepoProvider = Provider<PerSystemConfigurationRepo>((ref) {
-  final db = ref.watch(databaseProvider);
-  return PerSystemConfigurationRepo(db);
-});
+final perSystemConfigurationRepoProvider = Provider<PerSystemConfigurationRepo>(
+  (ref) {
+    final db = ref.watch(databaseProvider);
+    return PerSystemConfigurationRepo(db);
+  },
+);
 
-final perSystemConfigurationsProvider = FutureProvider<List<AlternativeEmulator>>((ref) async {
-  final repo = ref.watch(perSystemConfigurationRepoProvider);
-  return repo.getAlternativeEmulators();
-});
+final perSystemConfigurationsProvider =
+    FutureProvider<List<AlternativeEmulator>>((ref) async {
+      final repo = ref.watch(perSystemConfigurationRepoProvider);
+      return repo.getAlternativeEmulators();
+    });
 
 final customEmulatorsRepoProvider = Provider<CustomEmulatorsRepo>((ref) {
   final db = ref.watch(databaseProvider);
   return CustomEmulatorsRepo(db);
 });
 
-final customEmulatorsProvider = FutureProvider<List<CustomEmulator>>((ref) async {
+final customEmulatorsProvider = FutureProvider<List<CustomEmulator>>((
+  ref,
+) async {
   final repo = ref.watch(customEmulatorsRepoProvider);
   return repo.getCustomEmulators();
 });
 
-final perGameConfigurationRepoProvider = Provider<PerGameConfigurationRepo>((ref) {
+final perGameConfigurationRepoProvider = Provider<PerGameConfigurationRepo>((
+  ref,
+) {
   final db = ref.watch(databaseProvider);
   return PerGameConfigurationRepo(db);
 });
 
-final perGameConfigurationsProvider = FutureProvider<List<GameEmulator>>((ref) async {
+final perGameConfigurationsProvider = FutureProvider<List<GameEmulator>>((
+  ref,
+) async {
   final repo = ref.watch(perGameConfigurationRepoProvider);
   return repo.getGameEmulators();
 });
 
-final perGameConfigurationProvider = FutureProvider.family<GameEmulator?, Game?>((ref, game) async {
-  if (game == null) {
-    return null;
-  }
-  final repo = ref.watch(perGameConfigurationRepoProvider);
-  return repo.getGameEmulator(game);
-});
+final perGameConfigurationProvider =
+    FutureProvider.family<GameEmulator?, Game?>((ref, game) async {
+      if (game == null) {
+        return null;
+      }
+      final repo = ref.watch(perGameConfigurationRepoProvider);
+      return repo.getGameEmulator(game);
+    });
 
-final gameRetroAchievementsRepoProvider =
-    Provider<GameRetroAchievementsRepo>((ref) {
+final gameRetroAchievementsRepoProvider = Provider<GameRetroAchievementsRepo>((
+  ref,
+) {
   final db = ref.watch(databaseProvider);
   return GameRetroAchievementsRepo(db);
 });
 
 final gameRetroAchievementsProvider =
     FutureProvider.family<GameRetroAchievements?, Game?>((ref, game) async {
-  if (game == null) return null;
-  final repo = ref.watch(gameRetroAchievementsRepoProvider);
-  final entry = await repo.getEntry(game.romPath);
-  if (entry != null) return entry;
-  if (game.system.hasRetroAchievements) {
-    return resolveGameRetroAchievements(game: game, repo: repo);
-  }
-  return null;
-});
+      if (game == null) return null;
+      final repo = ref.watch(gameRetroAchievementsRepoProvider);
+      final entry = await repo.getEntry(game.romPath);
+      if (entry != null) return entry;
+      if (game.system.hasRetroAchievements) {
+        return resolveGameRetroAchievements(game: game, repo: repo);
+      }
+      return null;
+    });
 
 final systemRetroAchievementsProvider =
-    FutureProvider.family<Map<String, GameRetroAchievements>, ({System system, List<Game> games})>(
-        (ref, arg) async {
-  final repo = ref.watch(gameRetroAchievementsRepoProvider);
-  return repo.getEntriesForSystem(arg.system, arg.games);
-});
+    FutureProvider.family<
+      Map<String, GameRetroAchievements>,
+      ({System system, List<Game> games})
+    >((ref, arg) async {
+      final repo = ref.watch(gameRetroAchievementsRepoProvider);
+      return repo.getEntriesForSystem(arg.system, arg.games);
+    });
 
 final enabledSystemsRepoProvider = Provider<EnabledSystemsRepo>((ref) {
   final db = ref.watch(databaseProvider);
   return EnabledSystemsRepo(db);
 });
 
+final enabledSystemsChangesProvider = StreamProvider<EnabledSystems>((ref) {
+  return ref.watch(enabledSystemsRepoProvider).watchEnabledSystems();
+});
+
 final enabledSystemsProvider = FutureProvider<EnabledSystems>((ref) async {
-  final repo = ref.watch(enabledSystemsRepoProvider);
-  return repo.getEnabledSystems();
+  final changes = ref.watch(enabledSystemsChangesProvider);
+  return changes.value ??
+      ref.watch(enabledSystemsRepoProvider).getEnabledSystems();
 });
 
 final androidAppsRepoProvider = Provider<AndroidAppsRepo>((ref) {
@@ -621,9 +808,13 @@ final androidAppsRepoProvider = Provider<AndroidAppsRepo>((ref) {
   return AndroidAppsRepo(db);
 });
 
+final androidAppsChangesProvider = StreamProvider<SelectedApps>((ref) {
+  return ref.watch(androidAppsRepoProvider).watchSelectedApps();
+});
+
 final androidAppsProvider = FutureProvider<SelectedApps>((ref) async {
-  final repo = ref.watch(androidAppsRepoProvider);
-  return repo.getSelectedApps();
+  final changes = ref.watch(androidAppsChangesProvider);
+  return changes.value ?? ref.watch(androidAppsRepoProvider).getSelectedApps();
 });
 
 final externalRomsPathsProvider = FutureProvider<List<String>>((ref) async {

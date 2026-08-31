@@ -6,7 +6,14 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final systems = ref.watch(allSupportedSystemsProvider);
-    final enabledSystems = ref.watch(enabledSystemsProvider);
+    final selectionReady = ref.watch(
+      enabledSystemsChangesProvider.select((selection) => selection.hasValue),
+    );
+    final hasRetroAchievements = ref.watch(
+      settingsProvider.select(
+        (settings) => settings.value?.hasRetroAchievements ?? false,
+      ),
+    );
     final selectedIndex = usePersistentSelection('/settings/systems');
 
     useGamepad(ref, (location, key) {
@@ -28,13 +35,13 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
       }
       if (key == GamepadButton.confirm) {
         final sys = sysList[selectedIndex.value.clamp(0, sysList.length - 1)];
-        final show = enabledSystems.value?.showSystem(sys.id) ?? true;
-        ref.read(enabledSystemsRepoProvider).setShowSystem(sys.id, !show).then((
-          value,
-        ) {
-          ref.read(selectedSystemProvider.notifier).state = 0;
-          final _ = ref.refresh(enabledSystemsProvider);
-        });
+        final enabled = ref.read(enabledSystemsChangesProvider).value;
+        if (enabled != null) {
+          ref
+              .read(enabledSystemsRepoProvider)
+              .setShowSystem(sys.id, !enabled.showSystem(sys.id));
+        }
+        ref.read(selectedSystemProvider.notifier).state = 0;
       }
       if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
@@ -52,26 +59,29 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
       ),
       body: systems.when(
         data: (systems) {
-          return enabledSystems.when(
-            skipLoadingOnRefresh: true,
-            skipLoadingOnReload: true,
-            data: (enabledSystems) {
-              return ControllerGroupedListView<System, String>(
-                key: const PageStorageKey("settings/systems"),
-                selectedIndex: selectedIndex.value,
-                elements: systems,
-                groupBy: (element) =>
-                    element.isCollection ? "Collections" : "Systems",
-                groupSeparatorBuilder: (String value) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    value,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ),
-                indexedItemBuilder: (context, system, index) {
-                  final showSystem = enabledSystems.showSystem(system.id);
-                  final isSelected = index == selectedIndex.value;
+          if (!selectionReady) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return ControllerGroupedListView<System, String>(
+            key: const PageStorageKey("settings/systems"),
+            selectedIndex: selectedIndex.value,
+            elements: systems,
+            groupBy: (element) =>
+                element.isCollection ? "Collections" : "Systems",
+            groupSeparatorBuilder: (String value) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(value, style: const TextStyle(color: Colors.grey)),
+            ),
+            indexedItemBuilder: (context, system, index) {
+              final isSelected = index == selectedIndex.value;
+              return Consumer(
+                builder: (context, ref, _) {
+                  final showSystem = ref.watch(
+                    enabledSystemsChangesProvider.select(
+                      (selection) =>
+                          selection.value?.showSystem(system.id) ?? true,
+                    ),
+                  );
                   return SelectedScrollTile(
                     isSelected: isSelected,
                     child: Container(
@@ -91,17 +101,8 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                             selectedIndex.value = index;
                             ref
                                 .read(enabledSystemsRepoProvider)
-                                .setShowSystem(
-                                  system.id,
-                                  showSystem ? false : true,
-                                )
-                                .then((value) {
-                                  ref
-                                          .read(selectedSystemProvider.notifier)
-                                          .state =
-                                      0;
-                                  final _ = ref.refresh(enabledSystemsProvider);
-                                });
+                                .setShowSystem(system.id, !showSystem);
+                            ref.read(selectedSystemProvider.notifier).state = 0;
                           },
                           title: Text(
                             system.name,
@@ -112,13 +113,16 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                                   : FontWeight.normal,
                             ),
                           ),
-                          subtitle: system.isRetroAchievements &&
-                                  !(ref.watch(settingsProvider).value?.hasRetroAchievements ?? false)
+                          subtitle:
+                              system.isRetroAchievements &&
+                                  !hasRetroAchievements
                               ? Text(
                                   "Requires RetroAchievements login",
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: isSelected ? Colors.black54 : Colors.orangeAccent,
+                                    color: isSelected
+                                        ? Colors.black54
+                                        : Colors.orangeAccent,
                                   ),
                                 )
                               : null,
@@ -130,8 +134,6 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                 },
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => const Center(child: Text('Error')),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:page_view_dot_indicator/page_view_dot_indicator.dart';
@@ -23,11 +24,28 @@ class SystemsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allSystems = ref.watch(loadedSystemsProvider);
-    final selectedSystem = ref.watch(selectedSystemProvider);
-    final systemStatsEnabled = ref.watch(systemStatsEnabledProvider);
     final wallpaperPack = ref.watch(daijishoCurrentThemeDataProvider);
 
-    final pageController = PreloadPageController(initialPage: selectedSystem);
+    // The selected page changes constantly during controller navigation. Keep
+    // the pager itself stable and let the small footer watch selection state.
+    final pageController = useMemoized(
+      () =>
+          PreloadPageController(initialPage: ref.read(selectedSystemProvider)),
+    );
+    useEffect(() => pageController.dispose, [pageController]);
+
+    final systemCount = allSystems.value?.length ?? 0;
+    useEffect(() {
+      if (systemCount == 0) return null;
+      final selected = ref.read(selectedSystemProvider);
+      if (selected < systemCount) return null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        ref.read(selectedSystemProvider.notifier).state = 0;
+        if (pageController.hasClients) pageController.jumpToPage(0);
+      });
+      return null;
+    }, [systemCount, pageController]);
 
     useGamepad(ref, (location, key) {
       if (location != "/") return;
@@ -65,61 +83,7 @@ class SystemsPage extends HookConsumerWidget {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: const CustomAppBar(),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 8),
-          allSystems.when(
-            data: (systems) {
-              if (systems.isEmpty) return const SizedBox.shrink();
-              final system =
-                  systems[selectedSystem.clamp(0, systems.length - 1)];
-              return !systemStatsEnabled ||
-                      (system.isCollection && !system.isRetroAchievements) ||
-                      system.isAndroid
-                  ? const SizedBox.shrink()
-                  : _SystemStats(system: system);
-            },
-            error: (_, _) => const SizedBox.shrink(),
-            loading: () => const SizedBox.shrink(),
-          ),
-          allSystems.when(
-            data: (systems) => systems.isNotEmpty
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 8),
-                      PageViewDotIndicator(
-                        size: const Size(8, 8),
-                        unselectedSize: const Size(8, 8),
-                        currentItem: selectedSystem < systems.length
-                            ? selectedSystem
-                            : 0,
-                        count: systems.length,
-                        unselectedColor: Theme.of(
-                          context,
-                        ).colorScheme.surface.lighten(10),
-                        selectedColor: Theme.of(context).colorScheme.primary,
-                      ),
-                    ],
-                  )
-                : const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-            loading: () => const SizedBox.shrink(),
-          ),
-          const SizedBox(height: 8),
-          const PromptBar(
-            navigations: [
-              GamepadPrompt([GamepadButton.leftRight], "Choose"),
-              GamepadPrompt([GamepadButton.start], "Menu"),
-            ],
-            actions: [
-              GamepadPrompt([GamepadButton.confirm], "Select"),
-            ],
-          ),
-        ],
-      ),
+      bottomNavigationBar: const _SystemsBottomBar(),
       body: allSystems.when(
         data: (systems) => wallpaperPack.when(
           data: (wallpaperPack) {
@@ -172,12 +136,7 @@ class SystemsPage extends HookConsumerWidget {
           glyphYOffset: -10.0,
         );
       case "recent":
-        return _textLogo(
-          context,
-          "\u{23F2}",
-          Colors.redAccent,
-          "Recent",
-        );
+        return _textLogo(context, "\u{23F2}", Colors.redAccent, "Recent");
       case "all":
         return _textLogo(
           context,
@@ -193,8 +152,12 @@ class SystemsPage extends HookConsumerWidget {
           "No Metadata",
         );
       case "retroachievements":
-        final settings = ref.watch(settingsProvider).value;
-        if (settings?.hasRetroAchievements ?? false) {
+        final hasRetroAchievements = ref.watch(
+          settingsProvider.select(
+            (settings) => settings.value?.hasRetroAchievements ?? false,
+          ),
+        );
+        if (hasRetroAchievements) {
           return Align(
             alignment: const Alignment(0, -0.28),
             child: Padding(
@@ -222,21 +185,25 @@ class SystemsPage extends HookConsumerWidget {
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           shadows: [
-                            Shadow(offset: Offset(0, 1), blurRadius: 4, color: Colors.black),
-                            Shadow(offset: Offset(0, 2), blurRadius: 8, color: Colors.black87),
+                            Shadow(
+                              offset: Offset(0, 1),
+                              blurRadius: 4,
+                              color: Colors.black,
+                            ),
+                            Shadow(
+                              offset: Offset(0, 2),
+                              blurRadius: 8,
+                              color: Colors.black87,
+                            ),
                           ],
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 6),
-                  RetroAchievementsPlayerHeaderCard(
-                    margin: EdgeInsets.zero,
-                  ),
+                  RetroAchievementsPlayerHeaderCard(margin: EdgeInsets.zero),
                   SizedBox(height: 6),
-                  RetroAchievementsGamesOverviewBar(
-                    margin: EdgeInsets.zero,
-                  ),
+                  RetroAchievementsGamesOverviewBar(margin: EdgeInsets.zero),
                 ],
               ),
             ),
@@ -255,13 +222,13 @@ class SystemsPage extends HookConsumerWidget {
           );
           if (wallpaper != null) {
             final imageUrl = wallpaper.imageUrl(wallpaperPack.rootPath);
-            return _cachedImage(imageUrl);
+            return _cachedImage(context, imageUrl);
           } else {
             if (wallpaperPack.hasDefaultWallpaper) {
               final imageUrl = wallpaperPack.defaultWallpaperUrl(
                 wallpaperPack.rootPath,
               );
-              return _cachedImage(imageUrl);
+              return _cachedImage(context, imageUrl);
             } else {
               return _textLogo(
                 context,
@@ -293,14 +260,23 @@ class SystemsPage extends HookConsumerWidget {
     }
   }
 
-  CachedNetworkImage _cachedImage(String imageUrl) {
+  CachedNetworkImage _cachedImage(BuildContext context, String imageUrl) {
+    final mediaQuery = MediaQuery.of(context);
+    final cacheWidth = (mediaQuery.size.width * mediaQuery.devicePixelRatio)
+        .round();
     return CachedNetworkImage(
       key: ValueKey(imageUrl),
       imageUrl: imageUrl,
+      cacheKey: imageUrl,
+      memCacheWidth: cacheWidth,
       filterQuality: FilterQuality.medium,
       fit: BoxFit.fill,
-      placeholder: (context, url) =>
-          const Center(child: CircularProgressIndicator()),
+      fadeInDuration: Duration.zero,
+      fadeOutDuration: Duration.zero,
+      useOldImageOnUrlChange: true,
+      // Disk-cache lookup/decode is asynchronous too. Delay the spinner so a
+      // normal cache hit does not look like another network download.
+      placeholder: (context, url) => const _DelayedImagePlaceholder(),
       errorWidget: (context, url, error) =>
           const Icon(Icons.broken_image_rounded, size: 48),
     );
@@ -344,8 +320,16 @@ class SystemsPage extends HookConsumerWidget {
                       color: Colors.white,
                       fontSize: 36,
                       shadows: [
-                        Shadow(offset: Offset(0, 1), blurRadius: 4, color: Colors.black),
-                        Shadow(offset: Offset(0, 2), blurRadius: 8, color: Colors.black87),
+                        Shadow(
+                          offset: Offset(0, 1),
+                          blurRadius: 4,
+                          color: Colors.black,
+                        ),
+                        Shadow(
+                          offset: Offset(0, 2),
+                          blurRadius: 8,
+                          color: Colors.black87,
+                        ),
                       ],
                     ),
                   ),
@@ -355,6 +339,100 @@ class SystemsPage extends HookConsumerWidget {
           ),
         ),
         const Expanded(flex: 1, child: SizedBox()),
+      ],
+    );
+  }
+}
+
+class _DelayedImagePlaceholder extends StatefulWidget {
+  const _DelayedImagePlaceholder();
+
+  @override
+  State<_DelayedImagePlaceholder> createState() =>
+      _DelayedImagePlaceholderState();
+}
+
+class _DelayedImagePlaceholderState extends State<_DelayedImagePlaceholder> {
+  bool _showProgress = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(const Duration(milliseconds: 250), () {
+      if (mounted) setState(() => _showProgress = true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => _showProgress
+      ? const Center(child: CircularProgressIndicator())
+      : const SizedBox.expand();
+}
+
+/// Watches fast-changing selection state without rebuilding the wallpaper
+/// pager and its image elements.
+class _SystemsBottomBar extends ConsumerWidget {
+  const _SystemsBottomBar();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final allSystems = ref.watch(loadedSystemsProvider);
+    final selectedSystem = ref.watch(selectedSystemProvider);
+    final systemStatsEnabled = ref.watch(systemStatsEnabledProvider);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 8),
+        allSystems.when(
+          data: (systems) {
+            if (systems.isEmpty) return const SizedBox.shrink();
+            final safeIndex = selectedSystem.clamp(0, systems.length - 1);
+            final system = systems[safeIndex];
+            return !systemStatsEnabled ||
+                    (system.isCollection && !system.isRetroAchievements) ||
+                    system.isAndroid
+                ? const SizedBox.shrink()
+                : _SystemStats(system: system);
+          },
+          error: (_, _) => const SizedBox.shrink(),
+          loading: () => const SizedBox.shrink(),
+        ),
+        allSystems.when(
+          data: (systems) => systems.isEmpty
+              ? const SizedBox.shrink()
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 8),
+                    PageViewDotIndicator(
+                      size: const Size(8, 8),
+                      unselectedSize: const Size(8, 8),
+                      currentItem: selectedSystem < systems.length
+                          ? selectedSystem
+                          : 0,
+                      count: systems.length,
+                      unselectedColor: Theme.of(
+                        context,
+                      ).colorScheme.surface.lighten(10),
+                      selectedColor: Theme.of(context).colorScheme.primary,
+                    ),
+                  ],
+                ),
+          error: (_, _) => const SizedBox.shrink(),
+          loading: () => const SizedBox.shrink(),
+        ),
+        const SizedBox(height: 8),
+        const PromptBar(
+          navigations: [
+            GamepadPrompt([GamepadButton.leftRight], "Choose"),
+            GamepadPrompt([GamepadButton.start], "Menu"),
+          ],
+          actions: [
+            GamepadPrompt([GamepadButton.confirm], "Select"),
+          ],
+        ),
       ],
     );
   }
@@ -381,9 +459,21 @@ class _SystemStats extends ConsumerWidget {
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 shadows: [
-                  Shadow(offset: Offset(0, 1), blurRadius: 4, color: Colors.black),
-                  Shadow(offset: Offset(0, 2), blurRadius: 8, color: Colors.black87),
-                  Shadow(offset: Offset(0, 0), blurRadius: 10, color: Colors.black),
+                  Shadow(
+                    offset: Offset(0, 1),
+                    blurRadius: 4,
+                    color: Colors.black,
+                  ),
+                  Shadow(
+                    offset: Offset(0, 2),
+                    blurRadius: 8,
+                    color: Colors.black87,
+                  ),
+                  Shadow(
+                    offset: Offset(0, 0),
+                    blurRadius: 10,
+                    color: Colors.black,
+                  ),
                 ],
               ),
             ),

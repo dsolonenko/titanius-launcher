@@ -6,8 +6,15 @@ class ScraperSystemsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final systems = ref.watch(loadedSystemsProvider);
-    final settings = ref.watch(settingsProvider);
+    final selectionReady = ref.watch(
+      scrapeTheseSystemsProvider.select((selection) => selection.hasValue),
+    );
     final selectedIndex = usePersistentSelection('/settings/scraper/systems');
+
+    void toggleSystem(String id) {
+      final current = ref.read(scrapeTheseSystemsProvider).value ?? const {};
+      ref.read(scrapeTheseSystemsWriterProvider).toggle(current, id);
+    }
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/scraper/systems") return;
@@ -33,28 +40,17 @@ class ScraperSystemsPage extends HookConsumerWidget {
       if (key == GamepadButton.confirm) {
         final system =
             sysList[selectedIndex.value.clamp(0, sysList.length - 1)];
-        final showSystem =
-            settings.value?.scrapeTheseSystems.contains(system.id) ?? false;
-        ref
-            .read(settingsRepoProvider)
-            .setScrapeTheseSystem(system.id, !showSystem)
-            .then((value) {
-              final _ = ref.refresh(settingsProvider);
-            });
+        toggleSystem(system.id);
       }
       if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
       if (key == GamepadButton.x) {
-        ref.read(settingsRepoProvider).setScrapeTheseSystems([]).then((value) {
-          final _ = ref.refresh(settingsProvider);
-        });
+        ref.read(scrapeTheseSystemsWriterProvider).replace(const []);
       }
       if (key == GamepadButton.y) {
         final all = sysList.map((e) => e.id).toList();
-        ref.read(settingsRepoProvider).setScrapeTheseSystems(all).then((value) {
-          final _ = ref.refresh(settingsProvider);
-        });
+        ref.read(scrapeTheseSystemsWriterProvider).replace(all);
       }
     });
 
@@ -72,30 +68,31 @@ class ScraperSystemsPage extends HookConsumerWidget {
       ),
       body: systems.when(
         data: (systems) {
-          return settings.when(
-            skipLoadingOnRefresh: true,
-            skipLoadingOnReload: true,
-            data: (settings) {
-              final sysList = systems
-                  .where((e) => !e.isCollection && !e.isAndroid)
-                  .toList();
-              return ControllerGroupedListView<System, String>(
-                key: const PageStorageKey("settings/scraper/systems"),
-                selectedIndex: selectedIndex.value,
-                elements: sysList,
-                groupBy: (system) => "Systems",
-                groupSeparatorBuilder: (String value) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    value,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ),
-                indexedItemBuilder: (context, system, index) {
-                  final showSystem = settings.scrapeTheseSystems.contains(
-                    system.id,
+          if (!selectionReady) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final sysList = systems
+              .where((e) => !e.isCollection && !e.isAndroid)
+              .toList();
+          return ControllerGroupedListView<System, String>(
+            key: const PageStorageKey("settings/scraper/systems"),
+            selectedIndex: selectedIndex.value,
+            elements: sysList,
+            groupBy: (system) => "Systems",
+            groupSeparatorBuilder: (String value) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(value, style: const TextStyle(color: Colors.grey)),
+            ),
+            indexedItemBuilder: (context, system, index) {
+              final isSelected = index == selectedIndex.value;
+              return Consumer(
+                builder: (context, ref, _) {
+                  final showSystem = ref.watch(
+                    scrapeTheseSystemsProvider.select(
+                      (selection) =>
+                          selection.value?.contains(system.id) ?? false,
+                    ),
                   );
-                  final isSelected = index == selectedIndex.value;
                   return SelectedScrollTile(
                     isSelected: isSelected,
                     child: Container(
@@ -113,15 +110,7 @@ class ScraperSystemsPage extends HookConsumerWidget {
                           dense: true,
                           onTap: () {
                             selectedIndex.value = index;
-                            ref
-                                .read(settingsRepoProvider)
-                                .setScrapeTheseSystem(
-                                  system.id,
-                                  showSystem ? false : true,
-                                )
-                                .then((value) {
-                                  final _ = ref.refresh(settingsProvider);
-                                });
+                            toggleSystem(system.id);
                           },
                           title: Text(
                             system.name,
@@ -146,8 +135,6 @@ class ScraperSystemsPage extends HookConsumerWidget {
                 },
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => const Center(child: Text('Error')),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

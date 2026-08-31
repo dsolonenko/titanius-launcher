@@ -5,13 +5,18 @@ import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:video_player/video_player.dart';
 
 import 'package:titanius/data/models.dart';
-import 'package:titanius/data/repo.dart';
+
+typedef VideoPlaybackSettings = ({bool fadeToVideo, bool muteVideo});
 
 class FadeImageToVideo extends StatefulWidget {
   final Game game;
-  final Settings settings;
+  final VideoPlaybackSettings settings;
 
-  const FadeImageToVideo({super.key, required this.game, required this.settings});
+  const FadeImageToVideo({
+    super.key,
+    required this.game,
+    required this.settings,
+  });
 
   @override
   FadeImageToVideoState createState() => FadeImageToVideoState();
@@ -57,12 +62,16 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
 
   void _scheduleInitialize() {
     _initializeTimer?.cancel();
-    _initializeTimer = Timer(const Duration(milliseconds: 400), _initializeVideo);
+    _initializeTimer = Timer(
+      const Duration(milliseconds: 400),
+      _initializeVideo,
+    );
   }
 
   Future<void> _initializeVideo() async {
     if (!mounted || !_inFocus) return;
-    final controller = VideoPlayerController.file(File(widget.game.videoUrl!))..setLooping(true);
+    final controller = VideoPlayerController.file(File(widget.game.videoUrl!))
+      ..setLooping(true);
     _controller = controller;
 
     if (widget.settings.muteVideo) {
@@ -137,17 +146,28 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
 
   Widget _buildVideoPlayer() {
     final controller = _controller;
-    if (_playVideo && _inFocus && controller != null && controller.value.isInitialized) {
-      return AspectRatio(
-        aspectRatio: controller.value.aspectRatio,
-        child: VideoPlayer(controller),
+    if (_playVideo &&
+        _inFocus &&
+        controller != null &&
+        controller.value.isInitialized) {
+      // This widget normally sits inside an Expanded panel, whose tight
+      // constraints would force a bare AspectRatio to fill both dimensions.
+      // Center loosens the child constraints so videos letterbox just like the
+      // screenshot's BoxFit.contain path instead of stretching to the panel.
+      return Center(
+        child: AspectRatio(
+          aspectRatio: controller.value.aspectRatio,
+          child: VideoPlayer(controller),
+        ),
       );
     } else {
-      return widget.game.imageUrl == null ? const SizedBox.shrink() : Image.file(
-        File(widget.game.imageUrl!),
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.none,
-      );
+      return widget.game.imageUrl == null
+          ? const SizedBox.shrink()
+          : Image.file(
+              File(widget.game.imageUrl!),
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.none,
+            );
     }
   }
 }

@@ -5,7 +5,60 @@ import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/gamepad.dart';
 
+// Prompt glyphs are rendered as text throughout the app, including controller
+// prompts and collection logos. Matching const IconData objects make Flutter's
+// release font tree-shaker retain every dynamically rendered codepoint.
+const _promptFontIcons = <int, IconData>{
+  // Collection logos.
+  0x23F2: IconData(0x23F2, fontFamily: 'Prompt'),
+  0x2605: IconData(0x2605, fontFamily: 'Prompt'),
+  0x2753: IconData(0x2753, fontFamily: 'Prompt'),
+  0x1F3C6: IconData(0x1F3C6, fontFamily: 'Prompt'),
+  0x1F579: IconData(0x1F579, fontFamily: 'Prompt'),
+
+  // Controller prompts.
+  0x219A: IconData(0x219A, fontFamily: 'Prompt'),
+  0x219B: IconData(0x219B, fontFamily: 'Prompt'),
+  0x219C: IconData(0x219C, fontFamily: 'Prompt'),
+  0x219D: IconData(0x219D, fontFamily: 'Prompt'),
+  0x219E: IconData(0x219E, fontFamily: 'Prompt'),
+  0x219F: IconData(0x219F, fontFamily: 'Prompt'),
+  0x21A0: IconData(0x21A0, fontFamily: 'Prompt'),
+  0x21A1: IconData(0x21A1, fontFamily: 'Prompt'),
+  0x21A2: IconData(0x21A2, fontFamily: 'Prompt'),
+  0x21A3: IconData(0x21A3, fontFamily: 'Prompt'),
+  0x21A4: IconData(0x21A4, fontFamily: 'Prompt'),
+  0x21A5: IconData(0x21A5, fontFamily: 'Prompt'),
+  0x21A6: IconData(0x21A6, fontFamily: 'Prompt'),
+  0x21A7: IconData(0x21A7, fontFamily: 'Prompt'),
+  0x21B0: IconData(0x21B0, fontFamily: 'Prompt'),
+  0x21B1: IconData(0x21B1, fontFamily: 'Prompt'),
+  0x21B2: IconData(0x21B2, fontFamily: 'Prompt'),
+  0x21B3: IconData(0x21B3, fontFamily: 'Prompt'),
+  0x21BA: IconData(0x21BA, fontFamily: 'Prompt'),
+  0x21BB: IconData(0x21BB, fontFamily: 'Prompt'),
+  0x21D0: IconData(0x21D0, fontFamily: 'Prompt'),
+  0x21D1: IconData(0x21D1, fontFamily: 'Prompt'),
+  0x21D2: IconData(0x21D2, fontFamily: 'Prompt'),
+  0x21D3: IconData(0x21D3, fontFamily: 'Prompt'),
+  0x21F7: IconData(0x21F7, fontFamily: 'Prompt'),
+  0x21F8: IconData(0x21F8, fontFamily: 'Prompt'),
+  0x21FD: IconData(0x21FD, fontFamily: 'Prompt'),
+  0x21FE: IconData(0x21FE, fontFamily: 'Prompt'),
+};
+
 String getGamepadButtonGlyph(
+  GamepadButton button,
+  ControllerLayout layout,
+  bool swapConfirm,
+) {
+  final glyph = _getGamepadButtonGlyph(button, layout, swapConfirm);
+  if (glyph.isEmpty) return glyph;
+  final icon = _promptFontIcons[glyph.runes.single];
+  return icon == null ? glyph : String.fromCharCode(icon.codePoint);
+}
+
+String _getGamepadButtonGlyph(
   GamepadButton button,
   ControllerLayout layout,
   bool swapConfirm,
@@ -211,9 +264,16 @@ class GamepadPromptWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider).value;
-    final layout = settings?.controllerLayout ?? ControllerLayout.retro;
-    final swapConfirm = settings?.swapConfirm ?? false;
+    final controllerSettings = ref.watch(
+      settingsProvider.select(
+        (settings) => (
+          layout: settings.value?.controllerLayout ?? ControllerLayout.retro,
+          swapConfirm: settings.value?.swapConfirm ?? false,
+        ),
+      ),
+    );
+    final layout = controllerSettings.layout;
+    final swapConfirm = controllerSettings.swapConfirm;
 
     String buttonText = buttons
         .map((button) => getGamepadButtonGlyph(button, layout, swapConfirm))

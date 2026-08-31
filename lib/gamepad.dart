@@ -74,33 +74,30 @@ extension GoRouterLocation on GoRouter {
 }
 
 typedef GamepadListener = void Function(String location, GamepadButton key);
-typedef GamepadChordListener = void Function(
-  String location,
-  GamepadButton key,
-  Set<GamepadButton> pressed,
-);
+typedef GamepadChordListener =
+    void Function(
+      String location,
+      GamepadButton key,
+      Set<GamepadButton> pressed,
+    );
 
-void useGamepad(
-  WidgetRef ref,
-  GamepadListener listener,
-) {
-  final settings = ref.watch(settingsProvider).value;
+void useGamepad(WidgetRef ref, GamepadListener listener) {
+  final swapConfirm = ref.watch(
+    settingsProvider.select((settings) => settings.value?.swapConfirm ?? false),
+  );
   return use(
     _GamepadHook(
       (loc, key, pressed) => listener(loc, key),
-      swapConfirm: settings?.swapConfirm ?? false,
+      swapConfirm: swapConfirm,
     ),
   );
 }
 
-void useGamepadChord(
-  WidgetRef ref,
-  GamepadChordListener listener,
-) {
-  final settings = ref.watch(settingsProvider).value;
-  return use(
-    _GamepadHook(listener, swapConfirm: settings?.swapConfirm ?? false),
+void useGamepadChord(WidgetRef ref, GamepadChordListener listener) {
+  final swapConfirm = ref.watch(
+    settingsProvider.select((settings) => settings.value?.swapConfirm ?? false),
   );
+  return use(_GamepadHook(listener, swapConfirm: swapConfirm));
 }
 
 class _GamepadHook extends Hook<void> {

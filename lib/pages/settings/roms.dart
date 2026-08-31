@@ -5,12 +5,19 @@ class RomsSettingsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final romFolders = ref.watch(romFoldersProvider);
+    final selectionReady = ref.watch(
+      romFoldersChangesProvider.select((selection) => selection.hasValue),
+    );
     final paths = ref.watch(externalRomsPathsProvider);
     final grantedUris = ref.watch(grantedUrisProvider);
 
     final removing = useState(false);
     final selectedIndex = usePersistentSelection('/settings/roms');
+
+    void toggleRomFolder(String path) {
+      final current = ref.read(romFoldersChangesProvider).value ?? const [];
+      ref.read(romFoldersWriterProvider).toggle(current.toSet(), path);
+    }
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/roms") return;
@@ -41,18 +48,7 @@ class RomsSettingsPage extends HookConsumerWidget {
             removing.value = true;
           }
         } else {
-          final pList = romFolders.value ?? [];
-          final included = pList.contains(e as String);
-          final newPaths = List<String>.from(pList);
-          if (included) {
-            newPaths.remove(e);
-          } else {
-            newPaths.add(e);
-          }
-          ref
-              .read(romFoldersRepoProvider)
-              .saveRomsFolders(newPaths)
-              .then((value) => ref.refresh(romFoldersProvider));
+          toggleRomFolder(e as String);
         }
       }
       if (key == GamepadButton.back) {
@@ -73,173 +69,165 @@ class RomsSettingsPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
-      body: romFolders.when(
-        skipLoadingOnRefresh: true,
-        skipLoadingOnReload: true,
-        data: (romFolders) {
-          return paths.when(
-            skipLoadingOnRefresh: true,
-            skipLoadingOnReload: true,
-            data: (paths) {
-              return grantedUris.when(
-                skipLoadingOnRefresh: true,
-                skipLoadingOnReload: true,
-                data: (grantedUris) {
-                  final allPaths = [...paths, ...grantedUris];
-                  return ControllerGroupedListView<Object, String>(
-                    key: const PageStorageKey("settings/systems"),
-                    selectedIndex: selectedIndex.value,
-                    elements: allPaths,
-                    groupBy: (element) => element is GrantedUri
-                        ? "Shared Folders"
-                        : "ROM Folders",
-                    groupSeparatorBuilder: (String value) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        value,
-                        style: const TextStyle(color: Colors.grey),
+      body: !selectionReady
+          ? const Center(child: CircularProgressIndicator())
+          : paths.when(
+              skipLoadingOnRefresh: true,
+              skipLoadingOnReload: true,
+              data: (paths) {
+                return grantedUris.when(
+                  skipLoadingOnRefresh: true,
+                  skipLoadingOnReload: true,
+                  data: (grantedUris) {
+                    final allPaths = [...paths, ...grantedUris];
+                    return ControllerGroupedListView<Object, String>(
+                      key: const PageStorageKey("settings/systems"),
+                      selectedIndex: selectedIndex.value,
+                      elements: allPaths,
+                      groupBy: (element) => element is GrantedUri
+                          ? "Shared Folders"
+                          : "ROM Folders",
+                      groupSeparatorBuilder: (String value) => Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          value,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
                       ),
-                    ),
-                    indexedItemBuilder: (context, e, index) {
-                      final isSelected = index == selectedIndex.value;
-                      if (e is GrantedUri) {
-                        return SelectedScrollTile(
-                          isSelected: isSelected,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 1,
-                            ),
-                            child: Material(
-                              color: isSelected
-                                  ? Colors.white
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(4),
-                              child: ListTile(
-                                selected: isSelected,
-                                selectedColor: Colors.black,
-                                selectedTileColor: Colors.transparent,
-                                dense: true,
-                                onTap: () {
-                                  selectedIndex.value = index;
-                                  if (removing.value) {
-                                    removing.value = false;
-                                    Saf()
-                                        .releasePersistedPermission(
-                                          e.uri.toString(),
+                      indexedItemBuilder: (context, e, index) {
+                        final isSelected = index == selectedIndex.value;
+                        if (e is GrantedUri) {
+                          return SelectedScrollTile(
+                            isSelected: isSelected,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 1,
+                              ),
+                              child: Material(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(4),
+                                child: ListTile(
+                                  selected: isSelected,
+                                  selectedColor: Colors.black,
+                                  selectedTileColor: Colors.transparent,
+                                  dense: true,
+                                  onTap: () {
+                                    selectedIndex.value = index;
+                                    if (removing.value) {
+                                      removing.value = false;
+                                      Saf()
+                                          .releasePersistedPermission(
+                                            e.uri.toString(),
+                                          )
+                                          .then(
+                                            (value) => ref.refresh(
+                                              grantedUrisProvider,
+                                            ),
+                                          );
+                                    } else {
+                                      removing.value = true;
+                                    }
+                                  },
+                                  title: Text(
+                                    e.grantedFullPath,
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    Uri.decodeComponent(e.uri.path),
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.black87
+                                          : Colors.grey,
+                                    ),
+                                  ),
+                                  trailing: isSelected && removing.value
+                                      ? const GamepadPromptWidget(
+                                          buttons: [GamepadButton.confirm],
+                                          prompt: "Confirm?",
                                         )
-                                        .then(
-                                          (value) =>
-                                              ref.refresh(grantedUrisProvider),
-                                        );
-                                  } else {
-                                    removing.value = true;
-                                  }
-                                },
-                                title: Text(
-                                  e.grantedFullPath,
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
+                                      : Icon(
+                                          Icons.delete_rounded,
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.white,
+                                        ),
                                 ),
-                                subtitle: Text(
-                                  Uri.decodeComponent(e.uri.path),
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? Colors.black87
-                                        : Colors.grey,
-                                  ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          final path = e as String;
+                          return Consumer(
+                            builder: (context, ref, _) {
+                              final included = ref.watch(
+                                romFoldersChangesProvider.select(
+                                  (selection) =>
+                                      selection.value?.contains(path) ?? false,
                                 ),
-                                trailing: isSelected && removing.value
-                                    ? const GamepadPromptWidget(
-                                        buttons: [GamepadButton.confirm],
-                                        prompt: "Confirm?",
-                                      )
-                                    : Icon(
-                                        Icons.delete_rounded,
-                                        color: isSelected
-                                            ? Colors.black
-                                            : Colors.white,
+                              );
+                              return SelectedScrollTile(
+                                isSelected: isSelected,
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 1,
+                                  ),
+                                  child: Material(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: ListTile(
+                                      selected: isSelected,
+                                      selectedColor: Colors.black,
+                                      selectedTileColor: Colors.transparent,
+                                      dense: true,
+                                      onTap: () {
+                                        selectedIndex.value = index;
+                                        toggleRomFolder(path);
+                                      },
+                                      title: Text(
+                                        path,
+                                        style: TextStyle(
+                                          color: isSelected
+                                              ? Colors.black
+                                              : Colors.white,
+                                          fontWeight: isSelected
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                        ),
                                       ),
-                              ),
-                            ),
-                          ),
-                        );
-                      } else {
-                        final included = romFolders.contains(e as String);
-                        return SelectedScrollTile(
-                          isSelected: isSelected,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 1,
-                            ),
-                            child: Material(
-                              color: isSelected
-                                  ? Colors.white
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(4),
-                              child: ListTile(
-                                selected: isSelected,
-                                selectedColor: Colors.black,
-                                selectedTileColor: Colors.transparent,
-                                dense: true,
-                                onTap: () {
-                                  selectedIndex.value = index;
-                                  final newPaths = List<String>.from(
-                                    romFolders,
-                                  );
-                                  if (included) {
-                                    newPaths.remove(e);
-                                  } else {
-                                    newPaths.add(e);
-                                  }
-                                  ref
-                                      .read(romFoldersRepoProvider)
-                                      .saveRomsFolders(newPaths)
-                                      .then(
-                                        (value) =>
-                                            ref.refresh(romFoldersProvider),
-                                      );
-                                },
-                                title: Text(
-                                  e,
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
+                                      trailing: included
+                                          ? toggleOnIcon
+                                          : toggleOffIcon,
+                                    ),
                                   ),
                                 ),
-                                trailing: included
-                                    ? toggleOnIcon
-                                    : toggleOffIcon,
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => const Center(child: Text('Error')),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => const Center(child: Text('Error')),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => const Center(child: Text('Error')),
-      ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                    );
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) => const Center(child: Text('Error')),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => const Center(child: Text('Error')),
+            ),
     );
   }
 }

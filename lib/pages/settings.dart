@@ -206,9 +206,7 @@ class SettingsPage extends HookConsumerWidget {
                       ? Text(
                           item.subtitle!,
                           style: TextStyle(
-                            color: isSelected
-                                ? Colors.black87
-                                : Colors.grey,
+                            color: isSelected ? Colors.black87 : Colors.grey,
                           ),
                         )
                       : null,

@@ -36,20 +36,27 @@ class PlatformWallpapersPack {
       "https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/$previewThumbnailPath";
 }
 
-final daijishoPlatformWallpapersPacksProvider = FutureProvider<List<PlatformWallpapersPack>>((ref) async {
-  final response = await http.get(Uri.parse(
-      'https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/index.json'));
+final daijishoPlatformWallpapersPacksProvider =
+    FutureProvider<List<PlatformWallpapersPack>>((ref) async {
+      final response = await http.get(
+        Uri.parse(
+          'https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/index.json',
+        ),
+      );
 
-  if (response.statusCode == 200) {
-    Map<String, dynamic> json = jsonDecode(response.body);
-    List<dynamic> platformWallpapersPackListJson = json['platformWallpapersPackList'];
-    List<PlatformWallpapersPack> platformWallpapersPackList =
-        platformWallpapersPackListJson.map((dynamic item) => PlatformWallpapersPack.fromJson(item)).toList();
-    return platformWallpapersPackList;
-  } else {
-    throw Exception('Failed to load platform wallpapers packs');
-  }
-});
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+        List<dynamic> platformWallpapersPackListJson =
+            json['platformWallpapersPackList'];
+        List<PlatformWallpapersPack> platformWallpapersPackList =
+            platformWallpapersPackListJson
+                .map((dynamic item) => PlatformWallpapersPack.fromJson(item))
+                .toList();
+        return platformWallpapersPackList;
+      } else {
+        throw Exception('Failed to load platform wallpapers packs');
+      }
+    });
 
 class WallpaperPack {
   final String rootPath;
@@ -84,7 +91,9 @@ class WallpaperPack {
       previewThumbnailFilename: json['previewThumbnailFilename'],
       hasDefaultWallpaper: json['hasDefaultWallpaper'],
       defaultWallpaperFilename: json['defaultWallpaperFilename'],
-      wallpaperList: (json['wallpaperList'] as List).map((item) => Wallpaper.fromJson(item)).toList(),
+      wallpaperList: (json['wallpaperList'] as List)
+          .map((item) => Wallpaper.fromJson(item))
+          .toList(),
     );
   }
 
@@ -113,8 +122,11 @@ class Wallpaper {
 
 Future<WallpaperPack?> daijishoWallpaperPack(String rootPath) async {
   try {
-    final response = await http.get(Uri.parse(
-        "https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/$rootPath/index.json"));
+    final response = await http.get(
+      Uri.parse(
+        "https://raw.githubusercontent.com/TapiocaFox/Daijishou/main/themes/platform_wallpapers_packs/$rootPath/index.json",
+      ),
+    );
 
     if (response.statusCode == 200) {
       return WallpaperPack.fromJson(rootPath, json.decode(response.body));
@@ -128,9 +140,14 @@ Future<WallpaperPack?> daijishoWallpaperPack(String rootPath) async {
   }
 }
 
-final daijishoCurrentThemeDataProvider = FutureProvider<WallpaperPack?>((ref) async {
-  final settings = await ref.watch(settingsProvider.future);
-  final wallpaperPack = settings.daijishoWallpaperPack;
+final daijishoCurrentThemeDataProvider = FutureProvider<WallpaperPack?>((
+  ref,
+) async {
+  // Unrelated setting changes must not refetch theme metadata or put the home
+  // screen back into a loading state.
+  final wallpaperPack = await ref.watch(
+    settingsProvider.selectAsync((settings) => settings.daijishoWallpaperPack),
+  );
   if (wallpaperPack == null) {
     return null;
   }

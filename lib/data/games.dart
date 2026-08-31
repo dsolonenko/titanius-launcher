@@ -20,7 +20,8 @@ class GameList {
   final int Function(Game, Game)? compare;
   final Map<int, int> _indexByHash;
 
-  GameList(this.system, this.currentFolder, this.games, this.compare) : _indexByHash = _buildIndex(games);
+  GameList(this.system, this.currentFolder, this.games, this.compare)
+    : _indexByHash = _buildIndex(games);
 
   static Map<int, int> _buildIndex(List<Game> games) {
     final result = <int, int>{};
@@ -39,8 +40,15 @@ final loadedSystemsProvider = FutureProvider<List<System>>((ref) async {
   final allSystems = await allSystemsFuture;
   final romFolders = await romFoldersFuture;
   final availability = await Future.wait(
-      allSystems.map((system) async => MapEntry(system, await hasSystemFolder(system, romFolders))));
-  return [for (final entry in availability) if (entry.value) entry.key];
+    allSystems.map(
+      (system) async =>
+          MapEntry(system, await hasSystemFolder(system, romFolders)),
+    ),
+  );
+  return [
+    for (final entry in availability)
+      if (entry.value) entry.key,
+  ];
 });
 
 Future<bool> hasSystemFolder(System system, List<String> romFolders) async {
@@ -76,12 +84,13 @@ class _GameLoadCoordinator {
   }
 }
 
-typedef SystemGamesLoader = Future<List<Game>> Function(SystemGamesTaskParams params);
+typedef SystemGamesLoader =
+    Future<List<Game>> Function(SystemGamesTaskParams params);
 
 class GameLibrary {
   GameLibrary({int maxConcurrent = 2, SystemGamesLoader? loader})
-      : _coordinator = _GameLoadCoordinator(maxConcurrent),
-        _loader = loader ?? _loadSystemInIsolate;
+    : _coordinator = _GameLoadCoordinator(maxConcurrent),
+      _loader = loader ?? _loadSystemInIsolate;
 
   final _GameLoadCoordinator _coordinator;
   final SystemGamesLoader _loader;
@@ -99,7 +108,11 @@ class GameLibrary {
     return future;
   }
 
-  Future<List<Game>> _load(String key, Object token, SystemGamesTaskParams params) async {
+  Future<List<Game>> _load(
+    String key,
+    Object token,
+    SystemGamesTaskParams params,
+  ) async {
     try {
       return await _coordinator.run(() => _loader(params));
     } catch (_) {
@@ -123,11 +136,15 @@ Future<List<Game>> _loadSystemInIsolate(SystemGamesTaskParams params) =>
 
 final gameLibraryProvider = Provider((ref) => GameLibrary());
 
-final systemGamesProvider = FutureProvider.family<List<Game>, String>((ref, systemId) async {
+final systemGamesProvider = FutureProvider.family<List<Game>, String>((
+  ref,
+  systemId,
+) async {
   final systemsFuture = ref.watch(detectedSystemsProvider.future);
   final romFoldersFuture = ref.watch(romFoldersProvider.future);
-  final onlyGamelistRomsFuture =
-      ref.watch(settingsProvider.selectAsync((settings) => settings.showOnlyGamelistRoms));
+  final onlyGamelistRomsFuture = ref.watch(
+    settingsProvider.selectAsync((settings) => settings.showOnlyGamelistRoms),
+  );
   final library = ref.watch(gameLibraryProvider);
   final systems = await systemsFuture;
   final romFolders = await romFoldersFuture;
@@ -141,16 +158,19 @@ final systemGamesProvider = FutureProvider.family<List<Game>, String>((ref, syst
 final allGamesProvider = FutureProvider<List<Game>>((ref) async {
   final detectedSystemsFuture = ref.watch(detectedSystemsProvider.future);
   final romFoldersFuture = ref.watch(romFoldersProvider.future);
-  final onlyGamelistRomsFuture =
-      ref.watch(settingsProvider.selectAsync((settings) => settings.showOnlyGamelistRoms));
+  final onlyGamelistRomsFuture = ref.watch(
+    settingsProvider.selectAsync((settings) => settings.showOnlyGamelistRoms),
+  );
   final library = ref.watch(gameLibraryProvider);
   final detectedSystems = await detectedSystemsFuture;
   final romFolders = await romFoldersFuture;
   final onlyGamelistRoms = await onlyGamelistRomsFuture;
-  final systems = detectedSystems.where((system) => !system.isCollection && !system.isAndroid);
+  final systems = detectedSystems.where(
+    (system) => !system.isCollection && !system.isAndroid,
+  );
   final results = await Future.wait([
     for (final system in systems)
-      library.load(SystemGamesTaskParams(romFolders, system, onlyGamelistRoms))
+      library.load(SystemGamesTaskParams(romFolders, system, onlyGamelistRoms)),
   ]);
   return [for (final games in results) ...games];
 });
@@ -168,12 +188,23 @@ Future<List<Game>> _processSystem(SystemGamesTaskParams params) async {
   try {
     for (final root in params.romFolders) {
       for (final folder in params.system.folders) {
-        games.addAll(await _processFolder(GamelistTaskParams(root, folder, params.system, params.onlyGamelistRoms)));
+        games.addAll(
+          await _processFolder(
+            GamelistTaskParams(
+              root,
+              folder,
+              params.system,
+              params.onlyGamelistRoms,
+            ),
+          ),
+        );
       }
     }
   } finally {
     stopwatch.stop();
-    debugPrint('${params.system.id}: loaded ${games.length} games in ${stopwatch.elapsedMilliseconds}ms');
+    debugPrint(
+      '${params.system.id}: loaded ${games.length} games in ${stopwatch.elapsedMilliseconds}ms',
+    );
   }
   return games;
 }
@@ -184,7 +215,12 @@ class GamelistTaskParams {
   final System system;
   final bool onlyGamelistRoms;
 
-  GamelistTaskParams(this.romsFolder, this.folder, this.system, this.onlyGamelistRoms);
+  GamelistTaskParams(
+    this.romsFolder,
+    this.folder,
+    this.system,
+    this.onlyGamelistRoms,
+  );
 }
 
 Future<List<Game>> _processFolder(GamelistTaskParams params) async {
@@ -198,23 +234,35 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
     final exists = await file.exists();
     final gamesFromGamelistXml = exists
         ? await file
-          .openRead()
-          .transform(utf8.decoder)
-          .toXmlEvents()
-          .normalizeEvents()
-          .selectSubtreeEvents((event) => event.name == 'game' || event.name == 'folder')
-          .toXmlNodes()
-          .expand((nodes) => nodes)
-          .map((node) => Game.fromXmlNode(node, params.system, params.romsFolder, params.folder))
-          .toList()
+              .openRead()
+              .transform(utf8.decoder)
+              .toXmlEvents()
+              .normalizeEvents()
+              .selectSubtreeEvents(
+                (event) => event.name == 'game' || event.name == 'folder',
+              )
+              .toXmlNodes()
+              .expand((nodes) => nodes)
+              .map(
+                (node) => Game.fromXmlNode(
+                  node,
+                  params.system,
+                  params.romsFolder,
+                  params.folder,
+                ),
+              )
+              .toList()
         : <Game>[];
     if (params.onlyGamelistRoms) return gamesFromGamelistXml;
-    final romsMap = {for (final rom in gamesFromGamelistXml) rom.absoluteRomPath: rom};
+    final romsMap = {
+      for (final rom in gamesFromGamelistXml) rom.absoluteRomPath: rom,
+    };
     final games = <Game>[];
     await for (final game in streamGamesFromFiles(
-        romsFolder: params.romsFolder,
-        folder: params.folder,
-        system: params.system)) {
+      romsFolder: params.romsFolder,
+      folder: params.folder,
+      system: params.system,
+    )) {
       games.add(romsMap[game.absoluteRomPath] ?? game);
     }
     return games;
@@ -224,11 +272,27 @@ Future<List<Game>> _processFolder(GamelistTaskParams params) async {
   }
 }
 
-final gamesProvider = FutureProvider.family<GameList, String>((ref, systemId) async {
+final gamesProvider = FutureProvider.family<GameList, String>((
+  ref,
+  systemId,
+) async {
   final isCollection = collections.any((c) => c.id == systemId);
-  final sourceProvider = isCollection ? allGamesProvider : systemGamesProvider(systemId);
+  final sourceProvider = isCollection
+      ? allGamesProvider
+      : systemGamesProvider(systemId);
   final systemsFuture = ref.watch(allSupportedSystemsProvider.future);
-  final settingsFuture = ref.watch(settingsProvider.future);
+  // A scraper credential/checklist or wallpaper change cannot affect a game
+  // list. Select only the fields used below so those unrelated writes do not
+  // recompute every active list and folder provider.
+  final settingsFuture = ref.watch(
+    settingsProvider.selectAsync(
+      (settings) => (
+        favouritesOnTop: settings.favouritesOnTop,
+        showHiddenGames: settings.showHiddenGames,
+        uniqueGamesInCollections: settings.uniqueGamesInCollections,
+      ),
+    ),
+  );
   final recentGamesFuture = ref.watch(recentGamesProvider.future);
   final sourceGamesFuture = ref.watch(sourceProvider.future);
   final systems = await systemsFuture;
@@ -247,38 +311,56 @@ final gamesProvider = FutureProvider.family<GameList, String>((ref, systemId) as
     case "favourites":
       compare(Game a, Game b) => a.name.compareTo(b.name);
       final games = allGames.where((game) => game.favorite).sorted(compare);
-      final gamesInCollection = settings.uniqueGamesInCollections ? _uniqueGames(games) : games;
-      return GameList(system, ".", gamesInCollection, (a, b) => a.name.compareTo(b.name));
-    case "recent":
-      Map<String, int> recentGamesMap = {
-        for (var item in recentGames) item.romPath: item.timestamp,
-      };
-      compare(Game a, Game b) => recentGamesMap[b.romPath]!.compareTo(recentGamesMap[a.romPath]!);
-      final games = allGames.where((game) => recentGamesMap.containsKey(game.romPath)).sorted(compare);
-      final gamesInCollection = settings.uniqueGamesInCollections ? _uniqueGames(games) : games;
+      final gamesInCollection = settings.uniqueGamesInCollections
+          ? _uniqueGames(games)
+          : games;
       return GameList(
         system,
         ".",
         gamesInCollection,
-        compare,
+        (a, b) => a.name.compareTo(b.name),
       );
+    case "recent":
+      Map<String, int> recentGamesMap = {
+        for (var item in recentGames) item.romPath: item.timestamp,
+      };
+      compare(Game a, Game b) =>
+          recentGamesMap[b.romPath]!.compareTo(recentGamesMap[a.romPath]!);
+      final games = allGames
+          .where((game) => recentGamesMap.containsKey(game.romPath))
+          .sorted(compare);
+      final gamesInCollection = settings.uniqueGamesInCollections
+          ? _uniqueGames(games)
+          : games;
+      return GameList(system, ".", gamesInCollection, compare);
     case "all":
-      final sorter = GameSorter(settings);
-      final gamesButNotFolders = allGames.where((game) => !game.isFolder).toList();
-      final games = settings.uniqueGamesInCollections ? _uniqueGames(gamesButNotFolders) : gamesButNotFolders;
-      final gamesInCollection = _sortGames(settings, games);
+      final sorter = GameSorter(settings.favouritesOnTop);
+      final gamesButNotFolders = allGames
+          .where((game) => !game.isFolder)
+          .toList();
+      final games = settings.uniqueGamesInCollections
+          ? _uniqueGames(gamesButNotFolders)
+          : gamesButNotFolders;
+      final gamesInCollection = _sortGames(settings.favouritesOnTop, games);
       return GameList(system, ".", gamesInCollection, sorter.compare);
     case "no_metadata":
-      final sorter = GameSorter(settings);
-      final gamesWithoutMetadata = allGames.where((game) => !game.isFolder && !game.hasMetadata).toList();
-      final games = settings.uniqueGamesInCollections ? _uniqueGames(gamesWithoutMetadata) : gamesWithoutMetadata;
-      final gamesInCollection = _sortGames(settings, games);
+      final sorter = GameSorter(settings.favouritesOnTop);
+      final gamesWithoutMetadata = allGames
+          .where((game) => !game.isFolder && !game.hasMetadata)
+          .toList();
+      final games = settings.uniqueGamesInCollections
+          ? _uniqueGames(gamesWithoutMetadata)
+          : gamesWithoutMetadata;
+      final gamesInCollection = _sortGames(settings.favouritesOnTop, games);
       return GameList(system, ".", gamesInCollection, sorter.compare);
     case "retroachievements":
       return GameList(system, ".", [], (a, b) => 0);
     default:
-      final sorter = GameSorter(settings);
-      final games = _sortGames(settings, allGames.where((game) => game.system.id == system.id).toList());
+      final sorter = GameSorter(settings.favouritesOnTop);
+      final games = _sortGames(
+        settings.favouritesOnTop,
+        allGames.where((game) => game.system.id == system.id).toList(),
+      );
       return GameList(system, ".", games, sorter.compare);
   }
 });
@@ -290,15 +372,15 @@ List<Game> _uniqueGames(List<Game> allGames) {
   return uniqueGames;
 }
 
-List<Game> _sortGames(Settings settings, List<Game> allGames) {
-  final sorter = GameSorter(settings);
+List<Game> _sortGames(bool favouritesOnTop, List<Game> allGames) {
+  final sorter = GameSorter(favouritesOnTop);
   return allGames.sorted(sorter.compare);
 }
 
 class GameSorter {
-  final Settings settings;
+  final bool favouritesOnTop;
 
-  GameSorter(this.settings);
+  GameSorter(this.favouritesOnTop);
 
   int compare(Game a, Game b) {
     // folders on top
@@ -311,7 +393,7 @@ class GameSorter {
     if (b.isFolder) {
       return 1;
     }
-    if (settings.favouritesOnTop) {
+    if (favouritesOnTop) {
       if (a.favorite && b.favorite) {
         final c = a.name.compareTo(b.name);
         if (c == 0) {
