@@ -1,7 +1,5 @@
 # Titanius Launcher
 
-[![Codemagic build status](https://api.codemagic.io/apps/641a93e956ceb17664370612/android-workflow/status_badge.svg)](https://codemagic.io/apps/641a93e956ceb17664370612/android-workflow/latest_build)
-
 Titanius Launcher is a minimalistic, controller-first retro game launcher designed for those who want to enjoy a seamless gaming experience on their Android devices. 
 Inspired by EmulationStation and AmberELEC, it allows users to easily integrate their pre-scraped ROMs libraries from Linux systems like AmberELEC, JELOS and ArkOS. 
 
@@ -9,6 +7,7 @@ Inspired by EmulationStation and AmberELEC, it allows users to easily integrate 
 - [x] Minimalistic, controller-first UI
 - [x] Reuse your existing pre-scraped ROMs library from Linux systems like AmberELEC or use built-in scraper
 - [x] Out of the box supports around 70 systems with Retroarch 64-bit and standlone emulators
+- [x] 🏆 RetroAchievements Integration
 
 ## Download
 
@@ -20,6 +19,7 @@ While Titanius Launcher does have built-in scraper, it was designed with the int
 
 1. Organize your ROMs in a folder structure like this: [AmberELEC](https://amberelec.org/systems/)
 2. Use [Skraper](https://www.skraper.net/) to scrape your ROMs and generate `gamelist.xml` files, along with images and/or videos. Have a look at the [Wiki](https://github.com/dsolonenko/titanius-launcher/wiki/Skraper-Settings) for the best settings.
+   OR You can also use the internal scraper later.
 3. Transfer your ROMs to your Android device's Internal Storage or SD card in one of these locations: `Internal Storage/Roms`, `SD Card/. (Root)`, `SD Card/Roms`
 4. Set up Titanius Launcher to include the ROMs folder
 5. Have fun!
@@ -35,12 +35,6 @@ While it works fine for most systems, it can take minutes per rom for CD-based s
 
 The scraper is still work in progress, some things dont work yet like folders support.
 
-## Standalone Emulators
-
-Due to the Storage Access Framework (SAF) restrictions, you might have to grant Titanius Launcher permission to share ROM files with standalone emulators. 
-To accomplish this, navigate to Settings -> ROMs Folders -> Add Shared Folder and add the relevant folders. Ensure that these folders correspond to the ones used in your standalone emulators. 
-For instance, if you're using the standalone Drastic for DS, the shared folder in Titanius Launcher and the Drastic folder should both be set to `[ROMs Folder Location]/Roms/nds`.
-
 ## Custom Emulators
 
 Sometimes it is necessary to use a custom emulator for a particular system. To do so, navigate to Settings -> Custom Emulators and add a new emulator.
@@ -55,12 +49,12 @@ All credit goes to the original contributors. The images are loaded over network
 
 1. Expect some bugs.
 2. All ROMs metadata is stored in EmulationStation's `gamelist.xml` files.
-3. Offers minimal required functionality. If you're seeking something more robust, [Daijishō](https://github.com/magneticchen/Daijishou) is highly recommended.
+3. Offers minimal required functionality. If you're seeking something more robust, [Daijishō](https://github.com/magneticchen/Daijishou) or ES-DE (Andoroid) is highly recommended.
 4. Currently configured with [Retroarch 64-bit](https://buildbot.libretro.com/stable/1.15.0/android/RetroArch_aarch64.apk) and a few standalone emulators. For a list of supported systems and emulators, see this [JSON config file](assets/metadata.json).
 5. Can function as a home launcher or a standalone frontend.
 6. Relies on the controller, touch interface can be hit and miss
 
-## Screenshots
+## Screenshots (a bit outdated)
 
 Landing page with a scrolling list of systems:
 ![Screenshot](assets/screenshots/01.png)
