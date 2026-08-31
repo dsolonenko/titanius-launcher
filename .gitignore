@@ -28,6 +28,7 @@
 .pub/
 build/
 **/build/
+**/*.g.dart
 
 # Symbolication related
 app.*.symbols
@@ -44,8 +45,11 @@ app.*.map.json
 /android/build/
 /android/app/build/
 *.keystore
+
+# Environment & Secrets
 .env
 *.env
+**/.env*
 
 # macOS & iOS ephemeral files
 /macos/Flutter/ephemeral/

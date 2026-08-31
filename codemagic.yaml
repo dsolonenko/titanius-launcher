@@ -42,6 +42,11 @@ workflows:
       - name: Get Flutter packages
         script: | 
           flutter pub get
+      - name: Set up .env
+        script: | 
+          echo "SSDEVID=$SSDEVID" > "$CM_BUILD_DIR/.env"
+          echo "SSDEVPWD=$SSDEVPWD" >> "$CM_BUILD_DIR/.env"
+          echo "SSAPPNAME=$SSAPPNAME" >> "$CM_BUILD_DIR/.env"
       - name: Run build_runner
         script: | 
           dart run build_runner build --delete-conflicting-outputs
