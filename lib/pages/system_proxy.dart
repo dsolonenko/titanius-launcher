@@ -5,6 +5,7 @@ import 'package:titanius/data/games.dart';
 
 import 'package:titanius/pages/android.dart';
 import 'package:titanius/pages/games.dart';
+import 'package:titanius/pages/player_retroachievements.dart';
 import 'package:titanius/data/state.dart';
 import 'package:titanius/gamepad.dart';
 
@@ -15,16 +16,21 @@ class SystemProxy extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final allSystems = ref.watch(loadedSystemsProvider);
 
+    final isAndroid = system == "android";
+    final isRetroAchievements = system == "retroachievements";
+
     useGamepad(ref, (location, key) {
       if (location != "/games/$system") return;
       if (allSystems.value == null || allSystems.value!.isEmpty) return;
-      if (key == GamepadButton.r2 || (system != "android" && key == GamepadButton.right)) {
+      if (key == GamepadButton.r2 ||
+          (!isAndroid && !isRetroAchievements && key == GamepadButton.right)) {
         final currentSystem = ref.read(selectedSystemProvider);
         final next = (currentSystem + 1) % allSystems.value!.length;
         ref.read(selectedSystemProvider.notifier).state = next;
         GoRouter.of(context).go("/games/${allSystems.value![next].id}");
       }
-      if (key == GamepadButton.l2 || (system != "android" && key == GamepadButton.left)) {
+      if (key == GamepadButton.l2 ||
+          (!isAndroid && !isRetroAchievements && key == GamepadButton.left)) {
         final currentSystem = ref.read(selectedSystemProvider);
         final prev = currentSystem - 1 < 0 ? allSystems.value!.length - 1 : currentSystem - 1;
         ref.read(selectedSystemProvider.notifier).state = prev;
@@ -35,8 +41,10 @@ class SystemProxy extends HookConsumerWidget {
       }
     });
 
-    if (system == "android") {
+    if (isAndroid) {
       return const AndroidPage();
+    } else if (isRetroAchievements) {
+      return const PlayerRetroAchievementsPage();
     } else {
       return GamesPage(
         system: system,

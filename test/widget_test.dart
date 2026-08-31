@@ -151,7 +151,7 @@ void main() {
       final game = Game(
         system,
         'Tetris (W) (V1.1) [!]',
-        '/Users/ds/Roms',
+        '/mock/roms',
         'gb',
         '.',
         './Tetris (W) (V1.1) [!].zip',
@@ -170,7 +170,7 @@ void main() {
       final inMemoryMap = <String, dynamic>{
         'system': system,
         'name': 'Donkey Kong',
-        'volumePath': '/Users/ds/Roms',
+        'volumePath': '/mock/roms',
         'systemFolder': 'gb',
         'folder': '.',
         'rom': './Donkey Kong.zip',

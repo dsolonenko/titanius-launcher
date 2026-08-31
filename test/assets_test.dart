@@ -15,7 +15,7 @@ Future<void> main() async {
         ]);
 
         final allSystemsWithCollections = await container.read(allSupportedSystemsProvider.future);
-        expect(allSystemsWithCollections.length, 80);
+        expect(allSystemsWithCollections.length, 81);
         final allSystems = allSystemsWithCollections.where((element) => !element.isCollection);
         expect(allSystems.length, 76);
         for (final system in allSystems) {

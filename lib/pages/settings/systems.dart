@@ -112,6 +112,16 @@ class ShowSystemsSettingsPage extends HookConsumerWidget {
                                   : FontWeight.normal,
                             ),
                           ),
+                          subtitle: system.isRetroAchievements &&
+                                  !(ref.watch(settingsProvider).value?.hasRetroAchievements ?? false)
+                              ? Text(
+                                  "Requires RetroAchievements login",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isSelected ? Colors.black54 : Colors.orangeAccent,
+                                  ),
+                                )
+                              : null,
                           trailing: showSystem ? toggleOnIcon : toggleOffIcon,
                         ),
                       ),

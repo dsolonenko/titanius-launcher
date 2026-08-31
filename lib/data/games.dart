@@ -274,6 +274,8 @@ final gamesProvider = FutureProvider.family<GameList, String>((ref, systemId) as
       final games = settings.uniqueGamesInCollections ? _uniqueGames(gamesWithoutMetadata) : gamesWithoutMetadata;
       final gamesInCollection = _sortGames(settings, games);
       return GameList(system, ".", gamesInCollection, sorter.compare);
+    case "retroachievements":
+      return GameList(system, ".", [], (a, b) => 0);
     default:
       final sorter = GameSorter(settings);
       final games = _sortGames(settings, allGames.where((game) => game.system.id == system.id).toList());

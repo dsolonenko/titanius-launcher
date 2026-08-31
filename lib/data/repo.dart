@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:titanius/data/database.dart';
 import 'package:titanius/data/models.dart';
+import 'package:titanius/data/retroachievements_matcher.dart';
 import 'package:titanius/data/storage.dart';
 
 export 'package:drift/drift.dart' hide Column;
@@ -32,7 +33,6 @@ class Settings {
   String? get screenScraperPwd => _getString('screenScraperPwd');
   String? get retroAchievementsUser => _getString('retroAchievementsUser');
   String? get retroAchievementsApiKey => _getString('retroAchievementsApiKey');
-  bool get showRetroAchievementsInAppBar => _getBoolean('showRetroAchievementsInAppBar', true);
   bool get hasRetroAchievements =>
       retroAchievementsUser != null &&
       retroAchievementsUser!.trim().isNotEmpty &&
@@ -139,10 +139,6 @@ class SettingsRepo {
 
   Future<void> setRetroAchievementsApiKey(String value) async {
     return _setSetting('retroAchievementsApiKey', value.trim());
-  }
-
-  Future<void> setShowRetroAchievementsInAppBar(bool value) async {
-    return _setBoolean('showRetroAchievementsInAppBar', value);
   }
 
   Future<void> clearRetroAchievements() async {
@@ -299,7 +295,9 @@ class EnabledSystems {
 
   bool get showSystemAndroid => showSystem('android');
   bool get showSystemFavourites => showSystem('favourites');
-  bool showSystem(String id) => _getBoolean('showSystem/$id', id == 'no_metadata' ? false : true);
+  bool get showSystemRetroAchievements => showSystem('retroachievements');
+  bool showSystem(String id) =>
+      _getBoolean('showSystem/$id', (id == 'no_metadata' || id == 'retroachievements') ? false : true);
   bool _getBoolean(String key, bool defaultValue) {
     return settings.containsKey(key) ? settings[key]!.value == "true" : defaultValue;
   }
@@ -358,6 +356,162 @@ class AndroidAppsRepo {
     }
   }
 }
+
+class GameRetroAchievementsRepo {
+  final AppDatabase db;
+
+  GameRetroAchievementsRepo(this.db);
+
+  Future<GameRetroAchievements?> getEntry(String romPath) async {
+    return (db.select(db.gameRetroAchievementsEntries)
+          ..where((t) => t.romPath.equals(romPath)))
+        .getSingleOrNull();
+  }
+
+  Future<Map<String, GameRetroAchievements>> getEntriesForSystem(
+    System system,
+    List<Game> games,
+  ) async {
+    if (games.isEmpty) return {};
+    final romPaths = games.map((g) => g.romPath).toList();
+    final list = await (db.select(db.gameRetroAchievementsEntries)
+          ..where((t) => t.romPath.isIn(romPaths)))
+        .get();
+    return {for (final e in list) e.romPath: e};
+  }
+
+  Future<Map<String, GameRetroAchievements>> getAllEntries() async {
+    final list = await db.select(db.gameRetroAchievementsEntries).get();
+    return {for (final e in list) e.romPath: e};
+  }
+
+  Future<void> saveEntry({
+    required String romPath,
+    required String md5Hash,
+    int? raGameId,
+    int numAchievements = 0,
+    int points = 0,
+    String? raTitle,
+    String? badgeUrl,
+  }) async {
+    await db.into(db.gameRetroAchievementsEntries).insert(
+          GameRetroAchievementsEntriesCompanion.insert(
+            romPath: romPath,
+            md5Hash: md5Hash,
+            raGameId: Value(raGameId),
+            numAchievements: Value(numAchievements),
+            points: Value(points),
+            raTitle: Value(raTitle),
+            badgeUrl: Value(badgeUrl),
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+  }
+}
+
+class RetroAchievementsCacheRepo {
+  final AppDatabase db;
+  final Map<String, (String json, int timestamp)> _memoryCache = {};
+
+  RetroAchievementsCacheRepo(this.db);
+
+  String? getSyncCache(
+    String key, {
+    Duration maxAge = const Duration(hours: 24),
+  }) {
+    final entry = _memoryCache[key];
+    if (entry == null) return null;
+    final age = DateTime.now().millisecondsSinceEpoch - entry.$2;
+    if (age < maxAge.inMilliseconds) {
+      return entry.$1;
+    }
+    return null;
+  }
+
+  Future<String?> getValidCache(
+    String key, {
+    Duration maxAge = const Duration(hours: 24),
+  }) async {
+    final syncHit = getSyncCache(key, maxAge: maxAge);
+    if (syncHit != null) return syncHit;
+
+    final entry = await (db.select(db.retroAchievementsApiCacheEntries)
+          ..where((t) => t.cacheKey.equals(key)))
+        .getSingleOrNull();
+    if (entry == null) return null;
+    _memoryCache[key] = (entry.responseJson, entry.timestamp);
+    final age = DateTime.now().millisecondsSinceEpoch - entry.timestamp;
+    if (age < maxAge.inMilliseconds) {
+      return entry.responseJson;
+    }
+    return null;
+  }
+
+  Future<String?> getAnyCache(String key) async {
+    if (_memoryCache.containsKey(key)) {
+      return _memoryCache[key]!.$1;
+    }
+    final entry = await (db.select(db.retroAchievementsApiCacheEntries)
+          ..where((t) => t.cacheKey.equals(key)))
+        .getSingleOrNull();
+    if (entry != null) {
+      _memoryCache[key] = (entry.responseJson, entry.timestamp);
+    }
+    return entry?.responseJson;
+  }
+
+  Future<void> putCache(String key, String responseJson) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    _memoryCache[key] = (responseJson, now);
+    await db.into(db.retroAchievementsApiCacheEntries).insert(
+          RetroAchievementsApiCacheEntriesCompanion.insert(
+            cacheKey: key,
+            responseJson: responseJson,
+            timestamp: now,
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+  }
+
+  Future<List<(String key, String responseJson)>> getAllValidCacheEntries(
+    String prefix, {
+    Duration maxAge = const Duration(hours: 24),
+  }) async {
+    final entries = await (db.select(db.retroAchievementsApiCacheEntries)
+          ..where((t) => t.cacheKey.like('$prefix%')))
+        .get();
+
+    final result = <(String key, String responseJson)>[];
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    for (final entry in entries) {
+      final age = now - entry.timestamp;
+      if (age < maxAge.inMilliseconds) {
+        _memoryCache[entry.cacheKey] = (entry.responseJson, entry.timestamp);
+        result.add((entry.cacheKey, entry.responseJson));
+      }
+    }
+    return result;
+  }
+
+  Future<void> invalidate(String key) async {
+    _memoryCache.remove(key);
+    await (db.delete(db.retroAchievementsApiCacheEntries)
+          ..where((t) => t.cacheKey.equals(key)))
+        .go();
+  }
+
+  Future<void> clearAll() async {
+    _memoryCache.clear();
+    await db.delete(db.retroAchievementsApiCacheEntries).go();
+  }
+}
+
+final retroAchievementsCacheRepoProvider =
+    Provider<RetroAchievementsCacheRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return RetroAchievementsCacheRepo(db);
+});
 
 final settingsRepoProvider = Provider<SettingsRepo>((ref) {
   final db = ref.watch(databaseProvider);
@@ -425,6 +579,31 @@ final perGameConfigurationProvider = FutureProvider.family<GameEmulator?, Game?>
   }
   final repo = ref.watch(perGameConfigurationRepoProvider);
   return repo.getGameEmulator(game);
+});
+
+final gameRetroAchievementsRepoProvider =
+    Provider<GameRetroAchievementsRepo>((ref) {
+  final db = ref.watch(databaseProvider);
+  return GameRetroAchievementsRepo(db);
+});
+
+final gameRetroAchievementsProvider =
+    FutureProvider.family<GameRetroAchievements?, Game?>((ref, game) async {
+  if (game == null) return null;
+  final repo = ref.watch(gameRetroAchievementsRepoProvider);
+  final entry = await repo.getEntry(game.romPath);
+  if (entry != null) return entry;
+  if (game.system.hasRetroAchievements) {
+    return resolveGameRetroAchievements(game: game, repo: repo);
+  }
+  return null;
+});
+
+final systemRetroAchievementsProvider =
+    FutureProvider.family<Map<String, GameRetroAchievements>, ({System system, List<Game> games})>(
+        (ref, arg) async {
+  final repo = ref.watch(gameRetroAchievementsRepoProvider);
+  return repo.getEntriesForSystem(arg.system, arg.games);
 });
 
 final enabledSystemsRepoProvider = Provider<EnabledSystemsRepo>((ref) {

@@ -41,6 +41,10 @@ String getGamepadButtonGlyph(
           return "\u{219A}";
         case GamepadButton.r2:
           return "\u{219B}";
+        case GamepadButton.l3:
+          return "\u{21BA}";
+        case GamepadButton.r3:
+          return "\u{21BB}";
         case GamepadButton.start:
           return "\u{21F8}";
         case GamepadButton.select:
@@ -78,6 +82,10 @@ String getGamepadButtonGlyph(
           return "\u{219A}";
         case GamepadButton.r2:
           return "\u{219B}";
+        case GamepadButton.l3:
+          return "\u{21BA}";
+        case GamepadButton.r3:
+          return "\u{21BB}";
         case GamepadButton.start:
           return "\u{21FE}";
         case GamepadButton.select:
@@ -115,6 +123,10 @@ String getGamepadButtonGlyph(
           return "\u{21B1}";
         case GamepadButton.r2:
           return "\u{21B3}";
+        case GamepadButton.l3:
+          return "\u{21BA}";
+        case GamepadButton.r3:
+          return "\u{21BB}";
         case GamepadButton.start:
           return "\u{21F8}";
         case GamepadButton.select:
@@ -152,6 +164,10 @@ String getGamepadButtonGlyph(
           return "\u{21B1}";
         case GamepadButton.r2:
           return "\u{21B3}";
+        case GamepadButton.l3:
+          return "\u{21BA}";
+        case GamepadButton.r3:
+          return "\u{21BB}";
         case GamepadButton.start:
           return "\u{21F8}";
         case GamepadButton.select:
@@ -175,8 +191,10 @@ const gamepadFontMappings = {
   GamepadButton.y: "\u{21D1}",
   GamepadButton.l1: "\u{21B0}",
   GamepadButton.l2: "\u{21B2}",
+  GamepadButton.l3: "\u{21BA}",
   GamepadButton.r1: "\u{21B1}",
   GamepadButton.r2: "\u{21B3}",
+  GamepadButton.r3: "\u{21BB}",
   GamepadButton.start: "\u{21F8}",
   GamepadButton.select: "\u{21F7}",
 };

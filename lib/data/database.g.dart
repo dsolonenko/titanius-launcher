@@ -1456,6 +1456,833 @@ class AndroidAppEntriesCompanion extends UpdateCompanion<AndroidApp> {
   }
 }
 
+class $GameRetroAchievementsEntriesTable extends GameRetroAchievementsEntries
+    with TableInfo<$GameRetroAchievementsEntriesTable, GameRetroAchievements> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GameRetroAchievementsEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _romPathMeta = const VerificationMeta(
+    'romPath',
+  );
+  @override
+  late final GeneratedColumn<String> romPath = GeneratedColumn<String>(
+    'rom_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _md5HashMeta = const VerificationMeta(
+    'md5Hash',
+  );
+  @override
+  late final GeneratedColumn<String> md5Hash = GeneratedColumn<String>(
+    'md5_hash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _raGameIdMeta = const VerificationMeta(
+    'raGameId',
+  );
+  @override
+  late final GeneratedColumn<int> raGameId = GeneratedColumn<int>(
+    'ra_game_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _numAchievementsMeta = const VerificationMeta(
+    'numAchievements',
+  );
+  @override
+  late final GeneratedColumn<int> numAchievements = GeneratedColumn<int>(
+    'num_achievements',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _pointsMeta = const VerificationMeta('points');
+  @override
+  late final GeneratedColumn<int> points = GeneratedColumn<int>(
+    'points',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _raTitleMeta = const VerificationMeta(
+    'raTitle',
+  );
+  @override
+  late final GeneratedColumn<String> raTitle = GeneratedColumn<String>(
+    'ra_title',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _badgeUrlMeta = const VerificationMeta(
+    'badgeUrl',
+  );
+  @override
+  late final GeneratedColumn<String> badgeUrl = GeneratedColumn<String>(
+    'badge_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    romPath,
+    md5Hash,
+    raGameId,
+    numAchievements,
+    points,
+    raTitle,
+    badgeUrl,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'game_retro_achievements_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GameRetroAchievements> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('rom_path')) {
+      context.handle(
+        _romPathMeta,
+        romPath.isAcceptableOrUnknown(data['rom_path']!, _romPathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_romPathMeta);
+    }
+    if (data.containsKey('md5_hash')) {
+      context.handle(
+        _md5HashMeta,
+        md5Hash.isAcceptableOrUnknown(data['md5_hash']!, _md5HashMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_md5HashMeta);
+    }
+    if (data.containsKey('ra_game_id')) {
+      context.handle(
+        _raGameIdMeta,
+        raGameId.isAcceptableOrUnknown(data['ra_game_id']!, _raGameIdMeta),
+      );
+    }
+    if (data.containsKey('num_achievements')) {
+      context.handle(
+        _numAchievementsMeta,
+        numAchievements.isAcceptableOrUnknown(
+          data['num_achievements']!,
+          _numAchievementsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('points')) {
+      context.handle(
+        _pointsMeta,
+        points.isAcceptableOrUnknown(data['points']!, _pointsMeta),
+      );
+    }
+    if (data.containsKey('ra_title')) {
+      context.handle(
+        _raTitleMeta,
+        raTitle.isAcceptableOrUnknown(data['ra_title']!, _raTitleMeta),
+      );
+    }
+    if (data.containsKey('badge_url')) {
+      context.handle(
+        _badgeUrlMeta,
+        badgeUrl.isAcceptableOrUnknown(data['badge_url']!, _badgeUrlMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GameRetroAchievements map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GameRetroAchievements(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      romPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rom_path'],
+      )!,
+      md5Hash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}md5_hash'],
+      )!,
+      raGameId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ra_game_id'],
+      ),
+      numAchievements: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}num_achievements'],
+      )!,
+      points: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}points'],
+      )!,
+      raTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ra_title'],
+      ),
+      badgeUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}badge_url'],
+      ),
+    );
+  }
+
+  @override
+  $GameRetroAchievementsEntriesTable createAlias(String alias) {
+    return $GameRetroAchievementsEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class GameRetroAchievements extends DataClass
+    implements Insertable<GameRetroAchievements> {
+  final int id;
+  final String romPath;
+  final String md5Hash;
+  final int? raGameId;
+  final int numAchievements;
+  final int points;
+  final String? raTitle;
+  final String? badgeUrl;
+  const GameRetroAchievements({
+    required this.id,
+    required this.romPath,
+    required this.md5Hash,
+    this.raGameId,
+    required this.numAchievements,
+    required this.points,
+    this.raTitle,
+    this.badgeUrl,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['rom_path'] = Variable<String>(romPath);
+    map['md5_hash'] = Variable<String>(md5Hash);
+    if (!nullToAbsent || raGameId != null) {
+      map['ra_game_id'] = Variable<int>(raGameId);
+    }
+    map['num_achievements'] = Variable<int>(numAchievements);
+    map['points'] = Variable<int>(points);
+    if (!nullToAbsent || raTitle != null) {
+      map['ra_title'] = Variable<String>(raTitle);
+    }
+    if (!nullToAbsent || badgeUrl != null) {
+      map['badge_url'] = Variable<String>(badgeUrl);
+    }
+    return map;
+  }
+
+  GameRetroAchievementsEntriesCompanion toCompanion(bool nullToAbsent) {
+    return GameRetroAchievementsEntriesCompanion(
+      id: Value(id),
+      romPath: Value(romPath),
+      md5Hash: Value(md5Hash),
+      raGameId: raGameId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(raGameId),
+      numAchievements: Value(numAchievements),
+      points: Value(points),
+      raTitle: raTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(raTitle),
+      badgeUrl: badgeUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(badgeUrl),
+    );
+  }
+
+  factory GameRetroAchievements.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GameRetroAchievements(
+      id: serializer.fromJson<int>(json['id']),
+      romPath: serializer.fromJson<String>(json['romPath']),
+      md5Hash: serializer.fromJson<String>(json['md5Hash']),
+      raGameId: serializer.fromJson<int?>(json['raGameId']),
+      numAchievements: serializer.fromJson<int>(json['numAchievements']),
+      points: serializer.fromJson<int>(json['points']),
+      raTitle: serializer.fromJson<String?>(json['raTitle']),
+      badgeUrl: serializer.fromJson<String?>(json['badgeUrl']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'romPath': serializer.toJson<String>(romPath),
+      'md5Hash': serializer.toJson<String>(md5Hash),
+      'raGameId': serializer.toJson<int?>(raGameId),
+      'numAchievements': serializer.toJson<int>(numAchievements),
+      'points': serializer.toJson<int>(points),
+      'raTitle': serializer.toJson<String?>(raTitle),
+      'badgeUrl': serializer.toJson<String?>(badgeUrl),
+    };
+  }
+
+  GameRetroAchievements copyWith({
+    int? id,
+    String? romPath,
+    String? md5Hash,
+    Value<int?> raGameId = const Value.absent(),
+    int? numAchievements,
+    int? points,
+    Value<String?> raTitle = const Value.absent(),
+    Value<String?> badgeUrl = const Value.absent(),
+  }) => GameRetroAchievements(
+    id: id ?? this.id,
+    romPath: romPath ?? this.romPath,
+    md5Hash: md5Hash ?? this.md5Hash,
+    raGameId: raGameId.present ? raGameId.value : this.raGameId,
+    numAchievements: numAchievements ?? this.numAchievements,
+    points: points ?? this.points,
+    raTitle: raTitle.present ? raTitle.value : this.raTitle,
+    badgeUrl: badgeUrl.present ? badgeUrl.value : this.badgeUrl,
+  );
+  GameRetroAchievements copyWithCompanion(
+    GameRetroAchievementsEntriesCompanion data,
+  ) {
+    return GameRetroAchievements(
+      id: data.id.present ? data.id.value : this.id,
+      romPath: data.romPath.present ? data.romPath.value : this.romPath,
+      md5Hash: data.md5Hash.present ? data.md5Hash.value : this.md5Hash,
+      raGameId: data.raGameId.present ? data.raGameId.value : this.raGameId,
+      numAchievements: data.numAchievements.present
+          ? data.numAchievements.value
+          : this.numAchievements,
+      points: data.points.present ? data.points.value : this.points,
+      raTitle: data.raTitle.present ? data.raTitle.value : this.raTitle,
+      badgeUrl: data.badgeUrl.present ? data.badgeUrl.value : this.badgeUrl,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GameRetroAchievements(')
+          ..write('id: $id, ')
+          ..write('romPath: $romPath, ')
+          ..write('md5Hash: $md5Hash, ')
+          ..write('raGameId: $raGameId, ')
+          ..write('numAchievements: $numAchievements, ')
+          ..write('points: $points, ')
+          ..write('raTitle: $raTitle, ')
+          ..write('badgeUrl: $badgeUrl')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    romPath,
+    md5Hash,
+    raGameId,
+    numAchievements,
+    points,
+    raTitle,
+    badgeUrl,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GameRetroAchievements &&
+          other.id == this.id &&
+          other.romPath == this.romPath &&
+          other.md5Hash == this.md5Hash &&
+          other.raGameId == this.raGameId &&
+          other.numAchievements == this.numAchievements &&
+          other.points == this.points &&
+          other.raTitle == this.raTitle &&
+          other.badgeUrl == this.badgeUrl);
+}
+
+class GameRetroAchievementsEntriesCompanion
+    extends UpdateCompanion<GameRetroAchievements> {
+  final Value<int> id;
+  final Value<String> romPath;
+  final Value<String> md5Hash;
+  final Value<int?> raGameId;
+  final Value<int> numAchievements;
+  final Value<int> points;
+  final Value<String?> raTitle;
+  final Value<String?> badgeUrl;
+  const GameRetroAchievementsEntriesCompanion({
+    this.id = const Value.absent(),
+    this.romPath = const Value.absent(),
+    this.md5Hash = const Value.absent(),
+    this.raGameId = const Value.absent(),
+    this.numAchievements = const Value.absent(),
+    this.points = const Value.absent(),
+    this.raTitle = const Value.absent(),
+    this.badgeUrl = const Value.absent(),
+  });
+  GameRetroAchievementsEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required String romPath,
+    required String md5Hash,
+    this.raGameId = const Value.absent(),
+    this.numAchievements = const Value.absent(),
+    this.points = const Value.absent(),
+    this.raTitle = const Value.absent(),
+    this.badgeUrl = const Value.absent(),
+  }) : romPath = Value(romPath),
+       md5Hash = Value(md5Hash);
+  static Insertable<GameRetroAchievements> custom({
+    Expression<int>? id,
+    Expression<String>? romPath,
+    Expression<String>? md5Hash,
+    Expression<int>? raGameId,
+    Expression<int>? numAchievements,
+    Expression<int>? points,
+    Expression<String>? raTitle,
+    Expression<String>? badgeUrl,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (romPath != null) 'rom_path': romPath,
+      if (md5Hash != null) 'md5_hash': md5Hash,
+      if (raGameId != null) 'ra_game_id': raGameId,
+      if (numAchievements != null) 'num_achievements': numAchievements,
+      if (points != null) 'points': points,
+      if (raTitle != null) 'ra_title': raTitle,
+      if (badgeUrl != null) 'badge_url': badgeUrl,
+    });
+  }
+
+  GameRetroAchievementsEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? romPath,
+    Value<String>? md5Hash,
+    Value<int?>? raGameId,
+    Value<int>? numAchievements,
+    Value<int>? points,
+    Value<String?>? raTitle,
+    Value<String?>? badgeUrl,
+  }) {
+    return GameRetroAchievementsEntriesCompanion(
+      id: id ?? this.id,
+      romPath: romPath ?? this.romPath,
+      md5Hash: md5Hash ?? this.md5Hash,
+      raGameId: raGameId ?? this.raGameId,
+      numAchievements: numAchievements ?? this.numAchievements,
+      points: points ?? this.points,
+      raTitle: raTitle ?? this.raTitle,
+      badgeUrl: badgeUrl ?? this.badgeUrl,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (romPath.present) {
+      map['rom_path'] = Variable<String>(romPath.value);
+    }
+    if (md5Hash.present) {
+      map['md5_hash'] = Variable<String>(md5Hash.value);
+    }
+    if (raGameId.present) {
+      map['ra_game_id'] = Variable<int>(raGameId.value);
+    }
+    if (numAchievements.present) {
+      map['num_achievements'] = Variable<int>(numAchievements.value);
+    }
+    if (points.present) {
+      map['points'] = Variable<int>(points.value);
+    }
+    if (raTitle.present) {
+      map['ra_title'] = Variable<String>(raTitle.value);
+    }
+    if (badgeUrl.present) {
+      map['badge_url'] = Variable<String>(badgeUrl.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GameRetroAchievementsEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('romPath: $romPath, ')
+          ..write('md5Hash: $md5Hash, ')
+          ..write('raGameId: $raGameId, ')
+          ..write('numAchievements: $numAchievements, ')
+          ..write('points: $points, ')
+          ..write('raTitle: $raTitle, ')
+          ..write('badgeUrl: $badgeUrl')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RetroAchievementsApiCacheEntriesTable
+    extends RetroAchievementsApiCacheEntries
+    with
+        TableInfo<
+          $RetroAchievementsApiCacheEntriesTable,
+          RetroAchievementsApiCacheEntry
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RetroAchievementsApiCacheEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _cacheKeyMeta = const VerificationMeta(
+    'cacheKey',
+  );
+  @override
+  late final GeneratedColumn<String> cacheKey = GeneratedColumn<String>(
+    'cache_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _responseJsonMeta = const VerificationMeta(
+    'responseJson',
+  );
+  @override
+  late final GeneratedColumn<String> responseJson = GeneratedColumn<String>(
+    'response_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<int> timestamp = GeneratedColumn<int>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, cacheKey, responseJson, timestamp];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'retro_achievements_api_cache_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RetroAchievementsApiCacheEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('cache_key')) {
+      context.handle(
+        _cacheKeyMeta,
+        cacheKey.isAcceptableOrUnknown(data['cache_key']!, _cacheKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cacheKeyMeta);
+    }
+    if (data.containsKey('response_json')) {
+      context.handle(
+        _responseJsonMeta,
+        responseJson.isAcceptableOrUnknown(
+          data['response_json']!,
+          _responseJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_responseJsonMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RetroAchievementsApiCacheEntry map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RetroAchievementsApiCacheEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      cacheKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cache_key'],
+      )!,
+      responseJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}response_json'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}timestamp'],
+      )!,
+    );
+  }
+
+  @override
+  $RetroAchievementsApiCacheEntriesTable createAlias(String alias) {
+    return $RetroAchievementsApiCacheEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class RetroAchievementsApiCacheEntry extends DataClass
+    implements Insertable<RetroAchievementsApiCacheEntry> {
+  final int id;
+  final String cacheKey;
+  final String responseJson;
+  final int timestamp;
+  const RetroAchievementsApiCacheEntry({
+    required this.id,
+    required this.cacheKey,
+    required this.responseJson,
+    required this.timestamp,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['cache_key'] = Variable<String>(cacheKey);
+    map['response_json'] = Variable<String>(responseJson);
+    map['timestamp'] = Variable<int>(timestamp);
+    return map;
+  }
+
+  RetroAchievementsApiCacheEntriesCompanion toCompanion(bool nullToAbsent) {
+    return RetroAchievementsApiCacheEntriesCompanion(
+      id: Value(id),
+      cacheKey: Value(cacheKey),
+      responseJson: Value(responseJson),
+      timestamp: Value(timestamp),
+    );
+  }
+
+  factory RetroAchievementsApiCacheEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RetroAchievementsApiCacheEntry(
+      id: serializer.fromJson<int>(json['id']),
+      cacheKey: serializer.fromJson<String>(json['cacheKey']),
+      responseJson: serializer.fromJson<String>(json['responseJson']),
+      timestamp: serializer.fromJson<int>(json['timestamp']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'cacheKey': serializer.toJson<String>(cacheKey),
+      'responseJson': serializer.toJson<String>(responseJson),
+      'timestamp': serializer.toJson<int>(timestamp),
+    };
+  }
+
+  RetroAchievementsApiCacheEntry copyWith({
+    int? id,
+    String? cacheKey,
+    String? responseJson,
+    int? timestamp,
+  }) => RetroAchievementsApiCacheEntry(
+    id: id ?? this.id,
+    cacheKey: cacheKey ?? this.cacheKey,
+    responseJson: responseJson ?? this.responseJson,
+    timestamp: timestamp ?? this.timestamp,
+  );
+  RetroAchievementsApiCacheEntry copyWithCompanion(
+    RetroAchievementsApiCacheEntriesCompanion data,
+  ) {
+    return RetroAchievementsApiCacheEntry(
+      id: data.id.present ? data.id.value : this.id,
+      cacheKey: data.cacheKey.present ? data.cacheKey.value : this.cacheKey,
+      responseJson: data.responseJson.present
+          ? data.responseJson.value
+          : this.responseJson,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RetroAchievementsApiCacheEntry(')
+          ..write('id: $id, ')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('responseJson: $responseJson, ')
+          ..write('timestamp: $timestamp')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, cacheKey, responseJson, timestamp);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RetroAchievementsApiCacheEntry &&
+          other.id == this.id &&
+          other.cacheKey == this.cacheKey &&
+          other.responseJson == this.responseJson &&
+          other.timestamp == this.timestamp);
+}
+
+class RetroAchievementsApiCacheEntriesCompanion
+    extends UpdateCompanion<RetroAchievementsApiCacheEntry> {
+  final Value<int> id;
+  final Value<String> cacheKey;
+  final Value<String> responseJson;
+  final Value<int> timestamp;
+  const RetroAchievementsApiCacheEntriesCompanion({
+    this.id = const Value.absent(),
+    this.cacheKey = const Value.absent(),
+    this.responseJson = const Value.absent(),
+    this.timestamp = const Value.absent(),
+  });
+  RetroAchievementsApiCacheEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required String cacheKey,
+    required String responseJson,
+    required int timestamp,
+  }) : cacheKey = Value(cacheKey),
+       responseJson = Value(responseJson),
+       timestamp = Value(timestamp);
+  static Insertable<RetroAchievementsApiCacheEntry> custom({
+    Expression<int>? id,
+    Expression<String>? cacheKey,
+    Expression<String>? responseJson,
+    Expression<int>? timestamp,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (cacheKey != null) 'cache_key': cacheKey,
+      if (responseJson != null) 'response_json': responseJson,
+      if (timestamp != null) 'timestamp': timestamp,
+    });
+  }
+
+  RetroAchievementsApiCacheEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? cacheKey,
+    Value<String>? responseJson,
+    Value<int>? timestamp,
+  }) {
+    return RetroAchievementsApiCacheEntriesCompanion(
+      id: id ?? this.id,
+      cacheKey: cacheKey ?? this.cacheKey,
+      responseJson: responseJson ?? this.responseJson,
+      timestamp: timestamp ?? this.timestamp,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (cacheKey.present) {
+      map['cache_key'] = Variable<String>(cacheKey.value);
+    }
+    if (responseJson.present) {
+      map['response_json'] = Variable<String>(responseJson.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<int>(timestamp.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RetroAchievementsApiCacheEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('responseJson: $responseJson, ')
+          ..write('timestamp: $timestamp')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1470,6 +2297,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $RecentGameEntriesTable(this);
   late final $AndroidAppEntriesTable androidAppEntries =
       $AndroidAppEntriesTable(this);
+  late final $GameRetroAchievementsEntriesTable gameRetroAchievementsEntries =
+      $GameRetroAchievementsEntriesTable(this);
+  late final $RetroAchievementsApiCacheEntriesTable
+  retroAchievementsApiCacheEntries = $RetroAchievementsApiCacheEntriesTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1481,6 +2314,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     gameEmulatorEntries,
     recentGameEntries,
     androidAppEntries,
+    gameRetroAchievementsEntries,
+    retroAchievementsApiCacheEntries,
   ];
 }
 
@@ -2449,6 +3284,474 @@ typedef $$AndroidAppEntriesTableProcessedTableManager =
       AndroidApp,
       PrefetchHooks Function()
     >;
+typedef $$GameRetroAchievementsEntriesTableCreateCompanionBuilder =
+    GameRetroAchievementsEntriesCompanion Function({
+      Value<int> id,
+      required String romPath,
+      required String md5Hash,
+      Value<int?> raGameId,
+      Value<int> numAchievements,
+      Value<int> points,
+      Value<String?> raTitle,
+      Value<String?> badgeUrl,
+    });
+typedef $$GameRetroAchievementsEntriesTableUpdateCompanionBuilder =
+    GameRetroAchievementsEntriesCompanion Function({
+      Value<int> id,
+      Value<String> romPath,
+      Value<String> md5Hash,
+      Value<int?> raGameId,
+      Value<int> numAchievements,
+      Value<int> points,
+      Value<String?> raTitle,
+      Value<String?> badgeUrl,
+    });
+
+class $$GameRetroAchievementsEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $GameRetroAchievementsEntriesTable> {
+  $$GameRetroAchievementsEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get romPath => $composableBuilder(
+    column: $table.romPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get md5Hash => $composableBuilder(
+    column: $table.md5Hash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get raGameId => $composableBuilder(
+    column: $table.raGameId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get numAchievements => $composableBuilder(
+    column: $table.numAchievements,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get points => $composableBuilder(
+    column: $table.points,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get raTitle => $composableBuilder(
+    column: $table.raTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get badgeUrl => $composableBuilder(
+    column: $table.badgeUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GameRetroAchievementsEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $GameRetroAchievementsEntriesTable> {
+  $$GameRetroAchievementsEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get romPath => $composableBuilder(
+    column: $table.romPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get md5Hash => $composableBuilder(
+    column: $table.md5Hash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get raGameId => $composableBuilder(
+    column: $table.raGameId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get numAchievements => $composableBuilder(
+    column: $table.numAchievements,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get points => $composableBuilder(
+    column: $table.points,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get raTitle => $composableBuilder(
+    column: $table.raTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get badgeUrl => $composableBuilder(
+    column: $table.badgeUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GameRetroAchievementsEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GameRetroAchievementsEntriesTable> {
+  $$GameRetroAchievementsEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get romPath =>
+      $composableBuilder(column: $table.romPath, builder: (column) => column);
+
+  GeneratedColumn<String> get md5Hash =>
+      $composableBuilder(column: $table.md5Hash, builder: (column) => column);
+
+  GeneratedColumn<int> get raGameId =>
+      $composableBuilder(column: $table.raGameId, builder: (column) => column);
+
+  GeneratedColumn<int> get numAchievements => $composableBuilder(
+    column: $table.numAchievements,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get points =>
+      $composableBuilder(column: $table.points, builder: (column) => column);
+
+  GeneratedColumn<String> get raTitle =>
+      $composableBuilder(column: $table.raTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get badgeUrl =>
+      $composableBuilder(column: $table.badgeUrl, builder: (column) => column);
+}
+
+class $$GameRetroAchievementsEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GameRetroAchievementsEntriesTable,
+          GameRetroAchievements,
+          $$GameRetroAchievementsEntriesTableFilterComposer,
+          $$GameRetroAchievementsEntriesTableOrderingComposer,
+          $$GameRetroAchievementsEntriesTableAnnotationComposer,
+          $$GameRetroAchievementsEntriesTableCreateCompanionBuilder,
+          $$GameRetroAchievementsEntriesTableUpdateCompanionBuilder,
+          (
+            GameRetroAchievements,
+            BaseReferences<
+              _$AppDatabase,
+              $GameRetroAchievementsEntriesTable,
+              GameRetroAchievements
+            >,
+          ),
+          GameRetroAchievements,
+          PrefetchHooks Function()
+        > {
+  $$GameRetroAchievementsEntriesTableTableManager(
+    _$AppDatabase db,
+    $GameRetroAchievementsEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GameRetroAchievementsEntriesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$GameRetroAchievementsEntriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$GameRetroAchievementsEntriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> romPath = const Value.absent(),
+                Value<String> md5Hash = const Value.absent(),
+                Value<int?> raGameId = const Value.absent(),
+                Value<int> numAchievements = const Value.absent(),
+                Value<int> points = const Value.absent(),
+                Value<String?> raTitle = const Value.absent(),
+                Value<String?> badgeUrl = const Value.absent(),
+              }) => GameRetroAchievementsEntriesCompanion(
+                id: id,
+                romPath: romPath,
+                md5Hash: md5Hash,
+                raGameId: raGameId,
+                numAchievements: numAchievements,
+                points: points,
+                raTitle: raTitle,
+                badgeUrl: badgeUrl,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String romPath,
+                required String md5Hash,
+                Value<int?> raGameId = const Value.absent(),
+                Value<int> numAchievements = const Value.absent(),
+                Value<int> points = const Value.absent(),
+                Value<String?> raTitle = const Value.absent(),
+                Value<String?> badgeUrl = const Value.absent(),
+              }) => GameRetroAchievementsEntriesCompanion.insert(
+                id: id,
+                romPath: romPath,
+                md5Hash: md5Hash,
+                raGameId: raGameId,
+                numAchievements: numAchievements,
+                points: points,
+                raTitle: raTitle,
+                badgeUrl: badgeUrl,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GameRetroAchievementsEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GameRetroAchievementsEntriesTable,
+      GameRetroAchievements,
+      $$GameRetroAchievementsEntriesTableFilterComposer,
+      $$GameRetroAchievementsEntriesTableOrderingComposer,
+      $$GameRetroAchievementsEntriesTableAnnotationComposer,
+      $$GameRetroAchievementsEntriesTableCreateCompanionBuilder,
+      $$GameRetroAchievementsEntriesTableUpdateCompanionBuilder,
+      (
+        GameRetroAchievements,
+        BaseReferences<
+          _$AppDatabase,
+          $GameRetroAchievementsEntriesTable,
+          GameRetroAchievements
+        >,
+      ),
+      GameRetroAchievements,
+      PrefetchHooks Function()
+    >;
+typedef $$RetroAchievementsApiCacheEntriesTableCreateCompanionBuilder =
+    RetroAchievementsApiCacheEntriesCompanion Function({
+      Value<int> id,
+      required String cacheKey,
+      required String responseJson,
+      required int timestamp,
+    });
+typedef $$RetroAchievementsApiCacheEntriesTableUpdateCompanionBuilder =
+    RetroAchievementsApiCacheEntriesCompanion Function({
+      Value<int> id,
+      Value<String> cacheKey,
+      Value<String> responseJson,
+      Value<int> timestamp,
+    });
+
+class $$RetroAchievementsApiCacheEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $RetroAchievementsApiCacheEntriesTable> {
+  $$RetroAchievementsApiCacheEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cacheKey => $composableBuilder(
+    column: $table.cacheKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get responseJson => $composableBuilder(
+    column: $table.responseJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$RetroAchievementsApiCacheEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $RetroAchievementsApiCacheEntriesTable> {
+  $$RetroAchievementsApiCacheEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cacheKey => $composableBuilder(
+    column: $table.cacheKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get responseJson => $composableBuilder(
+    column: $table.responseJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$RetroAchievementsApiCacheEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RetroAchievementsApiCacheEntriesTable> {
+  $$RetroAchievementsApiCacheEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get cacheKey =>
+      $composableBuilder(column: $table.cacheKey, builder: (column) => column);
+
+  GeneratedColumn<String> get responseJson => $composableBuilder(
+    column: $table.responseJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+}
+
+class $$RetroAchievementsApiCacheEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RetroAchievementsApiCacheEntriesTable,
+          RetroAchievementsApiCacheEntry,
+          $$RetroAchievementsApiCacheEntriesTableFilterComposer,
+          $$RetroAchievementsApiCacheEntriesTableOrderingComposer,
+          $$RetroAchievementsApiCacheEntriesTableAnnotationComposer,
+          $$RetroAchievementsApiCacheEntriesTableCreateCompanionBuilder,
+          $$RetroAchievementsApiCacheEntriesTableUpdateCompanionBuilder,
+          (
+            RetroAchievementsApiCacheEntry,
+            BaseReferences<
+              _$AppDatabase,
+              $RetroAchievementsApiCacheEntriesTable,
+              RetroAchievementsApiCacheEntry
+            >,
+          ),
+          RetroAchievementsApiCacheEntry,
+          PrefetchHooks Function()
+        > {
+  $$RetroAchievementsApiCacheEntriesTableTableManager(
+    _$AppDatabase db,
+    $RetroAchievementsApiCacheEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RetroAchievementsApiCacheEntriesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$RetroAchievementsApiCacheEntriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$RetroAchievementsApiCacheEntriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> cacheKey = const Value.absent(),
+                Value<String> responseJson = const Value.absent(),
+                Value<int> timestamp = const Value.absent(),
+              }) => RetroAchievementsApiCacheEntriesCompanion(
+                id: id,
+                cacheKey: cacheKey,
+                responseJson: responseJson,
+                timestamp: timestamp,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String cacheKey,
+                required String responseJson,
+                required int timestamp,
+              }) => RetroAchievementsApiCacheEntriesCompanion.insert(
+                id: id,
+                cacheKey: cacheKey,
+                responseJson: responseJson,
+                timestamp: timestamp,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$RetroAchievementsApiCacheEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RetroAchievementsApiCacheEntriesTable,
+      RetroAchievementsApiCacheEntry,
+      $$RetroAchievementsApiCacheEntriesTableFilterComposer,
+      $$RetroAchievementsApiCacheEntriesTableOrderingComposer,
+      $$RetroAchievementsApiCacheEntriesTableAnnotationComposer,
+      $$RetroAchievementsApiCacheEntriesTableCreateCompanionBuilder,
+      $$RetroAchievementsApiCacheEntriesTableUpdateCompanionBuilder,
+      (
+        RetroAchievementsApiCacheEntry,
+        BaseReferences<
+          _$AppDatabase,
+          $RetroAchievementsApiCacheEntriesTable,
+          RetroAchievementsApiCacheEntry
+        >,
+      ),
+      RetroAchievementsApiCacheEntry,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2469,4 +3772,16 @@ class $AppDatabaseManager {
       $$RecentGameEntriesTableTableManager(_db, _db.recentGameEntries);
   $$AndroidAppEntriesTableTableManager get androidAppEntries =>
       $$AndroidAppEntriesTableTableManager(_db, _db.androidAppEntries);
+  $$GameRetroAchievementsEntriesTableTableManager
+  get gameRetroAchievementsEntries =>
+      $$GameRetroAchievementsEntriesTableTableManager(
+        _db,
+        _db.gameRetroAchievementsEntries,
+      );
+  $$RetroAchievementsApiCacheEntriesTableTableManager
+  get retroAchievementsApiCacheEntries =>
+      $$RetroAchievementsApiCacheEntriesTableTableManager(
+        _db,
+        _db.retroAchievementsApiCacheEntries,
+      );
 }

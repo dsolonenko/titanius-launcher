@@ -21,6 +21,7 @@
     {
       "id": "3do",
       "screenScraperId": 29,
+      "retroAchievementsId": 43,
       "name": "3DO",
       "logo": "3DO Interactive Multiplayer.png",
       "folders": [
@@ -48,6 +49,7 @@
     {
       "id": "cpc",
       "screenScraperId": 65,
+      "retroAchievementsId": 37,
       "name": "Amstrad CPC",
       "logo": "Amstrad CPC.png",
       "folders": [
@@ -135,6 +137,7 @@
     {
       "id": "atari2600",
       "screenScraperId": 26,
+      "retroAchievementsId": 25,
       "name": "Atari 2600",
       "logo": "Atari 2600.png",
       "folders": [
@@ -204,6 +207,7 @@
     {
       "id": "atari5200",
       "screenScraperId": 40,
+      "retroAchievementsId": 50,
       "name": "Atari 5200",
       "logo": "Atari 5200.png",
       "folders": [
@@ -247,6 +251,7 @@
     {
       "id": "atari7800",
       "screenScraperId": 41,
+      "retroAchievementsId": 51,
       "name": "Atari 7800",
       "logo": "Atari 7800.png",
       "folders": [
@@ -274,6 +279,7 @@
     {
       "id": "jaguar",
       "screenScraperId": 27,
+      "retroAchievementsId": 17,
       "name": "Atari Jaguar",
       "logo": "Atari Jaguar.png",
       "folders": [
@@ -316,6 +322,7 @@
     {
       "id": "lynx",
       "screenScraperId": 28,
+      "retroAchievementsId": 13,
       "name": "Atari Lynx",
       "logo": "Atari Lynx.png",
       "folders": [
@@ -360,6 +367,7 @@
     {
       "id": "atarist",
       "screenScraperId": 42,
+      "retroAchievementsId": 36,
       "name": "Atari ST",
       "logo": "Atari ST.png",
       "folders": [
@@ -432,6 +440,7 @@
     {
       "id": "cps1",
       "screenScraperId": 6,
+      "retroAchievementsId": 27,
       "name": "CP System I",
       "logo": "Capcom Play System.png",
       "folders": [
@@ -499,6 +508,7 @@
     {
       "id": "cps2",
       "screenScraperId": 7,
+      "retroAchievementsId": 27,
       "name": "CP System II",
       "logo": "Capcom Play System II.png",
       "folders": [
@@ -566,6 +576,7 @@
     {
       "id": "cps3",
       "screenScraperId": 8,
+      "retroAchievementsId": 27,
       "name": "CP System III",
       "logo": "Capcom Play System III.png",
       "folders": [
@@ -633,6 +644,7 @@
     {
       "id": "coleco",
       "screenScraperId": 48,
+      "retroAchievementsId": 44,
       "name": "ColecoVision",
       "logo": "ColecoVision.png",
       "folders": [
@@ -676,6 +688,7 @@
     {
       "id": "c64",
       "screenScraperId": 66,
+      "retroAchievementsId": 30,
       "name": "Commodore 64",
       "logo": "Commodore 64.png",
       "folders": [
@@ -765,6 +778,7 @@
     {
       "id": "amiga",
       "screenScraperId": 64,
+      "retroAchievementsId": 35,
       "name": "Commodore Amiga",
       "logo": "Commodore Amiga.png",
       "folders": [
@@ -915,6 +929,7 @@
     {
       "id": "dos",
       "screenScraperId": 135,
+      "retroAchievementsId": 26,
       "name": "DOS",
       "logo": "MS-DOS.png",
       "folders": [
@@ -1007,6 +1022,7 @@
     {
       "id": "dreamcast",
       "screenScraperId": 23,
+      "retroAchievementsId": 40,
       "name": "Dreamcast",
       "logo": "Sega Dreamcast.png",
       "folders": [
@@ -1052,6 +1068,7 @@
     {
       "id": "channelf",
       "screenScraperId": 80,
+      "retroAchievementsId": 57,
       "name": "Fairchild Channel F",
       "logo": "Fairchild Channel F.png",
       "folders": [
@@ -1079,6 +1096,7 @@
     {
       "id": "fds",
       "screenScraperId": 106,
+      "retroAchievementsId": 81,
       "name": "Famicom Disk System",
       "logo": "Nintendo Famicom Disk System.png",
       "folders": [
@@ -1156,6 +1174,7 @@
     {
       "id": "fbneo",
       "screenScraperId": 75,
+      "retroAchievementsId": 27,
       "name": "Arcade (FinalBurn Neo)",
       "logo": "Final Burn Neo.png",
       "folders": [
@@ -1183,6 +1202,7 @@
     {
       "id": "gw",
       "screenScraperId": 52,
+      "retroAchievementsId": 60,
       "name": "Game & Watch",
       "logo": "Nintendo Game & Watch.png",
       "folders": [
@@ -1211,6 +1231,7 @@
     {
       "id": "gb",
       "screenScraperId": 9,
+      "retroAchievementsId": 4,
       "name": "Game Boy",
       "logo": "Nintendo Game Boy.png",
       "folders": [
@@ -1390,6 +1411,7 @@
     {
       "id": "gba",
       "screenScraperId": 12,
+      "retroAchievementsId": 5,
       "name": "Game Boy Advance",
       "logo": "Nintendo Game Boy Advance.png",
       "folders": [
@@ -1569,6 +1591,7 @@
     {
       "id": "gbc",
       "screenScraperId": 10,
+      "retroAchievementsId": 6,
       "name": "Game Boy Color",
       "logo": "Nintendo Game Boy Color.png",
       "folders": [
@@ -1748,6 +1771,7 @@
     {
       "id": "gc",
       "screenScraperId": 13,
+      "retroAchievementsId": 16,
       "name": "GameCube",
       "logo": "Nintendo GameCube.png",
       "folders": [
@@ -1804,6 +1828,7 @@
     {
       "id": "intellivision",
       "screenScraperId": 115,
+      "retroAchievementsId": 45,
       "name": "Intellivision",
       "logo": "Mattel Intellivision.png",
       "folders": [
@@ -1831,6 +1856,7 @@
     {
       "id": "mame",
       "screenScraperId": 75,
+      "retroAchievementsId": 27,
       "name": "Arcade (MAME)",
       "logo": "MAME.png",
       "folders": [
@@ -1907,6 +1933,7 @@
     {
       "id": "msx",
       "screenScraperId": 113,
+      "retroAchievementsId": 29,
       "name": "MSX/MSX2",
       "logo": "Microsoft MSX.png",
       "folders": [
@@ -1964,6 +1991,7 @@
     {
       "id": "neogeo",
       "screenScraperId": 142,
+      "retroAchievementsId": 27,
       "name": "Neo Geo",
       "logo": "SNK Neo Geo.png",
       "folders": [
@@ -1999,6 +2027,7 @@
     {
       "id": "neogeocd",
       "screenScraperId": 70,
+      "retroAchievementsId": 56,
       "name": "Neo Geo CD",
       "logo": "SNK Neo Geo CD.png",
       "folders": [
@@ -2042,6 +2071,7 @@
     {
       "id": "ngp",
       "screenScraperId": 25,
+      "retroAchievementsId": 14,
       "name": "NeoGeo Pocket",
       "logo": "SNK Neo Geo Pocket.png",
       "folders": [
@@ -2093,6 +2123,7 @@
     {
       "id": "ngpc",
       "screenScraperId": 82,
+      "retroAchievementsId": 14,
       "name": "NeoGeo Pocket Color",
       "logo": "SNK Neo Geo Pocket Color.png",
       "folders": [
@@ -2144,6 +2175,7 @@
     {
       "id": "3ds",
       "screenScraperId": 17,
+      "retroAchievementsId": 62,
       "name": "Nintendo 3DS",
       "logo": "Nintendo 3DS.png",
       "folders": [
@@ -2308,6 +2340,7 @@
     {
       "id": "n64",
       "screenScraperId": 14,
+      "retroAchievementsId": 2,
       "name": "Nintendo 64",
       "logo": "Nintendo 64.png",
       "folders": [
@@ -2419,6 +2452,7 @@
     {
       "id": "nds",
       "screenScraperId": 15,
+      "retroAchievementsId": 18,
       "name": "Nintendo DS",
       "logo": "Nintendo DS.png",
       "folders": [
@@ -2522,6 +2556,7 @@
     {
       "id": "nes",
       "screenScraperId": 3,
+      "retroAchievementsId": 7,
       "name": "Nintendo Entertainment System",
       "logo": "Nintendo Entertainment System.png",
       "folders": [
@@ -2726,10 +2761,11 @@
           }
         }
       ]
-    },    
+    },
     {
       "id": "wii",
       "screenScraperId": 16,
+      "retroAchievementsId": 19,
       "name": "Nintendo Wii",
       "logo": "Nintendo Wii.png",
       "folders": [
@@ -2774,6 +2810,7 @@
     {
       "id": "wiiware",
       "screenScraperId": 16,
+      "retroAchievementsId": 19,
       "name": "Nintendo WiiWare",
       "logo": "Nintendo WiiWare.png",
       "folders": [
@@ -2818,6 +2855,7 @@
     {
       "id": "wiiu",
       "screenScraperId": 18,
+      "retroAchievementsId": 20,
       "name": "Nintendo Wii U",
       "logo": "Nintendo Wii U.png",
       "folders": [
@@ -2843,6 +2881,7 @@
     {
       "id": "pc88",
       "screenScraperId": 221,
+      "retroAchievementsId": 47,
       "name": "PC-88",
       "logo": "NEC PC-8801.png",
       "folders": [
@@ -2870,6 +2909,7 @@
     {
       "id": "pc98",
       "screenScraperId": 208,
+      "retroAchievementsId": 48,
       "name": "PC-98",
       "logo": "NEC PC-9801.png",
       "folders": [
@@ -2913,6 +2953,7 @@
     {
       "id": "pcfx",
       "screenScraperId": 72,
+      "retroAchievementsId": 49,
       "name": "PC-FX",
       "logo": "NEC PC-FX.png",
       "folders": [
@@ -2967,6 +3008,7 @@
     {
       "id": "cdi",
       "screenScraperId": 133,
+      "retroAchievementsId": 42,
       "name": "Philips CD-i",
       "logo": "Philips CD-i.png",
       "folders": [
@@ -2994,6 +3036,7 @@
     {
       "id": "psp",
       "screenScraperId": 61,
+      "retroAchievementsId": 41,
       "name": "PlayStation Portable",
       "logo": "Sony PSP.png",
       "folders": [
@@ -3063,6 +3106,7 @@
     {
       "id": "pspminis",
       "screenScraperId": 172,
+      "retroAchievementsId": 41,
       "name": "PlayStation Portable (Minis)",
       "logo": "Sony PSP Minis.png",
       "folders": [
@@ -3153,6 +3197,7 @@
     {
       "id": "pokemini",
       "screenScraperId": 211,
+      "retroAchievementsId": 24,
       "name": "Pokemon Mini",
       "logo": "Nintendo Pokemon Mini.png",
       "folders": [
@@ -3208,6 +3253,7 @@
     {
       "id": "sega32x",
       "screenScraperId": 19,
+      "retroAchievementsId": 10,
       "name": "Sega 32X",
       "logo": "Sega 32X.png",
       "folders": [
@@ -3235,6 +3281,7 @@
     {
       "id": "segacd",
       "screenScraperId": 20,
+      "retroAchievementsId": 9,
       "name": "Sega CD",
       "logo": "Sega CD.png",
       "folders": [
@@ -3304,6 +3351,7 @@
     {
       "id": "gamegear",
       "screenScraperId": 21,
+      "retroAchievementsId": 15,
       "name": "Sega Game Gear",
       "logo": "Sega Game Gear.png",
       "folders": [
@@ -3409,6 +3457,7 @@
     {
       "id": "megadrive",
       "screenScraperId": 1,
+      "retroAchievementsId": 1,
       "name": "Sega Mega Drive",
       "logo": "Sega Mega Drive.png",
       "folders": [
@@ -3503,6 +3552,7 @@
     {
       "id": "genesis",
       "screenScraperId": 1,
+      "retroAchievementsId": 1,
       "name": "Sega Genesis",
       "logo": "Sega Genesis.png",
       "folders": [
@@ -3597,6 +3647,7 @@
     {
       "id": "master",
       "screenScraperId": 2,
+      "retroAchievementsId": 11,
       "name": "Sega Master System",
       "logo": "Sega Master System.png",
       "folders": [
@@ -3734,6 +3785,7 @@
     {
       "id": "sg1000",
       "screenScraperId": 109,
+      "retroAchievementsId": 33,
       "name": "Sega SG-1000",
       "logo": "Sega SG-1000.png",
       "folders": [
@@ -3777,6 +3829,7 @@
     {
       "id": "saturn",
       "screenScraperId": 22,
+      "retroAchievementsId": 39,
       "name": "Sega Saturn",
       "logo": "Sega Saturn.png",
       "folders": [
@@ -3900,6 +3953,7 @@
     {
       "id": "x68000",
       "screenScraperId": 79,
+      "retroAchievementsId": 52,
       "name": "Sharp X68000",
       "logo": "Sharp X68000.png",
       "folders": [
@@ -3927,6 +3981,7 @@
     {
       "id": "psx",
       "screenScraperId": 57,
+      "retroAchievementsId": 12,
       "name": "Sony PlayStation",
       "logo": "Sony Playstation.png",
       "folders": [
@@ -4077,6 +4132,7 @@
     {
       "id": "ps2",
       "screenScraperId": 58,
+      "retroAchievementsId": 21,
       "name": "Sony PlayStation 2",
       "logo": "Sony Playstation 2.png",
       "folders": [
@@ -4149,6 +4205,7 @@
     {
       "id": "supergrafx",
       "screenScraperId": 105,
+      "retroAchievementsId": 8,
       "name": "SuperGrafx",
       "logo": "NEC PC Engine SuperGrafx.png",
       "folders": [
@@ -4201,6 +4258,7 @@
     {
       "id": "snes",
       "screenScraperId": 4,
+      "retroAchievementsId": 3,
       "name": "Super Nintendo Entertainment System",
       "logo": "Super Nintendo Entertainment System.png",
       "folders": [
@@ -4527,6 +4585,7 @@
     {
       "id": "tic80",
       "screenScraperId": 222,
+      "retroAchievementsId": 65,
       "name": "TIC-80",
       "logo": "TIC-80.png",
       "folders": [
@@ -4554,6 +4613,7 @@
     {
       "id": "tg16",
       "screenScraperId": 31,
+      "retroAchievementsId": 8,
       "name": "TurboGrafx-16",
       "logo": "NEC TurboGrafx-16.png",
       "folders": [
@@ -4607,6 +4667,7 @@
     {
       "id": "tgcd",
       "screenScraperId": 114,
+      "retroAchievementsId": 76,
       "name": "TurboGrafx-CD",
       "logo": "NEC TurboGrafx-CD.png",
       "folders": [
@@ -4660,6 +4721,7 @@
     {
       "id": "vectrex",
       "screenScraperId": 102,
+      "retroAchievementsId": 46,
       "name": "Vectrex",
       "logo": "GCE Vectrex.png",
       "folders": [
@@ -4687,6 +4749,7 @@
     {
       "id": "virtualboy",
       "screenScraperId": 11,
+      "retroAchievementsId": 28,
       "name": "Virtual Boy",
       "logo": "Nintendo Virtual Boy.png",
       "folders": [
@@ -4714,6 +4777,7 @@
     {
       "id": "supervision",
       "screenScraperId": 207,
+      "retroAchievementsId": 63,
       "name": "Watara Supervision",
       "logo": "Watara Supervision.png",
       "folders": [
@@ -4741,6 +4805,7 @@
     {
       "id": "ws",
       "screenScraperId": 45,
+      "retroAchievementsId": 53,
       "name": "WonderSwan",
       "logo": "WonderSwan.png",
       "folders": [
@@ -4769,6 +4834,7 @@
     {
       "id": "wsc",
       "screenScraperId": 46,
+      "retroAchievementsId": 53,
       "name": "WonderSwan Color",
       "logo": "Wonderswan Color.png",
       "folders": [
@@ -4797,6 +4863,7 @@
     {
       "id": "zx81",
       "screenScraperId": 77,
+      "retroAchievementsId": 31,
       "name": "ZX 81",
       "logo": "Sinclair ZX81.png",
       "folders": [
@@ -4824,6 +4891,7 @@
     {
       "id": "zxspectrum",
       "screenScraperId": 76,
+      "retroAchievementsId": 59,
       "name": "ZX Spectrum",
       "logo": "Sinclair ZX Spectrum.png",
       "folders": [

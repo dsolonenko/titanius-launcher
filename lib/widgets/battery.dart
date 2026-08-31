@@ -22,7 +22,7 @@ class BatteryWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final battery = ref.watch(batteryProvider);
     return battery.when(
-      data: (b) => Row(mainAxisSize: MainAxisSize.max, children: [
+      data: (b) => Row(mainAxisSize: MainAxisSize.min, children: [
         _imageForBattery(b),
         Text("${b.level}%"),
       ]),

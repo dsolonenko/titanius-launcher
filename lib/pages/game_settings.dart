@@ -11,6 +11,8 @@ import 'package:sn_progress_dialog/progress_dialog.dart';
 
 import 'package:titanius/data/gamelist_xml.dart';
 import 'package:titanius/data/scraper.dart';
+import 'package:titanius/data/retroachievements_matcher.dart';
+import 'package:titanius/data/retroachievements.dart';
 import 'package:titanius/widgets/selector.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/repo.dart';
@@ -26,9 +28,26 @@ class GameSettingsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final game = ref.watch(selectedGameProvider(system));
+    final selectedGame = ref.watch(selectedGameProvider(system));
+    final gamelist = ref.watch(filteredGamesInFolderProvider(system)).value;
+    final game = (selectedGame?.hash == hash ? selectedGame : null) ??
+        selectedGame ??
+        gamelist?.games.firstWhereOrNull((g) => g.hash == hash);
     final gameEmulator = ref.watch(perGameConfigurationProvider(game));
     final customEmulators = ref.watch(customEmulatorsProvider);
+    final gameRa = ref.watch(gameRetroAchievementsProvider(game));
+
+    useEffect(() {
+      if (game != null && game.system.hasRetroAchievements) {
+        resolveGameRetroAchievements(
+          game: game,
+          repo: ref.read(gameRetroAchievementsRepoProvider),
+        ).then((_) {
+          ref.invalidate(gameRetroAchievementsProvider(game));
+        });
+      }
+      return null;
+    }, [game?.romPath]);
 
     if (game == null) {
       return const Scaffold(body: Center(child: Text("Game not found")));
@@ -314,6 +333,76 @@ class GameSettingsPage extends HookConsumerWidget {
         trailing: null as Widget?,
         onTap: toggleFavourite,
       ),
+      if (game.system.hasRetroAchievements) ...[
+        (
+          title: "RetroAchievements",
+          subtitle: gameRa.when(
+            data: (ra) {
+              if (ra == null) return "Checking ROM hash...";
+              if (ra.raGameId == null) return "No match for ROM hash in RA catalog";
+              if (ra.numAchievements == 0) {
+                return "Matched (${ra.raTitle ?? 'Game'}) • 0 achievements";
+              }
+              return "${ra.numAchievements} achievements • ${ra.points} pts";
+            },
+            loading: () => "Checking ROM hash...",
+            error: (_, _) => "Error checking hash",
+          ),
+          trailing: (gameRa.value?.raGameId != null &&
+                  (gameRa.value?.numAchievements ?? 0) > 0)
+              ? const Icon(Icons.chevron_right, color: Colors.amberAccent)
+              : null as Widget?,
+          onTap: () {
+            if (gameRa.value?.raGameId != null &&
+                (gameRa.value?.numAchievements ?? 0) > 0) {
+              GoRouter.of(context).push("/games/$system/game/$hash/achievements");
+            }
+          },
+        ),
+        if (gameRa.value?.raGameId != null &&
+            (gameRa.value?.numAchievements ?? 0) > 0)
+          (
+            title: "Refresh RetroAchievements Progress",
+            subtitle: null as String?,
+            trailing: workingOnIt.value
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh, color: Colors.amberAccent),
+            onTap: () async {
+              final auth = ref.read(retroAchievementsAuthProvider);
+              final raGameId = gameRa.value!.raGameId!;
+              if (auth == null) {
+                Fluttertoast.showToast(
+                  msg: "RetroAchievements account not configured",
+                );
+                return;
+              }
+              workingOnIt.value = true;
+              try {
+                final cacheRepo = ref.read(retroAchievementsCacheRepoProvider);
+                final res = await fetchGameInfoAndUserProgressWithCache(
+                  auth: auth,
+                  gameId: raGameId,
+                  cacheRepo: cacheRepo,
+                  forceRefresh: true,
+                );
+                if (res != null) {
+                  ref.read(retroAchievementsProgressMapProvider.notifier).set(raGameId, res);
+                }
+                ref.invalidate(gameRetroAchievementsDetailsProvider(raGameId));
+                ref.invalidate(gameRetroAchievementsProvider(game));
+                Fluttertoast.showToast(msg: "Achievements data refreshed");
+              } catch (e) {
+                Fluttertoast.showToast(msg: "Failed to refresh RA data: $e");
+              } finally {
+                workingOnIt.value = false;
+              }
+            },
+          ),
+      ],
       (
         title: "Scrape Game",
         subtitle: null as String?,

@@ -22,11 +22,14 @@ final allSupportedSystemsProvider = FutureProvider<List<System>>((ref) async {
 final detectedSystemsProvider = FutureProvider<List<System>>((ref) async {
   final allSystemsFuture = ref.watch(allSupportedSystemsProvider.future);
   final enabledSystemsFuture = ref.watch(enabledSystemsProvider.future);
+  final settings = ref.watch(settingsProvider).value;
   final allSystems = await allSystemsFuture;
   final enabledSystems = await enabledSystemsFuture;
   final detectedSystems = [
     for (final system in allSystems)
-      if (enabledSystems.showSystem(system.id)) system
+      if (enabledSystems.showSystem(system.id) &&
+          (!system.isRetroAchievements || (settings?.hasRetroAchievements ?? false)))
+        system
   ];
   return detectedSystems;
 });

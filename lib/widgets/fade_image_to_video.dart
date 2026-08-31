@@ -109,7 +109,6 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
   Widget build(BuildContext context) {
     return FocusDetector(
       onFocusGained: () {
-        debugPrint('Focus gained');
         if (mounted) {
           if (_controller == null) _scheduleInitialize();
           setState(() {
@@ -122,7 +121,6 @@ class FadeImageToVideoState extends State<FadeImageToVideo> {
         }
       },
       onFocusLost: () {
-        debugPrint('Focus lost');
         if (mounted) {
           if (_controller?.value.isInitialized ?? false) {
             _controller?.pause();

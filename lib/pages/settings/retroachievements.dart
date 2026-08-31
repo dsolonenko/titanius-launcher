@@ -162,19 +162,6 @@ class RetroAchievementsSettingsPage extends HookConsumerWidget {
                   : arrowRight,
               onAction: testConnection,
             ),
-            _RASettingItem(
-              title: 'Show Profile in Status Bar',
-              subtitle: 'Display avatar, score, and rank in top bar',
-              trailing:
-                  s.showRetroAchievementsInAppBar ? toggleOnIcon : toggleOffIcon,
-              onAction: () async {
-                await ref
-                    .read(settingsRepoProvider)
-                    .setShowRetroAchievementsInAppBar(
-                        !s.showRetroAchievementsInAppBar);
-                ref.invalidate(settingsProvider);
-              },
-            ),
             if (s.hasRetroAchievements)
               _RASettingItem(
                 title: 'Clear Credentials',

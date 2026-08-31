@@ -74,11 +74,28 @@ const systemNoMetadata = System(
   isCollection: true,
 );
 
-const collections = [systemRecent, systemFavourites, systemAllGames, systemNoMetadata];
+const systemRetroAchievements = System(
+  id: 'retroachievements',
+  screenScraperId: 0,
+  name: 'RetroAchievements',
+  logo: "",
+  folders: [],
+  builtInEmulators: [],
+  isCollection: true,
+);
+
+const collections = [
+  systemRecent,
+  systemFavourites,
+  systemAllGames,
+  systemNoMetadata,
+  systemRetroAchievements,
+];
 
 class System {
   final String id;
   final int screenScraperId;
+  final int? retroAchievementsId;
   final String name;
   final String logo;
   final List<String> folders;
@@ -88,6 +105,7 @@ class System {
   const System({
     required this.id,
     required this.screenScraperId,
+    this.retroAchievementsId,
     required this.name,
     required this.logo,
     required this.folders,
@@ -96,6 +114,9 @@ class System {
   });
 
   bool get isAndroid => id == "android";
+  bool get isRetroAchievements => id == "retroachievements";
+  bool get hasRetroAchievements =>
+      retroAchievementsId != null && retroAchievementsId! > 0;
 
   @override
   String toString() {
@@ -105,7 +126,8 @@ class System {
   factory System.fromJson(Map<String, dynamic> json) {
     return System(
       id: json['id'],
-      screenScraperId: json['screenScraperId'],
+      screenScraperId: json['screenScraperId'] ?? 0,
+      retroAchievementsId: json['retroAchievementsId'],
       name: json['name'],
       logo: json['logo'],
       folders: List<String>.from(json['folders']),
@@ -121,6 +143,8 @@ class System {
     return {
       'id': id,
       'screenScraperId': screenScraperId,
+      if (retroAchievementsId != null)
+        'retroAchievementsId': retroAchievementsId,
       'name': name,
       'logo': logo,
       'folders': folders,

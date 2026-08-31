@@ -46,6 +46,26 @@ class AndroidAppEntries extends Table {
   TextColumn get package => text().unique()();
 }
 
+@DataClassName('GameRetroAchievements')
+class GameRetroAchievementsEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get romPath => text().unique()();
+  TextColumn get md5Hash => text()();
+  IntColumn get raGameId => integer().nullable()();
+  IntColumn get numAchievements => integer().withDefault(const Constant(0))();
+  IntColumn get points => integer().withDefault(const Constant(0))();
+  TextColumn get raTitle => text().nullable()();
+  TextColumn get badgeUrl => text().nullable()();
+}
+
+@DataClassName('RetroAchievementsApiCacheEntry')
+class RetroAchievementsApiCacheEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get cacheKey => text().unique()();
+  TextColumn get responseJson => text()();
+  IntColumn get timestamp => integer()();
+}
+
 @DriftDatabase(tables: [
   SettingEntries,
   CustomEmulatorEntries,
@@ -53,12 +73,27 @@ class AndroidAppEntries extends Table {
   GameEmulatorEntries,
   RecentGameEntries,
   AndroidAppEntries,
+  GameRetroAchievementsEntries,
+  RetroAchievementsApiCacheEntries,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(gameRetroAchievementsEntries);
+          }
+          if (from < 3) {
+            await m.createTable(retroAchievementsApiCacheEntries);
+          }
+        },
+      );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'titanius_db');

@@ -24,8 +24,10 @@ enum GamepadButton {
   z,
   l1,
   l2,
+  l3,
   r1,
   r2,
+  r3,
   start,
   select,
 }
@@ -71,9 +73,29 @@ extension GoRouterLocation on GoRouter {
   }
 }
 
+typedef GamepadListener = void Function(String location, GamepadButton key);
+typedef GamepadChordListener = void Function(
+  String location,
+  GamepadButton key,
+  Set<GamepadButton> pressed,
+);
+
 void useGamepad(
   WidgetRef ref,
-  void Function(String location, GamepadButton key) listener,
+  GamepadListener listener,
+) {
+  final settings = ref.watch(settingsProvider).value;
+  return use(
+    _GamepadHook(
+      (loc, key, pressed) => listener(loc, key),
+      swapConfirm: settings?.swapConfirm ?? false,
+    ),
+  );
+}
+
+void useGamepadChord(
+  WidgetRef ref,
+  GamepadChordListener listener,
 ) {
   final settings = ref.watch(settingsProvider).value;
   return use(
@@ -82,7 +104,7 @@ void useGamepad(
 }
 
 class _GamepadHook extends Hook<void> {
-  final void Function(String location, GamepadButton key) listener;
+  final GamepadChordListener listener;
   final bool swapConfirm;
   const _GamepadHook(this.listener, {this.swapConfirm = false});
 
@@ -190,7 +212,7 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
   }
 
   void _dispatchButton(String currentLocation, GamepadButton button) {
-    hook.listener(currentLocation, button);
+    hook.listener(currentLocation, button, Set.unmodifiable(_pressedButtons));
   }
 
   void _handleNativeGamepadEvent(gp.NormalizedGamepadEvent event) {
@@ -363,6 +385,10 @@ class _GamepadHookState extends HookState<void, _GamepadHook> {
         return GamepadButton.l2;
       case gp.GamepadButton.rightTrigger:
         return GamepadButton.r2;
+      case gp.GamepadButton.leftStick:
+        return GamepadButton.l3;
+      case gp.GamepadButton.rightStick:
+        return GamepadButton.r3;
       case gp.GamepadButton.start:
         return GamepadButton.start;
       case gp.GamepadButton.back:

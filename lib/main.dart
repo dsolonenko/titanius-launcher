@@ -14,6 +14,7 @@ import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/scraper.dart';
 import 'package:titanius/pages/filter.dart';
 
+import 'package:titanius/pages/game_achievements.dart';
 import 'package:titanius/pages/game_settings.dart';
 import 'package:titanius/pages/settings.dart';
 import 'package:titanius/pages/scraper.dart';
@@ -84,6 +85,15 @@ final _router = GoRouter(
             system: state.pathParameters['system']!,
             hash: int.parse(state.pathParameters['hash']!),
           ),
+          routes: [
+            GoRoute(
+              path: "achievements",
+              builder: (context, state) => GameAchievementsPage(
+                system: state.pathParameters['system']!,
+                hash: int.parse(state.pathParameters['hash']!),
+              ),
+            ),
+          ],
         ),
         GoRoute(
           path: 'filter',
