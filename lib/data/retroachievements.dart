@@ -169,6 +169,26 @@ Future<UserCompletionProgress?> _fetchAndCacheUserCompletionProgress(
   }
 }
 
+Future<UserWantToPlayList?> _fetchAndCacheUserWantToPlayList(
+  AuthObject auth,
+  RetroAchievementsCacheRepo cacheRepo,
+) async {
+  try {
+    final list = await getUserWantToPlayList(
+      auth,
+      username: auth.username,
+      offset: 0,
+      count: 500,
+    );
+    final cacheKey = 'user_want_to_play_${auth.username}';
+    await cacheRepo.putCache(cacheKey, json.encode(list.toJson()));
+    return list;
+  } catch (e, stack) {
+    debugPrint("Failed to fetch RA user want to play list: $e\n$stack");
+    return null;
+  }
+}
+
 final retroAchievementsUserSummaryProvider = FutureProvider<UserSummary?>((
   ref,
 ) async {
@@ -255,6 +275,55 @@ final retroAchievementsUserAwardsProvider = FutureProvider<UserAwards?>((
   return await _fetchAndCacheUserAwards(auth, cacheRepo);
 });
 
+final retroAchievementsUserWantToPlayListProvider =
+    FutureProvider<UserWantToPlayList?>((ref) async {
+      final auth = ref.watch(retroAchievementsAuthProvider);
+      if (auth == null) {
+        return null;
+      }
+      final cacheRepo = ref.watch(retroAchievementsCacheRepoProvider);
+      final cacheKey = 'user_want_to_play_${auth.username}';
+
+      // 1. Fresh cache (< 24h) returns immediately
+      final cached = await cacheRepo.getValidCache(cacheKey);
+      if (cached != null) {
+        try {
+          final jsonMap = json.decode(cached) as Map<String, dynamic>;
+          return UserWantToPlayList.fromJson(jsonMap);
+        } catch (e) {
+          debugPrint("Failed to parse cached user want to play list: $e");
+        }
+      }
+
+      // 2. Stale cache (> 24h) returns immediately and silently refreshes in background
+      final stale = await cacheRepo.getAnyCache(cacheKey);
+      if (stale != null) {
+        unawaited(() async {
+          try {
+            final fresh = await _fetchAndCacheUserWantToPlayList(
+              auth,
+              cacheRepo,
+            );
+            if (fresh != null) {
+              ref.invalidateSelf();
+            }
+          } catch (e) {
+            debugPrint(
+              "Background refresh of user want to play list failed: $e",
+            );
+          }
+        }());
+        try {
+          return UserWantToPlayList.fromJson(
+            json.decode(stale) as Map<String, dynamic>,
+          );
+        } catch (_) {}
+      }
+
+      // 3. No cache at all: fetch synchronously from API
+      return await _fetchAndCacheUserWantToPlayList(auth, cacheRepo);
+    });
+
 final retroAchievementsUserCompletionProgressProvider =
     FutureProvider<UserCompletionProgress?>((ref) async {
       final auth = ref.watch(retroAchievementsAuthProvider);
@@ -311,10 +380,12 @@ Future<void> refreshAllPlayerRetroAchievementsData(WidgetRef ref) async {
 
   await cacheRepo.invalidate('user_summary_${auth.username}');
   await cacheRepo.invalidate('user_awards_${auth.username}');
+  await cacheRepo.invalidate('user_want_to_play_${auth.username}');
   await cacheRepo.invalidate('user_completion_progress_${auth.username}');
 
   ref.invalidate(retroAchievementsUserSummaryProvider);
   ref.invalidate(retroAchievementsUserAwardsProvider);
+  ref.invalidate(retroAchievementsUserWantToPlayListProvider);
   ref.invalidate(retroAchievementsUserCompletionProgressProvider);
 }
 

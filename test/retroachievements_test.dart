@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:drift/native.dart';
+import 'package:zstd_dart/zstd_dart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -180,6 +181,22 @@ void main() {
           ],
         );
 
+        const mockWantToPlay = UserWantToPlayList(
+          count: 1,
+          total: 1,
+          results: [
+            UserWantToPlayItem(
+              id: 2259,
+              title: 'Wario World',
+              imageIcon: '',
+              consoleId: 16,
+              consoleName: 'GameCube',
+              pointsTotal: 610,
+              achievementsPublished: 88,
+            ),
+          ],
+        );
+
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
@@ -190,6 +207,9 @@ void main() {
               ),
               retroAchievementsUserAwardsProvider.overrideWith(
                 (ref) async => mockAwards,
+              ),
+              retroAchievementsUserWantToPlayListProvider.overrideWith(
+                (ref) async => mockWantToPlay,
               ),
               retroAchievementsUserCompletionProgressProvider.overrideWith(
                 (ref) async => mockProgress,
@@ -222,9 +242,11 @@ void main() {
           ),
           findsOneWidget,
         );
+        expect(find.text('Want to Play'), findsOneWidget);
+        expect(find.text('Wario World'), findsOneWidget);
         expect(find.text('Jetpack Joyride'), findsOneWidget);
         expect(find.text('Game Progress'), findsOneWidget);
-        expect(find.text('(1)'), findsOneWidget);
+        expect(find.text('(1)'), findsNWidgets(2));
 
         await db.close();
       },
@@ -401,6 +423,173 @@ void main() {
             'gc',
             '.',
             'test_gc.iso',
+          );
+
+          final result = await resolveGameRetroAchievements(
+            game: game,
+            repo: repo,
+          );
+
+          expect(result, isNotNull);
+          expect(result!.romPath, game.romPath);
+          expect(result.md5Hash, isNotNull);
+          expect(result.md5Hash.length, 32);
+        } finally {
+          await tempDir.delete(recursive: true);
+          await db.close();
+        }
+      },
+    );
+
+    test(
+      'resolveGameRetroAchievements identifies GameCube disc RVZ correctly',
+      () async {
+        final db = AppDatabase(NativeDatabase.memory());
+        final repo = GameRetroAchievementsRepo(db);
+        final tempDir =
+            await Directory.systemTemp.createTemp('ra_gc_rvz_resolve_');
+
+        try {
+          final gcDir = Directory('${tempDir.path}/gc')
+            ..createSync(recursive: true);
+          final romFile = File('${gcDir.path}/test_gc.rvz');
+
+          // Create minimal synthetic GameCube disc
+          const baseHeaderSize = 0x2440;
+          final gcDisc = Uint8List(0x8000);
+          gcDisc[0x1C] = 0xC2;
+          gcDisc[0x1D] = 0x33;
+          gcDisc[0x1E] = 0x9F;
+          gcDisc[0x1F] = 0x3D;
+
+          final apploaderInfo = ByteData.sublistView(
+            gcDisc,
+            baseHeaderSize + 0x14,
+            baseHeaderSize + 0x1C,
+          );
+          apploaderInfo.setUint32(0, 0x40, Endian.big);
+          apploaderInfo.setUint32(4, 0x20, Endian.big);
+
+          final dolOffsetView = ByteData.sublistView(gcDisc, 0x420, 0x424);
+          dolOffsetView.setUint32(0, 0x3000, Endian.big);
+
+          // Build valid Zstd RVZ structure
+          final numChunks = (gcDisc.length + 0x8000 - 1) ~/ 0x8000;
+          final compressedChunks = <Uint8List>[];
+          for (var i = 0; i < numChunks; i++) {
+            final start = i * 0x8000;
+            final end = (start + 0x8000 < gcDisc.length)
+                ? start + 0x8000
+                : gcDisc.length;
+            final chunkRaw = Uint8List(0x8000);
+            chunkRaw.setRange(0, end - start, gcDisc.sublist(start, end));
+            compressedChunks
+                .add(Uint8List.fromList(ZstdCodec.compress(chunkRaw)));
+          }
+
+          final rawBytes = Uint8List(24);
+          final rawBd = ByteData.sublistView(rawBytes);
+          rawBd.setUint64(0, 0, Endian.big);
+          rawBd.setUint64(8, gcDisc.length, Endian.big);
+          rawBd.setUint32(16, 0, Endian.big);
+          rawBd.setUint32(20, numChunks, Endian.big);
+          final rawComp = Uint8List.fromList(ZstdCodec.compress(rawBytes));
+
+          final groupBytes = Uint8List(numChunks * 12);
+          final groupBd = ByteData.sublistView(groupBytes);
+          var currentFileOffset = 72 + 220;
+          final rawOff = currentFileOffset;
+          currentFileOffset += rawComp.length;
+          while (currentFileOffset % 4 != 0) {
+            currentFileOffset++;
+          }
+          final groupOff = currentFileOffset;
+
+          for (var i = 0; i < numChunks; i++) {
+            groupBd.setUint32(i * 12, 0, Endian.big);
+            groupBd.setUint32(
+                i * 12 + 4, (1 << 31) | compressedChunks[i].length, Endian.big);
+            groupBd.setUint32(i * 12 + 8, 0, Endian.big);
+          }
+          final tempGroupComp =
+              Uint8List.fromList(ZstdCodec.compress(groupBytes));
+          var chunkDataStart = groupOff + tempGroupComp.length;
+          while (chunkDataStart % 4 != 0) {
+            chunkDataStart++;
+          }
+
+          var runningChunkOff = chunkDataStart;
+          for (var i = 0; i < numChunks; i++) {
+            groupBd.setUint32(i * 12, runningChunkOff >> 2, Endian.big);
+            groupBd.setUint32(
+                i * 12 + 4, (1 << 31) | compressedChunks[i].length, Endian.big);
+            groupBd.setUint32(i * 12 + 8, 0, Endian.big);
+            runningChunkOff += compressedChunks[i].length;
+            while (runningChunkOff % 4 != 0) {
+              runningChunkOff++;
+            }
+          }
+          final finalGroupComp =
+              Uint8List.fromList(ZstdCodec.compress(groupBytes));
+
+          final h2 = Uint8List(220);
+          final h2Bd = ByteData.sublistView(h2);
+          h2Bd.setUint32(0, 1, Endian.big);
+          h2Bd.setUint32(4, 5, Endian.big);
+          h2Bd.setInt32(8, 3, Endian.big);
+          h2Bd.setUint32(12, 0x8000, Endian.big);
+          h2.setRange(16, 16 + 0x80, gcDisc.sublist(0, 0x80));
+          h2Bd.setUint32(0xB4, 1, Endian.big);
+          h2Bd.setUint64(0xB8, rawOff, Endian.big);
+          h2Bd.setUint32(0xC0, rawComp.length, Endian.big);
+          h2Bd.setUint32(0xC4, numChunks, Endian.big);
+          h2Bd.setUint64(0xC8, groupOff, Endian.big);
+          h2Bd.setUint32(0xD0, finalGroupComp.length, Endian.big);
+
+          final h1 = Uint8List(72);
+          final h1Bd = ByteData.sublistView(h1);
+          h1Bd.setUint32(0, 0x52565A01, Endian.big);
+          h1Bd.setUint32(4, 0x01000000, Endian.big);
+          h1Bd.setUint32(8, 0x01000000, Endian.big);
+          h1Bd.setUint32(12, 220, Endian.big);
+          h1Bd.setUint64(36, gcDisc.length, Endian.big);
+          h1Bd.setUint64(44, runningChunkOff, Endian.big);
+
+          final rvzBytes = Uint8List(runningChunkOff);
+          rvzBytes.setRange(0, 72, h1);
+          rvzBytes.setRange(72, 72 + 220, h2);
+          rvzBytes.setRange(rawOff, rawOff + rawComp.length, rawComp);
+          rvzBytes.setRange(
+              groupOff, groupOff + finalGroupComp.length, finalGroupComp);
+          var off = chunkDataStart;
+          for (var i = 0; i < numChunks; i++) {
+            rvzBytes.setRange(
+                off, off + compressedChunks[i].length, compressedChunks[i]);
+            off += compressedChunks[i].length;
+            while (off % 4 != 0 && off < runningChunkOff) {
+              off++;
+            }
+          }
+
+          await romFile.writeAsBytes(rvzBytes);
+
+          const system = System(
+            id: 'gc',
+            name: 'GameCube',
+            logo: 'gc.svg',
+            screenScraperId: 14,
+            retroAchievementsId: 16,
+            folders: ['gc'],
+            builtInEmulators: [],
+          );
+
+          final game = Game(
+            system,
+            'Test GameCube RVZ Game',
+            tempDir.path,
+            'gc',
+            '.',
+            'test_gc.rvz',
           );
 
           final result = await resolveGameRetroAchievements(

@@ -22,19 +22,40 @@ import 'package:titanius/data/repo.dart';
 import 'package:titanius/widgets/scraper_progress.dart';
 import 'package:retry/retry.dart';
 
+const scraperRegionOptions = ["us", "eu", "jp", "wor"];
+const scraperRegionLabels = ["US", "EU", "JP", "World"];
+
+List<String> getScraperRegionPriority(String? regionId) {
+  switch (regionId?.toLowerCase()) {
+    case "eu":
+      return ["eu", "wor", "us", "jp"];
+    case "jp":
+      return ["jp", "wor", "us", "eu"];
+    case "wor":
+      return ["wor", "us", "eu", "jp"];
+    case "us":
+    default:
+      return ["us", "wor", "eu", "jp"];
+  }
+}
+
 class Scraper {
   final RomScraper _scraper;
   final dio = Dio();
 
-  Scraper({required String userName, required String userPassword})
-    : _scraper = RomScraper(
-        devId: Env.devId,
-        devPassword: Env.devPassword,
-        softwareName: Env.appName,
-        userName: userName,
-        userPassword: userPassword,
-        httpLogging: true,
-      );
+  Scraper({
+    required String userName,
+    required String userPassword,
+    List<String>? regionPriority,
+  }) : _scraper = RomScraper(
+         devId: Env.devId,
+         devPassword: Env.devPassword,
+         softwareName: Env.appName,
+         userName: userName,
+         userPassword: userPassword,
+         regionPriority: regionPriority,
+         httpLogging: true,
+       );
 
   Future<Game> scrape(
     Game rom,
@@ -163,6 +184,7 @@ final scraperProvider = FutureProvider<Scraper>((ref) async {
   final scraper = Scraper(
     userName: settings.screenScraperUser ?? "",
     userPassword: settings.screenScraperPwd ?? "",
+    regionPriority: getScraperRegionPriority(settings.scraperRegion),
   );
   return scraper;
 });
@@ -173,6 +195,7 @@ abstract class ScraperService {
   Future<void> startScrape({
     required String? username,
     required String? password,
+    required String? region,
     required List<String> romFolders,
     required List<Game> roms,
     required List<System> systems,
@@ -205,6 +228,7 @@ class ForegroundScraperService implements ScraperService {
   Future<void> startScrape({
     required String? username,
     required String? password,
+    required String? region,
     required List<String> romFolders,
     required List<Game> roms,
     required List<System> systems,
@@ -234,6 +258,7 @@ class ForegroundScraperService implements ScraperService {
       'action': 'scrape',
       'username': username,
       'password': password,
+      'region': region,
       'romFolders': romFolders,
       'roms': roms.map((e) => e.toJson()).toList(),
       'systems': systems.map((e) => e.toJson()).toList(),
@@ -262,6 +287,7 @@ class DesktopScraperService implements ScraperService {
   Future<void> startScrape({
     required String? username,
     required String? password,
+    required String? region,
     required List<String> romFolders,
     required List<Game> roms,
     required List<System> systems,
@@ -275,6 +301,7 @@ class DesktopScraperService implements ScraperService {
       scrapeGames(
         username: username,
         password: password,
+        region: region,
         romFolders: romFolders,
         roms: roms,
         systems: systems,
@@ -345,6 +372,7 @@ class ScraperTaskHandler extends TaskHandler {
 
         final username = map['username'] as String?;
         final password = map['password'] as String?;
+        final region = map['region'] as String?;
         final romFolders = (map['romFolders'] as List)
             .map((e) => e.toString())
             .toList();
@@ -367,6 +395,7 @@ class ScraperTaskHandler extends TaskHandler {
         scrapeGames(
           username: username,
           password: password,
+          region: region,
           romFolders: romFolders,
           roms: roms,
           systems: systems,
@@ -438,6 +467,7 @@ class ScraperTaskHandler extends TaskHandler {
 Future<void> scrapeGames({
   required String? username,
   required String? password,
+  required String? region,
   required List<String> romFolders,
   required List<Game> roms,
   required List<System> systems,
@@ -537,6 +567,7 @@ Future<void> scrapeGames({
     final scraper = Scraper(
       userName: username ?? "",
       userPassword: password ?? "",
+      regionPriority: getScraperRegionPriority(region),
     );
     for (var game in gamesToScrape) {
       if (cancellationToken?.isCancelled ?? false) {

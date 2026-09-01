@@ -14,7 +14,11 @@ import 'package:titanius/widgets/selected_scroll_tile.dart';
 part 'package:titanius/pages/filters/genres.dart';
 
 const checkBoxSize = 40.0;
-const checkBoxOnIcon = Icon(Icons.check_box_outlined, size: checkBoxSize);
+const checkBoxOnIcon = Icon(
+  Icons.check_box_outlined,
+  size: checkBoxSize,
+  color: Colors.green,
+);
 const checkBoxOffIcon = Icon(
   Icons.check_box_outline_blank_outlined,
   size: checkBoxSize,

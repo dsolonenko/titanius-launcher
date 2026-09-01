@@ -42,6 +42,7 @@ class Settings {
       retroAchievementsApiKey!.trim().isNotEmpty;
   String? get scrapeTheseGames => _getString('scrapeTheseGames');
   List<String> get scrapeTheseSystems => _getStringList('scrapeTheseSystems');
+  String get scraperRegion => _getString('scraperRegion') ?? 'us';
 
   double _getDouble(String key, double defaultValue) {
     return settings.containsKey(key)
@@ -167,6 +168,10 @@ class SettingsRepo {
 
   Future<void> setScrapeTheseGames(String value) async {
     return _setSetting('scrapeTheseGames', value);
+  }
+
+  Future<void> setScraperRegion(String value) async {
+    return _setSetting('scraperRegion', value);
   }
 
   Future<void> setScrapeTheseSystem(String id, bool scrape) async {

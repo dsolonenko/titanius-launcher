@@ -91,6 +91,31 @@ class ScraperPage extends HookConsumerWidget {
       }
     }
 
+    void cycleScraperRegion(bool next) {
+      final currentSettings = ref.read(settingsProvider).value;
+      if (currentSettings == null) return;
+      int index = scraperRegionOptions.indexWhere(
+        (id) => id == currentSettings.scraperRegion,
+      );
+      if (index == -1) index = 0;
+      if (next) {
+        index++;
+      } else {
+        index--;
+      }
+      if (index < 0) {
+        index = scraperRegionOptions.length - 1;
+      }
+      if (index >= scraperRegionOptions.length) {
+        index = 0;
+      }
+      final selected = scraperRegionOptions[index];
+      ref
+          .read(settingsRepoProvider)
+          .setScraperRegion(selected)
+          .then((value) => ref.invalidate(settingsProvider));
+    }
+
     void cycleScrapeTheseGames(bool next) {
       final currentSettings = ref.read(settingsProvider).value;
       if (currentSettings == null) return;
@@ -149,18 +174,22 @@ class ScraperPage extends HookConsumerWidget {
       }
 
       if (key == GamepadButton.up) {
-        selectedIndex.value = (selectedIndex.value - 1).clamp(0, 3);
+        selectedIndex.value = (selectedIndex.value - 1).clamp(0, 4);
       }
       if (key == GamepadButton.down) {
-        selectedIndex.value = (selectedIndex.value + 1).clamp(0, 3);
+        selectedIndex.value = (selectedIndex.value + 1).clamp(0, 4);
       }
       if (key == GamepadButton.left) {
         if (selectedIndex.value == 2) {
+          cycleScraperRegion(false);
+        } else if (selectedIndex.value == 3) {
           cycleScrapeTheseGames(false);
         }
       }
       if (key == GamepadButton.right) {
         if (selectedIndex.value == 2) {
+          cycleScraperRegion(true);
+        } else if (selectedIndex.value == 3) {
           cycleScrapeTheseGames(true);
         }
       }
@@ -170,8 +199,10 @@ class ScraperPage extends HookConsumerWidget {
         } else if (selectedIndex.value == 1) {
           editPassword();
         } else if (selectedIndex.value == 2) {
-          cycleScrapeTheseGames(true);
+          cycleScraperRegion(true);
         } else if (selectedIndex.value == 3) {
+          cycleScrapeTheseGames(true);
+        } else if (selectedIndex.value == 4) {
           context.push("/settings/scraper/systems");
         }
       }
@@ -184,6 +215,13 @@ class ScraperPage extends HookConsumerWidget {
     });
 
     final s = settings.value;
+    int currentRegionIdx = s == null
+        ? 0
+        : scraperRegionOptions.indexWhere(
+            (id) => id == s.scraperRegion,
+          );
+    if (currentRegionIdx == -1) currentRegionIdx = 0;
+
     int currentScrapeOptionIdx = s == null
         ? 0
         : scrapeTheseGamesOptions.indexWhere(
@@ -209,6 +247,15 @@ class ScraperPage extends HookConsumerWidget {
             : "Not set",
         trailing: arrowRight,
         onTap: editPassword,
+      ),
+      (
+        group: "Settings",
+        title: "Scraper Region",
+        subtitle: null as String?,
+        trailing: SelectorWidget(
+          text: scraperRegionLabels[currentRegionIdx],
+        ),
+        onTap: () => cycleScraperRegion(true),
       ),
       (
         group: "Settings",
@@ -582,6 +629,7 @@ Future<void> _startScraper(WidgetRef ref) async {
   await service.startScrape(
     username: settings.screenScraperUser,
     password: settings.screenScraperPwd,
+    region: settings.scraperRegion,
     romFolders: romFolders,
     roms: existingRoms,
     scrapeTheseGames: settings.scrapeTheseGames ?? "all_games",

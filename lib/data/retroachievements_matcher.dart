@@ -32,7 +32,7 @@ Future<GameRetroAchievements?> resolveGameRetroAchievements({
   }
 
   final cached = await repo.getEntry(game.romPath);
-  if (cached != null && !forceRehash && cached.raGameId != null) {
+  if (cached != null && !forceRehash) {
     return cached;
   }
 
@@ -46,7 +46,14 @@ Future<GameRetroAchievements?> resolveGameRetroAchievements({
     debugPrint(
       '[RA Matcher] Could not hash "${game.name}" at "${game.absoluteRomPath}"',
     );
-    return null;
+    await repo.saveEntry(
+      romPath: game.romPath,
+      md5Hash: '',
+      raGameId: null,
+      numAchievements: 0,
+      points: 0,
+    );
+    return repo.getEntry(game.romPath);
   }
   var match = RaCache.findByHash(hashResult.primaryHash, consoleId: consoleId);
   var usedHash = hashResult.primaryHash;
@@ -121,12 +128,7 @@ Future<void> scanSystemRetroAchievements({
 
   final cachedMap = await repo.getEntriesForSystem(system, games);
   final unCached = games
-      .where(
-        (g) =>
-            !g.isFolder &&
-            (!cachedMap.containsKey(g.romPath) ||
-                cachedMap[g.romPath]?.raGameId == null),
-      )
+      .where((g) => !g.isFolder && !cachedMap.containsKey(g.romPath))
       .toList();
 
   if (unCached.isEmpty) {

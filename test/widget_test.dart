@@ -320,6 +320,32 @@ void main() {
     },
   );
 
+  test('getScraperRegionPriority returns expected priority sequences', () {
+    expect(getScraperRegionPriority('us'), equals(['us', 'wor', 'eu', 'jp']));
+    expect(getScraperRegionPriority('eu'), equals(['eu', 'wor', 'us', 'jp']));
+    expect(getScraperRegionPriority('jp'), equals(['jp', 'wor', 'us', 'eu']));
+    expect(getScraperRegionPriority('wor'), equals(['wor', 'us', 'eu', 'jp']));
+    expect(getScraperRegionPriority(null), equals(['us', 'wor', 'eu', 'jp']));
+  });
+
+  test('SettingsRepo saves and retrieves scraperRegion defaulting to us', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    final repo = SettingsRepo(db);
+
+    var settings = await repo.getSettings();
+    expect(settings.scraperRegion, equals('us'));
+
+    await repo.setScraperRegion('eu');
+    settings = await repo.getSettings();
+    expect(settings.scraperRegion, equals('eu'));
+
+    await repo.setScraperRegion('jp');
+    settings = await repo.getSettings();
+    expect(settings.scraperRegion, equals('jp'));
+
+    await db.close();
+  });
+
   test(
     'DesktopScraperService handles startScrape, stopScrape and receives progress events',
     () async {
@@ -332,6 +358,7 @@ void main() {
       await service.startScrape(
         username: 'test',
         password: 'pwd',
+        region: 'us',
         romFolders: [],
         roms: [],
         systems: [],

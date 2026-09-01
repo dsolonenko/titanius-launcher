@@ -26,6 +26,9 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
     );
     final summaryAsync = ref.watch(retroAchievementsUserSummaryProvider);
     final awardsAsync = ref.watch(retroAchievementsUserAwardsProvider);
+    final wantToPlayAsync = ref.watch(
+      retroAchievementsUserWantToPlayListProvider,
+    );
     final progressAsync = ref.watch(
       retroAchievementsUserCompletionProgressProvider,
     );
@@ -35,6 +38,7 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
 
     final summary = summaryAsync.value;
     final awards = awardsAsync.value;
+    final wantToPlay = wantToPlayAsync.value;
     final progress = progressAsync.value;
 
     // Flatten recent achievements from summary
@@ -50,6 +54,8 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
 
     final completionList =
         progress?.results ?? const <UserCompletionProgressEntity>[];
+    final wantToPlayList =
+        wantToPlay?.results ?? const <UserWantToPlayItem>[];
     final visibleAwards = useMemoized(() {
       final list = List<UserAward>.from(
         awards?.visibleUserAwards ?? const <UserAward>[],
@@ -243,6 +249,14 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
                   children: [
                     const RetroAchievementsPlayerHeaderCard(),
                     const RetroAchievementsGamesOverviewBar(),
+                    if (wantToPlayList.isNotEmpty) ...[
+                      _buildSectionHeader(
+                        "Want to Play",
+                        wantToPlayList.length,
+                      ),
+                      for (final game in wantToPlayList)
+                        _buildWantToPlayTile(context, game),
+                    ],
                     if (visibleAwards.isNotEmpty) ...[
                       _buildSectionHeader("Game Awards", visibleAwards.length),
                       for (final award in visibleAwards)
@@ -268,6 +282,119 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildWantToPlayTile(
+    BuildContext context,
+    UserWantToPlayItem item,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      height: 58,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 58,
+            height: 58,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(5),
+              ),
+              child: item.imageIcon.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: MediaUrls.gameImageUrl(item.imageIcon),
+                      fit: BoxFit.cover,
+                      errorWidget: (_, _, _) => Container(
+                        color: Colors.black26,
+                        child: const Center(
+                          child: Icon(
+                            Icons.bookmark_outline,
+                            size: 24,
+                            color: Colors.amberAccent,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      color: Colors.black26,
+                      child: const Center(
+                        child: Icon(
+                          Icons.bookmark_outline,
+                          size: 24,
+                          color: Colors.amberAccent,
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      height: 1.1,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "${item.consoleName} • ${item.achievementsPublished} achievements • ${item.pointsTotal} pts",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 9.5,
+                      height: 1.1,
+                      color: Colors.white60,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.bookmark,
+                    size: 14,
+                    color: Colors.amberAccent,
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    "${item.pointsTotal} pts",
+                    style: const TextStyle(
+                      fontSize: 7.5,
+                      height: 1.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amberAccent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
