@@ -28,17 +28,23 @@ class AppsSettingsPage extends HookConsumerWidget {
           appsList.length - 1,
         );
       }
+      if (key == GamepadButton.left) {
+        final app = appsList[selectedIndex.value.clamp(0, appsList.length - 1)];
+        ref
+            .read(androidAppsRepoProvider)
+            .cycleAppType(app.packageName, forward: false);
+      }
+      if (key == GamepadButton.right) {
+        final app = appsList[selectedIndex.value.clamp(0, appsList.length - 1)];
+        ref
+            .read(androidAppsRepoProvider)
+            .cycleAppType(app.packageName, forward: true);
+      }
       if (key == GamepadButton.confirm) {
         final app = appsList[selectedIndex.value.clamp(0, appsList.length - 1)];
-        final selected = ref.read(androidAppsChangesProvider).value;
-        if (selected != null) {
-          ref
-              .read(androidAppsRepoProvider)
-              .selectApp(
-                app.packageName,
-                !selected.isSelected(app.packageName),
-              );
-        }
+        ref
+            .read(androidAppsRepoProvider)
+            .cycleAppType(app.packageName, forward: true);
       }
       if (key == GamepadButton.back) {
         GoRouter.of(context).go("/games/android");
@@ -51,7 +57,9 @@ class AppsSettingsPage extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Selected Apps')),
       bottomNavigationBar: const PromptBar(
-        navigations: [],
+        navigations: [
+          GamepadPrompt([GamepadButton.leftRight], "Select"),
+        ],
         actions: [
           GamepadPrompt([GamepadButton.y], "Refresh"),
           GamepadPrompt([GamepadButton.confirm], "Change"),
@@ -78,10 +86,11 @@ class AppsSettingsPage extends HookConsumerWidget {
               final isSelected = index == selectedIndex.value;
               return Consumer(
                 builder: (context, ref, _) {
-                  final isAppSelected = ref.watch(
+                  final appType = ref.watch(
                     androidAppsChangesProvider.select(
                       (selection) =>
-                          selection.value?.isSelected(app.packageName) ?? false,
+                          selection.value?.typeOf(app.packageName) ??
+                          AndroidAppType.hidden,
                     ),
                   );
                   return SelectedScrollTile(
@@ -103,7 +112,7 @@ class AppsSettingsPage extends HookConsumerWidget {
                             selectedIndex.value = index;
                             ref
                                 .read(androidAppsRepoProvider)
-                                .selectApp(app.packageName, !isAppSelected);
+                                .cycleAppType(app.packageName);
                           },
                           title: Text(
                             app.name,
@@ -135,9 +144,7 @@ class AppsSettingsPage extends HookConsumerWidget {
                                       ? Colors.black
                                       : Colors.white,
                                 ),
-                          trailing: isAppSelected
-                              ? toggleOnIcon
-                              : toggleOffIcon,
+                          trailing: SelectorWidget(text: appType.label),
                         ),
                       ),
                     ),

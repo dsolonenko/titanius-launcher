@@ -158,10 +158,11 @@ class SystemsPage extends HookConsumerWidget {
           ),
         );
         if (hasRetroAchievements) {
-          return Align(
-            alignment: const Alignment(0, -0.28),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+          const topInset = 36.0;
+          return Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, top: topInset),
+            child: Align(
+              alignment: Alignment.topCenter,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
@@ -172,17 +173,17 @@ class SystemsPage extends HookConsumerWidget {
                         "\u{1F3C6}",
                         style: TextStyle(
                           fontFamily: "Prompt",
-                          fontSize: 32,
+                          fontSize: 20,
                           color: Colors.amberAccent,
                         ),
                       ),
-                      SizedBox(width: 10),
+                      SizedBox(width: 8),
                       Text(
                         "RetroAchievements",
                         style: TextStyle(
                           fontFamily: "KarenFat",
                           color: Colors.white,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           shadows: [
                             Shadow(
@@ -200,10 +201,18 @@ class SystemsPage extends HookConsumerWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 6),
-                  RetroAchievementsPlayerHeaderCard(margin: EdgeInsets.zero),
-                  SizedBox(height: 6),
-                  RetroAchievementsGamesOverviewBar(margin: EdgeInsets.zero),
+                  SizedBox(height: 4),
+                  RetroAchievementsPlayerHeaderCard(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    avatarSize: 64,
+                    usernameFontSize: 19,
+                  ),
+                  SizedBox(height: 4),
+                  RetroAchievementsGamesOverviewBar(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  ),
                 ],
               ),
             ),

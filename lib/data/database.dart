@@ -44,6 +44,7 @@ class RecentGameEntries extends Table {
 class AndroidAppEntries extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get package => text().unique()();
+  TextColumn get appType => text().withDefault(const Constant('app'))();
 }
 
 @DataClassName('GameRetroAchievements')
@@ -82,7 +83,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -93,6 +94,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 3) {
         await m.createTable(retroAchievementsApiCacheEntries);
+      }
+      if (from < 4) {
+        await m.addColumn(androidAppEntries, androidAppEntries.appType);
       }
     },
   );

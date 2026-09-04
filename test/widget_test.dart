@@ -328,23 +328,26 @@ void main() {
     expect(getScraperRegionPriority(null), equals(['us', 'wor', 'eu', 'jp']));
   });
 
-  test('SettingsRepo saves and retrieves scraperRegion defaulting to us', () async {
-    final db = AppDatabase(NativeDatabase.memory());
-    final repo = SettingsRepo(db);
+  test(
+    'SettingsRepo saves and retrieves scraperRegion defaulting to us',
+    () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      final repo = SettingsRepo(db);
 
-    var settings = await repo.getSettings();
-    expect(settings.scraperRegion, equals('us'));
+      var settings = await repo.getSettings();
+      expect(settings.scraperRegion, equals('us'));
 
-    await repo.setScraperRegion('eu');
-    settings = await repo.getSettings();
-    expect(settings.scraperRegion, equals('eu'));
+      await repo.setScraperRegion('eu');
+      settings = await repo.getSettings();
+      expect(settings.scraperRegion, equals('eu'));
 
-    await repo.setScraperRegion('jp');
-    settings = await repo.getSettings();
-    expect(settings.scraperRegion, equals('jp'));
+      await repo.setScraperRegion('jp');
+      settings = await repo.getSettings();
+      expect(settings.scraperRegion, equals('jp'));
 
-    await db.close();
-  });
+      await db.close();
+    },
+  );
 
   test(
     'DesktopScraperService handles startScrape, stopScrape and receives progress events',

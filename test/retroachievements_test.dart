@@ -8,15 +8,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:system_date_time_format/system_date_time_format.dart';
+import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/data/repo.dart' hide isNull, isNotNull;
 import 'package:titanius/data/retroachievements.dart';
 import 'package:titanius/data/retroachievements_matcher.dart';
 import 'package:titanius/data/state.dart';
 import 'package:titanius/data/storage.dart';
+import 'package:page_view_dot_indicator/page_view_dot_indicator.dart';
 import 'package:titanius/pages/game_achievements.dart';
 import 'package:titanius/pages/player_retroachievements.dart';
 import 'package:titanius/pages/settings.dart';
+import 'package:titanius/pages/systems.dart';
 import 'package:titanius/widgets/retroachievements_card.dart';
 
 void main() {
@@ -446,8 +449,9 @@ void main() {
       () async {
         final db = AppDatabase(NativeDatabase.memory());
         final repo = GameRetroAchievementsRepo(db);
-        final tempDir =
-            await Directory.systemTemp.createTemp('ra_gc_rvz_resolve_');
+        final tempDir = await Directory.systemTemp.createTemp(
+          'ra_gc_rvz_resolve_',
+        );
 
         try {
           final gcDir = Directory('${tempDir.path}/gc')
@@ -483,8 +487,9 @@ void main() {
                 : gcDisc.length;
             final chunkRaw = Uint8List(0x8000);
             chunkRaw.setRange(0, end - start, gcDisc.sublist(start, end));
-            compressedChunks
-                .add(Uint8List.fromList(ZstdCodec.compress(chunkRaw)));
+            compressedChunks.add(
+              Uint8List.fromList(ZstdCodec.compress(chunkRaw)),
+            );
           }
 
           final rawBytes = Uint8List(24);
@@ -508,11 +513,15 @@ void main() {
           for (var i = 0; i < numChunks; i++) {
             groupBd.setUint32(i * 12, 0, Endian.big);
             groupBd.setUint32(
-                i * 12 + 4, (1 << 31) | compressedChunks[i].length, Endian.big);
+              i * 12 + 4,
+              (1 << 31) | compressedChunks[i].length,
+              Endian.big,
+            );
             groupBd.setUint32(i * 12 + 8, 0, Endian.big);
           }
-          final tempGroupComp =
-              Uint8List.fromList(ZstdCodec.compress(groupBytes));
+          final tempGroupComp = Uint8List.fromList(
+            ZstdCodec.compress(groupBytes),
+          );
           var chunkDataStart = groupOff + tempGroupComp.length;
           while (chunkDataStart % 4 != 0) {
             chunkDataStart++;
@@ -522,15 +531,19 @@ void main() {
           for (var i = 0; i < numChunks; i++) {
             groupBd.setUint32(i * 12, runningChunkOff >> 2, Endian.big);
             groupBd.setUint32(
-                i * 12 + 4, (1 << 31) | compressedChunks[i].length, Endian.big);
+              i * 12 + 4,
+              (1 << 31) | compressedChunks[i].length,
+              Endian.big,
+            );
             groupBd.setUint32(i * 12 + 8, 0, Endian.big);
             runningChunkOff += compressedChunks[i].length;
             while (runningChunkOff % 4 != 0) {
               runningChunkOff++;
             }
           }
-          final finalGroupComp =
-              Uint8List.fromList(ZstdCodec.compress(groupBytes));
+          final finalGroupComp = Uint8List.fromList(
+            ZstdCodec.compress(groupBytes),
+          );
 
           final h2 = Uint8List(220);
           final h2Bd = ByteData.sublistView(h2);
@@ -560,11 +573,17 @@ void main() {
           rvzBytes.setRange(72, 72 + 220, h2);
           rvzBytes.setRange(rawOff, rawOff + rawComp.length, rawComp);
           rvzBytes.setRange(
-              groupOff, groupOff + finalGroupComp.length, finalGroupComp);
+            groupOff,
+            groupOff + finalGroupComp.length,
+            finalGroupComp,
+          );
           var off = chunkDataStart;
           for (var i = 0; i < numChunks; i++) {
             rvzBytes.setRange(
-                off, off + compressedChunks[i].length, compressedChunks[i]);
+              off,
+              off + compressedChunks[i].length,
+              compressedChunks[i],
+            );
             off += compressedChunks[i].length;
             while (off % 4 != 0 && off < runningChunkOff) {
               off++;
@@ -791,6 +810,206 @@ void main() {
       expect(enabledSystems.showSystem('favourites'), true);
       expect(enabledSystems.showSystem('recent'), true);
     });
+
+    testWidgets(
+      'SystemsPage renders retroachievements panels above the navigation dots',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 480);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        const mockSummary = UserSummary(
+          recentlyPlayedCount: 1,
+          recentlyPlayed: [],
+          memberSince: '2020-01-01',
+          richPresenceMsg: '',
+          lastGameId: 0,
+          contribCount: 0,
+          contribYield: 0,
+          totalPoints: 1870,
+          totalSoftcorePoints: 393,
+          totalTruePoints: 3276,
+          permissions: 0,
+          untracked: false,
+          id: 1,
+          userWallActive: false,
+          motto: '',
+          rank: 57401,
+          awarded: {},
+          recentAchievements: {},
+          points: 1870,
+          softcorePoints: 393,
+          userPic: '',
+          totalRanked: 161141,
+          status: '',
+        );
+
+        const mockAwards = UserAwards(
+          totalAwardsCount: 3,
+          hiddenAwardsCount: 0,
+          masteryAwardsCount: 1,
+          completionAwardsCount: 0,
+          beatenHardcoreAwardsCount: 2,
+          beatenSoftcoreAwardsCount: 0,
+          eventAwardsCount: 0,
+          siteAwardsCount: 0,
+          visibleUserAwards: [],
+        );
+
+        final db = AppDatabase(NativeDatabase.memory());
+        final repo = SettingsRepo(db);
+        await repo.setRetroAchievementsUser('Scott');
+        await repo.setRetroAchievementsApiKey('testKey123');
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              databaseProvider.overrideWithValue(db),
+              settingsRepoProvider.overrideWithValue(repo),
+              loadedSystemsProvider.overrideWith(
+                (ref) async => [systemRetroAchievements],
+              ),
+              retroAchievementsUserSummaryProvider.overrideWith(
+                (ref) async => mockSummary,
+              ),
+              retroAchievementsUserAwardsProvider.overrideWith(
+                (ref) async => mockAwards,
+              ),
+              retroAchievementsUserCompletionProgressProvider.overrideWith(
+                (ref) async => null,
+              ),
+            ],
+            child: const MaterialApp(home: SDTFScope(child: SystemsPage())),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('RetroAchievements'), findsWidgets);
+        final trophyTextFinder = find.byWidgetPredicate(
+          (w) => w is Text && w.data == '\u{1F3C6}' && w.style?.fontSize == 20,
+        );
+        expect(trophyTextFinder, findsOneWidget);
+
+        final cardFinder = find.byType(RetroAchievementsPlayerHeaderCard);
+        final overviewFinder = find.byType(RetroAchievementsGamesOverviewBar);
+        final dotsFinder = find.byType(PageViewDotIndicator);
+        expect(cardFinder, findsOneWidget);
+        expect(overviewFinder, findsOneWidget);
+        expect(dotsFinder, findsOneWidget);
+
+        final overviewBottom = tester.getBottomLeft(overviewFinder).dy;
+        final dotsTop = tester.getTopLeft(dotsFinder).dy;
+        expect(overviewBottom, lessThan(dotsTop));
+
+        // Verify full width (800 - 16*2 = 768)
+        final cardSize = tester.getSize(cardFinder);
+        final overviewSize = tester.getSize(overviewFinder);
+        expect(cardSize.width, equals(768.0));
+        expect(overviewSize.width, equals(768.0));
+
+        await db.close();
+      },
+    );
+
+    for (final (name, size) in [
+      ('4:3 (640x480)', const Size(640, 480)),
+      ('3:2 (720x480)', const Size(720, 480)),
+      ('3:2 small (480x320)', const Size(480, 320)),
+      ('1:1 (720x720)', const Size(720, 720)),
+      ('16:9 (854x480)', const Size(854, 480)),
+    ]) {
+      testWidgets('SystemsPage retroachievements layout on $name', (
+        tester,
+      ) async {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+
+        const mockSummary = UserSummary(
+          recentlyPlayedCount: 1,
+          recentlyPlayed: [],
+          memberSince: '2020-01-01',
+          richPresenceMsg: '',
+          lastGameId: 0,
+          contribCount: 0,
+          contribYield: 0,
+          totalPoints: 1870,
+          totalSoftcorePoints: 393,
+          totalTruePoints: 3276,
+          permissions: 0,
+          untracked: false,
+          id: 1,
+          userWallActive: false,
+          motto: '',
+          rank: 57401,
+          awarded: {},
+          recentAchievements: {},
+          points: 1870,
+          softcorePoints: 393,
+          userPic: '',
+          totalRanked: 161141,
+          status: '',
+        );
+
+        const mockAwards = UserAwards(
+          totalAwardsCount: 3,
+          hiddenAwardsCount: 0,
+          masteryAwardsCount: 1,
+          completionAwardsCount: 0,
+          beatenHardcoreAwardsCount: 2,
+          beatenSoftcoreAwardsCount: 0,
+          eventAwardsCount: 0,
+          siteAwardsCount: 0,
+          visibleUserAwards: [],
+        );
+
+        final db = AppDatabase(NativeDatabase.memory());
+        final repo = SettingsRepo(db);
+        await repo.setRetroAchievementsUser('Scott');
+        await repo.setRetroAchievementsApiKey('testKey123');
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              databaseProvider.overrideWithValue(db),
+              settingsRepoProvider.overrideWithValue(repo),
+              loadedSystemsProvider.overrideWith(
+                (ref) async => [systemRetroAchievements],
+              ),
+              retroAchievementsUserSummaryProvider.overrideWith(
+                (ref) async => mockSummary,
+              ),
+              retroAchievementsUserAwardsProvider.overrideWith(
+                (ref) async => mockAwards,
+              ),
+              retroAchievementsUserCompletionProgressProvider.overrideWith(
+                (ref) async => null,
+              ),
+            ],
+            child: const MaterialApp(home: SDTFScope(child: SystemsPage())),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        final overviewFinder = find.byType(RetroAchievementsGamesOverviewBar);
+        final dotsFinder = find.byType(PageViewDotIndicator);
+        expect(overviewFinder, findsOneWidget);
+        expect(dotsFinder, findsOneWidget);
+
+        final overviewBottom = tester.getBottomLeft(overviewFinder).dy;
+        final dotsTop = tester.getTopLeft(dotsFinder).dy;
+        expect(
+          overviewBottom,
+          lessThanOrEqualTo(dotsTop),
+          reason:
+              'Overview bottom ($overviewBottom) must not overlap dots top ($dotsTop) on $name',
+        );
+
+        await db.close();
+      });
+    }
   });
 }
 

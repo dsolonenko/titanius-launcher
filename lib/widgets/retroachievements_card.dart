@@ -9,8 +9,17 @@ const Color _raLabelBlue = Color(0xFF5B9BF3);
 
 class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
   final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+  final double avatarSize;
+  final double usernameFontSize;
 
-  const RetroAchievementsPlayerHeaderCard({super.key, this.margin});
+  const RetroAchievementsPlayerHeaderCard({
+    super.key,
+    this.margin,
+    this.padding,
+    this.avatarSize = 80,
+    this.usernameFontSize = 22,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,7 +71,8 @@ class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
 
     return Container(
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.04),
@@ -87,11 +97,14 @@ class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
                       ? summary!.userPic
                       : (account.username ?? ''),
                 ),
-                width: 80,
-                height: 80,
+                width: avatarSize,
+                height: avatarSize,
                 fit: BoxFit.cover,
-                errorWidget: (_, _, _) =>
-                    const Icon(Icons.person, size: 60, color: Colors.white70),
+                errorWidget: (_, _, _) => Icon(
+                  Icons.person,
+                  size: avatarSize * 0.75,
+                  color: Colors.white70,
+                ),
               ),
             ),
           ),
@@ -106,13 +119,13 @@ class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
                 // Big Username
                 Text(
                   account.username ?? summary?.userPic ?? "Player",
-                  style: const TextStyle(
-                    fontSize: 22,
+                  style: TextStyle(
+                    fontSize: usernameFontSize,
                     fontWeight: FontWeight.bold,
                     color: _raLabelBlue,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 3),
 
                 // Points: 1,870 (3,276)
                 _buildRow(
@@ -134,12 +147,12 @@ class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
 
                 // Site Rank: #57,401 of 161,143 (Top 35.62%)
                 if (rank > 0 && totalRanked > 0) ...[
                   _buildRankRow(rank, totalRanked, numberFormat),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                 ],
 
                 // Last Activity: 1 second ago
@@ -154,7 +167,7 @@ class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                 ],
 
                 // Member Since: 12 Oct 2021
@@ -245,8 +258,13 @@ class RetroAchievementsPlayerHeaderCard extends HookConsumerWidget {
 
 class RetroAchievementsGamesOverviewBar extends HookConsumerWidget {
   final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
 
-  const RetroAchievementsGamesOverviewBar({super.key, this.margin});
+  const RetroAchievementsGamesOverviewBar({
+    super.key,
+    this.margin,
+    this.padding,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -300,7 +318,8 @@ class RetroAchievementsGamesOverviewBar extends HookConsumerWidget {
 
     return Container(
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
@@ -308,26 +327,37 @@ class RetroAchievementsGamesOverviewBar extends HookConsumerWidget {
         border: Border.all(color: Colors.white12),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatColumn("Played", playedCount.toString(), Colors.white),
-          _buildDivider(),
-          _buildStatColumn(
-            "Unfinished",
-            unfinishedCount.toString(),
-            const Color(0xFFFFA726),
+          Expanded(
+            child: _buildStatColumn(
+              "Played",
+              playedCount.toString(),
+              Colors.white,
+            ),
           ),
           _buildDivider(),
-          _buildStatColumn(
-            "Beaten",
-            beatenCount.toString(),
-            const Color(0xFF42A5F5),
+          Expanded(
+            child: _buildStatColumn(
+              "Unfinished",
+              unfinishedCount.toString(),
+              const Color(0xFFFFA726),
+            ),
           ),
           _buildDivider(),
-          _buildStatColumn(
-            "Mastered",
-            masteredCount.toString(),
-            const Color(0xFFFFD54F),
+          Expanded(
+            child: _buildStatColumn(
+              "Beaten",
+              beatenCount.toString(),
+              const Color(0xFF42A5F5),
+            ),
+          ),
+          _buildDivider(),
+          Expanded(
+            child: _buildStatColumn(
+              "Mastered",
+              masteredCount.toString(),
+              const Color(0xFFFFD54F),
+            ),
           ),
         ],
       ),
@@ -338,18 +368,24 @@ class RetroAchievementsGamesOverviewBar extends HookConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: valueColor,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: valueColor,
+            ),
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: Colors.white60),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 11, color: Colors.white60),
+          ),
         ),
       ],
     );

@@ -17,12 +17,42 @@ import 'package:titanius/widgets/selected_scroll_tile.dart';
 
 const double verticalSpacing = 10;
 
+class _AndroidSectionData {
+  final String title;
+  final IconData icon;
+  final List<AppInfo> items;
+
+  const _AndroidSectionData(this.title, this.icon, this.items);
+}
+
+class _AndroidGridRow {
+  final _AndroidSectionData? headerSection;
+  final bool isFirstSection;
+  final List<AppInfo> items;
+  _AndroidGridRow({
+    this.headerSection,
+    this.isFirstSection = false,
+    required this.items,
+  });
+}
+
+class _AndroidListRow {
+  final _AndroidSectionData? headerSection;
+  final bool isFirstSection;
+  final AppInfo app;
+  _AndroidListRow({
+    this.headerSection,
+    this.isFirstSection = false,
+    required this.app,
+  });
+}
+
 class AndroidPage extends HookConsumerWidget {
   const AndroidPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allApps = ref.watch(selectedAndroidAppsProvider);
+    final categorizedData = ref.watch(categorizedAndroidAppsProvider);
     final selectedApp = ref.watch(selectedAppProvider);
 
     final showDetals = useState(false);
@@ -36,8 +66,8 @@ class AndroidPage extends HookConsumerWidget {
 
     useGamepad(ref, (location, key) {
       if (location != "/games/android") return;
-      final apps = allApps.value;
-      if (apps == null || apps.isEmpty) {
+      final data = categorizedData.value;
+      if (data == null || data.isEmpty) {
         if (key == GamepadButton.back) {
           GoRouter.of(context).go("/");
         }
@@ -47,50 +77,132 @@ class AndroidPage extends HookConsumerWidget {
         return;
       }
 
-      int currentIndex = apps.indexOf(selectedApp ?? apps.first);
-      if (currentIndex == -1) currentIndex = 0;
+      final sections = [
+        if (data.games.isNotEmpty)
+          _AndroidSectionData("Games", Icons.sports_esports, data.games),
+        if (data.emulators.isNotEmpty)
+          _AndroidSectionData(
+            "Emulators",
+            Icons.videogame_asset,
+            data.emulators,
+          ),
+        if (data.apps.isNotEmpty)
+          _AndroidSectionData("Apps", Icons.apps, data.apps),
+      ];
 
-      final screenWidth = MediaQuery.of(context).size.width - 24;
-      final columns = showDetals.value
-          ? 1
-          : (screenWidth / 150).ceil().clamp(1, 20);
+      if (sections.isEmpty) return;
 
-      if (key == GamepadButton.up) {
-        if (showDetals.value) {
-          if (currentIndex > 0) {
-            ref.read(selectedAppProvider.notifier).state =
-                apps[currentIndex - 1];
+      int currentSectionIndex = -1;
+      int itemIndex = -1;
+
+      if (selectedApp != null) {
+        for (int s = 0; s < sections.length; s++) {
+          final idx = sections[s].items.indexWhere(
+            (app) => app.packageName == selectedApp.packageName,
+          );
+          if (idx != -1) {
+            currentSectionIndex = s;
+            itemIndex = idx;
+            break;
           }
-        } else {
-          final newIndex = (currentIndex - columns).clamp(0, apps.length - 1);
-          ref.read(selectedAppProvider.notifier).state = apps[newIndex];
         }
       }
-      if (key == GamepadButton.down) {
-        if (showDetals.value) {
-          if (currentIndex < apps.length - 1) {
+
+      if (currentSectionIndex == -1) {
+        currentSectionIndex = 0;
+        itemIndex = 0;
+      }
+
+      // L1 / R1 jumps directly between sections
+      if (key == GamepadButton.r1) {
+        final nextSec = (currentSectionIndex + 1) % sections.length;
+        ref.read(selectedAppProvider.notifier).state =
+            sections[nextSec].items.first;
+        return;
+      }
+      if (key == GamepadButton.l1) {
+        final prevSec =
+            (currentSectionIndex - 1 + sections.length) % sections.length;
+        ref.read(selectedAppProvider.notifier).state =
+            sections[prevSec].items.first;
+        return;
+      }
+
+      if (showDetals.value) {
+        if (key == GamepadButton.up) {
+          if (itemIndex > 0) {
             ref.read(selectedAppProvider.notifier).state =
-                apps[currentIndex + 1];
+                sections[currentSectionIndex].items[itemIndex - 1];
+          } else if (currentSectionIndex > 0) {
+            final prevSec = sections[currentSectionIndex - 1];
+            ref.read(selectedAppProvider.notifier).state = prevSec.items.last;
           }
-        } else {
-          final newIndex = (currentIndex + columns).clamp(0, apps.length - 1);
-          ref.read(selectedAppProvider.notifier).state = apps[newIndex];
+        }
+        if (key == GamepadButton.down) {
+          if (itemIndex < sections[currentSectionIndex].items.length - 1) {
+            ref.read(selectedAppProvider.notifier).state =
+                sections[currentSectionIndex].items[itemIndex + 1];
+          } else if (currentSectionIndex < sections.length - 1) {
+            final nextSec = sections[currentSectionIndex + 1];
+            ref.read(selectedAppProvider.notifier).state = nextSec.items.first;
+          }
+        }
+      } else {
+        final screenWidth = MediaQuery.of(context).size.width - 24;
+        final columns = (screenWidth / 150).ceil().clamp(1, 20);
+        final currentSection = sections[currentSectionIndex];
+
+        if (key == GamepadButton.left) {
+          if (itemIndex > 0) {
+            ref.read(selectedAppProvider.notifier).state =
+                currentSection.items[itemIndex - 1];
+          } else if (currentSectionIndex > 0) {
+            ref.read(selectedAppProvider.notifier).state =
+                sections[currentSectionIndex - 1].items.last;
+          }
+        }
+        if (key == GamepadButton.right) {
+          if (itemIndex < currentSection.items.length - 1) {
+            ref.read(selectedAppProvider.notifier).state =
+                currentSection.items[itemIndex + 1];
+          } else if (currentSectionIndex < sections.length - 1) {
+            ref.read(selectedAppProvider.notifier).state =
+                sections[currentSectionIndex + 1].items.first;
+          }
+        }
+        if (key == GamepadButton.up) {
+          if (itemIndex - columns >= 0) {
+            ref.read(selectedAppProvider.notifier).state =
+                currentSection.items[itemIndex - columns];
+          } else if (currentSectionIndex > 0) {
+            final prevSec = sections[currentSectionIndex - 1];
+            final col = itemIndex % columns;
+            final prevRows = (prevSec.items.length / columns).ceil();
+            final targetIdx = ((prevRows - 1) * columns + col).clamp(
+              0,
+              prevSec.items.length - 1,
+            );
+            ref.read(selectedAppProvider.notifier).state =
+                prevSec.items[targetIdx];
+          }
+        }
+        if (key == GamepadButton.down) {
+          if (itemIndex + columns < currentSection.items.length) {
+            ref.read(selectedAppProvider.notifier).state =
+                currentSection.items[itemIndex + columns];
+          } else if (currentSectionIndex < sections.length - 1) {
+            final nextSec = sections[currentSectionIndex + 1];
+            final col = itemIndex % columns;
+            final targetIdx = col.clamp(0, nextSec.items.length - 1);
+            ref.read(selectedAppProvider.notifier).state =
+                nextSec.items[targetIdx];
+          }
         }
       }
-      if (key == GamepadButton.left) {
-        if (currentIndex > 0) {
-          final newIndex = currentIndex - 1;
-          ref.read(selectedAppProvider.notifier).state = apps[newIndex];
-        }
-      }
-      if (key == GamepadButton.right) {
-        if (currentIndex < apps.length - 1) {
-          final newIndex = currentIndex + 1;
-          ref.read(selectedAppProvider.notifier).state = apps[newIndex];
-        }
-      }
+
       if (key == GamepadButton.confirm) {
-        final app = apps[currentIndex];
+        final currentSection = sections[currentSectionIndex];
+        final app = currentSection.items[itemIndex];
         ref.read(selectedAppProvider.notifier).state = app;
         InstalledApps.startApp(
           app.packageName,
@@ -145,6 +257,7 @@ class AndroidPage extends HookConsumerWidget {
             GamepadButton.upDown,
             GamepadButton.leftRight,
           ], "Select"),
+          GamepadPrompt([GamepadButton.l1, GamepadButton.r1], "Section"),
           GamepadPrompt([GamepadButton.l2, GamepadButton.r2], "System"),
           GamepadPrompt([GamepadButton.start], "Menu"),
         ],
@@ -155,61 +268,260 @@ class AndroidPage extends HookConsumerWidget {
           GamepadPrompt([GamepadButton.confirm], "Launch"),
         ],
       ),
-      body: allApps.when(
-        data: (apps) {
-          if (apps.isEmpty) {
-            return const Center(child: Text("No apps selected"));
+      body: categorizedData.when(
+        data: (data) {
+          if (data.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.android, size: 64, color: Colors.white38),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "No apps selected",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Press Y to configure Games, Emulators, and Apps",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
-          final matchedIndex = selectedApp == null
-              ? 0
-              : apps.indexWhere(
-                  (app) => app.packageName == selectedApp.packageName,
+
+          final sections = [
+            if (data.games.isNotEmpty)
+              _AndroidSectionData("Games", Icons.sports_esports, data.games),
+            if (data.emulators.isNotEmpty)
+              _AndroidSectionData(
+                "Emulators",
+                Icons.videogame_asset,
+                data.emulators,
+              ),
+            if (data.apps.isNotEmpty)
+              _AndroidSectionData("Apps", Icons.apps, data.apps),
+          ];
+
+          final allVisible = data.allVisible;
+          final currentApp =
+              selectedApp == null ||
+                  !allVisible.any(
+                    (a) => a.packageName == selectedApp.packageName,
+                  )
+              ? allVisible.first
+              : selectedApp;
+
+          if (showDetals.value) {
+            final listRows = <_AndroidListRow>[];
+            var selectedRow = 0;
+            for (var sIdx = 0; sIdx < sections.length; sIdx++) {
+              final section = sections[sIdx];
+              for (var i = 0; i < section.items.length; i++) {
+                final app = section.items[i];
+                if (app.packageName == currentApp.packageName) {
+                  selectedRow = listRows.length;
+                }
+                listRows.add(
+                  _AndroidListRow(
+                    headerSection: i == 0 ? section : null,
+                    isFirstSection: i == 0 && sIdx == 0,
+                    app: app,
+                  ),
                 );
-          final selectedIndex = matchedIndex < 0 ? 0 : matchedIndex;
-          final appToShow = apps[selectedIndex];
-          return showDetals.value
-              ? Row(
-                  children: [
-                    Expanded(
-                      flex: 10,
-                      child: ControllerListView.builder(
-                        key: const PageStorageKey("android/apps_list"),
-                        selectedIndex: selectedIndex,
-                        itemCount: apps.length,
-                        itemBuilder: (context, index) {
-                          final app = apps[index];
-                          final selected = index == selectedIndex;
-                          return _appTileList(context, ref, app, selected);
-                        },
-                      ),
+              }
+            }
+
+            return Row(
+              children: [
+                Expanded(
+                  flex: 10,
+                  child: ControllerListView.builder(
+                    key: const PageStorageKey("android/sections_list"),
+                    selectedIndex: selectedRow,
+                    itemCount: listRows.length,
+                    itemBuilder: (context, index) {
+                      final row = listRows[index];
+                      final selected =
+                          row.app.packageName == currentApp.packageName;
+                      final tile = _appTileList(
+                        context,
+                        ref,
+                        row.app,
+                        selected,
+                      );
+                      if (row.headerSection == null) return tile;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _sectionHeader(
+                            row.headerSection!.title,
+                            row.headerSection!.icon,
+                            row.headerSection!.items.length,
+                            topPadding: row.isFirstSection ? 4.0 : 16.0,
+                          ),
+                          tile,
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                Expanded(
+                  flex: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    child: _appDetails(currentApp, detailsScrollController),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              const horizontalPadding = 24.0;
+              final screenWidth = (constraints.maxWidth - horizontalPadding)
+                  .clamp(0.0, double.infinity);
+              final columns = (screenWidth / 150).ceil().clamp(1, 20);
+              const crossAxisSpacing = 10.0;
+              final totalSpacing = crossAxisSpacing * (columns - 1);
+              final cellWidth = (screenWidth - totalSpacing) / columns;
+              final cellHeight = cellWidth / 0.88;
+
+              final gridRows = <_AndroidGridRow>[];
+              var selectedRow = 0;
+              for (var sIdx = 0; sIdx < sections.length; sIdx++) {
+                final section = sections[sIdx];
+                for (var i = 0; i < section.items.length; i += columns) {
+                  final chunk = section.items.sublist(
+                    i,
+                    (i + columns).clamp(0, section.items.length),
+                  );
+                  final isFirstChunk = (i == 0);
+                  if (chunk.any(
+                    (a) => a.packageName == currentApp.packageName,
+                  )) {
+                    selectedRow = gridRows.length;
+                  }
+                  gridRows.add(
+                    _AndroidGridRow(
+                      headerSection: isFirstChunk ? section : null,
+                      isFirstSection: isFirstChunk && sIdx == 0,
+                      items: chunk,
                     ),
-                    Expanded(
-                      flex: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: _appDetails(appToShow, detailsScrollController),
-                      ),
+                  );
+                }
+              }
+
+              return ControllerListView.builder(
+                key: const PageStorageKey("android/sections_grid"),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                selectedIndex: selectedRow,
+                itemCount: gridRows.length,
+                itemBuilder: (context, index) {
+                  final row = gridRows[index];
+                  final rowWidget = Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    height: cellHeight,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: List.generate(columns, (colIdx) {
+                        return Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              right: colIdx < columns - 1
+                                  ? crossAxisSpacing
+                                  : 0,
+                            ),
+                            child: colIdx < row.items.length
+                                ? _appTileGrid(
+                                    context,
+                                    ref,
+                                    row.items[colIdx],
+                                    row.items[colIdx].packageName ==
+                                        currentApp.packageName,
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        );
+                      }),
                     ),
-                  ],
-                )
-              : ControllerGridView.builder(
-                  maxCrossAxisExtent: 150,
-                  childAspectRatio: 0.88,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  padding: const EdgeInsets.all(12),
-                  key: const PageStorageKey("android/apps_grid"),
-                  selectedIndex: selectedIndex,
-                  itemCount: apps.length,
-                  itemBuilder: (context, index) {
-                    final app = apps[index];
-                    final selected = index == selectedIndex;
-                    return _appTileGrid(context, ref, app, selected);
-                  },
-                );
+                  );
+
+                  if (row.headerSection == null) return rowWidget;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _sectionHeader(
+                        row.headerSection!.title,
+                        row.headerSection!.icon,
+                        row.headerSection!.items.length,
+                        topPadding: row.isFirstSection ? 4.0 : 16.0,
+                      ),
+                      rowWidget,
+                    ],
+                  );
+                },
+              );
+            },
+          );
         },
-        loading: () => const CircularProgressIndicator(),
-        error: (error, stackTrace) => Text(error.toString()),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text(error.toString())),
+      ),
+    );
+  }
+
+  Widget _sectionHeader(
+    String title,
+    IconData icon,
+    int count, {
+    double topPadding = 14.0,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4, right: 4, top: topPadding, bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.white70),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              count.toString(),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.white70,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(child: Divider(color: Colors.white12, thickness: 1)),
+        ],
       ),
     );
   }

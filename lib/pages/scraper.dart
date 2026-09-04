@@ -217,9 +217,7 @@ class ScraperPage extends HookConsumerWidget {
     final s = settings.value;
     int currentRegionIdx = s == null
         ? 0
-        : scraperRegionOptions.indexWhere(
-            (id) => id == s.scraperRegion,
-          );
+        : scraperRegionOptions.indexWhere((id) => id == s.scraperRegion);
     if (currentRegionIdx == -1) currentRegionIdx = 0;
 
     int currentScrapeOptionIdx = s == null
@@ -252,9 +250,7 @@ class ScraperPage extends HookConsumerWidget {
         group: "Settings",
         title: "Scraper Region",
         subtitle: null as String?,
-        trailing: SelectorWidget(
-          text: scraperRegionLabels[currentRegionIdx],
-        ),
+        trailing: SelectorWidget(text: scraperRegionLabels[currentRegionIdx]),
         onTap: () => cycleScraperRegion(true),
       ),
       (

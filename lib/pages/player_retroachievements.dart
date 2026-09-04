@@ -54,8 +54,7 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
 
     final completionList =
         progress?.results ?? const <UserCompletionProgressEntity>[];
-    final wantToPlayList =
-        wantToPlay?.results ?? const <UserWantToPlayItem>[];
+    final wantToPlayList = wantToPlay?.results ?? const <UserWantToPlayItem>[];
     final visibleAwards = useMemoized(() {
       final list = List<UserAward>.from(
         awards?.visibleUserAwards ?? const <UserAward>[],
@@ -285,10 +284,7 @@ class PlayerRetroAchievementsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildWantToPlayTile(
-    BuildContext context,
-    UserWantToPlayItem item,
-  ) {
+  Widget _buildWantToPlayTile(BuildContext context, UserWantToPlayItem item) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       height: 58,

@@ -417,12 +417,74 @@ class EnabledSystemsRepo {
   }
 }
 
+enum AndroidAppType {
+  hidden('hide', 'Hide'),
+  game('game', 'Game'),
+  emulator('emulator', 'Emulator'),
+  app('app', 'App');
+
+  final String id;
+  final String label;
+  const AndroidAppType(this.id, this.label);
+
+  static AndroidAppType fromId(String? id) {
+    switch (id) {
+      case 'game':
+        return AndroidAppType.game;
+      case 'emulator':
+        return AndroidAppType.emulator;
+      case 'app':
+        return AndroidAppType.app;
+      default:
+        return AndroidAppType.hidden;
+    }
+  }
+
+  AndroidAppType next() {
+    switch (this) {
+      case AndroidAppType.hidden:
+        return AndroidAppType.game;
+      case AndroidAppType.game:
+        return AndroidAppType.emulator;
+      case AndroidAppType.emulator:
+        return AndroidAppType.app;
+      case AndroidAppType.app:
+        return AndroidAppType.hidden;
+    }
+  }
+
+  AndroidAppType previous() {
+    switch (this) {
+      case AndroidAppType.hidden:
+        return AndroidAppType.app;
+      case AndroidAppType.game:
+        return AndroidAppType.hidden;
+      case AndroidAppType.emulator:
+        return AndroidAppType.game;
+      case AndroidAppType.app:
+        return AndroidAppType.emulator;
+    }
+  }
+}
+
 class SelectedApps {
-  final Set<String> apps;
+  final Map<String, AndroidAppType> appTypes;
 
-  SelectedApps(this.apps);
+  SelectedApps(this.appTypes);
 
-  bool isSelected(String package) => apps.contains(package);
+  AndroidAppType typeOf(String package) =>
+      appTypes[package] ?? AndroidAppType.hidden;
+
+  bool isSelected(String package) => typeOf(package) != AndroidAppType.hidden;
+
+  bool isGame(String package) => typeOf(package) == AndroidAppType.game;
+  bool isEmulator(String package) => typeOf(package) == AndroidAppType.emulator;
+  bool isApp(String package) => typeOf(package) == AndroidAppType.app;
+
+  Set<String> get apps => {
+    for (final entry in appTypes.entries)
+      if (entry.value != AndroidAppType.hidden) entry.key,
+  };
 }
 
 class AndroidAppsRepo {
@@ -432,8 +494,10 @@ class AndroidAppsRepo {
 
   Future<SelectedApps> getSelectedApps() async {
     final settingsList = await db.select(db.androidAppEntries).get();
-    final settingsSet = {for (final s in settingsList) s.package};
-    return SelectedApps(settingsSet);
+    final settingsMap = {
+      for (final s in settingsList) s.package: AndroidAppType.fromId(s.appType),
+    };
+    return SelectedApps(settingsMap);
   }
 
   Stream<SelectedApps> watchSelectedApps() {
@@ -441,25 +505,50 @@ class AndroidAppsRepo {
         .select(db.androidAppEntries)
         .watch()
         .map(
-          (entries) =>
-              SelectedApps({for (final entry in entries) entry.package}),
+          (entries) => SelectedApps({
+            for (final entry in entries)
+              entry.package: AndroidAppType.fromId(entry.appType),
+          }),
         )
-        .distinct((previous, next) => setEquals(previous.apps, next.apps));
+        .distinct(
+          (previous, next) => mapEquals(previous.appTypes, next.appTypes),
+        );
   }
 
-  Future<void> selectApp(String package, bool selected) async {
-    if (selected) {
-      await db
-          .into(db.androidAppEntries)
-          .insert(
-            AndroidAppEntriesCompanion.insert(package: package),
-            mode: InsertMode.insertOrReplace,
-          );
-    } else {
+  Future<void> setAppType(String package, AndroidAppType type) async {
+    if (type == AndroidAppType.hidden) {
       await (db.delete(
         db.androidAppEntries,
       )..where((t) => t.package.equals(package))).go();
+    } else {
+      await db
+          .into(db.androidAppEntries)
+          .insert(
+            AndroidAppEntriesCompanion.insert(
+              package: package,
+              appType: Value(type.id),
+            ),
+            mode: InsertMode.insertOrReplace,
+          );
     }
+  }
+
+  Future<AndroidAppType> cycleAppType(
+    String package, {
+    bool forward = true,
+  }) async {
+    final current = await getSelectedApps();
+    final currentType = current.typeOf(package);
+    final nextType = forward ? currentType.next() : currentType.previous();
+    await setAppType(package, nextType);
+    return nextType;
+  }
+
+  Future<void> selectApp(String package, bool selected) async {
+    await setAppType(
+      package,
+      selected ? AndroidAppType.app : AndroidAppType.hidden,
+    );
   }
 }
 
