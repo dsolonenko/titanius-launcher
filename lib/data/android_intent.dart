@@ -57,10 +57,12 @@ class LaunchIntent {
           return Flag.FLAG_ACTIVITY_CLEAR_TOP;
         case "--activity-no-history":
           return Flag.FLAG_ACTIVITY_NO_HISTORY;
+        case "--grant-read-uri-permission":
+          return Flag.FLAG_GRANT_READ_URI_PERMISSION;
       }
       return 0;
     }).toList();
-    if (needsUri || needsDocumentUri) {
+    if (needsUri) {
       flags.add(Flag.FLAG_GRANT_READ_URI_PERMISSION);
     }
     final parts = target.split('/');

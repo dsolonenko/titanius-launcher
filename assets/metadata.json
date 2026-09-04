@@ -2493,9 +2493,8 @@
           "intent": {
             "component": "me.magnum.melonds/.ui.emulator.EmulatorActivity",
             "action": "me.magnum.melonds.LAUNCH_ROM",
-            "data": "{file.documenturi}",
             "args": {
-              "uri": "{file.documenturi}"
+              "PATH": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -2509,9 +2508,8 @@
           "intent": {
             "component": "me.magnum.melonds.nightly/.ui.emulator.EmulatorActivity",
             "action": "me.magnum.melonds.LAUNCH_ROM",
-            "data": "{file.documenturi}",
             "args": {
-              "uri": "{file.documenturi}"
+              "PATH": "{file.path}"
             },
             "flags": [
               "--activity-clear-task",
@@ -3065,7 +3063,7 @@
           "intent": {
             "component": "org.ppsspp.ppsspp/.PpssppActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.documenturi}",
+            "data": "{file.path}",
             "flags": [
               "--activity-clear-task"
             ]
@@ -3089,7 +3087,7 @@
           "intent": {
             "component": "org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.documenturi}"
+            "data": "{file.path}"
           }
         },
         {
@@ -3135,7 +3133,7 @@
           "intent": {
             "component": "org.ppsspp.ppsspp/.PpssppActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.documenturi}",
+            "data": "{file.path}",
             "flags": [
               "--activity-clear-task"
             ]
@@ -3147,7 +3145,7 @@
           "intent": {
             "component": "org.ppsspp.ppssppgold/org.ppsspp.ppsspp.PpssppActivity",
             "action": "android.intent.action.VIEW",
-            "data": "{file.documenturi}"
+            "data": "{file.path}"
           }
         }
       ]
