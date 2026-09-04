@@ -69,7 +69,7 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
     final emulators = ref.watch(alternativeEmulatorsProvider);
     final selectedIndex = usePersistentSelection('/settings/emulators');
 
-    useGamepad(ref, (location, key) {
+    useGamepad(ref, (location, key) async {
       if (location != "/settings/emulators") return;
       final emuList =
           emulators.value
@@ -94,20 +94,30 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
         final current =
             emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
         context.push("/settings/emulators/${current.system.id}");
+        return;
       }
       if (key == GamepadButton.x) {
         final current =
             emuList[selectedIndex.value.clamp(0, emuList.length - 1)];
-        ref
+        await ref
             .read(perSystemConfigurationRepoProvider)
-            .deleteAlternativeEmulator(current.system.id)
-            .then((value) => ref.refresh(perSystemConfigurationsProvider));
+            .deleteAlternativeEmulator(current.system.id);
+        ref.invalidate(perSystemConfigurationsProvider);
+        ref.invalidate(alternativeEmulatorsProvider);
+        await ref.read(alternativeEmulatorsProvider.future);
+        return;
       }
       if (key == GamepadButton.y) {
-        _refreshDaijishoEmulators(context, ref);
+        if (context.mounted) {
+          _refreshDaijishoEmulators(context, ref);
+        }
+        return;
       }
       if (key == GamepadButton.back) {
-        GoRouter.of(context).pop();
+        if (context.mounted) {
+          GoRouter.of(context).pop();
+        }
+        return;
       }
     });
 
@@ -212,6 +222,57 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final emulators = ref.watch(alternativeEmulatorsProvider);
     final selectedIndex = usePersistentSelection('/settings/emulators/$system');
+    final isSaving = useState(false);
+
+    // Automatically focus current default on initial load
+    useEffect(() {
+      final selected = emulators.value?.firstWhereOrNull(
+        (e) => e.system.id == system,
+      );
+      if (selected != null && selected.defaultEmulator != null) {
+        final defIdx = selected.emulators.indexWhere(
+          (e) => e.id == selected.defaultEmulator?.id,
+        );
+        if (defIdx != -1 && selectedIndex.value == 0) {
+          selectedIndex.value = defIdx;
+        }
+      }
+      return null;
+    }, [emulators.value]);
+
+    Future<void> selectEmulator(Emulator emulator) async {
+      if (isSaving.value) return;
+      isSaving.value = true;
+      try {
+        await ref
+            .read(perSystemConfigurationRepoProvider)
+            .saveAlternativeEmulator(system, emulator.id);
+        ref.invalidate(perSystemConfigurationsProvider);
+        ref.invalidate(alternativeEmulatorsProvider);
+        await ref.read(alternativeEmulatorsProvider.future);
+      } finally {
+        if (context.mounted) {
+          context.pop();
+        }
+      }
+    }
+
+    Future<void> resetDefaultEmulator() async {
+      if (isSaving.value) return;
+      isSaving.value = true;
+      try {
+        await ref
+            .read(perSystemConfigurationRepoProvider)
+            .deleteAlternativeEmulator(system);
+        ref.invalidate(perSystemConfigurationsProvider);
+        ref.invalidate(alternativeEmulatorsProvider);
+        await ref.read(alternativeEmulatorsProvider.future);
+      } finally {
+        if (context.mounted) {
+          context.pop();
+        }
+      }
+    }
 
     useGamepad(ref, (location, key) {
       if (location != "/settings/emulators/$system") return;
@@ -238,11 +299,10 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
               0,
               selected.emulators.length - 1,
             )];
-        ref
-            .read(perSystemConfigurationRepoProvider)
-            .saveAlternativeEmulator(system, emulator.id)
-            .then((value) => ref.refresh(perSystemConfigurationsProvider));
-        context.pop();
+        selectEmulator(emulator);
+      }
+      if (key == GamepadButton.x) {
+        resetDefaultEmulator();
       }
       if (key == GamepadButton.y) {
         _refreshDaijishoPlatformForSystem(context, ref, system);
@@ -268,6 +328,7 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
         navigations: [],
         actions: [
           GamepadPrompt([GamepadButton.confirm], "Select"),
+          GamepadPrompt([GamepadButton.x], "Reset Default"),
           GamepadPrompt([GamepadButton.y], "Refresh"),
           GamepadPrompt([GamepadButton.back], "Back"),
         ],
@@ -312,14 +373,7 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
                       dense: true,
                       onTap: () {
                         selectedIndex.value = index;
-                        ref
-                            .read(perSystemConfigurationRepoProvider)
-                            .saveAlternativeEmulator(system, emulator.id)
-                            .then(
-                              (value) =>
-                                  ref.refresh(perSystemConfigurationsProvider),
-                            );
-                        context.pop();
+                        selectEmulator(emulator);
                       },
                       title: Text(
                         emulator.name,

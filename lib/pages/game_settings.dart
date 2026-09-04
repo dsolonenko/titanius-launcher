@@ -72,12 +72,21 @@ class GameSettingsPage extends HookConsumerWidget {
       initialIndex: 1,
     );
     final inPrompt = useState(false);
+    final selectedEmulatorId = useState<String?>(null);
+
+    useEffect(() {
+      if (gameEmulator.value != null) {
+        selectedEmulatorId.value = gameEmulator.value?.emulator;
+      }
+      return null;
+    }, [gameEmulator.value]);
 
     void cycleEmulator(bool next) {
       final emulatorIds = ["default", ...availableEmulators.map((e) => e.id)];
-      int index = emulatorIds.indexWhere(
-        (id) => id == (gameEmulator.value?.emulator ?? "default"),
-      );
+      final currentId =
+          selectedEmulatorId.value ?? gameEmulator.value?.emulator ?? "default";
+      int index = emulatorIds.indexWhere((id) => id == currentId);
+      if (index == -1) index = 0;
       if (next) {
         index++;
       } else {
@@ -90,10 +99,11 @@ class GameSettingsPage extends HookConsumerWidget {
         index = 0;
       }
       final emulator = emulatorIds[index];
+      selectedEmulatorId.value = emulator;
       ref
           .read(perGameConfigurationRepoProvider)
           .saveGameEmulator(game, emulator)
-          .then((value) => ref.refresh(perGameConfigurationProvider(game)));
+          .then((value) => ref.invalidate(perGameConfigurationProvider(game)));
       debugPrint("Selected emulator: $emulator");
     }
 
@@ -447,24 +457,22 @@ class GameSettingsPage extends HookConsumerWidget {
         title: "Emulator",
         subtitle: null as String?,
         trailing:
-            gameEmulator.when(
-                  data: (data) {
-                    final emulator = availableEmulators.firstWhereOrNull(
-                      (element) => element.id == data?.emulator,
-                    );
-                    return SelectorWidget(
-                      text: emulator != null
-                          ? "${emulator.name}${emulator.isDaijisho
-                                ? " (Daijishō)"
-                                : emulator.isCustom
-                                ? " (Custom)"
-                                : ""}"
-                          : "Default",
-                    );
-                  },
-                  loading: () => const CircularProgressIndicator(),
-                  error: (error, stack) => const Text("Error"),
-                )
+            (() {
+                  final currentId =
+                      selectedEmulatorId.value ?? gameEmulator.value?.emulator;
+                  final emulator = availableEmulators.firstWhereOrNull(
+                    (element) => element.id == currentId,
+                  );
+                  return SelectorWidget(
+                    text: emulator != null
+                        ? "${emulator.name}${emulator.isDaijisho
+                              ? " (Daijishō)"
+                              : emulator.isCustom
+                              ? " (Custom)"
+                              : ""}"
+                        : "Default",
+                  );
+                })()
                 as Widget?,
         onTap: () => cycleEmulator(true),
       ),
@@ -488,13 +496,16 @@ class GameSettingsPage extends HookConsumerWidget {
           items.length - 1,
         );
       }
+      final emulatorIndex = items.indexWhere(
+        (item) => item.title == "Emulator",
+      );
       if (key == GamepadButton.left) {
-        if (selectedIndex.value == 6) {
+        if (selectedIndex.value == emulatorIndex) {
           cycleEmulator(false);
         }
       }
       if (key == GamepadButton.right) {
-        if (selectedIndex.value == 6) {
+        if (selectedIndex.value == emulatorIndex) {
           cycleEmulator(true);
         }
       }

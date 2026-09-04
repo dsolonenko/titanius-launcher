@@ -591,11 +591,18 @@ class GamesPage extends HookConsumerWidget {
       final emulator = systemEmus?.emulators.firstWhereOrNull(
         (element) => element.id == gameEmulator.emulator,
       );
-      _launchGameWithEmulator(emulator, game);
-    } else {
-      final emulator = systemEmus?.defaultEmulator;
-      _launchGameWithEmulator(emulator, game);
+      if (emulator != null) {
+        _launchGameWithEmulator(emulator, game);
+        return;
+      }
     }
+    final emulator =
+        systemEmus?.defaultEmulator ?? game.system.builtInEmulators.firstOrNull;
+    if (emulator == null) {
+      Fluttertoast.showToast(msg: "No emulator found for ${game.system.name}");
+      return;
+    }
+    _launchGameWithEmulator(emulator, game);
   }
 
   void _launchGameWithEmulator(Emulator? emulator, Game game) {

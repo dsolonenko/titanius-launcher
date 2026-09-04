@@ -446,6 +446,17 @@ class Game {
         ? "$romsPath/${scrapedGame.thumbnailUrl!.replaceFirst("./", "")}"
         : null;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Game &&
+          runtimeType == other.runtimeType &&
+          system.id == other.system.id &&
+          romPath == other.romPath;
+
+  @override
+  int get hashCode => system.id.hashCode ^ romPath.hashCode;
 }
 
 /// FNV-1a 64bit hash algorithm optimized for Dart Strings
