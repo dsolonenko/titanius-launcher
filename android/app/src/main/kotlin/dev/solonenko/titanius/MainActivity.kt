@@ -11,13 +11,11 @@ import android.provider.MediaStore
 import android.view.KeyEvent
 import android.view.MotionEvent
 import androidx.annotation.RequiresApi
-import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import org.flame_engine.gamepads_android.GamepadsCompatibleActivity
-import java.io.File
 
 class MainActivity : FlutterActivity(), GamepadsCompatibleActivity {
     private val CHANNEL = "file_utils"
@@ -76,31 +74,22 @@ class MainActivity : FlutterActivity(), GamepadsCompatibleActivity {
     }
 
     private fun getContentUriFromFilePath(filePath: String): String? {
-        try {
-            val file = File(filePath)
-            return FileProvider.getUriForFile(
-                applicationContext,
-                "${applicationContext.packageName}.fileprovider",
-                file
-            ).toString()
-        } catch (e: Exception) {
-            val contentResolver = applicationContext.contentResolver
-            val cursor = contentResolver.query(
-                MediaStore.Files.getContentUri("external"),
-                arrayOf(MediaStore.Files.FileColumns._ID),
-                MediaStore.Files.FileColumns.DATA + "=?",
-                arrayOf(filePath),
-                null
-            )
+        val contentResolver = applicationContext.contentResolver
+        val cursor = contentResolver.query(
+            MediaStore.Files.getContentUri("external"),
+            arrayOf(MediaStore.Files.FileColumns._ID),
+            MediaStore.Files.FileColumns.DATA + "=?",
+            arrayOf(filePath),
+            null
+        )
 
-            var contentUri: String? = null
-            if (cursor != null && cursor.moveToFirst()) {
-                val id = cursor.getLong(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID))
-                contentUri = ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), id).toString()
-                cursor.close()
-            }
-
-            return contentUri
+        var contentUri: String? = null
+        if (cursor != null && cursor.moveToFirst()) {
+            val id = cursor.getLong(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID))
+            contentUri = ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), id).toString()
+            cursor.close()
         }
+
+        return contentUri
     }
 }

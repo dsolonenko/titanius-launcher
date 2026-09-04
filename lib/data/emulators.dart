@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:titanius/data/daijisho_platforms.dart';
 import 'package:titanius/data/games.dart';
 
 import 'package:titanius/data/repo.dart';
@@ -22,20 +23,30 @@ final alternativeEmulatorsProvider = FutureProvider<List<EmulatorList>>((
   final systems = await ref.watch(loadedSystemsProvider.future);
   final customEmulators = await ref.watch(customEmulatorsProvider.future);
   final emulators = customEmulators.map((e) => e.toEmulator()).toList();
-  return systems
+  final daijishoService = ref.watch(daijishoPlatformsServiceProvider);
+
+  final systemsToLoad = systems
       .whereNot((element) => element.isCollection)
       .whereNot((element) => element.id == "android")
-      .map(
-        (v) => EmulatorList(
-          v,
-          [...v.builtInEmulators, ...emulators],
-          defaultEmulator([
-            ...v.builtInEmulators,
-            ...emulators,
-          ], perSystemConfigurations.firstWhereOrNull((e) => e.system == v.id)),
-        ),
-      )
       .toList();
+
+  return await Future.wait(
+    systemsToLoad.map((v) async {
+      List<Emulator> daijishoEmus = [];
+      try {
+        daijishoEmus = await daijishoService.getCachedEmulatorsForSystem(v.id);
+      } catch (_) {}
+      final allEmus = [...v.builtInEmulators, ...emulators, ...daijishoEmus];
+      return EmulatorList(
+        v,
+        allEmus,
+        defaultEmulator(
+          allEmus,
+          perSystemConfigurations.firstWhereOrNull((e) => e.system == v.id),
+        ),
+      );
+    }),
+  );
 });
 
 Emulator? defaultEmulator(

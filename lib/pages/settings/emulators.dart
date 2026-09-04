@@ -1,5 +1,66 @@
 part of 'package:titanius/pages/settings.dart';
 
+Future<void> _refreshDaijishoEmulators(
+  BuildContext context,
+  WidgetRef ref,
+) async {
+  final pd = ProgressDialog(context: context);
+  pd.show(
+    max: 100,
+    msg: "Fetching Daijishō platforms...",
+    backgroundColor: Colors.black,
+    msgStyle: const TextStyle(color: Colors.white),
+    valueStyle: const TextStyle(color: Colors.white70),
+  );
+  try {
+    final systems = await ref.read(allSupportedSystemsProvider.future);
+    final systemIds = systems.map((s) => s.id).toList();
+    final count = await ref
+        .read(daijishoPlatformsServiceProvider)
+        .refreshAll(
+          systemIds,
+          onProgress: (current, total, status) {
+            if (pd.isOpen()) {
+              final pct = total > 0 ? (current * 100 ~/ total) : 0;
+              pd.update(value: pct, msg: status);
+            }
+          },
+        );
+    ref.invalidate(alternativeEmulatorsProvider);
+    pd.close();
+    Fluttertoast.showToast(msg: "Updated $count Daijishō platforms");
+  } catch (e) {
+    debugPrint("Failed to refresh Daijishō emulators: $e");
+    pd.close();
+    Fluttertoast.showToast(msg: "Failed to refresh Daijishō emulators");
+  }
+}
+
+Future<void> _refreshDaijishoPlatformForSystem(
+  BuildContext context,
+  WidgetRef ref,
+  String systemId,
+) async {
+  final pd = ProgressDialog(context: context);
+  pd.show(
+    msg: "Downloading $systemId from Daijishō...",
+    backgroundColor: Colors.black,
+    msgStyle: const TextStyle(color: Colors.white),
+  );
+  try {
+    await ref
+        .read(daijishoPlatformsServiceProvider)
+        .refreshPlatformForSystem(systemId);
+    ref.invalidate(alternativeEmulatorsProvider);
+    pd.close();
+    Fluttertoast.showToast(msg: "Updated $systemId from Daijishō");
+  } catch (e) {
+    debugPrint("Failed to refresh $systemId from Daijishō: $e");
+    pd.close();
+    Fluttertoast.showToast(msg: "Failed to refresh $systemId");
+  }
+}
+
 class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
   const AlternativeEmulatorsSettingPage({super.key});
 
@@ -42,18 +103,31 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
             .deleteAlternativeEmulator(current.system.id)
             .then((value) => ref.refresh(perSystemConfigurationsProvider));
       }
+      if (key == GamepadButton.y) {
+        _refreshDaijishoEmulators(context, ref);
+      }
       if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Alternative Emulators')),
+      appBar: AppBar(
+        title: const Text('Alternative Emulators'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: "Refresh Daijishō",
+            onPressed: () => _refreshDaijishoEmulators(context, ref),
+          ),
+        ],
+      ),
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
           GamepadPrompt([GamepadButton.confirm], "Change"),
           GamepadPrompt([GamepadButton.x], "Default"),
+          GamepadPrompt([GamepadButton.y], "Refresh Daijishō"),
           GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
@@ -69,6 +143,7 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
             selectedIndex: selectedIndex.value,
             itemCount: emuList.length,
             itemBuilder: (context, index) {
+              final isDaijisho = emuList[index].defaultEmulator!.isDaijisho;
               final isStandalone = emuList[index].defaultEmulator!.isStandalone;
               final isCustom = emuList[index].defaultEmulator!.isCustom;
               final isSelected = index == selectedIndex.value;
@@ -103,7 +178,9 @@ class AlternativeEmulatorsSettingPage extends HookConsumerWidget {
                         ),
                       ),
                       trailing: Text(
-                        "${emuList[index].defaultEmulator!.name}${isCustom
+                        "${emuList[index].defaultEmulator!.name}${isDaijisho
+                            ? " (Daijishō)"
+                            : isCustom
                             ? " (Custom)"
                             : isStandalone
                             ? " (Standalone)"
@@ -167,17 +244,31 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
             .then((value) => ref.refresh(perSystemConfigurationsProvider));
         context.pop();
       }
+      if (key == GamepadButton.y) {
+        _refreshDaijishoPlatformForSystem(context, ref, system);
+      }
       if (key == GamepadButton.back) {
         GoRouter.of(context).pop();
       }
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text('Emulators for $system')),
+      appBar: AppBar(
+        title: Text('Emulators for $system'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: "Refresh Daijishō",
+            onPressed: () =>
+                _refreshDaijishoPlatformForSystem(context, ref, system),
+          ),
+        ],
+      ),
       bottomNavigationBar: const PromptBar(
         navigations: [],
         actions: [
           GamepadPrompt([GamepadButton.confirm], "Select"),
+          GamepadPrompt([GamepadButton.y], "Refresh"),
           GamepadPrompt([GamepadButton.back], "Back"),
         ],
       ),
@@ -190,7 +281,11 @@ class SelectAlternativeEmulatorSettingPage extends HookConsumerWidget {
             key: PageStorageKey("settings/emulators/$system"),
             selectedIndex: selectedIndex.value,
             elements: selected.emulators,
-            groupBy: (element) => element.isCustom ? "Custom" : "Built-In",
+            groupBy: (element) => element.isDaijisho
+                ? "Daijishō"
+                : element.isCustom
+                ? "Custom"
+                : "Built-In",
             groupSeparatorBuilder: (String value) => Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(value, style: const TextStyle(color: Colors.grey)),

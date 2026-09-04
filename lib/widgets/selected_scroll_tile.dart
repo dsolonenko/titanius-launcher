@@ -129,30 +129,20 @@ class ControllerGroupedListView<T, G> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rows = <Object>[];
-    var selectedRow = 0;
-    G? previousGroup;
-    var isFirst = true;
-    for (var index = 0; index < elements.length; index++) {
-      final element = elements[index];
-      final group = groupBy(element);
-      if (isFirst || group != previousGroup) {
-        rows.add(_GroupHeader<G>(group));
-        previousGroup = group;
-        isFirst = false;
-      }
-      if (index == selectedIndex) selectedRow = rows.length;
-      rows.add(_GroupItem<T>(element, index));
-    }
-
     return ControllerListView.builder(
-      selectedIndex: selectedRow,
-      itemCount: rows.length,
-      itemBuilder: (context, rowIndex) {
-        final row = rows[rowIndex];
-        if (row is _GroupHeader<G>) return groupSeparatorBuilder(row.group);
-        final item = row as _GroupItem<T>;
-        return indexedItemBuilder(context, item.element, item.index);
+      selectedIndex: selectedIndex,
+      itemCount: elements.length,
+      itemBuilder: (context, index) {
+        final element = elements[index];
+        final group = groupBy(element);
+        final isFirst = index == 0 || group != groupBy(elements[index - 1]);
+        final item = indexedItemBuilder(context, element, index);
+        if (!isFirst) return item;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [groupSeparatorBuilder(group), item],
+        );
       },
     );
   }
@@ -237,17 +227,6 @@ class ControllerGridView extends StatelessWidget {
       },
     );
   }
-}
-
-class _GroupHeader<G> {
-  const _GroupHeader(this.group);
-  final G group;
-}
-
-class _GroupItem<T> {
-  const _GroupItem(this.element, this.index);
-  final T element;
-  final int index;
 }
 
 class SelectedScrollTile extends StatelessWidget {

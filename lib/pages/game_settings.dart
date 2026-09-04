@@ -14,6 +14,7 @@ import 'package:titanius/data/scraper.dart';
 import 'package:titanius/data/retroachievements_matcher.dart';
 import 'package:titanius/data/retroachievements.dart';
 import 'package:titanius/widgets/selector.dart';
+import 'package:titanius/data/emulators.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/repo.dart';
 import 'package:titanius/data/state.dart';
@@ -36,6 +37,7 @@ class GameSettingsPage extends HookConsumerWidget {
         gamelist?.games.firstWhereOrNull((g) => g.hash == hash);
     final gameEmulator = ref.watch(perGameConfigurationProvider(game));
     final customEmulators = ref.watch(customEmulatorsProvider);
+    final altEmulators = ref.watch(alternativeEmulatorsProvider);
     final gameRa = ref.watch(gameRetroAchievementsProvider(game));
 
     useEffect(() {
@@ -54,6 +56,15 @@ class GameSettingsPage extends HookConsumerWidget {
       return const Scaffold(body: Center(child: Text("Game not found")));
     }
 
+    final availableEmulators =
+        altEmulators.value
+            ?.firstWhereOrNull((e) => e.system.id == game.system.id)
+            ?.emulators ??
+        [
+          ...game.system.builtInEmulators,
+          ...(customEmulators.value?.map((e) => e.toEmulator()) ?? []),
+        ];
+
     final workingOnIt = useState(false);
     final confirmDelete = useState(false);
     final selectedIndex = usePersistentSelection(
@@ -63,13 +74,8 @@ class GameSettingsPage extends HookConsumerWidget {
     final inPrompt = useState(false);
 
     void cycleEmulator(bool next) {
-      if (!customEmulators.hasValue) return;
-      final emulators = [
-        "default",
-        ...game.system.builtInEmulators.map((e) => e.id),
-        ...customEmulators.value!.map((e) => e.toEmulator().id),
-      ];
-      int index = emulators.indexWhere(
+      final emulatorIds = ["default", ...availableEmulators.map((e) => e.id)];
+      int index = emulatorIds.indexWhere(
         (id) => id == (gameEmulator.value?.emulator ?? "default"),
       );
       if (next) {
@@ -78,12 +84,12 @@ class GameSettingsPage extends HookConsumerWidget {
         index--;
       }
       if (index < 0) {
-        index = emulators.length - 1;
+        index = emulatorIds.length - 1;
       }
-      if (index >= emulators.length) {
+      if (index >= emulatorIds.length) {
         index = 0;
       }
-      final emulator = emulators[index];
+      final emulator = emulatorIds[index];
       ref
           .read(perGameConfigurationRepoProvider)
           .saveGameEmulator(game, emulator)
@@ -340,8 +346,9 @@ class GameSettingsPage extends HookConsumerWidget {
           subtitle: gameRa.when(
             data: (ra) {
               if (ra == null) return "Checking ROM hash...";
-              if (ra.raGameId == null)
+              if (ra.raGameId == null) {
                 return "No match for ROM hash in RA catalog";
+              }
               if (ra.numAchievements == 0) {
                 return "Matched (${ra.raTitle ?? 'Game'}) • 0 achievements";
               }
@@ -442,21 +449,17 @@ class GameSettingsPage extends HookConsumerWidget {
         trailing:
             gameEmulator.when(
                   data: (data) {
-                    return customEmulators.when(
-                      data: (customEmulators) {
-                        final emulators = [
-                          ...game.system.builtInEmulators,
-                          ...customEmulators.map((e) => e.toEmulator()),
-                        ];
-                        final emulator = emulators.firstWhereOrNull(
-                          (element) => element.id == data?.emulator,
-                        );
-                        return SelectorWidget(
-                          text: emulator?.name ?? "Default",
-                        );
-                      },
-                      loading: () => const CircularProgressIndicator(),
-                      error: (error, stack) => const Text("Error"),
+                    final emulator = availableEmulators.firstWhereOrNull(
+                      (element) => element.id == data?.emulator,
+                    );
+                    return SelectorWidget(
+                      text: emulator != null
+                          ? "${emulator.name}${emulator.isDaijisho
+                                ? " (Daijishō)"
+                                : emulator.isCustom
+                                ? " (Custom)"
+                                : ""}"
+                          : "Default",
                     );
                   },
                   loading: () => const CircularProgressIndicator(),

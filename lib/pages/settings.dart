@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:titanius/widgets/prompt_dialog.dart';
 import 'package:saf/saf.dart';
 
@@ -11,6 +12,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:titanius/data/android_apps.dart';
 import 'package:titanius/data/android_saf.dart';
 import 'package:titanius/data/daijisho.dart';
+import 'package:titanius/data/daijisho_platforms.dart';
 import 'package:titanius/data/emulators.dart';
 import 'package:titanius/data/games.dart';
 import 'package:titanius/data/models.dart';
@@ -100,6 +102,14 @@ class SettingsPage extends HookConsumerWidget {
         trailing: arrowRight,
         onTap: () {
           context.push("/settings/emulators");
+        },
+      ),
+      (
+        title: 'Refresh Daijishō Emulators',
+        subtitle: null as String?,
+        trailing: null as Widget?,
+        onTap: () {
+          _refreshDaijishoEmulators(context, ref);
         },
       ),
       (

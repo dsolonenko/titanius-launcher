@@ -133,6 +133,79 @@ void main() {
 
     expect(find.text('Selected 37'), findsOneWidget);
   });
+
+  testWidgets(
+    'controller grouped lists show the first group header at the top initially and when scrolling up',
+    (tester) async {
+      final selected = ValueNotifier<int>(0);
+      addTearDown(selected.dispose);
+
+      final elements = List.generate(
+        10,
+        (i) => i < 5 ? 'Built-In $i' : 'Daijisho $i',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: 320,
+              height: 200,
+              child: ValueListenableBuilder<int>(
+                valueListenable: selected,
+                builder: (context, index, _) =>
+                    ControllerGroupedListView<String, String>(
+                      selectedIndex: index,
+                      elements: elements,
+                      groupBy: (element) => element.startsWith('Built-In')
+                          ? 'Built-In'
+                          : 'Daijishō',
+                      groupSeparatorBuilder: (group) => SizedBox(
+                        key: ValueKey('header-$group'),
+                        height: 30,
+                        child: Text(group),
+                      ),
+                      indexedItemBuilder: (context, item, itemIndex) =>
+                          SizedBox(
+                            key: ValueKey('item-$itemIndex'),
+                            height: 40,
+                            child: Text(item),
+                          ),
+                    ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final listTop = tester.getTopLeft(find.byType(ControllerListView)).dy;
+      final headerTop = tester
+          .getTopLeft(find.byKey(const ValueKey('header-Built-In')))
+          .dy;
+      expect(headerTop, listTop);
+
+      // Navigate down into Daijisho
+      for (var i = 1; i <= 6; i++) {
+        selected.value = i;
+        await tester.pump();
+        await tester.pump();
+      }
+
+      // Now navigate back up to the first item (0)
+      for (var i = 5; i >= 0; i--) {
+        selected.value = i;
+        await tester.pump();
+        await tester.pump();
+      }
+
+      final headerTopAfterScrollUp = tester
+          .getTopLeft(find.byKey(const ValueKey('header-Built-In')))
+          .dy;
+      expect(headerTopAfterScrollUp, listTop);
+    },
+  );
 }
 
 class _PersistenceHarness extends StatefulWidget {

@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:titanius/data/daijisho_launcher.dart';
 import 'package:titanius/data/emulators.dart';
 import 'package:titanius/data/models.dart';
 import 'package:titanius/widgets/fade_image_to_video.dart';
@@ -580,35 +581,37 @@ class GamesPage extends HookConsumerWidget {
     final gameEmulator = await ref.read(
       perGameConfigurationProvider(game).future,
     );
-    final customEmulators = await ref.read(customEmulatorsProvider.future);
+    final alternativeEmulators = await ref.read(
+      alternativeEmulatorsProvider.future,
+    );
+    final systemEmus = alternativeEmulators.firstWhereOrNull(
+      (element) => element.system.id == game.system.id,
+    );
     if (gameEmulator != null && gameEmulator.emulator != "default") {
-      final emulators = [
-        ...game.system.builtInEmulators,
-        ...customEmulators.map((e) => e.toEmulator()),
-      ];
-      final emulator = emulators.firstWhereOrNull(
+      final emulator = systemEmus?.emulators.firstWhereOrNull(
         (element) => element.id == gameEmulator.emulator,
       );
       _launchGameWithEmulator(emulator, game);
     } else {
-      final alternativeEmulators = await ref.read(
-        alternativeEmulatorsProvider.future,
-      );
-      final emulators = alternativeEmulators.firstWhereOrNull(
-        (element) => element.system.id == game.system.id,
-      );
-      final emulator = emulators?.defaultEmulator;
+      final emulator = systemEmus?.defaultEmulator;
       _launchGameWithEmulator(emulator, game);
     }
   }
 
   void _launchGameWithEmulator(Emulator? emulator, Game game) {
-    debugPrint("Launching ${game.absoluteRomPath} with ${emulator?.id}");
-    emulator?.intent
-        .toIntent(game)
-        .then(
-          (intent) => intent.launch().catchError(handleIntentError(intent)),
-        );
+    if (emulator == null) return;
+    debugPrint("Launching ${game.absoluteRomPath} with ${emulator.id}");
+    if (emulator.isDaijisho) {
+      DaijishoLauncher.launch(emulator, game).catchError((e) {
+        Fluttertoast.showToast(msg: "Error launching emulator: $e");
+      });
+    } else {
+      emulator.intent
+          .toIntent(game)
+          .then(
+            (intent) => intent.launch().catchError(handleIntentError(intent)),
+          );
+    }
   }
 
   Widget _gameFolder(WidgetRef ref, BuildContext context, Game gameToShow) {

@@ -157,8 +157,14 @@ class Emulator {
   final String id;
   final String name;
   final LaunchIntent intent;
+  final String? amStartArguments;
 
-  Emulator({required this.id, required this.name, required this.intent});
+  Emulator({
+    required this.id,
+    required this.name,
+    required this.intent,
+    this.amStartArguments,
+  });
 
   factory Emulator.fromJson(Map<String, dynamic> json) {
     return Emulator(
@@ -171,11 +177,15 @@ class Emulator {
         args: Map<String, dynamic>.from(json['intent']['args'] ?? {}),
         flags: List<String>.from(json['intent']['flags'] ?? []),
       ),
+      amStartArguments: json['amStartArguments'],
     );
   }
 
   bool get isStandalone => intent.isStandalone;
   bool get isCustom => id.startsWith("custom:");
+  bool get isDaijisho => id.startsWith("daijisho:");
+  bool get isInternal => !isCustom && !isDaijisho;
+  bool get isBuiltIn => isInternal;
 }
 
 @JsonSerializable(explicitToJson: true)

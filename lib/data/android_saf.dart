@@ -89,6 +89,7 @@ Future<GrantedUri?> getMatchingPersistedUri(String filePath) async {
 }
 
 Future<SafDocumentFile?> getDocumentFile(String filePath) async {
+  if (!Platform.isAndroid) return null;
   final matchingUri = await getMatchingPersistedUri(filePath);
   if (matchingUri != null) {
     final len = matchingUri.grantedFullPath.length;
@@ -133,6 +134,63 @@ String pathToDocumentUri(String filePath) {
   return 'content://com.android.externalstorage.documents/document/${Uri.encodeComponent("primary:$path")}';
 }
 
+/// Constructs a full SAF Tree Document URI (`content://.../tree/<treeId>/document/<docId>`)
+/// matching the Uri format expected by standalone Android emulators (e.g. melonDS, Dolphin, PPSSPP).
+String pathToTreeDocumentUri(String filePath, {String? systemFolder}) {
+  String path = filePath.replaceAll(r'\', '/');
+  String storageRoot;
+  String relPath;
+  if (path.startsWith('/storage/emulated/0/')) {
+    storageRoot = 'primary';
+    relPath = path.substring('/storage/emulated/0/'.length);
+  } else if (path.startsWith('/sdcard/')) {
+    storageRoot = 'primary';
+    relPath = path.substring('/sdcard/'.length);
+  } else if (path.startsWith('/storage/')) {
+    final sub = path.substring('/storage/'.length);
+    final slash = sub.indexOf('/');
+    if (slash != -1) {
+      storageRoot = sub.substring(0, slash);
+      relPath = sub.substring(slash + 1);
+    } else {
+      storageRoot = 'primary';
+      relPath = path;
+    }
+  } else {
+    storageRoot = 'primary';
+    relPath = path.startsWith('/') ? path.substring(1) : path;
+  }
+
+  String treeRelPath;
+  if (systemFolder != null &&
+      systemFolder.isNotEmpty &&
+      relPath.contains(systemFolder)) {
+    final idx = relPath.indexOf(systemFolder);
+    treeRelPath = relPath.substring(0, idx + systemFolder.length);
+  } else {
+    final lastSlash = relPath.lastIndexOf('/');
+    treeRelPath = lastSlash != -1 ? relPath.substring(0, lastSlash) : relPath;
+  }
+
+  final treeId = '$storageRoot:$treeRelPath';
+  final docId = '$storageRoot:$relPath';
+
+  return 'content://com.android.externalstorage.documents/tree/${Uri.encodeComponent(treeId)}/document/${Uri.encodeComponent(docId)}';
+}
+
+/// Resolves the document URI for a ROM file, using persisted SAF DocumentFile if available,
+/// or falling back to canonical SAF tree document URI.
+Future<String> resolveDocumentUri(
+  String filePath, {
+  String? systemFolder,
+}) async {
+  final safDoc = await getDocumentFile(filePath);
+  if (safDoc != null) {
+    return safDoc.uri.toString();
+  }
+  return pathToTreeDocumentUri(filePath, systemFolder: systemFolder);
+}
+
 const platform = MethodChannel('file_utils');
 
 Future<String?> getMediaUri(String filePath) async {
@@ -141,8 +199,8 @@ Future<String?> getMediaUri(String filePath) async {
       'path': filePath,
     });
     return contentUri;
-  } on PlatformException catch (e) {
-    debugPrint('Error: ${e.message}');
+  } catch (e) {
+    debugPrint('Error: $e');
     return null;
   }
 }
