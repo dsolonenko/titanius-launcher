@@ -50,7 +50,7 @@ All credit goes to the original contributors. The images are loaded over network
 1. Expect some bugs.
 2. All ROMs metadata is stored in EmulationStation's `gamelist.xml` files.
 3. Offers minimal required functionality. If you're seeking something more robust, [Daijishō](https://github.com/magneticchen/Daijishou) or ES-DE (Andoroid) is highly recommended.
-4. Currently configured with [Retroarch 64-bit](https://buildbot.libretro.com/stable/1.15.0/android/RetroArch_aarch64.apk) and a few standalone emulators. For a list of supported systems and emulators, see this [JSON config file](assets/metadata.json).
+4. Supports fetching live emulators configurations from Daijisho (network access required) - recommend using them instead of deprecated built-in emulators.
 5. Can function as a home launcher or a standalone frontend.
 6. Relies on the controller, touch interface can be hit and miss
 
